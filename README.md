@@ -13,13 +13,13 @@
 
 Для функционирования системы рассылки уведомлений пользователям необходимо настроить подключение к почтовому серверу. В файле timesheet.properties для этого предназначены следующие свойства:
 
-mail.send.enable=false – глобальный флаг, позволяет полностью отключить email рассылку.
-mail.transport.protocol=smtp – протокол 
-mail.smtp.host=smtp.yandex.ru – адрес почтового сервера
-mail.smtp.auth=true – необходимость авторизации при отправке сообщений
-mail.smtp.port=25 – порт почтового сервера
-mail.username=username – имя почтового аккаунта
-mail.password=userpassword – пароль 
+*	mail.send.enable=false – глобальный флаг, позволяет полностью отключить email рассылку.
+*	mail.transport.protocol=smtp – протокол 
+*	mail.smtp.host=smtp.yandex.ru – адрес почтового сервера
+*	mail.smtp.auth=true – необходимость авторизации при отправке сообщений
+*	mail.smtp.port=25 – порт почтового сервера
+*	mail.username=username – имя почтового аккаунта
+*	mail.password=userpassword – пароль 
 
 Значения этих параметров могут различаться у различных почтовых хостеров. При значении параметра mail.send.enable=false подключение к smtp серверу не выполняется, поэтому настройки можно не делать.
 
@@ -31,12 +31,12 @@ mail.password=userpassword – пароль
 
 В файле конфигурации timesheet.properties изменить строки:
 
-ldap.userDn=cn=Manager,dc=example,dc=com
-ldap.password=secret
-ldap.base=dc=example,dc=com
-ldap.url=ldap://localhost:389
-ldap.domain=example.com
-ldap.search.pattern=(uid={0})
+*	ldap.userDn=cn=Manager,dc=example,dc=com
+*	ldap.password=secret
+*	ldap.base=dc=example,dc=com
+*	ldap.url=ldap://localhost:389
+*	ldap.domain=example.com
+*	ldap.search.pattern=(uid={0})
 
 В LDAP прописаны следующие пользователи:
 
@@ -52,11 +52,11 @@ ldap.search.pattern=(uid={0})
 
 В файле конфигурации timesheet.properties изменить строки:
 
-db.username=ИМЯ-ПОЛЬЗОВАТЕЛЯ
-db.password=ПАРОЛЬ
-db.driver=org.postgresql.Driver
-db.url=jdbc\:postgresql\://localhost\:5432/<наименование базы данных>
-db.dialect=org.hibernate.dialect.PostgreSQLDialect
+*	db.username=ИМЯ-ПОЛЬЗОВАТЕЛЯ
+*	db.password=ПАРОЛЬ
+*	db.driver=org.postgresql.Driver
+*	db.url=jdbc\:postgresql\://localhost\:5432/<наименование базы данных>
+*	db.dialect=org.hibernate.dialect.PostgreSQLDialect
 
 Запуск приложения
 -----------------
