@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<configuration debug="true">
+	
+	<contextName>TimeSheet</contextName>
+	
+	<property name="LOGS_PATH" value="logs/TimeSheet" />
+
+	<appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+			<pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{45} - %msg%n</pattern>
+		</encoder>
+	</appender>
+	
+	<appender name="timesheet" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOGS_PATH}/timesheet.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<fileNamePattern>${LOGS_PATH}/timesheet.%d{yyyy-MM-dd}.log</fileNamePattern>
+			<maxHistory>10</maxHistory>
+		</rollingPolicy>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+			<pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{45} - %msg%n</pattern>
+		</encoder>
+    </appender>
+    
+    <appender name="spring" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOGS_PATH}/spring.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<fileNamePattern>${LOGS_PATH}/spring.%d{yyyy-MM-dd}.log</fileNamePattern>
+			<maxHistory>10</maxHistory>
+		</rollingPolicy>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+			<pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{45} - %msg%n</pattern>
+		</encoder>
+    </appender>
+    
+    <appender name="hibernate" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOGS_PATH}/hibernate.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<fileNamePattern>${LOGS_PATH}/hibernate.%d{yyyy-MM-dd}.log</fileNamePattern>
+			<maxHistory>10</maxHistory>
+		</rollingPolicy>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+			<pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{45} - %msg%n</pattern>
+		</encoder>
+    </appender>
+    
+	<logger name="com.aplana.timesheet" level="debug">
+		<appender-ref ref="timesheet" />
+    </logger>
+
+	<logger name="org.springframework.core" level="info" additivity="false">
+		<appender-ref ref="spring" />
+	</logger>
+
+	<logger name="org.springframework.beans" level="info" additivity="false">
+		<appender-ref ref="spring" />
+	</logger>
+	
+	<logger name="org.springframework.context" level="info" additivity="false">
+		<appender-ref ref="spring" />
+	</logger>
+
+	<logger name="org.springframework.web" level="info" additivity="false">
+		<appender-ref ref="spring" />
+	</logger>
+	
+	<logger name="org.hibernate" level="info" additivity="false">
+		<appender-ref ref="hibernate" />
+	</logger>
+	
+	<logger name="org.hibernate.tool" level="debug" additivity="false">
+		<appender-ref ref="hibernate" />
+	</logger>
+
+	<root level="debug">
+		<appender-ref ref="console" />
+	</root>
+
+</configuration>

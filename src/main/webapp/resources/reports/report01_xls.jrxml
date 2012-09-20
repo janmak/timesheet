@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="report4" pageWidth="842" pageHeight="595" orientation="Landscape" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20">
+	<property name="net.sf.jasperreports.print.keep.full.text" value="true"/>
+	<property name="ireport.zoom" value="2.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<import value="com.aplana.timesheet.util.DateTimeUtil"/>
+	<style name="Normal" isDefault="true" fontSize="8" pdfFontName="arial.ttf" pdfEncoding="Cp1251"/>
+	<style name="Title" isDefault="false" style="Normal" fontName="Arial" fontSize="26"/>
+	<style name="SubTitle" isDefault="false" style="Normal" forecolor="#666666"/>
+	<style name="SubTitle 2" isDefault="false" style="Normal" forecolor="#666666"/>
+	<style name="Group Header 1" isDefault="false" style="Normal" forecolor="#666666"/>
+	<style name="Group Header 2" isDefault="false" style="Normal" forecolor="#666666" isBold="true"/>
+	<style name="Group Header 3" isDefault="false" style="Normal" forecolor="#000000" isBold="true"/>
+	<style name="Column header" isDefault="false" style="Normal" forecolor="#666666" isBold="true"/>
+	<style name="Detail" isDefault="false" style="Normal" backcolor="#FF0000"/>
+	<parameter name="reportParams" class="com.aplana.timesheet.reports.Report01" isForPrompting="false"/>
+	<field name="name" class="java.lang.String"/>
+	<field name="caldate" class="java.sql.Timestamp"/>
+	<field name="projnames" class="java.lang.String"/>
+	<field name="overtime" class="java.lang.Double"/>
+	<field name="duration" class="java.lang.Double"/>
+	<field name="holiday" class="java.lang.Object"/>
+	<field name="region" class="java.lang.Integer"/>
+	<field name="projdetail" class="java.lang.String"/>
+	<field name="durationdetail" class="java.lang.Double"/>
+	<group name="GroupByName">
+		<groupExpression><![CDATA[$F{name}]]></groupExpression>
+	</group>
+	<group name="GroupByOvertime">
+		<groupExpression><![CDATA[new Boolean($F{holiday}==null)]]></groupExpression>
+		<groupHeader>
+			<band height="13">
+				<textField evaluationTime="Group" evaluationGroup="GroupByOvertime">
+					<reportElement style="Group Header 2" x="0" y="0" width="146" height="13"/>
+					<textElement/>
+					<textFieldExpression class="java.lang.String"><![CDATA[$F{name}]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupHeader>
+	</group>
+	<group name="GroupByDate">
+		<groupExpression><![CDATA[new SimpleDateFormat("dd-MM-yyyy").format($F{caldate})]]></groupExpression>
+	</group>
+	<title>
+		<band height="138" splitType="Stretch">
+			<staticText>
+				<reportElement style="Title" x="0" y="0" width="555" height="90"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<text><![CDATA[Отчет №1. Переработки, работа в выходные и праздничные дни]]></text>
+			</staticText>
+			<textField>
+            	<reportElement style="SubTitle" x="0" y="90" width="555" height="24"/>
+            	<textElement textAlignment="Center"/>
+            	<textFieldExpression class="java.lang.String"><![CDATA["Регион : "+ $P{reportParams}.getRegionName()]]></textFieldExpression>
+            </textField>
+			<textField>
+				<reportElement style="SubTitle" x="0" y="114" width="555" height="24"/>
+				<textElement textAlignment="Center"/>
+				<textFieldExpression class="java.lang.String"><![CDATA["с " + DateTimeUtil.formatDateString($P{reportParams}.getBeginDate()) +
+" по " + DateTimeUtil.formatDateString($P{reportParams}.getEndDate())]]></textFieldExpression>
+			</textField>
+		</band>
+	</title>
+	<columnHeader>
+		<band height="13" splitType="Stretch">
+			<staticText>
+				<reportElement style="Column header" x="0" y="0" width="146" height="13"/>
+				<textElement/>
+				<text><![CDATA[Сотрудник]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="Column header" x="146" y="0" width="103" height="13"/>
+				<textElement/>
+				<text><![CDATA[Дата]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="Column header" x="249" y="0" width="244" height="13"/>
+				<textElement/>
+				<text><![CDATA[Проект / пресейл]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="Column header" x="493" y="0" width="60" height="13"/>
+				<textElement/>
+				<text><![CDATA[Часы]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="Column header" x="553" y="0" width="90" height="13"/>
+				<textElement/>
+				<text><![CDATA[Тип]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="13">
+			<printWhenExpression><![CDATA[$F{holiday} == null ? Boolean.TRUE:Boolean.FALSE]]></printWhenExpression>
+			<textField>
+				<reportElement style="Detail" x="0" y="0" width="146" height="13"/>
+				<textElement/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{name}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement style="Detail" x="146" y="0" width="103" height="13"/>
+				<textElement/>
+				<textFieldExpression class="java.lang.String"><![CDATA[new SimpleDateFormat("dd-MM-yyyy").format($F{caldate})]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement style="Detail" x="249" y="0" width="244" height="13"/>
+				<textElement/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{projnames}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement style="Detail" x="493" y="0" width="60" height="13"/>
+				<textElement/>
+				<textFieldExpression class="java.lang.Double"><![CDATA[$F{overtime}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement style="Detail" x="553" y="0" width="90" height="13"/>
+				<textElement/>
+				<textFieldExpression class="java.lang.String"><![CDATA["Переработка"]]></textFieldExpression>
+			</textField>
+		</band>
+		<band height="13">
+			<printWhenExpression><![CDATA[$F{holiday} != null ? Boolean.TRUE:Boolean.FALSE]]></printWhenExpression>
+			<textField>
+				<reportElement style="Detail" x="0" y="0" width="146" height="13"/>
+				<textElement/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{name}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement style="Detail" x="249" y="0" width="244" height="13"/>
+				<textElement/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{projdetail}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement style="Detail" x="493" y="0" width="60" height="13"/>
+				<textElement/>
+				<textFieldExpression class="java.lang.Double"><![CDATA[$F{durationdetail}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement style="Detail" x="146" y="0" width="103" height="13"/>
+				<textElement/>
+				<textFieldExpression class="java.lang.String"><![CDATA[new SimpleDateFormat("dd-MM-yyyy").format($F{caldate})]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement style="Detail" x="553" y="0" width="90" height="13"/>
+				<textElement/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{region} == null?"Общий выходной":"Региональный выходной"]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>

@@ -1,0 +1,103 @@
+#set ($tsRows = $tsForm.getTimeSheetTablePart())
+#set ($isProblems = $false) 
+#set ($projectName = $"")
+#set ($plan = $tsForm.getPlanEscaped())
+#if ($tsRows != $null)
+	<ul>			
+	<li><h2><b>Что было сделано:</b></h2></li>
+	<ol>
+	#foreach($tsRow in $tsRows)
+		#set ($cqId = $"")
+		#set ($duration = $"")
+		#set ($description = $"")
+		#set ($actTypeId = $"")
+		#set ($actCatId = $"")
+		#set ($projectId = $"")
+		#set ($problem = $"")
+		#set ($cqId = $tsRow.getCqId())
+		#set ($duration = $tsRow.getDuration())
+		#set ($description = $tsRow.getDescriptionEscaped())
+		#set ($actTypeId = $tsRow.getActivityTypeId())
+		#set ($actCatId = $tsRow.getActivityCategoryId())
+		#set ($projectId = $tsRow.getProjectId())
+		#set ($problem = $tsRow.getProblemEscaped())
+		#if ($projectId != $null)
+			#set ($projectName = $projectService.find($projectId).getName())
+		#end
+		#if ($problem != $null && $problem.equals($"") != $true)
+			#set ($isProblems = $true)
+		#end 
+	<li>
+		<b> $dictionaryItemService.find($actTypeId).getValue() </b>
+		#if ($actTypeId <= 13) 
+		<b> $projectName </b>
+		#end
+		#if ($actCatId != $null && $actCatId > 0) 
+		<b> - $dictionaryItemService.find($actCatId).getValue() </b>
+		#end
+		#if ($cqId != $null && $cqId.equals($"") != $true) 
+		<b> - $cqId </b>
+		#end
+		#if ($duration != $null && $duration.equals($"") != $true) 
+		<b> ( $duration ч.)</b>
+		#end
+		#if ($description.equals($"") != $true) 
+		<b>: </b><br>
+			#set ($descriptionStrings = $description.split("\n"))
+			#foreach ($descriptionString in $descriptionStrings)
+		<span>$descriptionString</span><br>
+			#end
+		#end
+	</li>
+	#end
+	</ol>
+	#if ($isProblems == $true)
+	<li><h2><b>Какие проблемы возникли:</b></h2></li>
+	<ol>
+		#foreach($tsRow in $tsRows)
+			#set ($problem = $"")
+			#set ($actTypeId = $"")
+			#set ($actCatId = $"")
+			#set ($projectId = $"")
+			#set ($problem = $tsRow.getProblemEscaped())
+			#set ($actTypeId = $tsRow.getActivityTypeId())
+			#set ($actCatId = $tsRow.getActivityCategoryId())
+			#set ($projectId = $tsRow.getProjectId())
+			#if ($projectId != $null)
+				#set ($projectName = $projectService.find($projectId).getName())
+			#end
+			#if ($problem != $null && $problem.equals($"") != $true) 
+	<li>
+		<b> $dictionaryItemService.find($actTypeId).getValue() </b>
+				#if ($actTypeId <= 13) 
+		<b>	$projectName </b>
+				#end
+		<b>: </b><br> 
+				#set ($problemStrings = $problem.split("\n"))
+				#foreach ($problemString in $problemStrings)
+		<span>$problemString</span><br>
+				#end
+	</li>
+			#end
+		#end 
+	</ol>
+	#end
+	#if ($plan != $null && $plan.equals($"") != $true)
+	<li><h2><b>Что планируется сделать на следующий день:</b></h2></li>
+		#set ($planStrings = $plan.split("\n"))
+		#foreach ($planString in $planStrings)
+	<span>$planString</span><br>
+		#end
+	#end
+	</ul>
+#else
+	#if ($tsRows == $null && ($tsForm.isLongIllness() || $tsForm.isLongVacation()))
+		#if ($tsForm.isLongIllness()) 
+	<p>Болезнь с 
+		#elseif ($tsForm.isLongVacation())  
+	<p>Отпуск с 
+		#end
+ 	$DateTimeUtil.formatDateString($tsForm.getBeginLongDate()) по  $DateTimeUtil.formatDateString($tsForm.getEndLongDate())</p>
+	#end
+#end
+<h4>Отправил пользователь $senderName</h4>

@@ -1,0 +1,57 @@
+<%@page contentType="text/html" pageEncoding="UTF-8" %>
+
+<%@ taglib uri="http://www.opensymphony.com/sitemesh/decorator" prefix="decorator" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ include file="../includes/cache.jsp" %>
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+
+<head>
+    <c:if test="${NoPageFormat == null}">
+        <%@ include file="../includes/meta.jsp" %>
+        <%@ include file="../includes/style.jsp" %>
+        <%@ include file="../includes/js.jsp" %>
+    </c:if>
+
+    <c:choose>
+        <c:when test="${NoPageFormat == null}">
+            <title><decorator:title default="TimeSheet"/></title>
+        </c:when>
+        <c:otherwise>
+            <title><decorator:title default="Отчет"/></title>
+        </c:otherwise>
+    </c:choose>
+
+    <link rel="icon" type="image/icon" href="/resources/ico/favicon.ico"/>
+    <decorator:head/>
+</head>
+
+<body class="tundra">
+
+<c:if test="${NoPageFormat == null}">
+    <div id="header">
+        <%@ include file="../includes/header.jsp" %>
+    </div>
+    <!-- header -->
+
+    <div class="info-gray">
+        <div id="indicator">Ваш браузер не поддерживает cookies!</div>
+    </div>
+</c:if>
+
+<div id="home-content">
+    <decorator:body/>
+</div>
+<!-- home-content -->
+
+<c:if test="${NoPageFormat == null}">
+    <div id="footer">
+        <%@ include file="../includes/footer.jsp" %>
+    </div>
+</c:if>
+<!-- footer -->
+
+</body>
+
+</html>

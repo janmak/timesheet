@@ -1,0 +1,25 @@
+<h1 align="justify"><b>Необходимо в течение рабочего дня в обязательном порядке заполнить отчеты за предшествующие рабочие дни</b></h1>
+<table border = "2">
+      <tr>
+        <td><b>Сотрудник</b></td>
+        <td><b>Должность</b></td>
+        <td><b>Руководитель</b></td>
+        <td><b>Пропущенные дни</b></td>
+      </tr>
+      <tr>
+        <td><b>$currentReportCheck.employee.name </b></td>
+        <td><b>$currentReportCheck.employee.job.name </b></td>
+        <td><b> 
+        	#if ($currentReportCheck.employee.manager != $null)
+			$currentReportCheck.employee.manager.name
+			#end 
+		</b></td>
+        <td>
+		<ol>
+			#foreach($day in $currentReportCheck.passedDays)
+			<li><b> $day </b></li>		
+			#end
+		</ol>
+        </td>
+      </tr>
+</table>

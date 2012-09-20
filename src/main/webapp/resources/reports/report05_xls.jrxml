@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="report4" pageWidth="842" pageHeight="595" orientation="Landscape" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20">
+	<property name="net.sf.jasperreports.print.keep.full.text" value="true"/>
+	<property name="ireport.zoom" value="1.5"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<import value="com.aplana.timesheet.util.DateTimeUtil"/>
+	<style name="Normal" isDefault="true" fontSize="8" pdfFontName="arial.ttf" pdfEncoding="Cp1251"/>
+	<style name="Title" isDefault="false" style="Normal" fontName="Arial" fontSize="26"/>
+	<style name="SubTitle" isDefault="false" style="Normal" forecolor="#666666"/>
+	<style name="SubTitle 2" isDefault="false" style="Normal" forecolor="#666666"/>
+	<style name="Group Header 1" isDefault="false" style="Normal" forecolor="#666666"/>
+	<style name="Group Header 2" isDefault="false" style="Normal" forecolor="#666666" isBold="true"/>
+	<style name="Group Header 3" isDefault="false" style="Normal" forecolor="#000000" isBold="true"/>
+	<style name="Column header" isDefault="false" style="Normal" forecolor="#666666" isBold="true"/>
+	<style name="Detail" isDefault="false" style="Normal" backcolor="#FF0000"/>
+	<parameter name="reportParams" class="com.aplana.timesheet.reports.Report05" isForPrompting="false"/>
+	<field name="calDate" class="java.sql.Timestamp"/>
+	<field name="name" class="java.lang.String"/>
+	<field name="value" class="java.lang.String"/>
+	<field name="pctName" class="java.lang.String"/>
+	<field name="actType" class="java.lang.String"/>
+	<field name="pctRole" class="java.lang.String"/>
+	<field name="taskName" class="java.lang.String"/>
+	<field name="duration" class="java.lang.Double"/>
+	<field name="description" class="java.lang.String"/>
+	<field name="problem" class="java.lang.String"/>
+	<group name="Group1">
+		<groupExpression><![CDATA[$F{name}]]></groupExpression>
+		<groupHeader>
+			<band height="13">
+				<textField>
+					<reportElement style="Group Header 1" x="0" y="0" width="150" height="13"/>
+					<textElement/>
+					<textFieldExpression class="java.lang.String"><![CDATA[$F{name}]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupHeader>
+	</group>
+	<group name="Group2">
+		<groupExpression><![CDATA[new SimpleDateFormat("dd-MM-yyyy").format($F{calDate})]]></groupExpression>
+		<groupHeader>
+			<band height="13">
+				<textField>
+					<reportElement style="SubTitle" x="0" y="0" width="150" height="13"/>
+					<textElement/>
+					<textFieldExpression class="java.lang.String"><![CDATA[$F{name}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement style="SubTitle" x="150" y="0" width="80" height="13"/>
+					<textElement/>
+					<textFieldExpression class="java.lang.String"><![CDATA[new SimpleDateFormat("dd-MM-yyyy").format($F{calDate})]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupHeader>
+	</group>
+	<title>
+		<band height="125" splitType="Stretch">
+			<staticText>
+				<reportElement style="Title" x="0" y="0" width="910" height="77"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<text><![CDATA[Отчет №5. Детализация трудозатрат для СК]]></text>
+			</staticText>
+            <textField>
+                <reportElement style="SubTitle" x="0" y="77" width="910" height="24"/>
+                <textElement textAlignment="Center"/>
+                <textFieldExpression class="java.lang.String"><![CDATA["Регион : "+ $P{reportParams}.getRegionName()]]></textFieldExpression>
+            </textField>
+			<textField>
+				<reportElement style="SubTitle" x="0" y="101" width="910" height="24"/>
+				<textElement textAlignment="Center"/>
+				<textFieldExpression class="java.lang.String"><![CDATA["с " + DateTimeUtil.formatDateString($P{reportParams}.getBeginDate()) +
+" по " + DateTimeUtil.formatDateString($P{reportParams}.getEndDate())]]></textFieldExpression>
+			</textField>
+		</band>
+	</title>
+	<pageHeader>
+		<band splitType="Stretch"/>
+	</pageHeader>
+	<columnHeader>
+		<band height="13" splitType="Stretch">
+			<staticText>
+				<reportElement style="Column header" x="0" y="0" width="150" height="13"/>
+				<textElement/>
+				<text><![CDATA[Сотрудник]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="Column header" x="150" y="0" width="80" height="13"/>
+				<textElement/>
+				<text><![CDATA[Дата списания]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="Column header" x="230" y="0" width="100" height="13"/>
+				<textElement/>
+				<text><![CDATA[Тип активности]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="Column header" x="330" y="0" width="100" height="13"/>
+				<textElement/>
+				<text><![CDATA[Название проекта]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="Column header" x="430" y="0" width="100" height="13"/>
+				<textElement/>
+				<text><![CDATA[Проектная роль]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="Column header" x="530" y="0" width="90" height="13"/>
+				<textElement/>
+				<text><![CDATA[Категория активности]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="Column header" x="620" y="0" width="60" height="13"/>
+				<textElement/>
+				<text><![CDATA[Задача]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="Column header" x="680" y="0" width="50" height="13"/>
+				<textElement/>
+				<text><![CDATA[Часы]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="Column header" x="730" y="0" width="90" height="13"/>
+				<textElement/>
+				<text><![CDATA[Комментарии]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="Column header" x="820" y="0" width="90" height="13"/>
+				<textElement/>
+				<text><![CDATA[Проблемы]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="13">
+			<textField>
+				<reportElement style="Detail" x="0" y="0" width="150" height="13" forecolor="#000000" backcolor="#CCCCCC"/>
+				<textElement/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{name}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement style="Detail" x="150" y="0" width="80" height="13" forecolor="#000000" backcolor="#CCCCCC"/>
+				<textElement/>
+				<textFieldExpression class="java.lang.String"><![CDATA[new SimpleDateFormat("dd-MM-yyyy").format($F{calDate})]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement style="Detail" x="230" y="0" width="100" height="13"/>
+				<textElement/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{value}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement style="Detail" x="330" y="0" width="100" height="13"/>
+				<textElement/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{pctName}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement style="Detail" x="430" y="0" width="100" height="13"/>
+				<textElement/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{pctRole}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement style="Detail" x="530" y="0" width="90" height="13"/>
+				<textElement/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{actType}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement style="Detail" x="620" y="0" width="60" height="13"/>
+				<textElement/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{taskName}]]></textFieldExpression>
+			</textField>
+			<textField pattern="###0.0">
+				<reportElement style="Detail" x="680" y="0" width="50" height="13"/>
+				<textElement/>
+				<textFieldExpression class="java.lang.Double"><![CDATA[$F{duration}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement style="Detail" x="730" y="0" width="90" height="13"/>
+				<textElement/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{description}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement style="Detail" x="820" y="0" width="90" height="13"/>
+				<textElement/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{problem}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<summary>
+		<band splitType="Stretch"/>
+	</summary>
+</jasperReport>

@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns="http://www.springframework.org/schema/mvc"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:beans="http://www.springframework.org/schema/beans"
+	xsi:schemaLocation="http://www.springframework.org/schema/mvc 
+        				http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd
+        				http://www.springframework.org/schema/beans 
+        				http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+
+	<beans:bean id="placeholderConfig"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<beans:property name="location" value="file:webapps\timesheet.properties" />
+	</beans:bean>
+	
+	<annotation-driven />
+
+	<beans:bean id="employeeLdapServiceJob"
+ 		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<beans:property name="targetObject" ref="employeeLdapService" />
+		<beans:property name="targetMethod" value="synchronize" />
+	</beans:bean>
+
+	<beans:bean id="employeeLdapServiceCronTrigger"
+		class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<beans:property name="jobDetail" ref="employeeLdapServiceJob" />
+		<beans:property name="cronExpression" value="${scheduler.ldap}" />
+	</beans:bean>
+
+	<beans:bean id="oqProjectSyncServiceJob"
+				class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<beans:property name="targetObject" ref="oqProgectSyncService" />
+		<beans:property name="targetMethod" value="sync" />
+	</beans:bean>
+
+    <!--
+      Синхронизация с OQ отключена.
+	<beans:bean id="oqProjectSyncServiceCronTrigger"
+				class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<beans:property name="jobDetail" ref="oqProjectSyncServiceJob" />
+		<beans:property name="cronExpression" value="${scheduler.oq}" />
+	</beans:bean>
+	-->
+	
+	<beans:bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+		<beans:property name="jobDetails">
+			<beans:list>
+				<beans:ref bean="employeeLdapServiceJob" />
+				<beans:ref bean="oqProjectSyncServiceJob" />
+			</beans:list>
+		</beans:property>
+		<beans:property name="triggers">
+			<beans:list>
+				<beans:ref bean="employeeLdapServiceCronTrigger" />
+				<!-- Синхронизация с OQ отключена.
+				<beans:ref bean="oqProjectSyncServiceCronTrigger" />-->
+			</beans:list>
+		</beans:property>
+	</beans:bean>
+
+	<beans:bean id="reportCheckService" 
+		class="com.aplana.timesheet.service.ReportCheckService" />
+		
+	<beans:bean id="reportCheckServiceJob" 
+ 		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<beans:property name="targetObject" ref="reportCheckService" />
+		<beans:property name="targetMethod" value="storeReportCheck" />
+	</beans:bean>
+	
+	<beans:bean id="reportCheckServiceCronTrigger"
+		class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<beans:property name="jobDetail" ref="reportCheckServiceJob" />
+		<beans:property name="cronExpression" value="${scheduler.reportcheck}" />
+	</beans:bean>
+	
+	<beans:bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+		<beans:property name="jobDetails">
+			<beans:list>
+				<beans:ref bean="reportCheckServiceJob" />
+			</beans:list>
+		</beans:property>
+		<beans:property name="triggers">
+			<beans:list>
+				<beans:ref bean="reportCheckServiceCronTrigger" />
+			</beans:list>
+		</beans:property>
+	</beans:bean>
+
+</beans:beans>

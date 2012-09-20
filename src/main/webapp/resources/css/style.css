@@ -1,0 +1,369 @@
+table {
+    border-collapse: collapse;
+}
+
+td {
+    border: #AAA solid 1px;
+}
+
+form.noborder table textarea, form.noborder table select, form.noborder table input {
+    border: 0px;
+}
+
+form select, form input:not([type="checkbox"]) {
+    width: 100%;
+}
+
+th {
+    border: #AAA solid 1px;
+    background: #DDD;
+    height: 25px;
+    color: #666;
+    font-weight: bold;
+    text-align: center;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    color: #666;
+}
+
+#header {
+    height: 105px;
+    background: url("../img/header_bg.png") repeat-x;
+}
+
+#header_text {
+    text-align: center;
+    padding-top: 3px;
+    font-size: 24px;
+    color: #888;
+}
+
+div.menu_holder {
+    padding-top: 40px;
+}
+
+div.menu_holder ul {
+    list-style-type: none;
+    margin: auto;
+    padding-left: 0px;
+}
+
+.employee_name {
+    float: right;
+    padding-right: 32px;
+    padding-left: 32px;
+    display: block;
+    line-height: 35px;
+    font-size: 14px;
+    color: #371C1C;
+}
+
+div.menu_holder li {
+    float: left;
+}
+
+div.menu_holder ul a{
+    padding-right: 32px;
+    padding-left: 32px;
+    display: block;
+    line-height: 35px;
+    font-size: 14px;
+    color: #371C1C;
+}
+
+div.menu_holder ul a:hover {
+    text-decoration: none;
+}
+
+
+#logo {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    float: left;
+    margin: 5px;
+}
+
+#indicator {
+    position: absolute;
+    top: 87px;
+    left: 10px;
+    float: left;
+    margin: 5px;
+    color: red;
+    display: none;
+}
+
+#home-content {
+    margin-left: 10px;
+}
+
+#form_header, #form_table, #form_footer {
+    margin: 10px 0;
+}
+
+#total_duration_row {
+    font-weight: bold;
+    color: #666;
+}
+
+#plan {
+    border: #AAA solid 1px;
+}
+
+#link_on_cqid_html {
+    width: 900px;
+    text-align: right;
+    font-weight: bold;
+    color: #666;
+}
+
+#vacation_ill {
+    font: 12px;
+    color: #666;
+}
+
+.clear {
+    clear: both;
+}
+
+.top_align {
+    vertical-align: top;
+}
+
+.time_sheet_row {
+}
+
+.label {
+    margin: 0 5px;
+}
+
+.text_right_align {
+    text-align: right;
+}
+
+.text_center_align {
+    text-align: center;
+}
+
+.pointer {
+    text-align: center;
+    cursor:pointer;
+}
+.errors_box {
+    background: #F9F7BA;
+    width: 630px;
+    padding: 5px;
+    color: #F00;
+}
+
+.info-gray {
+    border: solid 1px #DEDEDE;
+    background: #EFEFEF;
+    color: #222222;
+    padding: 4px;
+    text-align: center;
+    font-weight: bold;
+}
+
+.info-gray a {
+    text-decoration: none;
+}
+
+.no_border {
+    border: 0px;
+}
+
+.without_dojo {
+    width: 200px;
+    height: 22px !important;
+    margin: 0 0.1em;
+    background-color: transparent !important;
+    vertical-align: middle !important;
+    border: #AAA solid 1px;
+    font: 12px;
+}
+
+.checkbox_without_dojo {
+    width: 23px;
+    font: 12px;
+    margin: 5px 5px 5px 0px;
+}
+
+.date_picker {
+    width: 198px;
+    margin-left: 1px !important;
+    height: 22px !important;
+
+}
+
+/*блок стилей для тултипа*/
+#text {
+    margin: 50px auto;
+    width: 500px
+}
+
+.hotspot {
+    color: #900;
+    padding-bottom: 1px;
+    border-bottom: 1px dotted #900;
+    cursor: pointer
+}
+
+#tt {
+    position: absolute;
+    display: block;
+
+}
+
+#tttop {
+    display: block;
+    height: 5px;
+    margin-left: 5px;
+    overflow: hidden;
+}
+
+#ttcont {
+    font: 10.5px;
+    display: block;
+    padding: 2px 12px 3px 7px;
+    margin-left: 5px;
+    /*цвет фона хинта*/
+    background: #eee;
+    /*цвет текста*/
+    color: #666;
+}
+
+#ttbot {
+    display: block;
+    height: 5px;
+    margin-left: 5px;
+    overflow: hidden;
+}
+
+.divOption {
+}
+
+#name_email {
+    display: none;
+}
+
+.maskable {
+    background: gray url("../img/loading.gif") no-repeat center;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    left: 0;
+    top: 0;
+    opacity: 0.5;
+    z-index: 100;
+    display: none;
+}
+
+.masked {
+    display: block;
+}
+
+.duration {
+    padding-right: 2px;
+    width: 35px !important;
+}
+
+.login_div {
+    margin-top: 40px;
+    text-align: center;
+    font-size: 1.1em;
+}
+
+.login_table {
+    margin: 0 auto;
+    border-collapse: separate;
+}
+
+.login_table td {
+    border: none;
+}
+
+.login_table input {
+    border: solid 1px;
+}
+
+.login-field {
+    margin: 0 auto;
+    width: 300px;
+}
+
+.authBlock {
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    width: 300px;
+    padding: 10px;
+    margin: 0 auto;
+}
+
+.authTitle {
+    font-weight: bold;
+    border-bottom: 1px solid #ccc;
+    height: 30px;
+    line-height: 20px;
+    /*padding-left: 20px;*/
+}
+
+.authForm {
+    padding: 10px;
+    text-align: center;
+}
+
+.authForm input {
+    font-size: 14px;
+    color: #333;
+    text-align: center;
+    width: 150px;
+}
+
+.authForm .btnSend {
+    margin-top: 10px;
+    padding: 0 20px 0 20px;
+    width: 100px;
+}
+
+.errorblock {
+    color: #ff0000;
+    background-color: #ffEEEE;
+    border: 3px solid #ff0000;
+    padding: 8px;
+    margin: 16px;
+}
+
+div.radiogroup {
+    margin: 5px 0px;
+    width: 200px;
+}
+
+div.radiogroup div.label {
+    margin: 0;
+    padding: 0;
+    margin-left: 5px;
+}
+
+ul.radio {
+    margin: 0;
+    padding: 0;
+    margin-left: 5px;
+    list-style: none;
+}
+
+ul.radio input {
+    width: auto;
+    margin-right: 5px;
+}
+
+table.report_params {
+    border-collapse: separate;
+}
+
+table.report_params td {
+    border: 0;
+    height: 32px;
+}
