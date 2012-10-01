@@ -2,6 +2,7 @@ package com.aplana.timesheet.dao.entity;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
+import java.util.Iterator;
 import java.util.Set;
 
 @Entity

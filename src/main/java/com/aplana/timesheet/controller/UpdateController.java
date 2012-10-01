@@ -1,5 +1,6 @@
 package com.aplana.timesheet.controller;
 
+import com.aplana.timesheet.service.DivisionService;
 import com.aplana.timesheet.service.EmployeeLdapService;
 import com.aplana.timesheet.service.OQProjectSyncService;
 import com.aplana.timesheet.service.ReportCheckService;
@@ -16,6 +17,9 @@ public class UpdateController {
 
     @Autowired
     private EmployeeLdapService employeeLdapService;
+	
+	@Autowired
+	private DivisionService divisionService;
 
     public void setEmployeeLdapService(EmployeeLdapService employeeLdapService) {
         this.employeeLdapService = employeeLdapService;
@@ -37,6 +41,13 @@ public class UpdateController {
         this.employeeLdapService.synchronize();
         model.addAttribute("trace", this.employeeLdapService.getTrace().replaceAll("\n", "<br/>"));
         return "updateLDAP";
+    }
+	
+	@RequestMapping(value = "/update/ldapDivisions")
+    public String ldapDivisionsUpdate(Model model) {
+		StringBuffer sb = this.divisionService.synchronize();
+		model.addAttribute("trace", sb.toString().replaceAll("\n", "<br/>"));
+        return "updateDivisionsLDAP";
     }
 
     @RequestMapping(value = "/update/checkreport")

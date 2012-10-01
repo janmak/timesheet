@@ -7,16 +7,19 @@ import com.aplana.timesheet.dao.entity.ProjectRole;
 import com.aplana.timesheet.dao.entity.Region;
 import com.aplana.timesheet.dao.entity.ldap.EmployeeLdap;
 import com.aplana.timesheet.util.DateTimeUtil;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.xml.XmlBeanFactory;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Service("employeeLdapService")
 public class EmployeeLdapService {
@@ -50,17 +53,13 @@ public class EmployeeLdapService {
 		logger.info("Synchronization with ldap started.");
 		trace.append("Synchronization with ldap started.\n\n");
 		try {
-			//Resource resource = new ClassPathResource("WEB-INF/springldap.xml");
-			//BeanFactory factory = new XmlBeanFactory(resource);
-			//EmployeeLdapDAO employeeLdapDao = (EmployeeLdapDAO) factory.getBean("ldapEmployee");
-
             //Синхронизируем руководителей подразделений.
 			syncDivisionLeaders(employeeLdapDao);
 
 			//Синхронизируем активных сотрудников.
 		    syncActiveEmployees(employeeLdapDao);
 
-//			//Синхронизируем уволенных сотрудников
+			//Синхронизируем уволенных сотрудников
 			syncDisabledEmployees(employeeLdapDao);
 		} catch (DataAccessException e) {
 			logger.error("Error occured " + e.getCause());
@@ -95,21 +94,15 @@ public class EmployeeLdapService {
             if (empDb.getEndDate()==null)
             {
                 for (EmployeeLdap empLdap : disabledEmployeesLdap) {
-                    //если совпадают имена и подразделения
-                    if (empDb.getName().equals(empLdap.getDisplayName())
-                            && empDb.getDivision().getLdapName().equals(empLdap.getDepartment())) {
+                    if(empDb.getLdap().equals(empLdap.getObjectSid())) {
                         logger.debug("Employee {} disabled in ldap, but active in db.", empLdap.getDisplayName());
                         logger.debug("And was marked like archived.");
-
-                        //archived больше не используется
-                        //empDb.setArchived(true);
 
                         //проставляем дату увольнения
                         //дата проставляется текущей датой синхронизации
                         //тк в LDAP нет точной даты увольнения
                         empDb.setEndDate(new Timestamp((new Date()).getTime()));
                         empsToSync.add(empDb);
-                        //trace.append("Add disable user:").append(empDb.getName()+" "+empDb.getEmail()).append("\n\n");
                     }
                 }
             }
@@ -133,14 +126,15 @@ public class EmployeeLdapService {
 		for (Division division : divisions) {
             //Division division=divisions.get(0);
 			List<EmployeeLdap> divLeader = employeeLdapDao
-				.getDivisionLeader(division.getLeader(), division.getLdapName());
+				.getDivisionLeader(division.getLeader().getName(), division.getLdapName());
 			logger.debug("Division '{}' has {} leader", division.getLdapName(), divLeader.size());
             Employee manager = new Employee();
             EmployeeLdap managerLdap = divLeader.get(0);
 
             manager.setName(managerLdap.getDisplayName());
             manager.setDivision(divisionService.find(managerLdap.getDepartment()));
-            manager.setStartDate(DateTimeUtil.ldapDateToTimestamp(managerLdap.getWhenCreated()));
+            //manager.setStartDate(DateTimeUtil.ldapDateToTimestamp(managerLdap.getWhenCreated()));
+			manager.setObjectSid(managerLdap.getObjectSid());
             ProjectRole job = projectRoleService.find(managerLdap.getTitle());
 
             if (job != null) {
@@ -163,12 +157,13 @@ public class EmployeeLdapService {
                     }
                 }
             }
-            Employee emp = employeeService.findByEmail(managerLdap.getMail());
+			Employee emp = employeeService.findByObjectSid(managerLdap.getObjectSid());
             manager.setRole(projectRoleService.getSysRole(manager.getJob().getId()).getSysRoleId());
 
             //есть лидер в БД
 			if (emp != null) {
-                manager.setId(employeeService.findByEmail(manager.getEmail()).getId());
+                manager.setId(emp.getId());
+                manager.setStartDate(emp.getStartDate());
                 if(manager.getJob()==null) manager.setJob(projectRoleService.getUndefinedRole());
             }
             managersToSync.add(manager);
@@ -228,7 +223,7 @@ public class EmployeeLdapService {
                 //если не найдет внутри find стоит
                 Division division=divisionService.find(department);
                 if(division==null) errors+="division(department), ";
-                Employee manager = employeeService.find(division.getLeader());
+                Employee manager = employeeService.find(division.getLeader().getName());
                 if(manager==null) errors+="manager, ";
                 employee.setManager(manager);
             }
@@ -266,7 +261,8 @@ public class EmployeeLdapService {
 
                 employee.setName(employeeLdap.getDisplayName());
                 employee.setDivision(divisionService.find(employeeLdap.getDepartment()));
-                employee.setStartDate(DateTimeUtil.ldapDateToTimestamp(employeeLdap.getWhenCreated()));
+                //employee.setStartDate(DateTimeUtil.ldapDateToTimestamp(employeeLdap.getWhenCreated()));
+				employee.setObjectSid(employeeLdap.getObjectSid());
                 ProjectRole job = projectRoleService.find(employeeLdap.getTitle());
 
                 if (job != null)
@@ -290,26 +286,35 @@ public class EmployeeLdapService {
                 employee.setRole(projectRoleService.getSysRole(employee.getJob().getId()).getSysRoleId());
                 Employee empInDbByLdapName=employeeService.findByLdapName(employeeLdap.getLdapCn());
                 Employee empInDbByName = employeeService.findByEmail(employeeLdap.getMail());
+				Employee empInDbByObjectSid = employeeService.findByObjectSid(employeeLdap.getObjectSid());
 
+				if (empInDbByObjectSid != null) {
+					employee.setId(empInDbByObjectSid.getId());
+                    employee.setStartDate(empInDbByObjectSid.getStartDate());
+					employee.setManager(empInDbByObjectSid.getManager());
+				} else
                 //есть сотрудник в БД
                 //Миша: для существующих поле манагер не обновлялось, при этом остальные поля должны обновляться
                 //сперва должно сравниваться по полю LDAP, если нет то по полю EMAIL, если нет то считать что сотрудник новый и добавлять
                 if(empInDbByLdapName != null) {
                     employee.setId(empInDbByLdapName.getId());
+                    employee.setStartDate(empInDbByLdapName.getStartDate());
                     employee.setManager(empInDbByLdapName.getManager());
                 }
                 else if (empInDbByName != null) {
                     employee.setId(empInDbByName.getId());
+                    employee.setStartDate(empInDbByName.getStartDate());
                     employee.setManager(empInDbByName.getManager());
                 }
                 //если сотрудник не в БД
                 else {
                     logger.info(employeeLdap.getMail()+"no in db");
-                    Employee manager = employeeService.find(division.getLeader());
+                    Employee manager = employeeService.find(division.getLeader().getName());
                     employee.setManager(manager);
                 }
-                if(employee.getManager()!=null)
-                empsToSync.add(employee);
+                if (employee.getManager() != null) {
+					empsToSync.add(employee);
+				}
             }
         }
         if (empsToSync.size() > 0) {
@@ -321,33 +326,4 @@ public class EmployeeLdapService {
 	public String getTrace() {
 		return this.trace.toString();
 	}
-	
-	// Role mapping according to APLANATS-341
-    //удалено APLANATS-374
-//	static {
-//		ROLES_MAP.put(ProjectRoleService.PROJECT_MANAGER,     Employee.EMPLOYEE_ROLE_MANAGER);
-//		ROLES_MAP.put(ProjectRoleService.PROJECT_ANALYST,     Employee.EMPLOYEE_ROLE_USER);
-//		ROLES_MAP.put(ProjectRoleService.PROJECT_LEADER,      Employee.EMPLOYEE_ROLE_MANAGER);
-//		ROLES_MAP.put(ProjectRoleService.PROJECT_DESIGNER,    Employee.EMPLOYEE_ROLE_USER);
-//		ROLES_MAP.put(ProjectRoleService.PROJECT_DEVELOPER,   Employee.EMPLOYEE_ROLE_USER);
-//		ROLES_MAP.put(ProjectRoleService.PROJECT_SYSENGINEER, Employee.EMPLOYEE_ROLE_ADMIN);
-//		ROLES_MAP.put(ProjectRoleService.PROJECT_TESTER,      Employee.EMPLOYEE_ROLE_USER);
-//		ROLES_MAP.put(ProjectRoleService.PROJECT_TECH_WRITER, Employee.EMPLOYEE_ROLE_USER);
-//		ROLES_MAP.put(ProjectRoleService.CENTER_MANAGER,      Employee.EMPLOYEE_ROLE_MANAGER);
-//		ROLES_MAP.put(ProjectRoleService.NOT_DEFINED_JOB,     Employee.EMPLOYEE_ROLE_USER);
-//		ROLES_MAP.put(ProjectRoleService.QUALITY_MANAGER,     Employee.EMPLOYEE_ROLE_MANAGER);
-//		ROLES_MAP.put(ProjectRoleService.GENERAL_MANAGER,     Employee.EMPLOYEE_ROLE_MANAGER);
-//	}
-	
-//	private static boolean mapRole(Employee employee) {
-//		if (employee.getJob() != null && employee.getJob().getId() != null) {
-//		    employee.setRole(ROLES_MAP.get(employee.getJob().getId()));
-//            return true;
-//		} else {
-//			employee.setRole(ROLES_MAP.get(ProjectRoleService.NOT_DEFINED_JOB));
-//            return false;
-//		}
-//        return false;
-//	}
-
 }

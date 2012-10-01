@@ -1,5 +1,6 @@
 package com.aplana.timesheet.dao;
 
+import com.aplana.timesheet.dao.entity.Calendar;
 import com.aplana.timesheet.dao.entity.Holiday;
 import com.aplana.timesheet.dao.entity.Region;
 import com.aplana.timesheet.util.DateTimeUtil;
@@ -8,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import java.util.Iterator;

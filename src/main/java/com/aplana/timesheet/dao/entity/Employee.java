@@ -1,9 +1,13 @@
 package com.aplana.timesheet.dao.entity;
 
+import com.aplana.timesheet.util.DateTimeUtil;
 import org.hibernate.annotations.ForeignKey;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import java.util.Calendar;
 
 @Entity
@@ -63,6 +67,9 @@ public class Employee {
 
     @Column(name = "role", columnDefinition = "decimal(10,0) not null default 0")
     private int role;
+	
+	@Column
+	private String objectSid;
 
     public int getRole() {
         return role;
@@ -152,9 +159,17 @@ public class Employee {
         this.region = region;
     }
 
+	public String getObjectSid() {
+		return objectSid;
+	}
+
+	public void setObjectSid(String objectSid) {
+		this.objectSid = objectSid;
+	}
+
     @Override
     public String toString() {
-        return new StringBuilder()
+		StringBuilder sb = new StringBuilder()
                 .append(" id=").append(id)
                 .append(" name=").append(name)
                 .append(" email=").append(email)
@@ -165,7 +180,8 @@ public class Employee {
                 .append(" job [").append(job).append("]")
                 .append(" region [").append(region.getLdapCity() + ", " + region.getName()).append("]")
                 .append(" ldap=").append(ldap)
-                .toString();
+				.append(" objectSid=").append(objectSid);
+        return sb.toString();
     }
 
 	public String getLdap() {

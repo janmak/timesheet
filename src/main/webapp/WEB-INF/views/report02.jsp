@@ -31,7 +31,7 @@
 <br/>
 
 <c:url value="/managertools/report/2" var="formUrl" />
-<form:form commandName="reportForm" method="post" action="${formUrl}" target="_blank" >
+<form:form commandName="reportForm" method="post" action="${formUrl}">
 	<c:if test="${fn:length(errors) > 0}">
 		<div class="errors_box">
 			<c:forEach items="${errors}" var="error">

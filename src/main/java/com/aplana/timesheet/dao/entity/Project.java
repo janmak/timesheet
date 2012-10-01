@@ -3,6 +3,7 @@ package com.aplana.timesheet.dao.entity;
 import org.hibernate.annotations.ForeignKey;
 
 import javax.persistence.*;
+import java.util.Date;
 import java.util.Set;
 
 @Entity

@@ -119,7 +119,7 @@
 
 </head>
 <body>
-<h2><a target="_blank" href="<fmt:message key="jira.url"/>">Перейти к созданию запроса в Jira</a></h2>
+<h2><a target="_blank" href="http://jira.aplana.com/secure/CreateIssue.jspa?pid=10201&issuetype=2 ">Перейти к созданию запроса в Jira</a></h2>
 <h1><fmt:message key="feedback"/></h1>
 
 

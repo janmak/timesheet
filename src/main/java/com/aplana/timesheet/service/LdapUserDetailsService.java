@@ -52,9 +52,7 @@ public class LdapUserDetailsService implements UserDetailsContextMapper {
     }
 
     public UserDetails mapUserFromContext(DirContextOperations dirContextOperations, String s, Collection<? extends GrantedAuthority> grantedAuthorities) {
-
         try {
-
             String email = dirContextOperations.getStringAttribute("mail");
 
             Employee employee = employeeDAO.findByEmail(email);
@@ -86,15 +84,12 @@ public class LdapUserDetailsService implements UserDetailsContextMapper {
 
             return user;
         } catch (RuntimeException e) {
-            if (!(e instanceof AuthenticationException))
-            {
+            if (!(e instanceof AuthenticationException)) {
                 logger.error("Неопознанная ошибка при авторизации", e);
                 throw new AccountExpiredException("Неопознанная ошибка при авторизации", e);
-            }
-            else
+            } else
                 throw e;
         }
-
     }
 
     @Override

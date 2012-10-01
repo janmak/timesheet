@@ -1,0 +1,4 @@
+<h1 align="justify"><b>У указаных ниже подразделений руководители не входят в состав подразделения</b></h1>
+ #foreach($division in $divisionList)
+     $division.ldap_name <br />
+ #end

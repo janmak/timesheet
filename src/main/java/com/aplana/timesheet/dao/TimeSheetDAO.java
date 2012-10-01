@@ -1,9 +1,7 @@
 package com.aplana.timesheet.dao;
 
+import com.aplana.timesheet.dao.entity.*;
 import com.aplana.timesheet.dao.entity.Calendar;
-import com.aplana.timesheet.dao.entity.DayTimeSheet;
-import com.aplana.timesheet.dao.entity.Employee;
-import com.aplana.timesheet.dao.entity.TimeSheet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;

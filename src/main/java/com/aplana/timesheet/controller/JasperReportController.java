@@ -2,25 +2,33 @@ package com.aplana.timesheet.controller;
 
 import com.aplana.timesheet.dao.JasperReportDAO;
 import com.aplana.timesheet.dao.entity.Division;
+import com.aplana.timesheet.dao.entity.Region;
 import com.aplana.timesheet.form.validator.ReportFormValidator;
 import com.aplana.timesheet.reports.*;
 import com.aplana.timesheet.service.*;
 import com.aplana.timesheet.util.EmployeeHelper;
 import com.aplana.timesheet.util.JReportBuildError;
+import com.aplana.timesheet.util.TimeSheetUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.View;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.aplana.timesheet.util.ProjectHelper.getProjectListJson;
 
 @Controller
 public class JasperReportController {

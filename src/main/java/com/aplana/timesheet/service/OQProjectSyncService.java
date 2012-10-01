@@ -1,34 +1,35 @@
 package com.aplana.timesheet.service;
 
+import com.aplana.timesheet.controller.TimeSheetController;
+import com.aplana.timesheet.dao.DictionaryItemDAO;
 import com.aplana.timesheet.dao.EmployeeDAO;
 import com.aplana.timesheet.dao.EmployeeLdapDAO;
 import com.aplana.timesheet.dao.ProjectDAO;
 import com.aplana.timesheet.dao.entity.Division;
 import com.aplana.timesheet.dao.entity.Employee;
 import com.aplana.timesheet.dao.entity.Project;
+import com.aplana.timesheet.dao.entity.ldap.EmployeeLdap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Scope;
+import org.springframework.ldap.core.LdapTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.w3c.dom.Document;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.NodeList;
+
+import org.w3c.dom.*;
 
 import javax.annotation.PostConstruct;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpression;
-import javax.xml.xpath.XPathFactory;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import javax.persistence.EntityManagerFactory;
+import javax.xml.xpath.*;
+import javax.xml.parsers.*;
+import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Service("oqProgectSyncService")
@@ -142,6 +143,14 @@ public class OQProjectSyncService {
 
                     if (project.isActive()) {
                         String pmLdap = nodeMap.getNamedItem("pm").getNodeValue();
+
+                        //APLANATS-429
+                        if ((pmLdap == null) || (pmLdap.equals("")))
+                        {
+                            trace.append("Проект ").append(project.getName()).append(" пропущен, т.к. не указан руководитель проекта \n");
+                            continue;
+                        }
+
                         Employee projectLeader = this.employeeDAO.findByLdapName(pmLdap.split("/")[0]);
                         if (projectLeader != null)
                             project.setManager(projectLeader);

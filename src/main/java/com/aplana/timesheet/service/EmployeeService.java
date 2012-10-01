@@ -83,4 +83,11 @@ public class EmployeeService {
     public StringBuffer setEmployees(List<Employee> employees) {
         return employeeDAO.setEmployees(employees);
     }
+	
+	/**
+	 * Ищет сотрудника по objectSid
+	 */
+	public Employee findByObjectSid(String ObjectSid) {
+		return employeeDAO.findByObjectSid(ObjectSid);
+	}
 }

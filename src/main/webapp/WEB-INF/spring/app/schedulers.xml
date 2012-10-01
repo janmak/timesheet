@@ -12,8 +12,13 @@
 		<beans:property name="location" value="file:webapps\timesheet.properties" />
 	</beans:bean>
 	
+	<!-- Enables the Spring MVC @Controller programming model -->
 	<annotation-driven />
-
+	
+	<!-- Scheduling synchronize with ldap by Quartz -->
+	<!--<beans:bean id="employeeLdapService"
+		class="com.aplana.timesheet.service.EmployeeLdapService" />-->
+		
 	<beans:bean id="employeeLdapServiceJob"
  		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
 		<beans:property name="targetObject" ref="employeeLdapService" />
@@ -23,6 +28,19 @@
 	<beans:bean id="employeeLdapServiceCronTrigger"
 		class="org.springframework.scheduling.quartz.CronTriggerBean">
 		<beans:property name="jobDetail" ref="employeeLdapServiceJob" />
+		<!-- Запуск задачи каждый день в 22:01 по московскому времени -->
+		<beans:property name="cronExpression" value="${scheduler.ldap}" />
+	</beans:bean>
+
+	<beans:bean id="divisionsServiceJob"
+ 		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<beans:property name="targetObject" ref="divisionService" />
+		<beans:property name="targetMethod" value="synchronize" />
+	</beans:bean>
+
+	<beans:bean id="divisionsServiceCronTrigger"
+		class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<beans:property name="jobDetail" ref="divisionsServiceJob" />
 		<beans:property name="cronExpression" value="${scheduler.ldap}" />
 	</beans:bean>
 
@@ -32,14 +50,11 @@
 		<beans:property name="targetMethod" value="sync" />
 	</beans:bean>
 
-    <!--
-      Синхронизация с OQ отключена.
 	<beans:bean id="oqProjectSyncServiceCronTrigger"
 				class="org.springframework.scheduling.quartz.CronTriggerBean">
 		<beans:property name="jobDetail" ref="oqProjectSyncServiceJob" />
 		<beans:property name="cronExpression" value="${scheduler.oq}" />
 	</beans:bean>
-	-->
 	
 	<beans:bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
 		<beans:property name="jobDetails">
@@ -51,8 +66,7 @@
 		<beans:property name="triggers">
 			<beans:list>
 				<beans:ref bean="employeeLdapServiceCronTrigger" />
-				<!-- Синхронизация с OQ отключена.
-				<beans:ref bean="oqProjectSyncServiceCronTrigger" />-->
+				<beans:ref bean="oqProjectSyncServiceCronTrigger" />
 			</beans:list>
 		</beans:property>
 	</beans:bean>
@@ -69,6 +83,7 @@
 	<beans:bean id="reportCheckServiceCronTrigger"
 		class="org.springframework.scheduling.quartz.CronTriggerBean">
 		<beans:property name="jobDetail" ref="reportCheckServiceJob" />
+<!-- 		Запуск задачи каждый день в 00:00:00 по московскому времени -->
 		<beans:property name="cronExpression" value="${scheduler.reportcheck}" />
 	</beans:bean>
 	

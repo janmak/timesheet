@@ -7,6 +7,10 @@
         				http://www.springframework.org/schema/beans 
         				http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
 
+   <!-- <beans:bean id="sendMailService" class="com.aplana.timesheet.service.SendMailService">
+		<beans:property name="velocityEngine" ref="velocityEngine" />
+	</beans:bean>-->
+
 	<beans:bean id="velocityEngine"
 		class="org.springframework.ui.velocity.VelocityEngineFactoryBean">
 		<beans:property name="velocityProperties">

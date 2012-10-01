@@ -3,13 +3,19 @@ package com.aplana.timesheet.service.MailSenders;
 import com.aplana.timesheet.form.AdminMessageForm;
 import com.aplana.timesheet.service.SendMailService;
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.activation.DataHandler;
+import javax.activation.DataSource;
+import javax.activation.FileDataSource;
 import javax.mail.MessagingException;
 import javax.mail.Multipart;
 import javax.mail.NoSuchProviderException;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
+import java.io.File;
+import java.io.FileOutputStream;
 
 /**
  * Created with IntelliJ IDEA.

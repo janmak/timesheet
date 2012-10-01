@@ -1,5 +1,7 @@
 package com.aplana.timesheet.dao;
 
+import com.aplana.timesheet.dao.entity.Division;
+import com.aplana.timesheet.dao.entity.Project;
 import com.aplana.timesheet.reports.*;
 import com.aplana.timesheet.util.DateTimeUtil;
 import com.aplana.timesheet.util.HibernateQueryResultDataSource;

@@ -2,10 +2,12 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:security="http://www.springframework.org/schema/security"
+       xmlns:context="http://www.springframework.org/schema/context"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
        http://www.springframework.org/schema/beans/spring-beans.xsd
        http://www.springframework.org/schema/security
-       http://www.springframework.org/schema/security/spring-security.xsd">
+       http://www.springframework.org/schema/security/spring-security.xsd
+       http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
     <security:http pattern="/resources/**" security="none" />
 
@@ -18,8 +20,7 @@
 
 <!-- 
     <security:http use-expressions="true"  entry-point-ref="spnegoEntryPoint">
- -->
-
+ -->    
     <security:http auto-config="true" use-expressions="true">
         <security:intercept-url pattern="/admin/**" access="hasRole('ROLE_ADMIN')"/>
         <security:intercept-url pattern="/admin" access="hasRole('ROLE_ADMIN')"/>
@@ -42,7 +43,7 @@
  
     <bean class="org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler"/>
 
-    <!-- SPNEGO авторизация. Не реализовано.
+    <!-- SPNEGO
  	
 	<bean id="spnegoEntryPoint" class="org.springframework.security.extensions.kerberos.web.SpnegoEntryPoint" />
 	
@@ -57,7 +58,7 @@
 	<bean id="kerberosServiceAuthenticationProvider" class="org.springframework.security.extensions.kerberos.KerberosServiceAuthenticationProvider">
 		<property name="ticketValidator">
 			<bean class="org.springframework.security.extensions.kerberos.SunJaasKerberosTicketValidator">
-				<property name="servicePrincipal" value="servicePrincipalName" />
+				<property name="servicePrincipal" value="HTTP/timesheet.aplana.com" />
 				<property name="keyTabLocation" value="classpath:http-web.keytab" />
 				<property name="debug" value="true" />
 			</bean>

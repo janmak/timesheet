@@ -25,7 +25,7 @@
 <br/>
 
 <c:url value="/managertools/report/1" var="formUrl"/>
-<form:form commandName="reportForm" method="post" action="${formUrl}" target="_blank">
+<form:form commandName="reportForm" method="post" action="${formUrl}">
 
     <c:if test="${fn:length(errors) > 0}">
         <div class="errors_box">

@@ -149,6 +149,9 @@
         function loadCalendarColors(dateInfoHolder, year, month, employeeId){
             dojo.xhrGet({
                 url: "${pageContext.request.contextPath}" + "/timesheet/dates",
+				headers: {
+					"If-Modified-Since":"Sat, 1 Jan 2000 00:00:00 GMT"
+				},
                 handleAs:"json",
                 timeout:1000,
                 content:{queryYear:year, queryMonth:month, employeeId:employeeId},

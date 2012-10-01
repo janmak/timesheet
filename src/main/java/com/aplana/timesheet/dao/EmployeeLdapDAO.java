@@ -1,8 +1,10 @@
 package com.aplana.timesheet.dao;
 
 import com.aplana.timesheet.dao.entity.ldap.EmployeeLdap;
+import com.aplana.timesheet.dao.entity.ldap.LdapAplanaUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ldap.NameNotFoundException;
 import org.springframework.ldap.core.AttributesMapper;
 import org.springframework.ldap.core.DistinguishedName;
@@ -120,6 +122,9 @@ public class EmployeeLdapDAO {
 			Attribute ldapCn = attributes.get("distinguishedname");
 			if(ldapCn != null)
 				employee.setLdapCn(ldapCn.get().toString());
+			
+			Attribute objectSid = attributes.get("objectSid");
+			employee.setObjectSid(LdapAplanaUtils.getSidAttribute(objectSid));
 			return employee;
 		}
 	}

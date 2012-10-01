@@ -2,10 +2,8 @@ package com.aplana.timesheet.service;
 
 import com.aplana.timesheet.dao.DictionaryItemDAO;
 import com.aplana.timesheet.dao.entity.*;
-import com.aplana.timesheet.form.AdminMessageForm;
-import com.aplana.timesheet.form.FeedbackForm;
-import com.aplana.timesheet.form.TimeSheetForm;
-import com.aplana.timesheet.form.TimeSheetTableRowForm;
+import com.aplana.timesheet.dao.entity.ldap.DivisionLdap;
+import com.aplana.timesheet.form.*;
 import com.aplana.timesheet.service.MailSenders.*;
 import com.aplana.timesheet.util.DateTimeUtil;
 import com.aplana.timesheet.util.MailUtils;
@@ -237,5 +235,14 @@ public class SendMailService{
         return VelocityEngineUtils.mergeTemplateIntoString(
                 velocityEngine, "report.vm", model);
     }
+	
+	public void sendAdminAlert(List<DivisionLdap> divisions){
+		MailUtils.loadMailConfig(mailConfig);
+
+        AdminAlerSender adminAlerSender = new AdminAlerSender(this);
+
+		adminAlerSender.sendAlert(divisions);
+	}
+	
 
 }

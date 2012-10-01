@@ -7,6 +7,8 @@ import java.util.Set;
 @Table(name = "division", uniqueConstraints = @UniqueConstraint(columnNames = { "ldap_name", "name" }))
 public class Division {
 	@Id
+	@SequenceGenerator(name = "division_id_seq", sequenceName = "division_id_seq", allocationSize = 1)
+	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "division_id_seq")    
 	@Column(nullable = false)
 	private Integer id;
 
@@ -19,8 +21,8 @@ public class Division {
 	@Column(columnDefinition = "bool not null default true")
 	private boolean active;
 
-	@Column(length = 100, nullable = false)
-	private String leader;
+	@OneToOne(cascade = CascadeType.ALL)
+	private Employee leader;
 
 	@OneToMany(mappedBy = "division", cascade = CascadeType.ALL)
 	private Set<Employee> employees;
@@ -28,13 +30,19 @@ public class Division {
 	@ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	@JoinTable(name = "division_project", joinColumns = { @JoinColumn(name = "division_id", nullable = false) }, inverseJoinColumns = { @JoinColumn(name = "project_id", nullable = false) })
 	private Set<Project> projects;
+	
+	/*
+	 * пока не nullable. Когда поле будет заполнено, тогда и изменим свойство
+	 */
+	@Column
+	private String ldapObjectSid;
 
 	public Division() {	}
 
 	public String getLdapName() { return ldapName; }
 	public void setLdapName(String ldapName) { this.ldapName = ldapName; }
-	public String getLeader() { return leader; }
-	public void setLeader(String leader) { this.leader = leader; }
+	public Employee getLeader() { return leader; }
+	public void setLeader(Employee leader) { this.leader = leader; }
 	public Division(Integer id) { this.id = id; }
 	public boolean isActive() { return active; }
 	public void setActive(boolean active) { this.active = active; }
@@ -46,15 +54,23 @@ public class Division {
 	public void setId(Integer id) { this.id = id; }
 	public String getName() { return name; }
 	public void setName(String name) { this.name = name; }
+	public String getLdap_objectSid() {	return ldapObjectSid; }
+	public void setLdap_objectSid(String ldap_objectSid) { this.ldapObjectSid = ldap_objectSid; }
 	
 	public String toString() {
-		return new StringBuilder()
+		StringBuilder sb = new StringBuilder()
 			.append(" id=").append(id)
 			.append(" name=").append(name)
 			.append(" ldapName=").append(ldapName)
-			.append(" leader=").append(leader)
 			.append(" active=").append(active)
-		.toString();
+			.append(" ldap_objectSid=").append(ldapObjectSid);
+		if(leader != null) {
+			sb.append(" leader=").append(leader.getName());
+		} else {
+			sb.append(" leader=null");
+		}
+					
+		return sb.toString();
 	}
 
 	@Override
@@ -66,6 +82,13 @@ public class Division {
 		if (ldapName == null) {
 			if (other.ldapName != null) { return false; }
 		} else if (!ldapName.equals(other.ldapName)) { return false; }
+		if (ldapObjectSid == null) {
+			if (other.ldapObjectSid != null) {
+				return false;
+			}
+		} else if (!ldapObjectSid.equals(other.ldapObjectSid)) {
+			return false;
+		}
 		return true;
 	}
 

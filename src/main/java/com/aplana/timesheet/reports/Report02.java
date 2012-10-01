@@ -1,5 +1,6 @@
 package com.aplana.timesheet.reports;
 
+import com.aplana.timesheet.dao.JasperReportDAO;
 import net.sf.jasperreports.engine.JRDataSource;
 
 public class Report02 extends BaseReport {
