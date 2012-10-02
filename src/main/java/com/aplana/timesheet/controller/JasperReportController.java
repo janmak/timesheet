@@ -132,6 +132,11 @@ public class JasperReportController {
                 mav.addObject("reportForm", form);
                 mav.addObject("divisionList", divisionService.getDivisions());
                 mav.addObject("regionList", regionService.getRegions());
+				List<OverTimeCategory> ls = new ArrayList<OverTimeCategory>();
+				ls.add(OverTimeCategory.All);
+				ls.add(OverTimeCategory.Holiday);
+				ls.add(OverTimeCategory.Simple);
+				mav.addObject("categoryList", ls);
                 return mav;
             case 3:
                 mav = new ModelAndView("report03");
@@ -192,6 +197,7 @@ public class JasperReportController {
     public ModelAndView showReport01(@ModelAttribute("reportForm") Report01 report, BindingResult result,
                                      @RequestParam("printtype") Integer printtype, HttpServletResponse response, HttpServletRequest request) throws JReportBuildError {
         fillRegionName(report);
+		logger.info("!!!!!category {}", report.getCategory().getTitle());
         return showReport(report, result, printtype, 1, response, request);
     }
 

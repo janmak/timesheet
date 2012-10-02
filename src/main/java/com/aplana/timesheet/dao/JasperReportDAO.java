@@ -28,6 +28,14 @@ public class JasperReportDAO {
 
     @Transactional(readOnly = true)
     public HibernateQueryResultDataSource getReport01Data(Report01 report) {
+		String workDaySeparator;
+		if(OverTimeCategory.Holiday.equals(report.getCategory())) {
+			workDaySeparator="and h.calDate is not null ";
+		} else if(OverTimeCategory.Simple.equals(report.getCategory())) {
+			workDaySeparator="and h.calDate is null ";
+		} else {
+			workDaySeparator = "";
+		}
         Query query = entityManager.createQuery(
                 "select em.id, em.name, ts.calDate.calDate, cast('' as string), " +
                         "sum(td.duration)-8, sum(td.duration), h.id, h.region.id, " +
@@ -41,6 +49,7 @@ public class JasperReportDAO {
                         (!report.getRegionId().equals(0) ? "em.region.id = :regionId and " : "") +
                         "ts.calDate.calDate between :beginDate and :endDate " +
                         "and ((h.region.id is null) or (h.region.id=em.region.id)) " +
+						workDaySeparator +
                         "group by em.id, em.name, ts.calDate.calDate, h, h.region.id, 9, 10 " +
                         "having (sum(td.duration) > 8) or (h is not null)" +
                         "order by em.name, h.id desc, ts.calDate.calDate");

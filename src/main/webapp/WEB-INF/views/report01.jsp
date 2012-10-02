@@ -54,6 +54,15 @@
                     <form:option label="Все" value="0"/>
                     <form:options items="${regionList}" itemLabel="name" itemValue="id"/>
                 </form:select></td>
+				<td><span class="label">Категория переработок</span></td>
+				<td>					
+					<form:select path="category" id="category" name="category" cssClass="without_dojo"
+                                 onmouseover="tooltip.show(getTitle(this));"
+                                 onmouseout="tooltip.hide();">
+						<%--<form:option id="0"/>--%>
+						<form:options items="${categoryList}" itemLabel="title"/>
+					</form:select>
+				</td>
             </tr>
             <tr>
                 <td><span class="label">Начало периода</span></td>
