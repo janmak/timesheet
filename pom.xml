@@ -8,42 +8,6 @@
 	
 	<name>${project.artifactId}</name>
 
-	<repositories>
-		<repository>
-			<id>central</id>
-			<url>http://repo1.maven.org/maven2</url>
-		</repository>
-		<repository>
-			<id>maven2-repository.dev.java.net</id>
-			<name>Java.net Repository for Maven</name>
-			<url>http://download.java.net/maven/2/</url>
-		</repository>
-		<repository>
-			<id>jboss</id>
-			<url>http://repository.jboss.org/nexus/content/groups/public-jboss/</url>
-			<releases>
-				<enabled>true</enabled>
-			</releases>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-		</repository>
-		<repository>
-        	<id>spring-release</id>
-        	<url>http://maven.springframework.org/release</url>
-    	</repository>
-        <repository>
-            <id>springsource-milestones</id>
-            <name>SpringSource Milestones Proxy</name>
-            <url>https://oss.sonatype.org/content/repositories/springsource-milestones</url>
-        </repository>
-	<repository>
-		<id>spring-milestone</id>
-		<name>Spring Portfolio Milestone Repository</name>
-		<url>http://maven.springframework.org/milestone </url>
-	</repository>
-	</repositories>
-
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<spring.version>3.1.1.RELEASE</spring.version>
@@ -426,10 +390,11 @@
             <version>3.2-FINAL</version>
         </dependency>
 
+<!--   SPNEGO. Не реализовано
         <dependency>
         	<groupId>org.springframework.security.extensions</groupId>
         	<artifactId>spring-security-kerberos-core</artifactId>
         	<version>1.0.0.CI-SNAPSHOT-van</version>
-        </dependency>
+        </dependency>-->
 	</dependencies>
 </project>
