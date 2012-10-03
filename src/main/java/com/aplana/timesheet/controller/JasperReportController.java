@@ -197,7 +197,6 @@ public class JasperReportController {
     public ModelAndView showReport01(@ModelAttribute("reportForm") Report01 report, BindingResult result,
                                      @RequestParam("printtype") Integer printtype, HttpServletResponse response, HttpServletRequest request) throws JReportBuildError {
         fillRegionName(report);
-		logger.info("!!!!!category {}", report.getCategory().getTitle());
         return showReport(report, result, printtype, 1, response, request);
     }
 
