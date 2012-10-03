@@ -5,7 +5,11 @@ import com.aplana.timesheet.dao.entity.Employee;
 import com.aplana.timesheet.form.FeedbackForm;
 import com.aplana.timesheet.form.validator.FeedbackFormValidator;
 import com.aplana.timesheet.service.*;
+import com.aplana.timesheet.util.TimeSheetConstans;
 import com.aplana.timesheet.util.TimeSheetUser;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Properties;
 
 @Controller
 public class FeedbackController {
@@ -107,9 +112,33 @@ public class FeedbackController {
 	//Основной метод GET
 	@RequestMapping(value = "/feedback", method = RequestMethod.GET)
 	 public ModelAndView sendReportFeedback(@ModelAttribute("feedbackForm")FeedbackForm fbForm, BindingResult result) {
-	  
+			
+		Properties properties = new Properties();
+		FileInputStream fis = null;
+		
+		try {
+			fis = new FileInputStream(TimeSheetConstans.PROPERTY_PATH);
+		} catch (FileNotFoundException ex) {
+			logger.error("Can not find propety file {}", TimeSheetConstans.PROPERTY_PATH);
+			logger.error("", ex);
+		}
+		
+		String jiraIssueCreateUrl = null;
+		if (fis != null) {
+			try {
+				properties.load(fis);
+				jiraIssueCreateUrl = properties.getProperty("jira.issue.create.url");
+				if(jiraIssueCreateUrl.isEmpty()) {
+					jiraIssueCreateUrl = null;
+				}					
+			} catch (IOException ex) {
+				logger.error("", ex);
+			}
+		}
+		
 		ModelAndView mav = new ModelAndView("feedback");
 		mav.addObject("feedbackForm", fbForm);
+		mav.addObject("jiraIssueCreateUrl", jiraIssueCreateUrl);
 
 		TimeSheetUser securityUser = securityService.getSecurityPrincipal();
 		if (securityUser != null) {

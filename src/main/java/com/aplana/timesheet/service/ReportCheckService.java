@@ -6,6 +6,7 @@ import com.aplana.timesheet.dao.ReportCheckDAO;
 import com.aplana.timesheet.dao.entity.*;
 import com.aplana.timesheet.dao.entity.Calendar;
 import com.aplana.timesheet.util.DateTimeUtil;
+import com.aplana.timesheet.util.TimeSheetConstans;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -98,7 +99,7 @@ public class ReportCheckService {
     public void storeReportCheck(String firstDay, String lastDay, boolean sundayCheck) {
         FileInputStream propertiesFile = null;
         try {
-            propertiesFile = new FileInputStream("./webapps/timesheet.properties");
+            propertiesFile = new FileInputStream(TimeSheetConstans.PROPERTY_PATH);
         } catch (FileNotFoundException e1) {
             logger.error("File timesheet.properties not found.");
         }

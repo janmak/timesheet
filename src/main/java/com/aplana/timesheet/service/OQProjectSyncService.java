@@ -31,6 +31,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import com.aplana.timesheet.util.TimeSheetConstans;
 
 @Service("oqProgectSyncService")
 public class OQProjectSyncService {
@@ -73,7 +74,7 @@ public class OQProjectSyncService {
     private void Init() {
         FileInputStream propertiesFile = null;
         try {
-            propertiesFile = new FileInputStream("./webapps/timesheet.properties");
+            propertiesFile = new FileInputStream(TimeSheetConstans.PROPERTY_PATH);
         } catch (FileNotFoundException e1) {
             logger.error("File timesheet.properties not found.");
         }

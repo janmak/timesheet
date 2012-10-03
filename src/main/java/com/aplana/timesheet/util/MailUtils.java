@@ -42,7 +42,7 @@ public class MailUtils {
     public static void loadMailConfig(Properties mailConfig){
         FileInputStream propertiesFile = null;
         try {
-            propertiesFile = new FileInputStream("./webapps/timesheet.properties");
+            propertiesFile = new FileInputStream(TimeSheetConstans.PROPERTY_PATH);
         } catch (FileNotFoundException e1) {
             logger.error("File timesheet.properties not found.");
         }

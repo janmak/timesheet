@@ -119,7 +119,9 @@
 
 </head>
 <body>
-<h2><a target="_blank" href="http://jira.aplana.com/secure/CreateIssue.jspa?pid=10201&issuetype=2 ">Перейти к созданию запроса в Jira</a></h2>
+	<c:if test="${jiraIssueCreateUrl != null}">
+		<h2><a target="_blank" href=${jiraIssueCreateUrl}>Перейти к созданию запроса в Jira</a></h2>
+	</c:if>
 <h1><fmt:message key="feedback"/></h1>
 
 
