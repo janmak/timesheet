@@ -14,16 +14,24 @@
 
 <script type="text/javascript">
 
-	this.dojo.ready(function () {
-		dojo.require("dijit.form.DateTextBox");
-		reportForm.divisionId.value = defaultDivision;
-		fillProjectListByDivision(reportForm.divisionId);
-	});
-	var projectList = ${projectListJson};
-	var fullProjectList = ${fullProjectListJson};
-	var defaultDivision = <sec:authentication property="principal.employee.division.id"/>;
-	var employeeList = ${employeeListJson};
+ this.dojo.ready(function () {
+  dojo.require("dijit.form.DateTextBox");
+//  reportForm.divisionId.value = defaultDivision;
+//  fillProjectListByDivision(reportForm.divisionId);
+	fillProjectListByDivision();
 
+        var emplDivisionId = "${reportForm.emplDivisionId}";
+        var selectedEmployee = "${reportForm.employeeId}";
+        reportForm.emplDivisionId.value = emplDivisionId;
+        fillEmployeeListByDivision(reportForm.emplDivisionId);
+        reportForm.employeeId.value = selectedEmployee;
+
+ });
+
+ var projectList = ${projectListJson};
+ var fullProjectList = ${fullProjectListJson};
+ var defaultDivision = <sec:authentication property="principal.employee.division.id"/>;
+ var employeeList = ${employeeListJson};
 </script>
 
 <h1><fmt:message key="title.reportparams"/></h1>
@@ -49,8 +57,9 @@
 				<td><form:select id="divisionId" name="divisionId" cssClass="without_dojo"
 								 onmouseover="tooltip.show(getTitle(this));"
 								 onmouseout="tooltip.hide();" path="divisionId"
-								 onchange="fillProjectListByDivision(this)">
-					<form:option label="" value="0"/>
+								 onchange="fillProjectListByDivision(this)"
+								 oninit="">
+					<%--<form:option label="" value="0"/>--%>
 					<form:options items="${divisionList}" itemLabel="name" itemValue="id"/>
 				</form:select></td>
                 <td colspan="2" align="right"><form:checkbox path="filterProjects" name="filterProjects" id="filterProjects"
@@ -79,7 +88,7 @@
 								 onmouseover="tooltip.show(getTitle(this));"
 								 onmouseout="tooltip.hide();" path="emplDivisionId"
 								 onchange="fillEmployeeListByDivision(this)">
-					<form:option label="" value="0"/>
+					<%--<form:option label="" value="0"/>--%>
 					<form:options items="${divisionList}" itemLabel="name" itemValue="id"/>
 				</form:select></td>
 				<td><span class="label">Сотрудник</span></td>
