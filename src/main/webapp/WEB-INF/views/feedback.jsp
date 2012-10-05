@@ -65,6 +65,36 @@
             }
             sortSelectOptions(employeeSelect);
         };
+		
+		function checkFileSize() {
+			var file1 = feedbackForm.file1Path.files[0];
+			var file2 = feedbackForm.file2Path.files[0];
+			var size1;
+			var size2;
+			
+			if (file1 != null) {
+				size1 = file1.size;
+			} else {
+				size1 = 0;
+			}
+			
+			if (file2 != null) {
+				size2 = file2.size;
+			} else {
+				size2 = 0;
+			}
+			var totalSize = size1 + size2;
+			if (totalSize > 8388608) {
+				return true;
+			} else {
+				return false;
+			}				
+		}
+		
+		//function  stopSubmint() {
+			
+		//}
+		
 
         //проверяем и отсылаем форму
         function submitform() {
@@ -77,7 +107,11 @@
             var empIndex = employee.selectedIndex;
             var name = dojo.byId('name').value;
             var email = dojo.byId('email').value;
-
+			
+			if (checkFileSize()) {
+				alert("Суммарный размер вложений превышает 8 Mb");
+				return;
+			}
             if (description != null && description.value != "") {
                 if (divIndex != null && divIndex != 0 && empIndex != 0) {
                     feedbackForm.action = "feedback";

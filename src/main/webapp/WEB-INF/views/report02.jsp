@@ -23,7 +23,7 @@
 			reportForm.emplDivisionId.value = emplDivisionId;
 			fillEmployeeListByDivision(reportForm.emplDivisionId);
 			reportForm.employeeId.value = selectedEmployee;
-				reportForm.projectId.value = "${reportForm.projectId}";
+			reportForm.projectId.value = "${reportForm.projectId}";
 		});
 		
 		var projectList = ${projectListJson};
