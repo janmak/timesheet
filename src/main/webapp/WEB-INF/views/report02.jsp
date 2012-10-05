@@ -11,32 +11,33 @@
 </head>
 
 <body>
-
-<script type="text/javascript">
-
- this.dojo.ready(function () {
-  dojo.require("dijit.form.DateTextBox");
-//  reportForm.divisionId.value = defaultDivision;
-//  fillProjectListByDivision(reportForm.divisionId);
-	fillProjectListByDivision();
-
-        var emplDivisionId = "${reportForm.emplDivisionId}";
-        var selectedEmployee = "${reportForm.employeeId}";
-        reportForm.emplDivisionId.value = emplDivisionId;
-        fillEmployeeListByDivision(reportForm.emplDivisionId);
-        reportForm.employeeId.value = selectedEmployee;
-
- });
-
- var projectList = ${projectListJson};
- var fullProjectList = ${fullProjectListJson};
- var defaultDivision = <sec:authentication property="principal.employee.division.id"/>;
- var employeeList = ${employeeListJson};
-</script>
-
-<h1><fmt:message key="title.reportparams"/></h1>
-<h2><fmt:message key="title.report02"/></h2>
-<br/>
+	
+	<script type="text/javascript">		
+		this.dojo.ready(function () {
+			dojo.require("dijit.form.DateTextBox");
+			reportForm.divisionId.value = defaultDivision;
+			fillProjectListByDivision(reportForm.divisionId);
+			
+			var emplDivisionId = "${reportForm.emplDivisionId}";
+			var selectedEmployee = "${reportForm.employeeId}";
+			reportForm.emplDivisionId.value = emplDivisionId;
+			fillEmployeeListByDivision(reportForm.emplDivisionId);
+			reportForm.employeeId.value = selectedEmployee;
+				reportForm.projectId.value = "${reportForm.projectId}";
+		});
+		
+		var projectList = ${projectListJson};
+		var fullProjectList = ${fullProjectListJson};
+		var defaultDivision = "${reportForm.divisionId}";
+		if(defaultDivision == "") {
+			defaultDivision = <sec:authentication property="principal.employee.division.id"/>;
+		}
+		var employeeList = ${employeeListJson};
+	</script>
+		
+	<h1><fmt:message key="title.reportparams"/></h1>
+	<h2><fmt:message key="title.report02"/></h2>
+	<br/>
 
 <c:url value="/managertools/report/2" var="formUrl" />
 <form:form commandName="reportForm" method="post" action="${formUrl}">
@@ -59,7 +60,7 @@
 								 onmouseout="tooltip.hide();" path="divisionId"
 								 onchange="fillProjectListByDivision(this)"
 								 oninit="">
-					<%--<form:option label="" value="0"/>--%>
+					<form:option label="" value="0"/>
 					<form:options items="${divisionList}" itemLabel="name" itemValue="id"/>
 				</form:select></td>
                 <td colspan="2" align="right"><form:checkbox path="filterProjects" name="filterProjects" id="filterProjects"
@@ -88,7 +89,7 @@
 								 onmouseover="tooltip.show(getTitle(this));"
 								 onmouseout="tooltip.hide();" path="emplDivisionId"
 								 onchange="fillEmployeeListByDivision(this)">
-					<%--<form:option label="" value="0"/>--%>
+					<form:option label="" value="0"/>
 					<form:options items="${divisionList}" itemLabel="name" itemValue="id"/>
 				</form:select></td>
 				<td><span class="label">Сотрудник</span></td>

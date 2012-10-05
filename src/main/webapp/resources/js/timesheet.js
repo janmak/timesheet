@@ -1297,49 +1297,45 @@ function fillProjectListByDivision(division) {
 
     var checkBox = dojo.byId("filterProjects");
 
-//    if (division == null) {
+    if (division == null) {
         division = dojo.byId("divisionId");
 
-//        if ((checkBox.checked) && (division.value == 0))
-//            division.value = defaultDivision;
-//    }
+        if ((checkBox.checked) && (division.value == 0))
+            division.value = defaultDivision;
+    }
 
     var divisionId = division.value;
 
     var projectSelect = dojo.byId("projectId");
-	alert(projectSelect.options.length);
-    //projectSelect.options.length = 0;
+
+    projectSelect.options.length = 0;
 
     if (checkBox.checked) {
 
         dojo.removeAttr("divisionId", "disabled");
 
         if (divisionId != 0) {
-			if (projectSelect.options.length <= 1) {
-				alert("Все плохо делаем новый список");
-				projectSelect.options.length = 0;
-				for (var i = 0; i < projectList.length; i++) {
-					if ((divisionId == projectList[i].divId) || (!checkBox.checked)) {
-						// insertEmptyOption(projectSelect);
-						for (var j = 0; j < projectList[i].divProjs.length; j++) {
-							projectOption = dojo.doc.createElement("option");
-							dojo.attr(projectOption, {
-								value:projectList[i].divProjs[j].id
-							});
-							projectOption.title = projectList[i].divProjs[j].value;
-							projectOption.innerHTML = projectList[i].divProjs[j].value;
-							projectSelect.appendChild(projectOption);
-						}
-					}
-				}
-			}
+
+            for (var i = 0; i < projectList.length; i++) {
+                if ((divisionId == projectList[i].divId) || (!checkBox.checked)) {
+                    insertEmptyOption(projectSelect);
+                    for (var j = 0; j < projectList[i].divProjs.length; j++) {
+                        projectOption = dojo.doc.createElement("option");
+                        dojo.attr(projectOption, {
+                            value:projectList[i].divProjs[j].id
+                        });
+                        projectOption.title = projectList[i].divProjs[j].value;
+                        projectOption.innerHTML = projectList[i].divProjs[j].value;
+                        projectSelect.appendChild(projectOption);
+                    }
+                }
+            }
         } else {
-			projectSelect.options.length = 0;
             insertEmptyOption(projectSelect);
         }
     }
     else {
-		projectSelect.options.length = 0;
+
         division.value = 0;
 
         dojo.attr("divisionId", {disabled:"disabled"});
