@@ -37,17 +37,17 @@ public class MailUtils {
 
     /**
      * Единый метод для загрузки почтовых настроек
+     *
      * @param mailConfig
      */
-    public static void loadMailConfig(Properties mailConfig){
+    public static void loadMailConfig(Properties mailConfig) {
         FileInputStream propertiesFile = null;
         try {
             propertiesFile = new FileInputStream(TimeSheetConstans.PROPERTY_PATH);
+
+            mailConfig.load(propertiesFile);
         } catch (FileNotFoundException e1) {
             logger.error("File timesheet.properties not found.");
-        }
-        try {
-            mailConfig.load(propertiesFile);
         } catch (InvalidPropertiesFormatException e) {
             logger.error("Invalid timesheet.properties file format.");
         } catch (IOException e) {
