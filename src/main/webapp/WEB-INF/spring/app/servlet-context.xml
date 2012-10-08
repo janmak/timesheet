@@ -29,17 +29,7 @@
     	<beans:property name="maxUploadSize" value="8388608"/>
 	</beans:bean>
 	
-	<!-- Application Message Bundle -->
-	<beans:bean id="messageSource"  
-        class="org.springframework.context.support.ReloadableResourceBundleMessageSource">  
-    	<beans:property name="basenames">
-    		<beans:list>
-    			<beans:value>/WEB-INF/messages/messages</beans:value>
-    			<beans:value>/WEB-INF/messages/errors</beans:value>
-    		</beans:list>
-    	</beans:property>
-    	<beans:property name="cacheSeconds" value="0" />
-  	</beans:bean>
+	
 
 	<!-- Imports user-defined @Controller beans that process client requests -->
 	<beans:import resource="controllers.xml" />
