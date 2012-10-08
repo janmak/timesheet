@@ -35,7 +35,7 @@ public class ManagerController {
 			try {
 				properties.load(fis);
 				pentahoPath = properties.getProperty("pentaho.url");
-				if(pentahoPath.isEmpty()) {
+				if((pentahoPath != null) && pentahoPath.isEmpty()) {
 					pentahoPath = null;
 				}
 			} catch (IOException ex) {
