@@ -94,7 +94,6 @@ public class LdapUserDetailsService implements UserDetailsContextMapper {
 
     @Override
     public void mapUserToContext(UserDetails user, DirContextAdapter ctx) {
-        //To change body of implemented methods use File | Settings | File Templates.
     }
 
 }
