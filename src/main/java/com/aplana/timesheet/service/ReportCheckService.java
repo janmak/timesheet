@@ -100,24 +100,24 @@ public class ReportCheckService {
         FileInputStream propertiesFile = null;
         try {
             propertiesFile = new FileInputStream(TimeSheetConstans.PROPERTY_PATH);
+
+            mailConfig.load(propertiesFile);
+
+            String[] divisionsSendMail = mailConfig.getProperty("mail.divisions").split(" ");
+            logger.info("divisionlist is {}", mailConfig.getProperty("mail.divisions"));
+
+            for (String divisionId : divisionsSendMail) {
+                logger.info("division id is {}", Integer.parseInt(divisionId));
+                storeReportCheck(divisionService.find(Integer.parseInt(divisionId)), firstDay, lastDay, sundayCheck);
+            }
         } catch (FileNotFoundException e1) {
             logger.error("File timesheet.properties not found.");
-        }
-        try {
-            mailConfig.load(propertiesFile);
         } catch (InvalidPropertiesFormatException e) {
             logger.error("Invalid timesheet.properties file format.");
         } catch (IOException e) {
             logger.error("Input-output error.");
         }
 
-        String[] divisionsSendMail = mailConfig.getProperty("mail.divisions").split(" ");
-        logger.info("divisionlist is {}", mailConfig.getProperty("mail.divisions"));
-
-        for (String divisionId : divisionsSendMail) {
-            logger.info("division id is {}", Integer.parseInt(divisionId));
-            storeReportCheck(divisionService.find(Integer.parseInt(divisionId)), firstDay, lastDay, sundayCheck);
-        }
     }
 
     /**
@@ -141,7 +141,7 @@ public class ReportCheckService {
             logger.info("Employee {}", emp.getName());
             // если сотрудник работает и не начальник подразделения
             //if (!emp.isArchived() && emp.getManager() != null) {
-            if(!emp.isDisabled(null) && emp.getManager() != null) {
+            if (!emp.isDisabled(null) && emp.getManager() != null) {
                 reportsNotSendNumber = 0;
                 List<String> passedDays = new ArrayList<String>();
                 for (String day : dayList) {

@@ -31,6 +31,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import com.aplana.timesheet.util.TimeSheetConstans;
 
 @Service("oqProgectSyncService")
@@ -75,10 +76,7 @@ public class OQProjectSyncService {
         FileInputStream propertiesFile = null;
         try {
             propertiesFile = new FileInputStream(TimeSheetConstans.PROPERTY_PATH);
-        } catch (FileNotFoundException e1) {
-            logger.error("File timesheet.properties not found.");
-        }
-        try {
+
             Properties syncConfig = new Properties();
             syncConfig.load(propertiesFile);
             if (syncConfig.getProperty("OQ.url") != null)
@@ -86,6 +84,8 @@ public class OQProjectSyncService {
             else {
                 logger.warn("OQ.url parameter not found in timesheet.properties");
             }
+        } catch (FileNotFoundException e1) {
+            logger.error("File timesheet.properties not found.");
         } catch (InvalidPropertiesFormatException e) {
             logger.error("Invalid timesheet.properties file format.");
         } catch (IOException e) {
@@ -146,8 +146,7 @@ public class OQProjectSyncService {
                         String pmLdap = nodeMap.getNamedItem("pm").getNodeValue();
 
                         //APLANATS-429
-                        if ((pmLdap == null) || (pmLdap.equals("")))
-                        {
+                        if ((pmLdap == null) || (pmLdap.equals(""))) {
                             trace.append("Проект ").append(project.getName()).append(" пропущен, т.к. не указан руководитель проекта \n");
                             continue;
                         }
