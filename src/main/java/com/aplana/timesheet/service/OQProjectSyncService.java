@@ -79,8 +79,9 @@ public class OQProjectSyncService {
 
             Properties syncConfig = new Properties();
             syncConfig.load(propertiesFile);
-            if (syncConfig.getProperty("OQ.url") != null)
-                oqUrl = new URL(syncConfig.getProperty("OQ.url"));
+			String oqUrlLocal = syncConfig.getProperty("OQ.url");
+            if (oqUrlLocal != null && !oqUrlLocal.isEmpty())
+                oqUrl = new URL(oqUrlLocal);
             else {
                 logger.warn("OQ.url parameter not found in timesheet.properties");
             }

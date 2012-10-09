@@ -15,6 +15,8 @@
         });
 
         var employeeList = ${employeeListJson};
+		var hasFile1 = false;
+		var hasFile2 = false;
 
         // Устанавливаем подразделение и сотрудника по умолчанию
         //из аргументов переданных через контроллер
@@ -26,13 +28,6 @@
             var divVal = ${divId};
             var empVal = ${empId};
 
-            //устанавливаем подразделение
-            /* var divOptions = dojo.query('.divOption');
-             for (var i = 0; i < divOptions.length; i++) {
-             if (divOptions[i].value == divVal) {
-             dojo.attr(divOptions[i], {selected:"selected"});
-             }
-             }*/
             mainForm.divisionId.value = divVal;
 
             //устанавливаем сотрудника
@@ -66,6 +61,10 @@
             sortSelectOptions(employeeSelect);
         };
 		
+		function uploadFile(control) {
+			
+		}
+		
 		function checkFileSize() {
 			var file1 = feedbackForm.file1Path.files[0];
 			var file2 = feedbackForm.file2Path.files[0];
@@ -89,12 +88,7 @@
 			} else {
 				return false;
 			}				
-		}
-		
-		//function  stopSubmint() {
-			
-		//}
-		
+		}		
 
         //проверяем и отсылаем форму
         function submitform() {
@@ -144,11 +138,51 @@
                 feedbackForm.submit();
             }
         }
+		
+		function showControls() {
+			if(feedbackForm.file2Path.files[0] == null) {
+				showAdditionalInput('file2PathContainer');
+				showAdditionalInput('fileDelete2');
+				disableInput('fileDelete2');
+			}
+			enableInput('fileDelete1');
+		}
+		
+		function hideControlsAndDeleteFile() {
+			deleteFile('file1PathContainer');
+			disableInput('fileDelete1')
+			if(feedbackForm.file2Path.files[0] == null) {
+				hideInput('file2PathContainer');
+				hideInput('fileDelete2');
+			}
+		}
+		
+		function deleteFile(controlName) {
+			document.getElementById(controlName).innerHTML = document.getElementById(controlName).innerHTML;
+		}
 
         //Показать скрытый input для дополнительного файла-вложения
         function showAdditionalInput(id) {
             document.getElementById(id).style.display = '';
         }
+		
+		//Cкрыть контрол
+        function hideInput(id) {
+            document.getElementById(id).style.display = 'none';
+        }
+		//Включить контрол
+        function enableInput(id) {
+            document.getElementById(id).disabled = false;
+        }
+		//Выключить контрол
+        function disableInput(id) {
+            document.getElementById(id).disabled = true;
+        }
+		
+		function deleteFileIn2Position() {
+			disableInput('fileDelete2');
+			deleteFile('file2PathContainer');
+		}
     </script>
 
 </head>
@@ -179,7 +213,7 @@
                 <th align="center" width="210px">Текст сообщения</th>
                 <th align="center" width="270px">Вложения</th>
             </tr>
-
+				
             <tr class="time_sheet_row" id="ts_row">
                 <td width="38" class="top_align"> <!-- Тип проблемы -->
                     <form:select path="feedbackType" cssClass="activityType" style="width:200px" id="feedback_type"
@@ -202,11 +236,34 @@
                                    cols="40"></form:textarea>
                 </td>
                 <td class="top_align"><!-- Вложения -->
-                    <input id="file1Path" name="file1Path" type="file" size="30" onchange="showAdditionalInput('file2Path')"/><br/>
-                    <input style="display:none" id="file2Path" name="file2Path" type="file" size="30" /><br/>
+					<table style="border-style:none">
+						<tr>
+							<td style="border-style:none">
+								<button id="fileDelete1" name="fileDelete1" type="button" onclick="hideControlsAndDeleteFile()" disabled="true">
+									Удалить
+								</button>
+							</td>
+							<td style="border-style:none">
+								<div id="file1PathContainer">
+									<input id="file1Path" name="file1Path" type="file" size="30" onchange="showControls()"/>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td style="border-style:none">
+								<button style="display:none" id="fileDelete2" name="fileDelete1" type="button" onclick="deleteFileIn2Position()">
+									Удалить
+								</button>
+							</td>
+							<td style="border-style:none">
+								<div id="file2PathContainer" style="display:none">
+									<input id="file2Path" name="file2Path" type="file" size="30" onchange="enableInput('fileDelete2')" /><br/>
+								</div>
+							</td>
+					</table>
                     <span>Суммарный размер вложений - не более 8МБ</span>
                 </td>
-
+					
             </tr>
         </table>
     </div>

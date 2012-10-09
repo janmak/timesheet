@@ -36,6 +36,15 @@ public class JasperReportDAO {
 		} else {
 			workDaySeparator = "";
 		}
+		boolean hasRegion;
+		String regionClause;
+		if (report.getRegionId() != null && !report.getRegionId().equals(0)) {
+			regionClause = "em.region.id = :regionId and ";
+			hasRegion = true;
+		} else {
+			regionClause = "";
+			hasRegion = false;
+		}
         Query query = entityManager.createQuery(
                 "select em.id, em.name, ts.calDate.calDate, cast('' as string), " +
                         "sum(td.duration)-8, sum(td.duration), h.id, h.region.id, " +
@@ -46,7 +55,7 @@ public class JasperReportDAO {
                         "inner join ts.employee em " +
                         "left outer join ts.calDate.holidays h " +
                         "where em.division.id = :divisionId and " +
-                        (!report.getRegionId().equals(0) ? "em.region.id = :regionId and " : "") +
+						regionClause +
                         "ts.calDate.calDate between :beginDate and :endDate " +
                         "and ((h.region.id is null) or (h.region.id=em.region.id)) " +
 						workDaySeparator +
@@ -54,8 +63,9 @@ public class JasperReportDAO {
                         "having (sum(td.duration) > 8) or (h is not null)" +
                         "order by em.name, h.id desc, ts.calDate.calDate");
 
-        if (!report.getRegionId().equals(0))
+        if (hasRegion) {
             query.setParameter("regionId", report.getRegionId());
+		}
         query.setParameter("divisionId", report.getDivisionId());
         query.setParameter("beginDate", DateTimeUtil.stringToTimestamp(report.getBeginDate()));
         query.setParameter("endDate", DateTimeUtil.stringToTimestamp(report.getEndDate()));
@@ -71,7 +81,7 @@ public class JasperReportDAO {
                 (!report.getRegionId().equals(0) ? "em.region.id = :regionId and " : "") +
                 "ts.calDate.calDate between :beginDate and :endDate ");
 
-        if (!report.getRegionId().equals(0))
+        if (hasRegion)
             projQuery.setParameter("regionId", report.getRegionId());
         projQuery.setParameter("divisionId", report.getDivisionId());
         projQuery.setParameter("beginDate", DateTimeUtil.stringToTimestamp(report.getBeginDate()));
@@ -130,8 +140,15 @@ public class JasperReportDAO {
     @Transactional(readOnly = true)
     public HibernateQueryResultDataSource getReport02Data(Report02 report) {
         Query query = null;
+		boolean hasProject;
+		
+		if (report.getProjectId() != null && report.getProjectId() != 0) {
+			hasProject = true;
+		} else {
+			hasProject = false;
+		}
 
-        if (report.getProjectId() != 0) {
+        if (hasProject) {
             // Выборка по конкретному проекту
             query = entityManager.createQuery("SELECT empl.name, d.name, p.name, tsd.cqId, sum(tsd.duration), " +
                     "(case when h is null then 0 " +
@@ -155,8 +172,7 @@ public class JasperReportDAO {
                     "GROUP BY empl.name, d.name, p.name, tsd.cqId, 6 " +
                     "ORDER BY empl.name, p.name, tsd.cqId ");
 
-            if (report.getProjectId() != 0)
-                query.setParameter("projectId", report.getProjectId());
+            query.setParameter("projectId", report.getProjectId());
 
         } else {
             if (report.getFilterProjects()) {
@@ -211,11 +227,11 @@ public class JasperReportDAO {
                         "ORDER BY empl.name, p.name, tsd.cqId ");
             }
         }
-        if (!report.getRegionId().equals(0))
+        if (report.getRegionId() != null && !report.getRegionId().equals(0))
             query.setParameter("regionId", report.getRegionId());
-        if (report.getEmployeeId() != 0)
+        if (report.getEmployeeId() != null && report.getEmployeeId() != 0)
             query.setParameter("emplId", report.getEmployeeId());
-        if (report.getEmplDivisionId() != 0)
+        if (report.getEmplDivisionId() != null && report.getEmplDivisionId() != 0)
             query.setParameter("emplDivisionId", report.getEmplDivisionId());
 
 
@@ -237,8 +253,15 @@ public class JasperReportDAO {
     public HibernateQueryResultDataSource getReport03Data(Report03 report) {
 
         Query query = null;
-
-        if (report.getProjectId() != 0) {
+		boolean hasProject;
+		
+		if (report.getProjectId() != null && report.getProjectId() != 0) {
+			hasProject = true;
+		} else {
+			hasProject = false;
+		}
+		
+        if (hasProject) {
 
             // Выборка по конкретному проекту
             query = entityManager.createQuery("SELECT empl.name, d.name, p.name, tsd.cqId, c.calDate, sum(tsd.duration), " +
@@ -263,8 +286,7 @@ public class JasperReportDAO {
                     "GROUP BY empl.name, d.name, p.name, tsd.cqId, c.calDate, h.id, h.region.id, empl.region.id " +
                     "ORDER BY empl.name, p.name, tsd.cqId, c.calDate ");
 
-            if (report.getProjectId() != 0)
-                query.setParameter("projectId", report.getProjectId());
+			query.setParameter("projectId", report.getProjectId());
 
 
         } else {
@@ -320,11 +342,11 @@ public class JasperReportDAO {
                         "ORDER BY empl.name, p.name, tsd.cqId, c.calDate ");
             }
         }
-        if (!report.getRegionId().equals(0))
+        if (report.getRegionId() != null && report.getRegionId() != 0)
             query.setParameter("regionId", report.getRegionId());
-        if (report.getEmployeeId() != 0)
+        if (report.getEmployeeId() != null && report.getEmployeeId() != 0)
             query.setParameter("emplId", report.getEmployeeId());
-        if (report.getEmplDivisionId() != 0)
+        if (report.getEmplDivisionId() != null && report.getEmplDivisionId() != 0)
             query.setParameter("emplDivisionId", report.getEmplDivisionId());
 
         query.setParameter("beginDate", DateTimeUtil.stringToTimestamp(report.getBeginDate()));
@@ -343,7 +365,17 @@ public class JasperReportDAO {
 
     @Transactional(readOnly = true)
     public HibernateQueryResultDataSource getReport04Data(Report04 report) {
-
+		
+		boolean hasRegion;
+		String regionClause;
+		if (report.getRegionId() != null && !report.getRegionId().equals(0)) {
+			regionClause = "and emp.region.id = :regionId ";
+			hasRegion = true;
+		} else {
+			regionClause = "";
+			hasRegion = false;
+		}
+		
         Query query = entityManager.createQuery("select c.calDate, emp.name " +
                 "from Calendar c, Employee emp " +
                 "where c.calDate between :beginDate and " +
@@ -356,10 +388,8 @@ public class JasperReportDAO {
                 "ELSE :endDate " +
                 "END) " +
                 "and emp.division.id = :divisionId " +
-                 (!report.getRegionId().equals(0) ? "and emp.region.id = :regionId " : "")+
-//                "(emp.archived = false) " + // очень странно, что not emp.archived вызывает ошибку "unexpected AST node"
+                 regionClause +
                 "and (emp.notToSync = false) " +
-                //"and (emp.endDate is null or emp.endDate > :endDate) " +
                 "and emp.manager.id is not null " +
                 "and c.calDate not in (select ts.calDate.calDate " + //note: date don't have report
                 "from TimeSheet ts " +
@@ -371,7 +401,7 @@ public class JasperReportDAO {
                 "and (emp.startDate <= c.calDate) " +
                 "order by emp.name, c.calDate");
 
-        if (!report.getRegionId().equals(0))
+        if (hasRegion)
             query.setParameter("regionId", report.getRegionId());
         query.setParameter("divisionId", report.getDivisionId());
         query.setParameter("beginDate", DateTimeUtil.stringToTimestamp(report.getBeginDate()));
@@ -389,7 +419,27 @@ public class JasperReportDAO {
 
     @Transactional(readOnly = true)
     public HibernateQueryResultDataSource getReport05Data(Report05 report) {
-
+		boolean hasRegion;
+		String regionClause;
+		boolean hasEmployee;
+		String employeeClause;
+		
+		if (report.getRegionId() != null && report.getRegionId() != 0) {
+			hasRegion = true;
+			regionClause = "td.timeSheet.employee.region.id = :regionId and ";
+		} else {
+			hasRegion = false;
+			regionClause = "";
+		}
+		
+		if (report.getEmployeeId() != null && report.getEmployeeId() != 0) {
+			hasEmployee = true;
+			employeeClause = "em.id = :employeeId and ";
+		} else {
+			hasEmployee = false;
+			employeeClause = "";
+		}
+				
         Query query = entityManager.createQuery(
                 "select ts.calDate.calDate, em.name, td.actType.value, td.project.name, td.actCat.value, em.job.name, " +
                 "COALESCE(td.cqId, ''), td.duration, td.description, td.problem " +
@@ -397,14 +447,14 @@ public class JasperReportDAO {
                 "inner join td.timeSheet ts " +
                 "inner join ts.employee em " +
                 "where td.timeSheet.employee.division.id = :divisionId and " +
-                (!report.getRegionId().equals(0) ? "td.timeSheet.employee.region.id = :regionId and " : "") +
-                ((report.getEmployeeId() != null && report.getEmployeeId() != 0) ? "em.id = :employeeId and " : "") +
+                regionClause +
+				employeeClause +
                 "td.timeSheet.calDate.calDate between :beginDate and :endDate " +
                 "order by td.timeSheet.employee.name,td.timeSheet.calDate.calDate");
 
-        if (!report.getRegionId().equals(0))
+        if (hasRegion)
             query.setParameter("regionId", report.getRegionId());
-        if (report.getEmployeeId() != null && report.getEmployeeId() != 0)
+        if (hasEmployee)
             query.setParameter("employeeId", report.getEmployeeId());
         query.setParameter("divisionId", report.getDivisionId());
         query.setParameter("beginDate", DateTimeUtil.stringToTimestamp(report.getBeginDate()));
@@ -424,16 +474,27 @@ public class JasperReportDAO {
 
     @Transactional(readOnly = true)
     public HibernateQueryResultDataSource getReport06Data(Report06 report) {
+		
+		boolean hasRegion;
+		String regionClause;
+		if (report.getRegionId() != null && !report.getRegionId().equals(0)) {
+			regionClause = "tsd.timeSheet.employee.region.id = :regionId AND ";
+			hasRegion = true;
+		} else {
+			regionClause = "";
+			hasRegion = false;
+		}
+		
         Query query = entityManager.createQuery(
                 "SELECT sum(tsd.duration), act.projectRole.name, tsd.timeSheet.employee.name, tsd.actCat.value " +
                         "FROM TimeSheetDetail tsd, AvailableActivityCategory act " +
                         "WHERE tsd.project.id=:projectId AND tsd.actType=act.actType AND tsd.actCat=act.actCat AND " +
-                        (!report.getRegionId().equals(0) ? "tsd.timeSheet.employee.region.id = :regionId AND " : "") +
+                        regionClause +
                         "tsd.timeSheet.calDate.calDate between :beginDate AND :endDate AND act.projectRole=tsd.timeSheet.employee.job " +
                         "GROUP BY act.projectRole.name, tsd.timeSheet.employee.name, tsd.actCat.value " +
                         "ORDER BY tsd.timeSheet.employee.name asc");
 
-        if (!report.getRegionId().equals(0))
+        if (hasRegion)
             query.setParameter("regionId", report.getRegionId());
         query.setParameter("projectId", report.getProjectId());
         query.setParameter("beginDate", DateTimeUtil.stringToTimestamp(report.getBeginDate()));

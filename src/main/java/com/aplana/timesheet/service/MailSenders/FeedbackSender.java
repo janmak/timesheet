@@ -43,8 +43,11 @@ public class FeedbackSender extends MailSender {
     protected void initFromAddresses() {
         Integer employeeId = tsForm.getEmployeeId();
         String employeeEmail;
-        if (employeeId != null) employeeEmail = sendMailService.employeeService.find(employeeId).getEmail();
-        else return;
+        if (employeeId != null) {
+			employeeEmail = sendMailService.employeeService.find(employeeId).getEmail();
+		} else {
+			return;
+		}
         logger.debug("From Address = {}", employeeEmail);
         try {
             fromAddr = new InternetAddress(employeeEmail);

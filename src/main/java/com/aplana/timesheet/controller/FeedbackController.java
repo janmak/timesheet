@@ -128,8 +128,9 @@ public class FeedbackController {
 			try {
 				properties.load(fis);
 				jiraIssueCreateUrl = properties.getProperty("jira.issue.create.url");
-				if(jiraIssueCreateUrl.isEmpty()) {
+				if(jiraIssueCreateUrl != null && jiraIssueCreateUrl.isEmpty()) {
 					jiraIssueCreateUrl = null;
+					logger.warn("In your properties not assign 'jira.issue.create.url', some functions will be disabled");
 				}					
 			} catch (IOException ex) {
 				logger.error("", ex);

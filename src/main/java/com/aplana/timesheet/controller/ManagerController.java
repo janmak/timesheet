@@ -35,8 +35,9 @@ public class ManagerController {
 			try {
 				properties.load(fis);
 				pentahoPath = properties.getProperty("pentaho.url");
-				if(pentahoPath.isEmpty()) {
+				if(pentahoPath != null && pentahoPath.isEmpty()) {
 					pentahoPath = null;
+					logger.warn("In your properties not assign 'pentaho.url', some functions will be disabled");
 				}
 			} catch (IOException ex) {
 				logger.error("", ex);
