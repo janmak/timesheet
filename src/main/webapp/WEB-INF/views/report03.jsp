@@ -100,16 +100,14 @@
                                 dojoType="dijit.form.DateTextBox"
                                 required="false"
                                 onmouseover="tooltip.show(getTitle(this));"
-                                onmouseout="tooltip.hide();"
-                                onChange="toDate.constraints.min = arguments[0];"/></td>
+                                onmouseout="tooltip.hide();"/></td>
                 <td><span class="label">Окончание периода</span></td>
                 <td><form:input path="endDate" id="endDate" name="endDate" class="date_picker"
                                 data-dojo-id="toDate"
                                 dojoType="dijit.form.DateTextBox"
                                 required="false"
                                 onmouseover="tooltip.show(getTitle(this));"
-                                onmouseout="tooltip.hide();"
-                                onChange="fromDate.constraints.max = arguments[0];"/></td>
+                                onmouseout="tooltip.hide();"/></td>
             </tr>
         </table>
         <div class="radiogroup">
