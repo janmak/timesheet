@@ -179,7 +179,7 @@
                     <tr>
                         <c:choose>
                             <c:when test="${row[4] ne null}">
-                                <td width="120" bordercolor="brown"><span
+                                <td width="150" bordercolor="brown"><span
                                         class="colortext">&nbsp <b>${row[0]}</b> ${row[6]}</span></td>
                                 <td width="160" bordercolor="brown"></td>
                                 <td></td>
@@ -204,7 +204,7 @@
                     <tr>
                         <c:choose>
                             <c:when test="${row[4] ne null}">
-                                <td width="120" bordercolor="red"><span
+                                <td width="150" bordercolor="red"><span
                                         class="colortext">&nbsp <b>${row[0]} ${row[6]}</b></span></td>
                                 <td width="160" bordercolor="red">
                                     <c:if test="${row[9]==false}">
@@ -216,7 +216,7 @@
                                 </td>
                             </c:when>
                             <c:when test="${row[4] eq null}">
-                                <td width="120" bordercolor="grey">&nbsp <b>${row[0]}</b> ${row[6]}</td>
+                                <td width="150" bordercolor="grey">&nbsp <b>${row[0]}</b> ${row[6]}</td>
                                 <td width="160" bordercolor="grey">
                                     <c:if test="${row[9]==false}">
                                     <a href="<%=request.getContextPath()%>/report/${row[2]}/${row[3]}/${row[5]}/${employeeId}"

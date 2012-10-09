@@ -219,9 +219,6 @@ public class ViewReportsController {
             } else {
                 oneDay[9] = "true";
             }
-//            } else {
-//                oneDay[9] = "true";
-//            }
             dateList.add(oneDay);
 
         }
@@ -230,21 +227,12 @@ public class ViewReportsController {
         if (year == yearInt) {
             if (month > monthInt) mav.addObject("timePlan", "0");
             else
-                mav.addObject("timePlan", (countMonth - plus) * 8 + (month < monthInt ? "" : (" (до " + (currentDayInt) + "ого) ")));
+                mav.addObject("timePlan", (countMonth - plus) * 8 + (month < monthInt ? "" : (" (до " + (currentDayInt) + "-го) ")));
         } else if (year > yearInt) {
             mav.addObject("timePlan", "0");
         } else {
             mav.addObject("timePlan", (countMonth - plus) * 8);
         }
-//        if ((month <= monthInt) && (year <= yearInt)) {
-//
-//            mav.addObject("timePlan", (countMonth - plus) * 8 + (month != monthInt ? "" : (" (до " + (currentDayInt) + "ого) ")));
-//        }
-//
-//        else{
-//            //mav.addObject("timeFact", "");
-//            mav.addObject("timePlan", "0");
-//        }
         mav.addObject("dateList", dateList);
         return mav;
     }
