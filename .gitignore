@@ -9,3 +9,7 @@
 .idea
 *.iml
 /target/
+
+# Exclude files #
+logs/
+webapps/timesheet.properties
