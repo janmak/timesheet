@@ -3,17 +3,6 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-    <!--Авторизация в Active Directory-->
-<!--
-    <bean id="ldapAuthProvider"
-          class="org.springframework.security.ldap.authentication.ad.ActiveDirectoryLdapAuthenticationProvider">
-        <constructor-arg value="${ldap.domain}"/>
-        <constructor-arg value="${ldap.url}"/>
-        <property name="userDetailsContextMapper" ref="myLdapUserDetailsService"/>
-    </bean>
--->
-    <!--Конец блока авторизации в Active Directory-->
-
     <!--Авторизация в OpenLDAP-->
     <bean id="ldapAuthProvider"
           class="org.springframework.security.ldap.authentication.LdapAuthenticationProvider">
