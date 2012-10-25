@@ -48,8 +48,8 @@
 Пароли соответствуют логинам.
 
 В файле root-context.xml секция "Реализация авторизации в системе" должна выглядеть так:
-    <import resource="app/authentication_OpenLDAP.xml"/>
-    <!--<import resource="app/authentication_ActiveDirectory.xml"/>-->
+    &lt;import resource="app/authentication_OpenLDAP.xml"/&gt;
+    <!--&lt;import resource="app/authentication_ActiveDirectory.xml"/&gt;-->
 
 Подключение к базе данных
 -------------------------
