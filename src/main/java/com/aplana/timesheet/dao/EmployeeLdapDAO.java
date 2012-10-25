@@ -124,7 +124,9 @@ public class EmployeeLdapDAO {
 				employee.setLdapCn(ldapCn.get().toString());
 			
 			Attribute objectSid = attributes.get("objectSid");
-			employee.setObjectSid(LdapAplanaUtils.getSidAttribute(objectSid));
+            if (objectSid != null)
+			    employee.setObjectSid(LdapAplanaUtils.getSidAttribute(objectSid));
+
 			return employee;
 		}
 	}
