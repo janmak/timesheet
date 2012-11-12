@@ -193,9 +193,9 @@ public class JasperReportDAO {
                         "WHERE " +
                         "tsd.duration > 0 AND " +
                         "dp.id=:divisionId AND " +
-                        (report.getEmployeeId() == null ? "" : "empl.id=:emplId AND ") +
-                        (report.getEmplDivisionId() == null ? "" : "d.id=:emplDivisionId AND ") +
-                        (report.getRegionId() != null ? "empl.region.id = :regionId AND " : "") +
+                        (report.getEmployeeId() == null || report.getEmployeeId() == 0 ? "" : "empl.id=:emplId AND ") +
+                        (report.getEmplDivisionId() == null || report.getEmplDivisionId() == 0 ? "" : "d.id=:emplDivisionId AND ") +
+                        (report.getRegionId() == null || report.getRegionId()== 0 ? "" : "empl.region.id = :regionId AND ") +
                         "c.calDate between :beginDate AND :endDate " +
                         "GROUP BY empl.name, d.name, p.name, tsd.cqId, 6 " +
                         "ORDER BY empl.name, p.name, tsd.cqId ");
@@ -219,15 +219,15 @@ public class JasperReportDAO {
                         "left outer join c.holidays h " +
                         "WHERE " +
                         "tsd.duration > 0 AND " +
-                        (report.getEmployeeId() == null ? "" : "empl.id=:emplId AND ") +
-                        (report.getEmplDivisionId() == null ? "" : "d.id=:emplDivisionId AND ") +
-                        (report.getRegionId() != null ? "empl.region.id = :regionId AND " : "") +
+                        (report.getEmployeeId() == null || report.getEmployeeId() == 0 ? "" : "empl.id=:emplId AND ") +
+                        (report.getEmplDivisionId() == null || report.getEmplDivisionId() == 0 ? "" : "d.id=:emplDivisionId AND ") +
+                        (report.getRegionId() == null || report.getRegionId()== 0 ? "" : "empl.region.id = :regionId AND ") +
                         "c.calDate between :beginDate AND :endDate " +
                         "GROUP BY empl.name, d.name, p.name, tsd.cqId, 6 " +
                         "ORDER BY empl.name, p.name, tsd.cqId ");
             }
         }
-        if (report.getRegionId() != null && !report.getRegionId().equals(0))
+        if (report.getRegionId() != null && report.getRegionId() != 0)
             query.setParameter("regionId", report.getRegionId());
         if (report.getEmployeeId() != null && report.getEmployeeId() != 0)
             query.setParameter("emplId", report.getEmployeeId());

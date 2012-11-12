@@ -40,21 +40,21 @@
     <div id="form_header">
         <table class="report_params" cellspacing="3">
             <tr>
-                <td><span class="label">Центр</span></td>
+                <td><span class="label">Центр</span><span style="color:red">*</span></td>
                 <td><form:select id="divisionId" name="divisionId" cssClass="without_dojo"
                                  onmouseover="tooltip.show(getTitle(this));"
                                  onmouseout="tooltip.hide();" path="divisionId">
                     <form:option label="" value="0"/>
                     <form:options items="${divisionList}" itemLabel="name" itemValue="id"/>
                 </form:select></td>
-                <td><span class="label">Регион</span></td>
+                <td><span class="label">Регион</span><span style="color:red">*</span></td>
                 <td><form:select id="regionId" name="regionId" cssClass="without_dojo"
                                  onmouseover="tooltip.show(getTitle(this));"
                                  onmouseout="tooltip.hide();" path="regionId">
                     <form:option label="Все" value="0"/>
                     <form:options items="${regionList}" itemLabel="name" itemValue="id"/>
                 </form:select></td>
-				<td><span class="label">Категория переработок</span></td>
+				<td><span class="label">Категория переработок</span><span style="color:red">*</span></td>
 				<td>					
 					<form:select path="category" id="category" name="category" cssClass="without_dojo"
                                  onmouseover="tooltip.show(getTitle(this));"
@@ -65,14 +65,14 @@
 				</td>
             </tr>
             <tr>
-                <td><span class="label">Начало периода</span></td>
+                <td><span class="label">Начало периода</span><span style="color:red">*</span></td>
                 <td><form:input path="beginDate" id="beginDate" name="beginDate" class="date_picker"
                                 data-dojo-id="fromDate"
                                 dojoType="dijit.form.DateTextBox"
                                 required="false"
                                 onmouseover="tooltip.show(getTitle(this));"
                                 onmouseout="tooltip.hide();"/></td>
-                <td><span class="label">Окончание периода</span></td>
+                <td><span class="label">Окончание периода</span><span style="color:red">*</span></td>
                 <td><form:input path="endDate" id="endDate" name="endDate" class="date_picker"
                                 data-dojo-id="toDate"
                                 dojoType="dijit.form.DateTextBox"
