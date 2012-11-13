@@ -254,6 +254,36 @@ public class JasperReportDAO {
 
         Query query = null;
 		boolean hasProject;
+		boolean hasEmployee;
+		String employeeClause;
+		boolean hasEmployeeDivision;
+		String employeeDivisionClause;
+		boolean hasRegion;
+		String regionClause;
+		
+		if (report.getRegionId() != null && report.getRegionId() != 0) {
+			hasEmployee = true;
+			employeeClause = "empl.id=:emplId AND ";
+		} else {
+			hasEmployee = false;
+			employeeClause = "";
+		}
+		
+        if (report.getEmplDivisionId() != null && report.getEmplDivisionId() != 0) {
+			hasEmployeeDivision = true;
+			employeeDivisionClause = "d.id=:emplDivisionId AND ";
+		} else {
+			hasEmployeeDivision = false;
+			employeeDivisionClause = "";
+		}
+		
+        if (report.getEmployeeId() != null && report.getEmployeeId() != 0) {
+			hasRegion = true;
+			regionClause = "empl.region.id = :regionId AND ";
+		} else {
+			hasRegion = false;
+			regionClause = "";
+		}
 		
 		if (report.getProjectId() != null && report.getProjectId() != 0) {
 			hasProject = true;
@@ -279,9 +309,9 @@ public class JasperReportDAO {
                     "WHERE " +
                     "tsd.duration > 0 AND " +
                     "tsd.project.id=:projectId AND " +
-                    (report.getEmployeeId() == null ? "" : "empl.id=:emplId AND ") +
-                    (report.getEmplDivisionId() == null ? "" : "d.id=:emplDivisionId AND ") +
-                    (report.getRegionId() != null ? "empl.region.id = :regionId AND " : "") +
+                    employeeClause +
+                    employeeDivisionClause +
+                    regionClause +
                     "c.calDate between :beginDate AND :endDate " +
                     "GROUP BY empl.name, d.name, p.name, tsd.cqId, c.calDate, h.id, h.region.id, empl.region.id " +
                     "ORDER BY empl.name, p.name, tsd.cqId, c.calDate ");
@@ -308,9 +338,9 @@ public class JasperReportDAO {
                         "WHERE " +
                         "tsd.duration > 0 AND " +
                         "dp.id=:divisionId AND " +
-                        (report.getEmployeeId() == null ? "" : "empl.id=:emplId AND ") +
-                        (report.getEmplDivisionId() == null ? "" : "d.id=:emplDivisionId AND ") +
-                        (report.getRegionId() == null ? "empl.region.id = :regionId AND " : "") +
+                        employeeClause +
+                        employeeDivisionClause +
+                        regionClause +
                         "c.calDate between :beginDate AND :endDate " +
                         "GROUP BY empl.name, d.name, p.name, tsd.cqId, c.calDate, h.id, h.region.id, empl.region.id " +
                         "ORDER BY empl.name, p.name, tsd.cqId, c.calDate ");
@@ -334,9 +364,9 @@ public class JasperReportDAO {
                         "left outer join c.holidays h " +
                         "WHERE " +
                         "tsd.duration > 0 AND " +
-                        (report.getEmployeeId() == null ? "" : "empl.id=:emplId AND ") +
-                        (report.getEmplDivisionId() == null ? "" : "d.id=:emplDivisionId AND ") +
-                        (report.getRegionId() != null ? "empl.region.id = :regionId AND " : "") +
+                        employeeClause +
+                        employeeDivisionClause +
+                        regionClause +
                         "c.calDate between :beginDate AND :endDate " +
                         "GROUP BY empl.name, d.name, p.name, tsd.cqId, c.calDate, h.id, h.region.id, empl.region.id " +
                         "ORDER BY empl.name, p.name, tsd.cqId, c.calDate ");
