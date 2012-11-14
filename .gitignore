@@ -13,3 +13,4 @@
 # Exclude files #
 logs/
 webapps/timesheet.properties
+/nbactions.xml

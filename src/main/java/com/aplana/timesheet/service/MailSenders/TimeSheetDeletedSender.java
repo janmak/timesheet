@@ -25,22 +25,16 @@ public class TimeSheetDeletedSender extends MailSender {
     @Override
     protected void initToAddresses() {
         String email = deletedTimeSheet.getEmployee().getEmail();
+        String ccAddress = sendMailService.mailConfig.getProperty("mail.fromaddres");
+        if (email.length() > 0) {
+            logger.debug("IA 123");
+            email = email.concat(",".concat(ccAddress));
+        }
         logger.debug("To Address: {}", email);
         try {
             toAddr = InternetAddress.parse(email);
         } catch (AddressException e) {
             logger.error("Email address has wrong format.", e);
-        }
-    }
-
-    @Override
-    protected void initCcAddresses() {
-        String ccAddress = sendMailService.mailConfig.getProperty("mail.TimeSheetDeleted.ccaddress");
-        try {
-            ccAddr = InternetAddress.parse(ccAddress);
-            logger.debug("Cc Address = {}", ccAddr);
-        } catch (AddressException e) {
-            logger.error("Email address {} has wrong format.", ccAddress, e);
         }
     }
 

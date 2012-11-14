@@ -38,32 +38,21 @@ public class TimeSheetSender extends MailSender {
     }
 
     @Override
-    protected void initCcAddresses() {
-        StringBuilder ccAddresses = new StringBuilder();
+    protected void initToAddresses() {
+        StringBuilder toAddresses = new StringBuilder();
 
-        ccAddresses.append(sendMailService.getEmployeeEmail(tsForm.getEmployeeId())).append(",");
-        ccAddresses.append(sendMailService.getEmployeesManagersEmails(tsForm.getEmployeeId()));
-        logger.debug("EmployeesManagersEmails: {}", ccAddresses.toString());
-        ccAddresses.append(sendMailService.getProjectsManagersEmails(tsForm));
-        logger.debug(" + ProjectsManagersEmail: {}", ccAddresses.toString());
-        ccAddresses.append(sendMailService.getProjectParticipantsEmails(tsForm.getEmployeeId(), tsForm));
-        logger.debug(" + ProjectParticipantsEmails: {}", ccAddresses.toString());
-        String uniqueSendingEmails = MailUtils.deleteEmailDublicates(ccAddresses.toString());
+        toAddresses.append(sendMailService.getEmployeeEmail(tsForm.getEmployeeId())).append(",");
+        toAddresses.append(sendMailService.getEmployeesManagersEmails(tsForm.getEmployeeId()));
+        logger.debug("EmployeesManagersEmails: {}", toAddresses.toString());
+        toAddresses.append(sendMailService.getProjectsManagersEmails(tsForm));
+        logger.debug(" + ProjectsManagersEmail: {}", toAddresses.toString());
+        toAddresses.append(sendMailService.getProjectParticipantsEmails(tsForm.getEmployeeId(), tsForm));
+        logger.debug(" + ProjectParticipantsEmails: {}", toAddresses.toString());
+        String uniqueSendingEmails = MailUtils.deleteEmailDublicates(toAddresses.toString());
         try {
-            ccAddr = InternetAddress.parse(uniqueSendingEmails);
+            toAddr = InternetAddress.parse(uniqueSendingEmails);
         } catch (AddressException e) {
             logger.error("Email address has wrong format.", e);
-        }
-    }
-
-    @Override
-    protected void initToAddresses() {
-        String toAddress = sendMailService.mailConfig.getProperty("mail.pcg.toaddress");
-        try {
-            toAddr = InternetAddress.parse(toAddress);
-            logger.debug("To Address = {}", toAddress);
-        } catch (AddressException e) {
-            logger.error("Email address {} has wrong format.", toAddress, e);
         }
     }
 
