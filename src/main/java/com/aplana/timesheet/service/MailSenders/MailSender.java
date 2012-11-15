@@ -44,7 +44,7 @@ public class MailSender {
     }
 
     protected void initFromAddresses() {
-        String fromAddress = sendMailService.mailConfig.getProperty("mail.fromaddres");
+        String fromAddress = sendMailService.mailConfig.getProperty("mail.fromaddress");
         try {
             fromAddr = InternetAddress.parse(fromAddress)[0];
             logger.debug("From Address = {}", fromAddress);

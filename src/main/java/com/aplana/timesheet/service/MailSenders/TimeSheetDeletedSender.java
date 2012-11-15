@@ -25,10 +25,10 @@ public class TimeSheetDeletedSender extends MailSender {
     @Override
     protected void initToAddresses() {
         String email = deletedTimeSheet.getEmployee().getEmail();
-        String ccAddress = sendMailService.mailConfig.getProperty("mail.fromaddres");
+        String toAddress = sendMailService.mailConfig.getProperty("mail.fromaddress");
         if (email.length() > 0) {
             logger.debug("IA 123");
-            email = email.concat(",".concat(ccAddress));
+            email = email.concat(",".concat(toAddress));
         }
         logger.debug("To Address: {}", email);
         try {
