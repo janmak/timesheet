@@ -100,15 +100,6 @@ public class FeedbackController {
 		return "redirect:feedback";
 	}
 	
-	//Берем ID подразделения и сотрудника, выбранных на главной странице
-	//и перенаправляем  по URL без ID-ов
-	/*@RequestMapping(value = "/problem/{divId}/{empId}", method = RequestMethod.GET)
-	 public String defaultSettings(@PathVariable("divId") Integer divId, @PathVariable("empId") Integer empId, @ModelAttribute("problemForm")FeedbackForm pForm, BindingResult result) {
-		divisionId = divId;
-		employeeId = empId;
-		return "redirect:/problem";
-	 }   */
-	
 	//Основной метод GET
 	@RequestMapping(value = "/feedback", method = RequestMethod.GET)
 	 public ModelAndView sendReportFeedback(@ModelAttribute("feedbackForm")FeedbackForm fbForm, BindingResult result) {

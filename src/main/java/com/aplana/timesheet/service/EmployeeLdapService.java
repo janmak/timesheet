@@ -42,7 +42,6 @@ public class EmployeeLdapService {
 	/**
 	 * Отображение ProjectRole --> роль в системе списания занятости.
 	 */
-	//private static final Map<Integer, Integer> ROLES_MAP = new HashMap<Integer, Integer>();
 
     public String synchronizeOneEmployee(String email) {
         return syncOneActiveEmployee(employeeLdapDao,email);
@@ -124,7 +123,6 @@ public class EmployeeLdapService {
 		List<Division> divisions = divisionService.getDivisions();
 		List<Employee> managersToSync = new ArrayList<Employee>();
 		for (Division division : divisions) {
-            //Division division=divisions.get(0);
 			List<EmployeeLdap> divLeader = employeeLdapDao
 				.getDivisionLeader(division.getLeader().getName(), division.getLdapName());
 			logger.debug("Division '{}' has {} leader", division.getLdapName(), divLeader.size());
@@ -133,7 +131,6 @@ public class EmployeeLdapService {
 
             manager.setName(managerLdap.getDisplayName());
             manager.setDivision(divisionService.find(managerLdap.getDepartment()));
-            //manager.setStartDate(DateTimeUtil.ldapDateToTimestamp(managerLdap.getWhenCreated()));
 			manager.setObjectSid(managerLdap.getObjectSid());
             ProjectRole job = projectRoleService.find(managerLdap.getTitle());
 
@@ -198,7 +195,6 @@ public class EmployeeLdapService {
                 employee.setJob(projectRoleService.getUndefinedRole());
                 errors+="job, ";
             }
-            //employee.setRole(projectJobService.find(employee.getJob().getId()).getIdJob());
             employee.setRole(projectRoleService.getSysRole(employee.getJob().getId()).getSysRoleId());
             //ищем регион сотруднику
             List<Region> list =  regionService.getRegions();
@@ -261,7 +257,6 @@ public class EmployeeLdapService {
 
                 employee.setName(employeeLdap.getDisplayName());
                 employee.setDivision(divisionService.find(employeeLdap.getDepartment()));
-                //employee.setStartDate(DateTimeUtil.ldapDateToTimestamp(employeeLdap.getWhenCreated()));
 				employee.setObjectSid(employeeLdap.getObjectSid());
                 ProjectRole job = projectRoleService.find(employeeLdap.getTitle());
 

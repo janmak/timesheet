@@ -89,7 +89,6 @@ public class TimeSheetController {
         mav.addObject("selectedActCategoriesJson", "[{row:'0', actCat:''}]");
         mav.addObject("selectedLongVacationIllnessJson", getSelectedLongVacationIllnessJson(tsForm));
 
-        //mav.addObject("rows_am",am_string>7 ? 7 :am_string);
         mav.addAllObjects(getListsToMAV());
         return mav;
     }
@@ -115,13 +114,6 @@ public class TimeSheetController {
     public String sendNewReport() {
         return "redirect:timesheet";
     }
-
-
-   // @RequestMapping(value="/getPlan", method = RequestMethod.POST)
-   // public ModelAndView getPlan()       {
-        //ModelAndView mav
-    //    return  ModelAndView mavWithErrors = new ModelAndView("timesheet");
-    //}
 
     @RequestMapping(value = "/timesheet", method = RequestMethod.POST)
     public ModelAndView sendTimeSheet(@ModelAttribute("timeSheetForm") TimeSheetForm tsForm, BindingResult result) {

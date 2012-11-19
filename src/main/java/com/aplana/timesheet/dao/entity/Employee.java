@@ -33,9 +33,6 @@ public class Employee {
     @Column(name = "start_date", columnDefinition = "date not null")
     private Timestamp startDate;
 
-    //@Column(columnDefinition = "bool not null default false")
-    //private boolean archived;
-
 	@Column
 	private String ldap;
 
@@ -126,10 +123,6 @@ public class Employee {
     public Timestamp getStartDate() {
         return startDate;
     }
-    //archived больше не используется
-//    public boolean isArchived() {
-//        return archived;
-//    }
 
     public void setId(Integer id) {
         this.id = id;
@@ -146,10 +139,6 @@ public class Employee {
     public void setStartDate(Timestamp startDate) {
         this.startDate = startDate;
     }
-
-//    public void setArchived(boolean archived) {
-//        this.archived = archived;
-//    }
 
     public Region getRegion() {
         return region;

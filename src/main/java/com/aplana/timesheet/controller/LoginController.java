@@ -47,12 +47,8 @@ public class LoginController {
             Object usrnameObj =
                     session.getAttribute(UsernamePasswordAuthenticationFilter.SPRING_SECURITY_LAST_USERNAME_KEY);
 
-            //Object usrnameObj =
-            //        session.getAttribute(UsernamePasswordAuthenticationFilter.SPRING_SECURITY_FORM_USERNAME_KEY);
             username = (usrnameObj != null) ? usrnameObj.toString() : null;
         }
-
-        //logger.info(username+"<<");
 
         model.addAttribute("error", "true");
         return "login";
@@ -79,9 +75,7 @@ public class LoginController {
     @RequestMapping(value = "/adminMessage", method = RequestMethod.POST)
     public ModelAndView adminMessage(@ModelAttribute("adminMessageForm") AdminMessageForm adminMessageForm,  BindingResult result, HttpServletRequest request) {
         ModelAndView mav;
-        //logger.info(adminMessageForm.getDescription()+"<<"+adminMessageForm.getEmail());
         adminMessageFormValidator.validate(adminMessageForm, result);
-        //logger.info(result+"<<");
         if (result.hasErrors()) {
             mav=new ModelAndView("adminMessage");
             mav.addObject("errors",result.getAllErrors());

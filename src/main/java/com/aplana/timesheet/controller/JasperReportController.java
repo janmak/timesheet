@@ -262,6 +262,14 @@ public class JasperReportController {
 		}
     }
 	
+	/**
+	 * Преобразует данные из указаных полей
+	 * данные из поля "regionsId" приводит к виду List<Integer>
+	 * 
+	 * @param request
+	 * @param binder
+	 * @throws Exception 
+	 */
 	@InitBinder
 	protected void initBinder(HttpServletRequest request, ServletRequestDataBinder binder) throws Exception {
 

@@ -164,7 +164,6 @@ public class DivisionDAO {
 			
 			Attribute name = attributes.get("description");
 			div.setLdap_name(checkAttribute(name));
-//			"distinguishedName"
 			
 			return div;			
 		}

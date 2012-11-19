@@ -18,7 +18,6 @@ public abstract class ProjectHelper {
 			sb.append("', divProjs:[");
 			if (projects.size() > 0) {
 				int count = 0;
-				//logger.debug("For division {} available {} projects.", divisions.get(i).getId(), projects.size());
 				for (Project project : projects) {
 					if (project.isActive()) {
 						sb.append("{id:'");

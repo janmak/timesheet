@@ -49,7 +49,6 @@ public class ProjectRoleService {
 	
 	/** Возвращает объект роли, которая не определена. */
 	public ProjectRole getUndefinedRole() {
-		//return projectRoleDAO.find(NOT_DEFINED_JOB);
         //роль не определена
         return projectRoleDAO.findByCode("ND");
 	}

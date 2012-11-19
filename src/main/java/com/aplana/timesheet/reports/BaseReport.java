@@ -24,11 +24,19 @@ public abstract class BaseReport implements TSJasperReport {
 
     protected String endDate;
 
-    // появление в этом списке числа ALL_REGIONS_FLAG означает что выбранны все регионы.
+	/**
+	 * Список идентификаторов регионов
+	 */
 	protected List<Integer> regionIds;
 
+	/**
+	 * Список полных наименований регионов
+	 */
     protected List<String> regionNames;
 	
+	/**
+	 * Костыль. Ознчачает что отчет надо формировать по всем регионам
+	 */
 	protected boolean allRegions;
 
     public String getBeginDate() {
@@ -63,6 +71,10 @@ public abstract class BaseReport implements TSJasperReport {
         this.regionNames = regionNames;
     }
 	
+	/**
+	 * Определяет есть ли хоть один регион в списке
+	 * @return true - когда есть выбран хоть один регион
+	 */
 	public boolean hasRegions() {
 		boolean val;
 		if(regionIds != null && !regionIds.isEmpty()) {

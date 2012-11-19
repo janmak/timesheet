@@ -65,6 +65,9 @@
 			
 		}
 		
+		/**
+		 * проверяет чтобы суммарный размер файлов не превышал 8 Mb
+		 */
 		function checkFileSize() {
 			var file1 = feedbackForm.file1Path.files[0];
 			var file2 = feedbackForm.file2Path.files[0];
@@ -139,6 +142,9 @@
             }
         }
 		
+		/**
+		 * Отображает второй набор контролов и кнопку удаления первого файла
+		 */
 		function showControls() {
 			if(feedbackForm.file2Path.files[0] == null) {
 				showAdditionalInput('file2PathContainer');
@@ -148,6 +154,9 @@
 			enableInput('fileDelete1');
 		}
 		
+		/**
+		 * Удаляет первый файл и скрывает второй набор контролов, если он пустой
+		 */
 		function hideControlsAndDeleteFile() {
 			deleteFile('file1PathContainer');
 			disableInput('fileDelete1')
@@ -157,11 +166,14 @@
 			}
 		}
 		
+		/**
+		 * Удаляет файл из контрола
+		 */
 		function deleteFile(controlName) {
 			document.getElementById(controlName).innerHTML = document.getElementById(controlName).innerHTML;
 		}
 
-        //Показать скрытый input для дополнительного файла-вложения
+        //Показать скрытый input
         function showAdditionalInput(id) {
             document.getElementById(id).style.display = '';
         }

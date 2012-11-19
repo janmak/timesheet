@@ -127,7 +127,6 @@ public class DateTimeUtil {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(curDate);
         calendar.set(Calendar.DAY_OF_MONTH, 1);
-//		logger.debug("First day of month " + sdf.format(calendar.getTime()));
         return sdf.format(calendar.getTime());
     }
 
@@ -143,7 +142,6 @@ public class DateTimeUtil {
         calendar.setTime(curDate);
         calendar.set(Calendar.MONTH, calendar.get(Calendar.MONTH) - 1);
         calendar.set(Calendar.DAY_OF_MONTH, 1);
-//		logger.debug("First day of previous month " + sdf.format(calendar.getTime()));
         return sdf.format(calendar.getTime());
     }
 

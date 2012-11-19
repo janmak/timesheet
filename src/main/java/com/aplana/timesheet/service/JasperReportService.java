@@ -108,7 +108,6 @@ public class JasperReportService {
                 if (agent.indexOf("Firefox") != -1)
                     contentDisposition = "attachment; filename=\"" + MimeUtility.encodeText(reportNameFile+suffix, "UTF8", "B") + "\"";
 
-                //response.setHeader("Content-Disposition", "attachment; filename=" + reportNameFile + suffix);
                 response.setHeader("Content-Disposition",contentDisposition);
             }
             else {
@@ -117,7 +116,6 @@ public class JasperReportService {
                 if (agent.indexOf("Firefox") != -1)
                     contentDisposition = "filename=\"" + MimeUtility.encodeText(reportNameFile+suffix, "UTF8", "B") + "\"";
 
-                //response.setHeader("Content-Disposition", "filename=" + reportNameFile + suffix);
                 response.setHeader("Content-Disposition",contentDisposition);
             }
             OutputStream outputStream = response.getOutputStream();

@@ -67,7 +67,6 @@ public class OQProjectSyncService {
     @Autowired
     private EmployeeLdapDAO employeeLdapDAO;
 
-    /*TODO: Temp*/
     @Autowired
     EmployeeLdapService employeeLdapService;
 
@@ -106,7 +105,6 @@ public class OQProjectSyncService {
     public void sync() {
         trace.setLength(0);
         logger.debug("oq project sync start");
-        //employeeLdapService.synchronize();
         try {
             trace.append("Начало синхронизации\n");
             projectDAO.setTrace(trace);
@@ -129,7 +127,7 @@ public class OQProjectSyncService {
                 Project project;
                 trace.append("В файле синхронизации найдено: ").append(nodes.getLength()).append(" проектов\n");
                 for (int i = 0; i < nodes.getLength(); i++) {
-                    nodeMap = nodes.item(i).getAttributes();//.getNamedItem("name").getNodeValue();
+                    nodeMap = nodes.item(i).getAttributes();
                     project = new Project();
                     project.setName(nodeMap.getNamedItem("name").getNodeValue().trim());
                     project.setProjectId(nodeMap.getNamedItem("id").getNodeValue());

@@ -13,7 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Базовый класс для юнит-тестов
- *
+ * Для создания нового юнит-теста надо унаследоваться от данного класса
  * @author aimamutdinov
  */
 @Transactional(propagation = Propagation.REQUIRED)

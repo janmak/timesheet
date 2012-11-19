@@ -90,11 +90,6 @@ public class EmployeeDAO {
         Hibernate.initialize(result.getDivision());
         Hibernate.initialize(result.getManager());
 
-/*        Division division = result.getDivision();
-        Employee manager = result.getManager();
-        Region region = result.getRegion();
-        ProjectRole role = result.getJob();*/
-
         return result;
     }
 
@@ -181,7 +176,6 @@ public class EmployeeDAO {
 
 		if (division == null) {
 			query = entityManager
-//				.createQuery("from Employee as e where e.archived=:archived order by e.name");
                 //действующий сотрудник-который на текущий момент либо не имеет endDate, либо endDate<=cuDate
                 .createQuery(
                         "FROM Employee AS emp " +
@@ -192,7 +186,6 @@ public class EmployeeDAO {
             query.setParameter("curDate", maxModDate);
 		} else {
 			query = entityManager
-//				.createQuery("from Employee as e where e.division=:division and e.archived=:archived order by e.name");
                 .createQuery(
                         "FROM Employee AS emp " +
                                 "WHERE (emp.division=:division AND emp.endDate IS NOT NULL AND emp.endDate >= :curDate) " +
@@ -204,7 +197,6 @@ public class EmployeeDAO {
             query.setParameter("division", division);
 
 		}
-		//query.setParameter("archived", false);
 
 		List<Employee> result = query.getResultList();
 
@@ -219,7 +211,6 @@ public class EmployeeDAO {
 	@Transactional
 	public void setEmployee(Employee employee) {
 		Employee empMerged = (Employee) entityManager.merge(employee);
-		//logger.info("employee {} merged.", employee);
 		entityManager.flush();
 		logger.info("Persistence context synchronized to the underlying database.");
 		logger.debug("Flushed Employee object id = {}", empMerged.getId());

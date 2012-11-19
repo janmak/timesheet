@@ -137,6 +137,12 @@ public class JasperReportDAO {
         }
     }
 	
+	/**
+	 * Просто проверяет пустое ли условие. Использовал для определения нужно
+	 * ли добавлять значение для той или иной переменной в запросе
+	 * @param clause условие используемое запросе
+	 * @return true - условие заполненино, false - условие пустое
+	 */
 	private boolean hasParameter(String clause) {
 		boolean val;
 		if(clause != null && !clause.isEmpty()) {

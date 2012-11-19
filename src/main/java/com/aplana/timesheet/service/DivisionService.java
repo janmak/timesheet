@@ -52,10 +52,6 @@ public class DivisionService {
 		return divisionDAO.find(division);
 	}
 	
-//	public List<Division> getDivisionsFromLDAP() {
-//		return divisionDAO.getDivisionsFromLDAP();
-//	}
-	
 	public StringBuffer synchronize() {
 		List<DivisionLdap> withBadLeader = new ArrayList<DivisionLdap>();
 		List<Division> fromDb = divisionDAO.getDivisionsAll();
@@ -101,8 +97,6 @@ public class DivisionService {
 		sendMailService.sendAdminAlert(withBadLeader);
 		return sb;
 		
-//		testIdGenerator();
-//		return new StringBuffer("Goo");
 	}
 
 	private boolean updateName(Division dbDiv, DivisionLdap ldapDiv) {
@@ -169,30 +163,4 @@ public class DivisionService {
 		}
 		return result;
 	}
-//
-//	private void testIdGenerator() {
-//		Employee emp = employeeService.find(7);
-//		Set<Employee> worker = new HashSet<Employee>();
-//		worker.add(emp);
-//		Division div = new Division();
-//		div.setActive(true);
-//		div.setEmployees(worker);
-//		div.setLeader(emp);
-//		div.setLdapName("Doo");
-//		div.setName("Doo");
-//		div.setLdap_objectSid("1-2-6");
-//		
-//		Employee emp1 = employeeService.find(8);
-//		Set<Employee> worker1 = new HashSet<Employee>();
-//		worker1.add(emp1);
-//		Division div1 = new Division();
-//		div1.setActive(true);
-//		div1.setEmployees(worker1);
-//		div1.setLeader(emp1);
-//		div1.setLdapName("Koo");
-//		div1.setName("Koo");
-//		div1.setLdap_objectSid("1-2-7");
-//		divisionDAO.setDivision(div1);
-//		divisionDAO.setDivision(div);
-//	}
 }

@@ -140,7 +140,7 @@ public class ReportCheckService {
         for (Employee emp : employeeList) {
             logger.info("Employee {}", emp.getName());
             // если сотрудник работает и не начальник подразделения
-            //if (!emp.isArchived() && emp.getManager() != null) {
+            
             if (!emp.isDisabled(null) && emp.getManager() != null) {
                 reportsNotSendNumber = 0;
                 List<String> passedDays = new ArrayList<String>();
@@ -148,10 +148,8 @@ public class ReportCheckService {
                     Calendar calendar = calendarService.find(day);
                     //если рабочий день
                     if (holidayDAO.isWorkDay(day, emp.getRegion())) {
-                        //logger.info("Work day is {} calendar {}", day, calendarService.find(day));
                         //если день после устройства на работу включительно
                         if (calendar.getCalDate().before(emp.getStartDate()) == false) {
-                            //logger.info("Day is {} not before {}", day, emp.getStartDate());
                             //если сотрудник не списал рабочее время за этот день
                             if (timeSheetService.findForDateAndEmployee(day, emp.getId()) == null) {
                                 reportsNotSendNumber++;

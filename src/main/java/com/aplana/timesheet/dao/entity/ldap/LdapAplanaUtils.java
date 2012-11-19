@@ -40,7 +40,6 @@ public class LdapAplanaUtils {
 				throw new NamingException("[" + attribute.getID() + "] is not String");
 			}
 		}
-		//throw new NamingException("Attribute is null");
 		logger.error("!!!!Attribute is null");
 		return null;
 	}
@@ -69,7 +68,6 @@ public class LdapAplanaUtils {
         
         //get the authority
         long authority = 0;
-        //String rid = "";
         for(int i = 2; i <= 7; i++) {
            authority |= ((long)sid[i]) << (8 * (5 - (i - 2)));
         }

@@ -73,9 +73,9 @@ public class TimeSheetSender extends MailSender {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd");
 
         if (!tsForm.isLongIllness() && !tsForm.isLongVacation()) {
-            date = sdf.format(DateTimeUtil.stringToDate(calDate, "yyyy-MM-dd"));//DateTimeUtil.formatDateString(calDate);
+            date = sdf.format(DateTimeUtil.stringToDate(calDate, "yyyy-MM-dd"));
         } else {
-            date = sdf.format(DateTimeUtil.stringToDate(beginLongDate, "yyyy-MM-dd"));//DateTimeUtil.formatDateString(beginLongDate);
+            date = sdf.format(DateTimeUtil.stringToDate(beginLongDate, "yyyy-MM-dd"));
         }
         messageSubject.append(date);
         logger.debug("Message subject: {}", messageSubject.toString());

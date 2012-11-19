@@ -46,21 +46,7 @@ public class ViewReportsController {
     SecurityService securityService;
 
     @RequestMapping(value = "/viewreports", method = RequestMethod.GET)
-    public /*ModelAndView*/ String sendViewReports(/*, @ModelAttribute("viewReportsForm") ViewReportsForm tsForm, BindingResult result*/) {
-        /* logger.info("employeeId {}.", employeeId);
-       ModelAndView mav = new ModelAndView("viewreports");
-       mav.addObject("year", 0);
-       mav.addObject("month", 0);
-       mav.addObject("viewReportsForm", tsForm);
-       mav.addObject("employeeId", employeeId);
-       mav.addObject("employeeName", employeeService.find(employeeId).getName());
-       mav.addObject("yearsList", getYearsList());
-       List<Calendar> years = calendarService.getYearsList();
-       mav.addObject("monthList", getMonthListJson(years));
-       java.util.Calendar date = java.util.Calendar.getInstance(java.util.TimeZone.getDefault(), java.util.Locale.getDefault());
-       date.setTime(new java.util.Date());
-       logger.info("<<<<<<<<< End of RequestMapping <<<<<<<<<<<<<<<<<<<<<<");
-       return mav;*/
+    public String sendViewReports() {
         java.util.Calendar calendar = java.util.Calendar.getInstance();
         return String.format("redirect:/viewreports/%s/%s/%s/%s", securityService.getSecurityPrincipal().getEmployee().getDivision().getId(), securityService.getSecurityPrincipal().getEmployee().getId(), calendar.get(java.util.Calendar.YEAR), calendar.get(java.util.Calendar.MONTH) + 1);
     }
@@ -88,7 +74,6 @@ public class ViewReportsController {
 
         java.util.Calendar date = java.util.Calendar.getInstance(java.util.TimeZone.getDefault(), java.util.Locale.getDefault());
         date.setTime(new java.util.Date());
-        //List<Calendar> calList = calendarService.getDateList(year, month);
         ArrayList<String[]> dateList = new ArrayList<String[]>();
 
         // + Лубянов, 28.12.2011
@@ -133,7 +118,7 @@ public class ViewReportsController {
                 oneDay[4] = null;
             }
 
-            oneDay[5] = oneDay[0];//String.valueOf(curCal.getCalDate().toString().substring(8, 10));
+            oneDay[5] = oneDay[0];
             switch (month) {
                 case 1:
                     oneDay[6] = "января";
@@ -172,14 +157,13 @@ public class ViewReportsController {
                     oneDay[6] = "декабря";
                     break;
                 default:
-                    oneDay[6] = "";//curCal.getMonthTxt();
+                    oneDay[6] = "";
                     logger.error("Неверный номер месяца: " + month);
                     break;
             }
 
             oneDay[6] = oneDay[6] + " " + year + "г. ";
             oneDay[7] = new SimpleDateFormat("yyyy-MM-dd").format(queryResult.getCalDate()); // полная дата для передачи параметра в /timesheet
-            //if ((month <= monthInt) && (year <= yearInt)) {
             if (currentDayInt >= Integer.parseInt(oneDay[5]) || !isCurMonth) {
                 oneDay[9] = "false";
                 if (queryResult.getWorkDay()) countMonth++;
@@ -193,21 +177,20 @@ public class ViewReportsController {
                         case 15:
                         case 24:
                             oneDay[8] = "Отгул (" + queryResult.getDuration() + ")";
-                            //duration = duration.subtract(queryResult.getDuration());
                             break;
                         case 16:
                             oneDay[8] = "Отпуск";
-                            if (queryResult.getWorkDay()) //minus++;
+                            if (queryResult.getWorkDay())
                                 plus++;
                             break;
                         case 17:
                             oneDay[8] = "Болезнь";
-                            if (queryResult.getWorkDay()) //minus++;
+                            if (queryResult.getWorkDay())
                                 plus++;
                             break;
                         case 18:
                             oneDay[8] = "Нерабочий день";
-                            if (queryResult.getWorkDay()) //minus++;
+                            if (queryResult.getWorkDay())
                                 plus++;
                             break;
                         default:
@@ -257,7 +240,6 @@ public class ViewReportsController {
         sb.append("[");
         for (int i = 0; i < years.size(); i++) {
             List<Calendar> months = calendarService.getMonthList(years.get(i).getYear());
-            //List<Calendar> months = calendarService.getMonthList();
             sb.append("{year:'");
             sb.append(years.get(i).getYear());
             sb.append("', months:[");

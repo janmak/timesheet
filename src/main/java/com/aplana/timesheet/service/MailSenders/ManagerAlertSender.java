@@ -27,18 +27,9 @@ public class ManagerAlertSender extends MailSender {
 
     @Override
     protected void initToAddresses() {
-        /*StringBuilder toAddresses = new StringBuilder();
-        for (ReportCheck rCheck : currentReportCheckList) {
-            toAddresses.append(sendMailService.getEmployeesManagersEmailsWithoutEmployeeEmail(rCheck.getEmployee()
-                    .getId()));
-            toAddresses.append(",");
-        }
-        logger.debug("EmployeesManagersEmails: {}", toAddresses.toString());
-        String uniqueSendingEmails = MailUtils.deleteEmailDublicates(toAddresses
-                .toString());*/
         String toAddresses = currentManager.getEmail();
         try {
-            toAddr = InternetAddress.parse(toAddresses); //InternetAddress.parse(uniqueSendingEmails);
+            toAddr = InternetAddress.parse(toAddresses); 
             logger.debug("CC Addresses: {}", toAddresses);
         } catch (AddressException e) {
             logger.error("Email address has wrong format.", e);
@@ -158,12 +149,10 @@ public class ManagerAlertSender extends MailSender {
                 currentManager = entry.getKey();
                 //если руководитель помечен как archived
                 //не было реал. в storeReportCheck тк список руководителей формируется здесь(выше)
-                //if(currentManager.isArchived())
                 if(currentManager.isDisabled(null))
                     logger.info("Manager {} is disabled",currentManager.getName());
                 else
                 {
-                    //logger.info("Current manager: {}",currentManager.getEmail());
                     currentReportCheckList = entry.getValue();
 
                     message = new MimeMessage(session);

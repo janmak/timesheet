@@ -40,7 +40,6 @@ public class TimeSheetDAO {
         query.setParameter("calDate", date);
         query.setParameter("employeeId", employeeId);
         List<TimeSheet> result = query.getResultList();
-        //logger.debug("findForDateAndEmployee List<TimeSheet> result size = {}", result.size());
 
         if (result.size() == 0) {
             return null;
@@ -60,16 +59,6 @@ public class TimeSheetDAO {
     @SuppressWarnings("unchecked")
     @Transactional(readOnly = true)
     public List<DayTimeSheet> findDatesAndReportsForEmployee(Integer year, Integer month, Integer region, Employee employee) {
-
-        /* Query query = entityManager
-               .createQuery("select c.calDate, h.id, h1.id, ts.id from Calendar as c " +
-                       "left outer join c.timeSheets as ts with ts.employee.id = :employeeId " +
-                       "left outer join c.holidays as h with h.region.id=:region " +
-                       "left outer join c.holidays as h1 with h.region is null " +
-                       "where c.year=:yearPar and c.month=:monthPar " +
-                       "order by c.calDate asc"
-               );
-        */
 
         // Я не знаю как написать это на HQL, но на SQL пишется легко и непринужденно.
         Query query = entityManager.createNativeQuery("select c.caldate caldate, h.id holiday_id, ts.id timesheet_id, SUM(tsd.duration), tsd.act_type " +
@@ -121,7 +110,6 @@ public class TimeSheetDAO {
                 } else {
                     DayTimeSheet dts = map.get(calDate.getTime());
                     if ((act_type == 15) || (act_type == 24)) {
-                        //dts.setDuration(dts.getDuration().subtract(duration));
                     } else {
                         if (duration != null)
                             dts.setDuration(dts.getDuration().add(duration));
@@ -138,25 +126,6 @@ public class TimeSheetDAO {
 
         Collections.sort(dayTSList);
         return dayTSList;
-    }
-
-    /**
-     * Ищет в таблице timesheet запись, соответсвующую сотруднику с
-     * идентификатором employeeId и возвращает объект типа TimeSheet.
-     *
-     * @param employee Идентификатор сотрудника в базе данных.
-     * @return List типа TimeSheet, либо null, если объект не найден.
-     */
-    // (9.8.2012) Внимание. Метод поломаный какой-то
-    @SuppressWarnings("unchecked")
-    public List<TimeSheet> getReport(Employee employee, Calendar date) {
-        List<TimeSheet> report = new ArrayList<TimeSheet>();
-        Query query = entityManager.createQuery("select ts from TimeSheet as ts where ts.employee = :employeePar and ts.calDate = :datePar)");
-        query.setParameter("employeePar", employee);
-        query.setParameter("datePar", date);
-        report = ((List<TimeSheet>) query.getResultList());
-        logger.debug("TimeSheetDAO getReport {}", report.toString());
-        return report;
     }
 
     /**
