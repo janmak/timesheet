@@ -27,7 +27,6 @@ public class TimeSheetDeletedSender extends MailSender {
         String email = deletedTimeSheet.getEmployee().getEmail();
         String toAddress = sendMailService.mailConfig.getProperty("mail.fromaddress");
         if (email.length() > 0) {
-            logger.debug("IA 123");
             email = email.concat(",".concat(toAddress));
         }
         logger.debug("To Address: {}", email);

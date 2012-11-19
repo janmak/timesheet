@@ -149,6 +149,22 @@ public class EmployeeDAO {
 
         return result;
     }
+    
+    /**
+     * Возвращает список менеджеров для конкретного работника
+     * @param employeeId
+     * @return List<Employee>
+     */
+    @Transactional(readOnly = true)
+    public List<Employee> getRegionManager (Integer employeeId) {
+        Query query = this.entityManager.createQuery(
+                "select m.employee from  Employee e, Manager m " +
+                "where e.id = :emp_id AND m.division.id = e.division.id " +
+                "AND m.region.id = e.region.id");
+        query.setParameter("emp_id", employeeId);
+        List<Employee> result = query.getResultList();
+        return result;
+    }
 
 	/**
 	 * Возвращает список действующих сотрудников указанного подразделения

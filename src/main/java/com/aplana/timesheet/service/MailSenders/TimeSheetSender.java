@@ -1,5 +1,6 @@
 package com.aplana.timesheet.service.MailSenders;
 
+import com.aplana.timesheet.dao.entity.Employee;
 import com.aplana.timesheet.form.TimeSheetForm;
 import com.aplana.timesheet.service.SendMailService;
 import com.aplana.timesheet.util.DateTimeUtil;
@@ -15,6 +16,7 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class TimeSheetSender extends MailSender {
@@ -48,6 +50,10 @@ public class TimeSheetSender extends MailSender {
         logger.debug(" + ProjectsManagersEmail: {}", toAddresses.toString());
         toAddresses.append(sendMailService.getProjectParticipantsEmails(tsForm.getEmployeeId(), tsForm));
         logger.debug(" + ProjectParticipantsEmails: {}", toAddresses.toString());
+        List<Employee> managers = sendMailService.employeeService.getRegionManager(tsForm.getEmployeeId());
+        for(Employee manager:managers) {
+            toAddresses.append("," + manager.getEmail());
+        }
         String uniqueSendingEmails = MailUtils.deleteEmailDublicates(toAddresses.toString());
         try {
             toAddr = InternetAddress.parse(uniqueSendingEmails);
