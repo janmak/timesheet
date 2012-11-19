@@ -29,6 +29,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.aplana.timesheet.util.ProjectHelper.getProjectListJson;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Set;
+import org.springframework.beans.propertyeditors.CustomCollectionEditor;
+import org.springframework.beans.propertyeditors.CustomDateEditor;
+import org.springframework.web.bind.ServletRequestDataBinder;
 
 @Controller
 public class JasperReportController {
@@ -237,9 +244,43 @@ public class JasperReportController {
 
     // Нужно для отображения названия региона в сформированном отчете
     private void fillRegionName(BaseReport report) {
-        if (report.getRegionId().equals(0))
-            report.setRegionName("Все");
-        else
-            report.setRegionName(regionService.find(report.getRegionId()).getName());
+		List<Integer> regionIds = report.getRegionIds();
+		if(regionIds != null && regionIds.size() != 0) {
+			
+			ArrayList<String> regionNames = new ArrayList<String>(regionIds.size());
+			for(int index = 0; index < regionIds.size(); index++) {
+				Region region = regionService.find(regionIds.get(index));
+				String rName = "";
+				if(region != null) {
+					rName = region.getName();
+				}
+				
+				regionNames.add(rName);
+			}
+			
+			report.setRegionNames(regionNames);
+		}
     }
+	
+	@InitBinder
+	protected void initBinder(HttpServletRequest request, ServletRequestDataBinder binder) throws Exception {
+
+		binder.registerCustomEditor(List.class, "regionIds", new CustomCollectionEditor(List.class) {
+			@Override
+			protected Object convertElement(Object element) {
+				if (element instanceof String) {
+					String str = (String) element;
+					Integer hold;
+					try {
+						hold = Integer.parseInt(str);
+					} catch (NumberFormatException ex) {
+						logger.error("Region Id convertion exception", ex);
+						return null;
+					}
+					return hold;
+				}
+				return null;
+			}
+		});
+	}
 }

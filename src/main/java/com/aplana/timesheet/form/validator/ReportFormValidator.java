@@ -3,6 +3,7 @@ package com.aplana.timesheet.form.validator;
 
 import com.aplana.timesheet.reports.*;
 import com.aplana.timesheet.util.DateTimeUtil;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -67,8 +68,13 @@ public class ReportFormValidator implements Validator {
         Report01 form = (Report01) o;
 
         ValidationUtils.rejectIfEmptyOrWhitespace(errors, "divisionId", "error.reportform.nodivision");
-        ValidationUtils.rejectIfEmptyOrWhitespace(errors, "regionId", "error.reportform.noregion");
 
+		List<Integer> regionIds = form.getRegionIds();		
+		// ничего не выбрано и не поставлена галка "Все регионы"
+		if ((regionIds == null || regionIds.isEmpty()) && !form.isAllRegions()) {
+			errors.rejectValue("regionIds", "error.reportform.noregion");
+		}
+		
         if (form.getDivisionId() == 0) {
             errors.rejectValue("divisionId", "error.reportform.nodivision");
         }

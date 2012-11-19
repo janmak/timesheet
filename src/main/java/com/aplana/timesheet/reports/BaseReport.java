@@ -3,6 +3,7 @@ package com.aplana.timesheet.reports;
 
 import com.aplana.timesheet.dao.JasperReportDAO;
 import com.aplana.timesheet.util.DateTimeUtil;
+import java.util.List;
 
 public abstract class BaseReport implements TSJasperReport {
 
@@ -23,9 +24,12 @@ public abstract class BaseReport implements TSJasperReport {
 
     protected String endDate;
 
-    protected Integer regionId;
+    // появление в этом списке числа ALL_REGIONS_FLAG означает что выбранны все регионы.
+	protected List<Integer> regionIds;
 
-    protected String regionName;
+    protected List<String> regionNames;
+	
+	protected boolean allRegions;
 
     public String getBeginDate() {
         return beginDate;
@@ -43,19 +47,57 @@ public abstract class BaseReport implements TSJasperReport {
         this.endDate = endDate;
     }
 
-    public Integer getRegionId() {
-        return regionId;
+    public List<Integer> getRegionIds() {
+        return regionIds;
     }
 
-    public void setRegionId(Integer regionId) {
-        this.regionId = regionId;
+    public void setRegionIds(List<Integer> regionIds) {
+        this.regionIds = regionIds;
     }
 
-    public String getRegionName() {
-        return regionName;
+    public List<String> getRegionNames() {
+        return regionNames;
     }
 
-    public void setRegionName(String regionName) {
-        this.regionName = regionName;
+    public void setRegionNames(List<String> regionNames) {
+        this.regionNames = regionNames;
     }
+	
+	public boolean hasRegions() {
+		boolean val;
+		if(regionIds != null && !regionIds.isEmpty()) {
+			val = true;
+		} else {
+			val = false;
+		}
+		return val;
+	}
+	
+	public boolean isAllRegions() {
+		return allRegions;
+	}
+	
+	public void setAllRegions(boolean allRegions) {
+		this.allRegions = allRegions;
+	}
+	
+	/**
+	 * Преобразует список регионов в строку. Не нашел как это сделать средствами jasperreport
+	 * или закинуть в jassperreport класс занимающийся форматированием таких вещей.
+	 * @return Возвращает список регионов упакованных в строку.
+	 */
+	 
+	public String wellFormedRegionList() {
+		StringBuilder sb = new StringBuilder();
+		boolean first = true;
+		for(String rName : regionNames) {
+			if(first) {
+				first = false;
+			} else {
+				sb.append(", ");
+			}
+			sb.append(rName);
+		}
+		return sb.toString();
+	}
 }

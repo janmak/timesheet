@@ -50,14 +50,29 @@
                     <form:option label="" value="0"/>
                     <form:options items="${divisionList}" itemLabel="name" itemValue="id"/>
                 </form:select></td>
-                <td><span class="label">Регион</span><span style="color:red">*</span></td>
-                <td><form:select id="regionId" name="regionId" cssClass="without_dojo"
-                                 onmouseover="tooltip.show(getTitle(this));"
-                                 onmouseout="tooltip.hide();" path="regionId">
-                    <form:option label="Все" value="0"/>
-                    <form:options items="${regionList}" itemLabel="name" itemValue="id"/>
-                </form:select></td>
-            </tr>
+			</tr>
+			<tr>
+				<td>
+					<span class="label">Регион</span><span style="color:red">*</span>
+				</td>
+				<td rowspan="2">							
+					<span class="without_dojo">
+						<form:select id="regionIds" name="regionIds" 
+									 onmouseover="tooltip.show(getTitle(this));"
+									 onmouseout="tooltip.hide();" path="regionIds" multiple="true"
+									 cssClass ="auto_height">
+							<form:options items="${regionList}" itemLabel="name" itemValue="id"/>
+						</form:select>
+					</span>
+				</td>
+				<td>
+					<span class="checkbox_without_dojo">
+						<form:checkbox  id="allRegions" name="allRegions"  path="allRegions"/>
+					</span>
+					<span class="checkbox_without_dojo">Все регионы</span>
+				</td>
+			</tr>
+			<tr/>
             <tr>
                 <td><span class="label">Отчет сотрудника</span></td>
                 <td><form:select path="employeeId" id="employeeId" class="without_dojo"

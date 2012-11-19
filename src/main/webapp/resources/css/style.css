@@ -367,3 +367,11 @@ table.report_params td {
     border: 0;
     height: 32px;
 }
+
+.auto_width {
+	width: auto;
+}
+
+.auto_height {
+	height: auto;
+}

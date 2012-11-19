@@ -39,7 +39,7 @@
             <textField>
                 <reportElement style="SubTitle" x="0" y="77" width="555" height="24"/>
                 <textElement textAlignment="Center"/>
-                <textFieldExpression class="java.lang.String"><![CDATA["Регион : "+ $P{reportParams}.getRegionName()]]></textFieldExpression>
+                <textFieldExpression class="java.lang.String"><![CDATA["Регион : "+ $P{reportParams}.wellFormedRegionList()]]></textFieldExpression>
             </textField>
 			<textField>
 				<reportElement style="SubTitle" x="0" y="101" width="555" height="24"/>
