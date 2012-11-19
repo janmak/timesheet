@@ -310,6 +310,7 @@ public class EmployeeLdapService {
                 else {
                     logger.info(employeeLdap.getMail()+"no in db");
                     Employee manager = employeeService.find(division.getLeader().getName());
+                    employee.setStartDate(DateTimeUtil.ldapDateToTimestamp(employeeLdap.getWhenCreated()));
                     employee.setManager(manager);
                 }
                 if (employee.getManager() != null) {

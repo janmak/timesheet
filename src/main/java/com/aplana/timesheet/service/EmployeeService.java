@@ -83,6 +83,10 @@ public class EmployeeService {
     public StringBuffer setEmployees(List<Employee> employees) {
         return employeeDAO.setEmployees(employees);
     }
+    
+    public List<Employee> getRegionManager(Integer employeeId) {
+        return this.employeeDAO.getRegionManager(employeeId);
+    }
 	
 	/**
 	 * Ищет сотрудника по objectSid

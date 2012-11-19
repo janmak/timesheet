@@ -1,5 +1,6 @@
 package com.aplana.timesheet.service.MailSenders;
 
+import com.aplana.timesheet.dao.entity.Employee;
 import com.aplana.timesheet.form.TimeSheetForm;
 import com.aplana.timesheet.service.SendMailService;
 import com.aplana.timesheet.util.DateTimeUtil;
@@ -15,6 +16,7 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class TimeSheetSender extends MailSender {
@@ -38,32 +40,25 @@ public class TimeSheetSender extends MailSender {
     }
 
     @Override
-    protected void initCcAddresses() {
-        StringBuilder ccAddresses = new StringBuilder();
+    protected void initToAddresses() {
+        StringBuilder toAddresses = new StringBuilder();
 
-        ccAddresses.append(sendMailService.getEmployeeEmail(tsForm.getEmployeeId())).append(",");
-        ccAddresses.append(sendMailService.getEmployeesManagersEmails(tsForm.getEmployeeId()));
-        logger.debug("EmployeesManagersEmails: {}", ccAddresses.toString());
-        ccAddresses.append(sendMailService.getProjectsManagersEmails(tsForm));
-        logger.debug(" + ProjectsManagersEmail: {}", ccAddresses.toString());
-        ccAddresses.append(sendMailService.getProjectParticipantsEmails(tsForm.getEmployeeId(), tsForm));
-        logger.debug(" + ProjectParticipantsEmails: {}", ccAddresses.toString());
-        String uniqueSendingEmails = MailUtils.deleteEmailDublicates(ccAddresses.toString());
+        toAddresses.append(sendMailService.getEmployeeEmail(tsForm.getEmployeeId())).append(",");
+        toAddresses.append(sendMailService.getEmployeesManagersEmails(tsForm.getEmployeeId()));
+        logger.debug("EmployeesManagersEmails: {}", toAddresses.toString());
+        toAddresses.append(sendMailService.getProjectsManagersEmails(tsForm));
+        logger.debug(" + ProjectsManagersEmail: {}", toAddresses.toString());
+        toAddresses.append(sendMailService.getProjectParticipantsEmails(tsForm.getEmployeeId(), tsForm));
+        logger.debug(" + ProjectParticipantsEmails: {}", toAddresses.toString());
+        List<Employee> managers = sendMailService.employeeService.getRegionManager(tsForm.getEmployeeId());
+        for(Employee manager:managers) {
+            toAddresses.append("," + manager.getEmail());
+        }
+        String uniqueSendingEmails = MailUtils.deleteEmailDublicates(toAddresses.toString());
         try {
-            ccAddr = InternetAddress.parse(uniqueSendingEmails);
+            toAddr = InternetAddress.parse(uniqueSendingEmails);
         } catch (AddressException e) {
             logger.error("Email address has wrong format.", e);
-        }
-    }
-
-    @Override
-    protected void initToAddresses() {
-        String toAddress = sendMailService.mailConfig.getProperty("mail.pcg.toaddress");
-        try {
-            toAddr = InternetAddress.parse(toAddress);
-            logger.debug("To Address = {}", toAddress);
-        } catch (AddressException e) {
-            logger.error("Email address {} has wrong format.", toAddress, e);
         }
     }
 
