@@ -43,6 +43,7 @@ public class SendMailService{
     /**
      * Возвращает строку с адресами линейных руководителей сотрудника
      * (непосредственного и всех вышестоящих) разделёнными запятой.
+     * @param empId
      */
     public String getEmployeesManagersEmails(Integer empId) {
         StringBuilder chiefEmails = new StringBuilder();
@@ -96,6 +97,28 @@ public class SendMailService{
             Integer actTypeId = tsRow.getActivityTypeId();
             if (actTypeId == DictionaryItemDAO.PROJECTS_ID || actTypeId == DictionaryItemDAO.PRESALES_ID) {
                 Integer projectId = tsRow.getProjectId();
+                Integer projectManagerId = projectService.find(projectId).getManager().getId();
+                String projEmail = employeeService.find(projectManagerId).getEmail();
+                managersEmails.append(projEmail);
+                managersEmails.append(",");
+            }
+        }
+        return managersEmails.toString();
+    }
+    
+    /**
+     * Получает email адреса всех менеджеров проектов указаных в TS
+     * я не виноват так было принято до меня с этими менеджерами
+     * @param timeSheet
+     * @return 
+     */
+    public String getProjectsManagersEmails(TimeSheet timeSheet) {
+        StringBuilder managersEmails = new StringBuilder();
+        Set<TimeSheetDetail> details = timeSheet.getTimeSheetDetails();
+        for (TimeSheetDetail detail : details) {
+            Integer actTypeId = detail.getActType().getId();
+            if (actTypeId == DictionaryItemDAO.PROJECTS_ID || actTypeId == DictionaryItemDAO.PRESALES_ID) {
+                Integer projectId = detail.getProject().getId();
                 Integer projectManagerId = projectService.find(projectId).getManager().getId();
                 String projEmail = employeeService.find(projectManagerId).getEmail();
                 managersEmails.append(projEmail);
@@ -159,6 +182,48 @@ public class SendMailService{
             }
         }
         logger.debug("Participants emails: {} ", emails.toString());
+        return emails.toString();
+    }
+    
+    /**
+     * Получает email адреса из всех проектов
+     * @param ts
+     * @return string строка содержащая email's которым относится данный timesheet
+     */
+    public String getProjectParticipantsEmails(TimeSheet ts) {
+        StringBuilder emails = new StringBuilder(",");
+        Set<TimeSheetDetail> details = ts.getTimeSheetDetails();
+        Integer actTypeId, projectId;
+        for (TimeSheetDetail detail : details) {
+            actTypeId = detail.getActType().getId();
+            if (actTypeId == DictionaryItemDAO.PROJECTS_ID || actTypeId == DictionaryItemDAO.PRESALES_ID) {
+                projectId = detail.getProject().getId();
+                List<ProjectParticipant> participants = projectService.getParticipants(projectService.find(projectId));
+                for (ProjectParticipant participant : participants) {
+                    Integer participantRole = participant.getProjectRole().getId();
+                    Integer participantId = participant.getEmployee().getId();
+                    if (participantRole == ProjectRoleService.PROJECT_MANAGER) {
+                        emails.append(participant.getEmployee().getEmail()).append(",");
+                    } else if (participantRole == ProjectRoleService.PROJECT_LEADER) {
+                        if (Arrays.asList(
+                                ProjectRoleService.PROJECT_DESIGNER
+                                , ProjectRoleService.PROJECT_DEVELOPER
+                                , ProjectRoleService.PROJECT_SYSENGINEER
+                                , ProjectRoleService.PROJECT_TESTER)
+                                .contains(detail.getProjectRole().getId())) {
+                            emails.append(participant.getEmployee().getEmail()).append(",");
+                        }
+                    } else if (participantRole == ProjectRoleService.PROJECT_ANALYST) {
+                        if (Arrays.asList(
+                                ProjectRoleService.PROJECT_ANALYST
+                                , ProjectRoleService.PROJECT_TECH_WRITER)
+                                .contains(detail.getProjectRole().getId())) {
+                            emails.append(participant.getEmployee().getEmail()).append(",");
+                        }
+                    }
+                }
+            }
+        }
         return emails.toString();
     }
     

@@ -42,6 +42,9 @@ public class TimeSheetService {
     public VelocityEngine velocityEngine;
 
     @Autowired
+    public ProjectRoleService projectRoleService;
+    
+    @Autowired
     public SecurityService securityService;
 
     public void storeTimeSheet(TimeSheetForm tsForm) {
@@ -89,6 +92,7 @@ public class TimeSheetService {
             timeSheetDetail.setDuration(duration);
             timeSheetDetail.setDescription(formRow.getDescription());
             timeSheetDetail.setProblem(formRow.getProblem());
+            timeSheetDetail.setProjectRole(projectRoleService.find(formRow.getProjectRoleId()));
             timeSheetDetails.add(timeSheetDetail);
         }
         timeSheet.setTimeSheetDetails(timeSheetDetails);

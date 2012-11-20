@@ -33,6 +33,10 @@ public class TimeSheetDetail {
 	@JoinColumn(name = "proj_id")
 	@ForeignKey(name = "FK_TIME_SHEET_PROJECT")
 	private Project project;
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+	@ForeignKey(name = "FK_TIME_SHEET_PROJECT_ROLE")
+    private ProjectRole projectRole;
 
 	@Column(name = "cq_id")
 	private String cqId;
@@ -138,6 +142,14 @@ public class TimeSheetDetail {
     public String getProblemEscaped()
     {
         return StringEscapeUtils.escapeHtml4(this.problem);
+    }
+
+    public ProjectRole getProjectRole() {
+        return projectRole;
+    }
+
+    public void setProjectRole(ProjectRole projectRole) {
+        this.projectRole = projectRole;
     }
 
 	@Override

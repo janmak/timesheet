@@ -54,7 +54,9 @@ public class TimeSheetSender extends MailSender {
         for(Employee manager:managers) {
             toAddresses.append("," + manager.getEmail());
         }
+        logger.debug(" + To Addresses: {}", toAddresses.toString());
         String uniqueSendingEmails = MailUtils.deleteEmailDublicates(toAddresses.toString());
+        logger.debug(" + To Addresses: {}", uniqueSendingEmails);
         try {
             toAddr = InternetAddress.parse(uniqueSendingEmails);
         } catch (AddressException e) {

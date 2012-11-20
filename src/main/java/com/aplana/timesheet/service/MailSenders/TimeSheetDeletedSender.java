@@ -1,8 +1,10 @@
 package com.aplana.timesheet.service.MailSenders;
 
+import com.aplana.timesheet.dao.entity.Employee;
 import com.aplana.timesheet.dao.entity.TimeSheet;
 import com.aplana.timesheet.service.SendMailService;
 import com.aplana.timesheet.util.DateTimeUtil;
+import com.aplana.timesheet.util.MailUtils;
 import com.aplana.timesheet.util.TimeSheetUser;
 import org.springframework.ui.velocity.VelocityEngineUtils;
 
@@ -12,6 +14,7 @@ import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class TimeSheetDeletedSender extends MailSender {
@@ -24,14 +27,20 @@ public class TimeSheetDeletedSender extends MailSender {
 
     @Override
     protected void initToAddresses() {
-        String email = deletedTimeSheet.getEmployee().getEmail();
-        String toAddress = sendMailService.mailConfig.getProperty("mail.fromaddress");
-        if (email.length() > 0) {
-            email = email.concat(",".concat(toAddress));
+        Integer empId = deletedTimeSheet.getEmployee().getId();
+        StringBuilder email = new StringBuilder();
+        email.append(deletedTimeSheet.getEmployee().getEmail());
+        email.append(",").append(sendMailService.mailConfig.getProperty("mail.fromaddress")).append(",");
+        email.append(",").append(sendMailService.getEmployeesManagersEmails(empId)).append(",");
+        email.append(",").append(sendMailService.getProjectParticipantsEmails(deletedTimeSheet));
+        List<Employee> managers = sendMailService.employeeService.getRegionManager(deletedTimeSheet.getEmployee().getId());
+        for(Employee manager:managers) {
+            email.append("," + manager.getEmail());
         }
-        logger.debug("To Address: {}", email);
+        String uniqueSendingEmails = MailUtils.deleteEmailDublicates(email.toString());
+        logger.debug("To address: {}", uniqueSendingEmails);
         try {
-            toAddr = InternetAddress.parse(email);
+            toAddr = InternetAddress.parse(uniqueSendingEmails);
         } catch (AddressException e) {
             logger.error("Email address has wrong format.", e);
         }
