@@ -48,7 +48,7 @@
     <div id="form_header">
         <table class="report_params" cellspacing="3">
             <tr>
-                <td><span class="label">Центр владельца проекта</span><span style="color:red">*</span></td>
+                <td><span class="label">Центр владельца проекта</span></td>
                 <td><form:select id="divisionId" name="divisionId" cssClass="without_dojo"
                                  onmouseover="tooltip.show(getTitle(this));"
                                  onmouseout="tooltip.hide();" path="divisionId"
@@ -64,7 +64,7 @@
             </tr>
             <tr>
 
-                <td><span class="label">Проект</span><span style="color:red">*</span></td>
+                <td><span class="label">Проект</span></td>
                 <td><form:select id="projectId" name="projectId" cssClass="without_dojo"
                                  onmouseover="tooltip.show(getTitle(this));"
                                  onmouseout="tooltip.hide();" path="projectId">
@@ -72,26 +72,27 @@
 			</tr>
 			<tr>
 				<td>
-					<span class="label">Регион</span><span style="color:red">*</span>
+					<span class="label">Регион</span>
+					<span class="all_regions">
+						<span class="checkbox_without_dojo">
+							<form:checkbox  id="allRegions" name="allRegions"  path="allRegions"/>
+						</span>
+						<span class="checkbox_without_dojo">Все регионы</span>
+					</span>
 				</td>
-				<td rowspan="2">							
+			</tr>
+			<tr>
+				<td>							
 					<span class="without_dojo">
 						<form:select id="regionIds" name="regionIds" 
 									 onmouseover="tooltip.show(getTitle(this));"
 									 onmouseout="tooltip.hide();" path="regionIds" multiple="true"
-									 cssClass ="auto_height">
+									 cssClass ="region">
 							<form:options items="${regionList}" itemLabel="name" itemValue="id"/>
 						</form:select>
 					</span>
-				</td>
-				<td>
-					<span class="checkbox_without_dojo">
-						<form:checkbox  id="allRegions" name="allRegions"  path="allRegions"/>
-					</span>
-					<span class="checkbox_without_dojo">Все регионы</span>
-				</td>
+				</td>						
 			</tr>
-			<tr/>
 			<tr>
                 <td><span class="label">Центр сотрудников</span></td>
                 <td><form:select id="emplDivisionId" name="emplDivisionId" cssClass="without_dojo"

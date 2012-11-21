@@ -367,9 +367,13 @@ table.report_params td {
     border: 0;
     height: 32px;
 }
+.region {
+	width:220px;
+	height:70px;
+}
 
-.auto_width {
-	width: auto;
+.all_regions {
+	float: right;
 }
 
 .auto_height {

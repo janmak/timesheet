@@ -42,8 +42,6 @@ public class ReportFormValidator implements Validator {
     private void validateReport03(Object o, Errors errors) {
         Report03 form = (Report03) o;
 
-        ValidationUtils.rejectIfEmptyOrWhitespace(errors, "projectId", "error.reportform.noproject");
-
         String beginDate = form.getBeginDate();
         if ("".equals(beginDate) || !DateTimeUtil.isDateValid(beginDate)) {
             errors.rejectValue("beginDate", "error.reportform.wrongbegindate");
@@ -57,17 +55,10 @@ public class ReportFormValidator implements Validator {
         if (!DateTimeUtil.isPeriodValid(beginDate, endDate)) {
             errors.rejectValue("beginDate", "error.reportform.wrongperiod");
         }
-
-        if (form.getFilterProjects() && form.getDivisionId() == 0) {
-            errors.rejectValue("divisionId", "error.reportform.noprojectdivision");
-        }
-
     }
 
     private void validateReport01(Object o, Errors errors) {
         Report01 form = (Report01) o;
-
-        ValidationUtils.rejectIfEmptyOrWhitespace(errors, "divisionId", "error.reportform.nodivision");
 
 		List<Integer> regionIds = form.getRegionIds();		
 		// ничего не выбрано и не поставлена галка "Все регионы"
@@ -75,10 +66,6 @@ public class ReportFormValidator implements Validator {
 			errors.rejectValue("regionIds", "error.reportform.noregion");
 		}
 		
-        if (form.getDivisionId() == 0) {
-            errors.rejectValue("divisionId", "error.reportform.nodivision");
-        }
-
         String beginDate = form.getBeginDate();
         if ("".equals(beginDate) || !DateTimeUtil.isDateValid(beginDate)) {
             errors.rejectValue("beginDate", "error.reportform.wrongbegindate");
@@ -96,13 +83,6 @@ public class ReportFormValidator implements Validator {
 
     private void validateReport04(Object o, Errors errors) {
         Report04 form = (Report04) o;
-
-        ValidationUtils.rejectIfEmptyOrWhitespace(errors, "divisionId", "error.reportform.nodivision");
-
-        if (form.getDivisionId() == 0) {
-            errors.rejectValue("divisionId", "error.reportform.nodivision");
-        }
-
         String beginDate = form.getBeginDate();
         if ("".equals(beginDate) && !DateTimeUtil.isDateValid(beginDate)) {
             errors.rejectValue("beginDate", "error.reportform.wrongbegindate");
@@ -165,11 +145,11 @@ public class ReportFormValidator implements Validator {
     private void validateReport05(Object o, Errors errors) {
         Report05 form = (Report05) o;
 
-        ValidationUtils.rejectIfEmptyOrWhitespace(errors, "divisionId", "error.reportform.nodivision");
-
-        if (form.getDivisionId() == 0) {
-            errors.rejectValue("divisionId", "error.reportform.nodivision");
-        }
+//        ValidationUtils.rejectIfEmptyOrWhitespace(errors, "divisionId", "error.reportform.nodivision");
+//
+//        if (form.getDivisionId() == 0) {
+//            errors.rejectValue("divisionId", "error.reportform.nodivision");
+//        }
 
         String beginDate = form.getBeginDate();
         if ("".equals(beginDate) && !DateTimeUtil.isDateValid(beginDate)) {

@@ -39,6 +39,20 @@
 
     <div id="form_header">
         <table class="report_params" cellspacing="3">
+			<tr>
+				<td colspan="4"/>
+				<td>
+					<span class="label">Регион</span>
+					<span style="color:red">*</span>
+				</td>
+				<td><span class="all_regions">
+						<span class="checkbox_without_dojo">
+							<form:checkbox id="allRegions" name="allRegions"  path="allRegions"/>
+						</span>
+						<span class="checkbox_without_dojo">Все регионы</span>
+					</span>
+				</td>
+			</tr>
             <tr>
                 <td><span class="label">Центр</span><span style="color:red">*</span></td>
                 <td><form:select id="divisionId" name="divisionId" cssClass="without_dojo"
@@ -56,23 +70,16 @@
 						<form:options items="${categoryList}" itemLabel="title"/>
 					</form:select>
 				</td>
-                <td rowspan="2">
-					<span class="label">Регион</span><span style="color:red">*</span>
+                <td rowspan="2" colspan="2">					
 					<span class="without_dojo">
 						<form:select id="regionIds" name="regionIds" 
 									 onmouseover="tooltip.show(getTitle(this));"
 									 onmouseout="tooltip.hide();" path="regionIds" multiple="true"
-									 cssClass ="auto_height">
+									 cssClass ="region">
 							<form:options items="${regionList}" itemLabel="name" itemValue="id"/>
 						</form:select>
 					</span>
-				</td>
-				<td>
-					<span class="checkbox_without_dojo">
-						<form:checkbox  id="allRegions" name="allRegions"  path="allRegions"/>
-					</span>
-					<span class="checkbox_without_dojo">Все регионы</span>
-				</td>
+				</td>				
             </tr>
             <tr>
                 <td><span class="label">Начало периода</span><span style="color:red">*</span></td>
