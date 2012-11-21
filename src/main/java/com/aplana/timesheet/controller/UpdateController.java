@@ -2,8 +2,13 @@ package com.aplana.timesheet.controller;
 
 import com.aplana.timesheet.service.DivisionService;
 import com.aplana.timesheet.service.EmployeeLdapService;
+import com.aplana.timesheet.service.EmployeeService;
 import com.aplana.timesheet.service.OQProjectSyncService;
 import com.aplana.timesheet.service.ReportCheckService;
+import com.aplana.timesheet.util.TimeSheetConstans;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
@@ -17,14 +22,14 @@ public class UpdateController {
 
     @Autowired
     private EmployeeLdapService employeeLdapService;
-	
-	@Autowired
-	private DivisionService divisionService;
+    @Autowired
+    private DivisionService divisionService;
+    @Autowired
+    private EmployeeService employeeService;
 
     public void setEmployeeLdapService(EmployeeLdapService employeeLdapService) {
         this.employeeLdapService = employeeLdapService;
     }
-
     @Autowired
     @Qualifier("reportCheckService")
     private ReportCheckService reportCheckService;
@@ -32,7 +37,6 @@ public class UpdateController {
     public void setReportCheckService(ReportCheckService reportCheckService) {
         this.reportCheckService = reportCheckService;
     }
-
     @Autowired
     OQProjectSyncService oqProjectSyncService;
 
@@ -42,11 +46,11 @@ public class UpdateController {
         model.addAttribute("trace", this.employeeLdapService.getTrace().replaceAll("\n", "<br/>"));
         return "updateLDAP";
     }
-	
-	@RequestMapping(value = "/update/ldapDivisions")
+
+    @RequestMapping(value = "/update/ldapDivisions")
     public String ldapDivisionsUpdate(Model model) {
-		StringBuffer sb = this.divisionService.synchronize();
-		model.addAttribute("trace", sb.toString().replaceAll("\n", "<br/>"));
+        StringBuffer sb = this.divisionService.synchronize();
+        model.addAttribute("trace", sb.toString().replaceAll("\n", "<br/>"));
         return "updateDivisionsLDAP";
     }
 
@@ -60,9 +64,28 @@ public class UpdateController {
     @RequestMapping(value = "/update/oqsync")
     public ModelAndView oqSyncUpdate(Model model) {
         oqProjectSyncService.sync();
-		ModelAndView mav = new ModelAndView("oqSync");
-		mav.addObject("trace", oqProjectSyncService.getTrace().replaceAll("\n", "<br/>"));
+        ModelAndView mav = new ModelAndView("oqSync");
+        mav.addObject("trace", oqProjectSyncService.getTrace().replaceAll("\n", "<br/>"));
         return mav;
     }
 
+    @RequestMapping(value = "/update/showalluser")
+    public String showAllUser(HttpServletRequest request, HttpServletResponse response) {
+        Cookie cookie = new Cookie(TimeSheetConstans.COOKIE_SHOW_ALLUSER, "active");
+        cookie.setPath("/");
+        cookie.setMaxAge(24 * 60 * 60);
+        response.addCookie(cookie);
+        return "redirect:/admin";
+    }
+
+    @RequestMapping(value = "/update/hidealluser")
+    public String hideAllUser(HttpServletRequest request, HttpServletResponse response) {
+        if (employeeService.isShowAll()) {
+            Cookie cookie = new Cookie(TimeSheetConstans.COOKIE_SHOW_ALLUSER, "deactive");
+            cookie.setPath("/");
+            cookie.setMaxAge(0);
+            response.addCookie(cookie);
+        }
+        return "redirect:/admin";
+    }
 }
