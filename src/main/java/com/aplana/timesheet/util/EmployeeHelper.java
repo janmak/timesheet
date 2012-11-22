@@ -30,9 +30,10 @@ public class EmployeeHelper {
 					sb.append("', value:'");
 					sb.append(employees.get(j).getName());
                     if( null != employees.get(j).getEndDate()) {
-                        sb.append(" Уволен: ");
-                        SimpleDateFormat df = new SimpleDateFormat("y.M.d");
+                        sb.append(" (уволен: ");
+                        SimpleDateFormat df = new SimpleDateFormat("dd.MM.yyyy");
                         sb.append(df.format(employees.get(j).getEndDate()));
+                        sb.append(")");
                     }
 					sb.append("', jobId:'");
 					sb.append(employees.get(j).getJob().getId());
