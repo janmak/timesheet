@@ -1,3 +1,4 @@
+<p>Сотрудник: <b>$timeSheet.getEmployee().getName()</b></p>
 #set ($tsDetails = $timeSheet.getTimeSheetDetails())
 #set ($isProblems = $false) 
 #set ($projectName = $"")
@@ -108,4 +109,3 @@
  	$DateTimeUtil.formatDateString($timeSheet.getBeginLongDate()) по  $DateTimeUtil.formatDateString($timeSheet.getEndLongDate())</p>
 	#end
 #end
-<h4>Отправил пользователь $senderName</h4>
