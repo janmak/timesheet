@@ -3,15 +3,23 @@ package com.aplana.timesheet.service;
 import com.aplana.timesheet.dao.EmployeeDAO;
 import com.aplana.timesheet.dao.entity.Division;
 import com.aplana.timesheet.dao.entity.Employee;
+import com.aplana.timesheet.util.TimeSheetConstans;
+import java.net.CookieStore;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.Cookie;
 
 @Service
 public class EmployeeService {
     @Autowired
     private EmployeeDAO employeeDAO;
+    @Autowired
+    private HttpServletRequest request;
+    private Boolean isShowAllLoaded = false;
+    private Boolean isShowAll;
 
     /**
      * Возвращает сотрудника по идентификатору.
@@ -23,6 +31,21 @@ public class EmployeeService {
         return employeeDAO.find(id);
     }
 
+    public Boolean isShowAll() {
+        if (!isShowAllLoaded) {
+            isShowAll = false;
+            Cookie[] cookies = request.getCookies();
+            if (cookies != null) {
+                for (Cookie cookie : cookies) {
+                    if (cookie.getName().equals(TimeSheetConstans.COOKIE_SHOW_ALLUSER)) {
+                        isShowAll = true;
+                        break;
+                    }
+                }
+            }
+        }
+        return isShowAll;
+    }
     public Employee findByEmail(String mail)
     {
         return employeeDAO.findByEmail(mail);
@@ -43,13 +66,19 @@ public class EmployeeService {
     }
 
     /**
-     * Возвращает список действующих сотрудников.
+     * Возвращает список сотрудников
      * @param division Если null, то поиск осуществляется без учета подразделения,
      *                 иначе с учётом подразделения
      * @return список действующих сотрудников.
      */
     public List<Employee> getEmployees(Division division) {
-        return employeeDAO.getEmployees(division);
+        List<Employee> result;
+        if (isShowAll()) {
+            result = employeeDAO.getAllEmployeesDivision(division);
+        } else {
+            result = employeeDAO.getEmployees(division);
+        }
+        return result;
     }
 
     public List<Employee> getAllEmployeesDivision(Division division) {

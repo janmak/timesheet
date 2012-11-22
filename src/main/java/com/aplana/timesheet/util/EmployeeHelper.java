@@ -3,6 +3,7 @@ package com.aplana.timesheet.util;
 import com.aplana.timesheet.dao.entity.Division;
 import com.aplana.timesheet.dao.entity.Employee;
 import com.aplana.timesheet.service.EmployeeService;
+import java.text.SimpleDateFormat;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -28,6 +29,12 @@ public class EmployeeHelper {
 					sb.append(employees.get(j).getId());
 					sb.append("', value:'");
 					sb.append(employees.get(j).getName());
+                    if( null != employees.get(j).getEndDate()) {
+                        sb.append(" (уволен: ");
+                        SimpleDateFormat df = new SimpleDateFormat("dd.MM.yyyy");
+                        sb.append(df.format(employees.get(j).getEndDate()));
+                        sb.append(")");
+                    }
 					sb.append("', jobId:'");
 					sb.append(employees.get(j).getJob().getId());
 					sb.append("'}");
