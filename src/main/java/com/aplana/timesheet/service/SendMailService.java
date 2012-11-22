@@ -295,7 +295,7 @@ public class SendMailService{
         model.put("dictionaryItemService", dictionaryItemService);
         model.put("projectService", projectService);
         model.put("DateTimeUtil", DateTimeUtil.class);
-        model.put("senderName", securityPrincipal.getEmployee().getName());
+        model.put("senderName", timeSheet.getEmployee().getName());
         logger.info("follows initialization output from velocity");
         return VelocityEngineUtils.mergeTemplateIntoString(
                 velocityEngine, "report.vm", model);
