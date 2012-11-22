@@ -48,12 +48,13 @@ public class JasperReportDAO {
         Query query = entityManager.createQuery(
                 "select em.id, em.name, ts.calDate.calDate, cast('' as string), " +
                         "sum(td.duration)-8, sum(td.duration), h.id, h.region.id, " +
-                        "(case when h is not null then td.project.name else cast('%NO_GROUPING%' as string) end), " +
+						"(case when h is not null then (case when project is not null then project.name else cast('Внепроектная деятельность' as string) end) else cast('%NO_GROUPING%' as string) end), " +
                         "(case when h is not null then td.duration else cast(-1 as float) end) " +
                         "from TimeSheetDetail td " +
                         "inner join td.timeSheet ts " +
                         "inner join ts.employee em " +
                         "left outer join ts.calDate.holidays h " +
+						"left outer join td.project project " +
                         "where em.division.id = :divisionId and " +
 						regionClause +
                         "ts.calDate.calDate between :beginDate and :endDate " +
