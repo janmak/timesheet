@@ -1292,7 +1292,6 @@ var tooltip = function () {
 }();
 
 /* Заполняет список доступных проектов/пресейлов */
-//function fillProjectListByDivision(division) {
 function fillProjectListByDivision(division) {
 
     var checkBox = dojo.byId("filterProjects");
@@ -1309,49 +1308,56 @@ function fillProjectListByDivision(division) {
     var projectSelect = dojo.byId("projectId");
 
     projectSelect.options.length = 0;
+	if (divisionId == 0) {
+		dojo.attr("filterProjects", {disabled:"disabled", checked: false});
+		dojo.attr("projectId", {disabled:"disabled"});
+	} else {
+		dojo.removeAttr("filterProjects", "disabled");		
+		dojo.removeAttr("projectId", "disabled");
+		if (checkBox.checked) {
+			dojo.removeAttr("divisionId", "disabled");
 
-    if (checkBox.checked) {
+			if (divisionId != 0) {
 
-        dojo.removeAttr("divisionId", "disabled");
+				for (var i = 0; i < projectList.length; i++) {
+					if ((divisionId == projectList[i].divId) || (!checkBox.checked)) {
+						insertEmptyOption(projectSelect);
+						for (var j = 0; j < projectList[i].divProjs.length; j++) {
+							projectOption = dojo.doc.createElement("option");
+							dojo.attr(projectOption, {
+								value:projectList[i].divProjs[j].id
+							});
+							projectOption.title = projectList[i].divProjs[j].value;
+							projectOption.innerHTML = projectList[i].divProjs[j].value;
+							projectSelect.appendChild(projectOption);
+						}
+					}
+				}
+			} else {
+				insertEmptyOption(projectSelect);
+			}
+		}
+		else {
 
-        if (divisionId != 0) {
+			division.value = 0;
 
-            for (var i = 0; i < projectList.length; i++) {
-                if ((divisionId == projectList[i].divId) || (!checkBox.checked)) {
-                    insertEmptyOption(projectSelect);
-                    for (var j = 0; j < projectList[i].divProjs.length; j++) {
-                        projectOption = dojo.doc.createElement("option");
-                        dojo.attr(projectOption, {
-                            value:projectList[i].divProjs[j].id
-                        });
-                        projectOption.title = projectList[i].divProjs[j].value;
-                        projectOption.innerHTML = projectList[i].divProjs[j].value;
-                        projectSelect.appendChild(projectOption);
-                    }
-                }
-            }
-        } else {
-            insertEmptyOption(projectSelect);
-        }
-    }
-    else {
+			dojo.attr("divisionId", {
+				disabled:"disabled"
+			});
 
-        division.value = 0;
-
-        dojo.attr("divisionId", {disabled:"disabled"});
-
-        insertEmptyOption(projectSelect);
-        for (var i = 0; i < fullProjectList.length; i++) {
-            projectOption = dojo.doc.createElement("option");
-            dojo.attr(projectOption, {
-                value:fullProjectList[i].id
-            });
-            projectOption.title = fullProjectList[i].value;
-            projectOption.innerHTML = fullProjectList[i].value;
-            projectSelect.appendChild(projectOption);
-        }
-    }
-    sortSelectOptions(projectSelect);
+			insertEmptyOption(projectSelect);
+			for (var i = 0; i < fullProjectList.length; i++) {
+				projectOption = dojo.doc.createElement("option");
+				dojo.attr(projectOption, {
+					value:fullProjectList[i].id
+				});
+				projectOption.title = fullProjectList[i].value;
+				projectOption.innerHTML = fullProjectList[i].value;
+				projectSelect.appendChild(projectOption);
+			}
+		}
+		sortSelectOptions(projectSelect);
+	}
 }
 
 function fillEmployeeListByDivision(division) {

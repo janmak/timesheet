@@ -48,25 +48,26 @@
 			<tr>
 				<td>
 					<span class="label">Регион</span>
+					<span class="all_regions">
+						<span class="checkbox_without_dojo">
+							<form:checkbox  id="allRegions" name="allRegions"  path="allRegions"/>
+						</span>
+						<span class="checkbox_without_dojo">Все регионы</span>
+					</span>
 				</td>
-				<td rowspan="2">							
+			</tr>
+			<tr>
+				<td>							
 					<span class="without_dojo">
 						<form:select id="regionIds" name="regionIds" 
 									 onmouseover="tooltip.show(getTitle(this));"
 									 onmouseout="tooltip.hide();" path="regionIds" multiple="true"
-									 cssClass ="auto_height">
+									 cssClass ="region">
 							<form:options items="${regionList}" itemLabel="name" itemValue="id"/>
 						</form:select>
 					</span>
-				</td>
-				<td>
-					<span class="checkbox_without_dojo">
-						<form:checkbox  id="allRegions" name="allRegions"  path="allRegions"/>
-					</span>
-					<span class="checkbox_without_dojo">Все регионы</span>
-				</td>
+				</td>						
 			</tr>
-			<tr/>
             <tr>
                 <td><span class="label">Начало периода</span><span style="color:red">*</span></td>
                 <td><form:input path="beginDate" id="beginDate" name="beginDate" class="date_picker"
