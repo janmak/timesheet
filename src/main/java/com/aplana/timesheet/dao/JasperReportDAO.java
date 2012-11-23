@@ -56,6 +56,8 @@ public class JasperReportDAO {
                         "left outer join ts.calDate.holidays h " +
 						"left outer join td.project project " +
                         "where em.division.id = :divisionId and " +
+						// В этом отчете учитываются только следующие виды деятельности "Проектная", "Пресейловая", "Внепроектная" (соответсвенно)
+						"td.actType.id in (12, 13, 14) and " +
 						regionClause +
                         "ts.calDate.calDate between :beginDate and :endDate " +
                         "and ((h.region.id is null) or (h.region.id=em.region.id)) " +
