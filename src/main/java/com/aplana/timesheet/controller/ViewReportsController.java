@@ -1,14 +1,14 @@
 package com.aplana.timesheet.controller;
 
 import com.aplana.timesheet.dao.entity.Calendar;
-import com.aplana.timesheet.dao.entity.DayTimeSheet;
 import com.aplana.timesheet.dao.entity.Division;
 import com.aplana.timesheet.dao.entity.Employee;
-import com.aplana.timesheet.form.TimeSheetForm;
 import com.aplana.timesheet.form.ViewReportsForm;
 import com.aplana.timesheet.form.validator.ViewReportsFormValidator;
 import com.aplana.timesheet.service.*;
 import com.aplana.timesheet.util.EmployeeHelper;
+import java.text.SimpleDateFormat;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,12 +19,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
-
-import java.math.BigDecimal;
-import java.sql.Date;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.List;
 
 @Controller
 public class ViewReportsController {
@@ -52,7 +46,13 @@ public class ViewReportsController {
     }
 
     @RequestMapping(value = "/viewreports/{divisionId}/{employeeId}/{year}/{month}")
-    public ModelAndView showDates(@PathVariable("divisionId") Integer divisionId, @PathVariable("employeeId") Integer employeeId, @PathVariable("year") Integer year, @PathVariable("month") Integer month, @ModelAttribute("viewReportsForm") ViewReportsForm tsForm, BindingResult result) {
+    public ModelAndView showDates(
+            @PathVariable("divisionId") Integer divisionId, 
+            @PathVariable("employeeId") Integer employeeId, 
+            @PathVariable("year") Integer year, 
+            @PathVariable("month") Integer month, 
+            @ModelAttribute("viewReportsForm") ViewReportsForm tsForm, 
+            BindingResult result) {
         logger.info("year {}, month {}", year, month);
         tsFormValidator.validate(tsForm, result);
 
@@ -60,168 +60,25 @@ public class ViewReportsController {
         ModelAndView mav = new ModelAndView("viewreports");
         List<Calendar> years = calendarService.getYearsList();
         List<Division> divisionList = divisionService.getDivisions();
-
         mav.addObject("year", year);
         mav.addObject("month", month);
         mav.addObject("divisionId", divisionId);
-        mav.addObject("viewReportsForm", tsForm);
         mav.addObject("employeeId", employeeId);
-        mav.addObject("employeeName", employee.getName());
         mav.addObject("yearsList", years);
+        mav.addObject("employee", employee);
         mav.addObject("monthList", getMonthListJson(years));
         mav.addObject("divisionList", divisionList);
         mav.addObject("employeeListJson", employeeHelper.getEmployeeListJson(divisionList));
-
-        java.util.Calendar date = java.util.Calendar.getInstance(java.util.TimeZone.getDefault(), java.util.Locale.getDefault());
-        date.setTime(new java.util.Date());
-        ArrayList<String[]> dateList = new ArrayList<String[]>();
-
-        // + Лубянов, 28.12.2011
-        // получаем id региона сотрудника
-        Integer regionId = employee.getRegion().getId();
-        // - Лубянов
-
-        List<DayTimeSheet> calTSList = timeSheetService.findDatesAndReportsForEmployee(year, month, regionId, employee);
-
-        //берем текущий месяц
-        java.util.Calendar calendar = java.util.Calendar.getInstance(java.util.TimeZone.getDefault(), java.util.Locale.getDefault());
-        calendar.setTime(new java.util.Date());
-        int monthInt = calendar.get(java.util.Calendar.MONTH) + 1;
-        int yearInt = calendar.get(java.util.Calendar.YEAR);
-        int currentDayInt = calendar.get(java.util.Calendar.DAY_OF_MONTH);
-        Boolean isCurMonth = (month == monthInt) && (year == yearInt);
-
-        Integer countMonth = 0;
-        Integer plus = 0;
-        BigDecimal duration = new BigDecimal("0.0");
-        for (int i = 0; i < calTSList.size(); i++) {
-            DayTimeSheet queryResult = calTSList.get(i);
-
-            String calDate = queryResult.getCalDate().toString();
-
-            String[] oneDay = new String[10];
-            oneDay[0] = calDate.substring(8, 10);
-
-            if (queryResult.getId() != null) {
-                oneDay[1] = String.valueOf(queryResult.getId());
-            } else {
-                oneDay[1] = null;
-            }
-            oneDay[2] = String.valueOf(year);
-            oneDay[3] = String.valueOf(month);
-
-            //является ли день рабочим
-            if (!queryResult.getWorkDay()) {
-                oneDay[4] = "true";
-
-            } else {
-                oneDay[4] = null;
-            }
-
-            oneDay[5] = oneDay[0];
-            switch (month) {
-                case 1:
-                    oneDay[6] = "января";
-                    break;
-                case 2:
-                    oneDay[6] = "февраля";
-                    break;
-                case 3:
-                    oneDay[6] = "марта";
-                    break;
-                case 4:
-                    oneDay[6] = "апреля";
-                    break;
-                case 5:
-                    oneDay[6] = "мая";
-                    break;
-                case 6:
-                    oneDay[6] = "июня";
-                    break;
-                case 7:
-                    oneDay[6] = "июля";
-                    break;
-                case 8:
-                    oneDay[6] = "августа";
-                    break;
-                case 9:
-                    oneDay[6] = "сентября";
-                    break;
-                case 10:
-                    oneDay[6] = "октября";
-                    break;
-                case 11:
-                    oneDay[6] = "ноября";
-                    break;
-                case 12:
-                    oneDay[6] = "декабря";
-                    break;
-                default:
-                    oneDay[6] = "";
-                    logger.error("Неверный номер месяца: " + month);
-                    break;
-            }
-
-            oneDay[6] = oneDay[6] + " " + year + "г. ";
-            oneDay[7] = new SimpleDateFormat("yyyy-MM-dd").format(queryResult.getCalDate()); // полная дата для передачи параметра в /timesheet
-            if (currentDayInt >= Integer.parseInt(oneDay[5]) || !isCurMonth) {
-                oneDay[9] = "false";
-                if (queryResult.getWorkDay()) countMonth++;
-                if (queryResult.getAct_type() == null) {
-                    //если не списано за этот день
-                    //?
-                } else {
-                    //если списана занятость
-                    Integer act = queryResult.getAct_type();
-                    switch (act) {
-                        case 15:
-                        case 24:
-                            oneDay[8] = "Отгул (" + queryResult.getDuration() + ")";
-                            break;
-                        case 16:
-                            oneDay[8] = "Отпуск";
-                            if (queryResult.getWorkDay())
-                                plus++;
-                            break;
-                        case 17:
-                            oneDay[8] = "Болезнь";
-                            if (queryResult.getWorkDay())
-                                plus++;
-                            break;
-                        case 18:
-                            oneDay[8] = "Нерабочий день";
-                            if (queryResult.getWorkDay())
-                                plus++;
-                            break;
-                        default:
-                            duration = duration.add(queryResult.getDuration());
-                            oneDay[8] = queryResult.getDuration().toString();
-                            break;
-                    }
-                }
-            } else {
-                oneDay[9] = "true";
-            }
-            dateList.add(oneDay);
-
-        }
-        mav.addObject("timeFact", duration);
-        //если год меньше текущего
-        if (year == yearInt) {
-            if (month > monthInt) mav.addObject("timePlan", "0");
-            else
-                mav.addObject("timePlan", (countMonth - plus) * 8 + (month < monthInt ? "" : (" (до " + (currentDayInt) + "-го) ")));
-        } else if (year > yearInt) {
-            mav.addObject("timePlan", "0");
-        } else {
-            mav.addObject("timePlan", (countMonth - plus) * 8);
-        }
-        mav.addObject("dateList", dateList);
+        mav.addObject("reportDate", new SimpleDateFormat("yyyy.MM.dd"));
+        mav.addObject("reportDateCreate", new SimpleDateFormat("yyyy-MM-dd"));
+        mav.addObject("reportView", new SimpleDateFormat("/yyyy/MM/dd/"));
+        mav.addObject("reports", timeSheetService.findDatesAndReportsForEmployee(employee, year, month));
         return mav;
     }
 
     /**
      * Возвращает List годов, существующих в системе
+     * @return List<Calendar>
      */
     private List<Calendar> getYearsList() {
         List<Calendar> yearsList = calendarService.getYearsList();

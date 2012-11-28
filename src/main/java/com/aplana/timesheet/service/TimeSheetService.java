@@ -141,14 +141,14 @@ public class TimeSheetService {
     /**
      * Собирает из таблиц timesheet и calendar список дат и работ по сотруднику за месяц.
      *
+     * @param employee
      * @param year
      * @param month
-     * @param employee
      * @return List DayTimeSheet объектов. Первое поле - дата, второе - рабочий/нерабочий день, третье - id работы, если есть.
      */
-    public List<DayTimeSheet> findDatesAndReportsForEmployee(Integer year, Integer month, Integer region, Employee employee) {
+    public List<DayTimeSheet> findDatesAndReportsForEmployee(Employee employee, Integer year, Integer month) {
         return timeSheetDAO
-                .findDatesAndReportsForEmployee(year, month, region, employee);
+                .findDatesAndReportsForEmployee(year, month, employee.getRegion().getId(), employee);
     }
 
     /**
