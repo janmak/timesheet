@@ -69,9 +69,6 @@ public class ViewReportsController {
         mav.addObject("monthList", getMonthListJson(years));
         mav.addObject("divisionList", divisionList);
         mav.addObject("employeeListJson", employeeHelper.getEmployeeListJson(divisionList));
-        mav.addObject("reportDate", new SimpleDateFormat("yyyy.MM.dd"));
-        mav.addObject("reportDateCreate", new SimpleDateFormat("yyyy-MM-dd"));
-        mav.addObject("reportView", new SimpleDateFormat("/yyyy/MM/dd/"));
         mav.addObject("reports", timeSheetService.findDatesAndReportsForEmployee(employee, year, month));
         return mav;
     }
