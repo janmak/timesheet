@@ -195,6 +195,9 @@
                             <td><fmt:formatDate value="${report.calDate}" pattern="yyyy.MM.dd"/></td>
                             <td>
                                 <a href="<%=request.getContextPath()%>/report/<fmt:formatDate value="${report.calDate}" pattern="/yyyy/MM/dd/"/>${report.timeSheet.employee.id}">Посмотреть отчёт</a>
+                                <sec:authorize access="hasRole('ROLE_ADMIN')">
+                                    <a href="#" onclick="deleteTimeSheet(${report.timeSheet.id})"><img src="<c:url value="/resources/img/delete.png"/>" width="15px" title="Удалить"/></a>
+                                </sec:authorize>
                             </td>
                             <td class="duration">${report.duration}</td>
                         </tr>
@@ -204,6 +207,9 @@
                             <td><fmt:formatDate value="${report.calDate}" pattern="yyyy.MM.dd"/></td>
                             <td>
                                 Работа в выходной день <a href="<%=request.getContextPath()%>/report/<fmt:formatDate value="${report.calDate}" pattern="/yyyy/MM/dd/"/>${report.timeSheet.employee.id}">Посмотреть отчёт</a>
+                                <sec:authorize access="hasRole('ROLE_ADMIN')">
+                                    <a href="#" onclick="deleteTimeSheet(${report.timeSheet.id})"><img src="<c:url value="/resources/img/delete.png"/>" width="15px" title="Удалить"/></a>
+                                </sec:authorize>
                             </td>
                             <td class="duration">${report.duration}</td>
                         </tr>
