@@ -1,3 +1,5 @@
+<%@page import="com.aplana.timesheet.dao.entity.DayTimeSheet"%>
+<%@page import="java.text.SimpleDateFormat"%>
 <%@page contentType="text/html" pageEncoding="UTF-8" %>
 
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form" %>
@@ -10,7 +12,7 @@
     <head>
         <title><fmt:message key="viewreports"/></title>
         <link rel="stylesheet" type="text/css" href="<%= request.getContextPath()%>/resources/css/viewreports.css">
-        <script type="text/javascript" src="<%= request.getContextPath()%>/resources/js/viewreports.js"/>
+        <script type="text/javascript" src="<%= request.getContextPath()%>/resources/js/viewreports.js"></script>
         <script type="text/javascript">
 
             dojo.ready(function () {
@@ -52,16 +54,16 @@
                 } else {
                     var error = "";
                     if (year == 0 || year == null) {
-                        error += ("Вы не уточнили год и месяц!\n");
+                        error += ("Необходимо выбрать год и месяц\n");
                     }
                     else if (month == 0 || month == null) {
-                        error += ("Вы не уточнили месяц!\n");
+                        error += ("Необходимо увыбрать месяц!\n");
                     }
                     if (divisionId == 0 || divisionId == null) {
-                        error += ("Вы не уточнили подразделение и сотрудника!\n");
+                        error += ("Необходимо выбрать подразделение и сотрудника!\n");
                     }
                     else if (empId == 0 || empId == null) {
-                        error += ("Вы не уточнили сотрудника!\n");
+                        error += ("Необходимо выбрать сотрудника!\n");
                     }
                     alert(error);
                 }
@@ -174,56 +176,64 @@
                 </tr>
             </thead>
             <tbody>
+                <%-- <% for(DayTimeSheet report : request.getAttribute("reports")) { %> --%>
                 <c:forEach var="report" items="${reports}">
                     <c:if test="${report.statusHoliday}">
-                        <tr>
-                            <td>${reportDate.format(report.calDate)}</td>
+                        <tr class="statusHoliday">
+                            <td><fmt:formatDate value="${report.calDate}" pattern="yyyy.MM.dd"/></td>
                             <td colspan="2">Выходной</td>
                         </tr>
                     </c:if>
                     <c:if test="${report.statusNotStart}">
-                        <tr>
-                            <td>${reportDate.format(report.calDate)}</td>
+                        <tr class="statusNotStart">
+                            <td><fmt:formatDate value="${report.calDate}" pattern="yyyy.MM.dd"/></td>
                             <td colspan="2">Ещё не принят на работу</td>
                         </tr>
                     </c:if>
                     <c:if test="${report.statusNormalDay}">
-                        <tr>
-                            <td>${reportDate.format(report.calDate)}</td>
+                        <tr class="statusNormalDay toplan">
+                            <td><fmt:formatDate value="${report.calDate}" pattern="yyyy.MM.dd"/></td>
                             <td>
-                                <a href="<%=request.getContextPath()%>/report/${reportView.format(report.calDate)}${report.timeSheet.employee.id}">Посмотреть отчёт</a>
+                                <a href="<%=request.getContextPath()%>/report/<fmt:formatDate value="${report.calDate}" pattern="/yyyy/MM/dd/"/>${report.timeSheet.employee.id}">Посмотреть отчёт</a>
+                                <sec:authorize access="hasRole('ROLE_ADMIN')">
+                                    <a href="#" onclick="deleteTimeSheet(${report.timeSheet.id})"><img src="<c:url value="/resources/img/delete.png"/>" width="15px" title="Удалить"/></a>
+                                </sec:authorize>
                             </td>
                             <td class="duration">${report.duration}</td>
                         </tr>
                     </c:if>
                     <c:if test="${report.statusWorkOnHoliday}">
-                        <tr>
-                            <td>${reportDate.format(report.calDate)}</td>
+                        <tr class="statusWorkOnHoliday">
+                            <td><fmt:formatDate value="${report.calDate}" pattern="yyyy.MM.dd"/></td>
                             <td>
-                                Работа в выходной день <a href="<%=request.getContextPath()%>/report/${reportView.format(report.calDate)}${report.timeSheet.employee.id}">Посмотреть отчёт</a>
+                                Работа в выходной день <a href="<%=request.getContextPath()%>/report/<fmt:formatDate value="${report.calDate}" pattern="/yyyy/MM/dd/"/>${report.timeSheet.employee.id}">Посмотреть отчёт</a>
+                                <sec:authorize access="hasRole('ROLE_ADMIN')">
+                                    <a href="#" onclick="deleteTimeSheet(${report.timeSheet.id})"><img src="<c:url value="/resources/img/delete.png"/>" width="15px" title="Удалить"/></a>
+                                </sec:authorize>
                             </td>
                             <td class="duration">${report.duration}</td>
                         </tr>
                     </c:if>
                     <c:if test="${report.statusNoReport}">
-                        <tr>
-                            <td>${reportDate.format(report.calDate)}</td>
-                            <td>Отчёта нет, <a href="<%=request.getContextPath()%>/timesheet?date=${reportDateCreate.format(report.calDate)}&id=${employeeId}">необходимо создать отчёт</a></td>
+                        <tr class="statusNoReport toplan">
+                            <td><fmt:formatDate value="${report.calDate}" pattern="yyyy.MM.dd"/></td>
+                            <td>Отчёта нет, <a href="<%=request.getContextPath()%>/timesheet?date=<fmt:formatDate value="${report.calDate}" pattern="yyyy-MM-dd"/>&id=${employeeId}">Создать</a></td>
                             <td>${report.duration}</td>
                         </tr>
                     </c:if>
                     <c:if test="${report.statusNotCome}">
-                        <tr>
-                            <td colspan="3">${reportDate.format(report.calDate)}</td>
+                        <tr class="statusNotCome">
+                            <td colspan="3"><fmt:formatDate value="${report.calDate}" pattern="yyyy.MM.dd"/></td>
                         </tr>
                     </c:if>
                 </c:forEach>
+                        <%-- <% } %> --%>
             </tbody>
         </table>
         <div id="report-main">
-            <p><b>Отработано:</b> <span id="durationall">Включи JavaScript</span> часов</p>
-            <p><b>Планируется:</b> <span id="durationplan">Включи JavaScript</span> часов</p>
-            <p><b>Норма часов в неделю:</b> <input type="text" id="normainweak" value="40">
-        </div>
+            <p><b>Всего факт:</b> <span id="durationall">Включи JavaScript</span></p>
+            <p><b>Всего план:</b> <span id="durationplan">Включи JavaScript</span></p>
+            <p><b>Норма (часов) в неделю:</b> <input type="text" id="normainweak">
+        </div>-->
     </body>
 </html>
