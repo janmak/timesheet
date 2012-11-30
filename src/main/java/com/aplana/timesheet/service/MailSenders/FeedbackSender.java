@@ -128,8 +128,6 @@ public class FeedbackSender extends MailSender {
         try {
             initSender();
 
-            logger.info("Performing last day of month mailing.");
-
             message = new MimeMessage(session);
             initMessageHead();
             initMessageBody();
