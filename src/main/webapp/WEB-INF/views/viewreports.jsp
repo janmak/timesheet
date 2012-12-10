@@ -180,21 +180,21 @@
                 <c:forEach var="report" items="${reports}">
                     <c:if test="${report.statusHoliday}">
                         <tr class="statusHoliday">
-                            <td><fmt:formatDate value="${report.calDate}" pattern="yyyy.MM.dd"/></td>
+                            <td class="date"><fmt:formatDate value="${report.calDate}" pattern="yyyy.MM.dd"/></td>
                             <td>Выходной</td>
                             <td></td>
                         </tr>
                     </c:if>
                     <c:if test="${report.statusNotStart}">
                         <tr class="statusNotStart">
-                            <td><fmt:formatDate value="${report.calDate}" pattern="yyyy.MM.dd"/></td>
+                            <td class="date"><fmt:formatDate value="${report.calDate}" pattern="yyyy.MM.dd"/></td>
                             <td>Ещё не принят на работу</td>
                             <td></td>
                         </tr>
                     </c:if>
                     <c:if test="${report.statusNormalDay}">
                         <tr class="statusNormalDay toplan">
-                            <td><fmt:formatDate value="${report.calDate}" pattern="yyyy.MM.dd"/></td>
+                            <td class="date"><fmt:formatDate value="${report.calDate}" pattern="yyyy.MM.dd"/></td>
                             <td>
                                 <a href="<%=request.getContextPath()%>/report/<fmt:formatDate value="${report.calDate}" pattern="/yyyy/MM/dd/"/>${report.timeSheet.employee.id}">Посмотреть отчёт</a>
                                 <sec:authorize access="hasRole('ROLE_ADMIN')">
@@ -206,7 +206,7 @@
                     </c:if>
                     <c:if test="${report.statusWorkOnHoliday}">
                         <tr class="statusWorkOnHoliday">
-                            <td><fmt:formatDate value="${report.calDate}" pattern="yyyy.MM.dd"/></td>
+                            <td class="date"><fmt:formatDate value="${report.calDate}" pattern="yyyy.MM.dd"/></td>
                             <td>
                                 Работа в выходной день <a href="<%=request.getContextPath()%>/report/<fmt:formatDate value="${report.calDate}" pattern="/yyyy/MM/dd/"/>${report.timeSheet.employee.id}">Посмотреть отчёт</a>
                                 <sec:authorize access="hasRole('ROLE_ADMIN')">
@@ -218,14 +218,14 @@
                     </c:if>
                     <c:if test="${report.statusNoReport}">
                         <tr class="statusNoReport toplan">
-                            <td><fmt:formatDate value="${report.calDate}" pattern="yyyy.MM.dd"/></td>
-                            <td>Отчёта нет, <a href="<%=request.getContextPath()%>/timesheet?date=<fmt:formatDate value="${report.calDate}" pattern="yyyy-MM-dd"/>&id=${employeeId}">(Создать)</a></td>
-                            <td>${report.duration}</td>
+                            <td class="date"><fmt:formatDate value="${report.calDate}" pattern="yyyy.MM.dd"/></td>
+                            <td>Отчёта нет <a href="<%=request.getContextPath()%>/timesheet?date=<fmt:formatDate value="${report.calDate}" pattern="yyyy-MM-dd"/>&id=${employeeId}">(Создать)</a></td>
+                            <td class="duration">${report.duration}</td>
                         </tr>
                     </c:if>
                     <c:if test="${report.statusNotCome}">
                         <tr class="statusNotCome">
-                            <td><fmt:formatDate value="${report.calDate}" pattern="yyyy.MM.dd"/></td>
+                            <td class="date"><fmt:formatDate value="${report.calDate}" pattern="yyyy.MM.dd"/></td>
                             <td></td>
                             <td></td>
                         </tr>

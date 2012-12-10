@@ -1,6 +1,18 @@
 #viewreports .statusHoliday{
     color: brown;
 }
+#viewreports .duration{
+    text-align: center;
+}
+#viewreports .date{
+    text-align: center;
+}
+#viewreports .statusNormalDay .date{
+    font-weight: bold;
+}
+#viewreports .statusWorkOnHoliday .date{
+    font-weight: bold;
+}
 #viewreports thead{
     font-weight: bold;
 }

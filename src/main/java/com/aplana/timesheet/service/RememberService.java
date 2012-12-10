@@ -110,14 +110,12 @@ public class RememberService implements RememberMeServices, InitializingBean, Lo
     }
 
     private void removeCookie(Cookie cookie, HttpServletResponse response) {
-        cookie.setPath("/TimeSheet/");
         cookie.setMaxAge(0);
         response.addCookie(cookie);
     }
 
     private void setCookie(String key, HttpServletResponse response) {
         Cookie cookie = new Cookie(TimeSheetConstans.COOKIE_REMEMBER, key);
-        cookie.setPath("/TimeSheet/");
         cookie.setMaxAge(999999999);
         response.addCookie(cookie);
     }
