@@ -4,12 +4,19 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
     <!--Авторизация в Active Directory-->
-        <bean id="ldapAuthProvider"
-              class="org.springframework.security.ldap.authentication.ad.ActiveDirectoryLdapAuthenticationProvider">
-            <constructor-arg value="${ldap.domain}"/>
-            <constructor-arg value="${ldap.url}"/>
-            <property name="userDetailsContextMapper" ref="myLdapUserDetailsService"/>
-        </bean>
+    <bean id="ldapAuthProvider"
+          class="org.springframework.security.ldap.authentication.ad.ActiveDirectoryLdapAuthenticationProvider">
+        <constructor-arg value="${ldap.domain}"/>
+        <constructor-arg value="${ldap.url}"/>
+        <property name="userDetailsContextMapper" ref="myLdapUserDetailsService"/>
+    </bean>
     <!--Конец блока авторизации в Active Directory-->
+    
+    <bean id="rememberService" class="com.aplana.timesheet.service.RememberService">
+        <property name="employeeTokenDAO" ref="employeeTokenDAO"/>
+        <property name="LdapUserDetailsService" ref="myLdapUserDetailsService"/>
+    </bean>
+    <bean id="employeeTokenDAO" class="com.aplana.timesheet.dao.EmployeeTokenDAO"/>
+    <bean id="rememberMeAuthenticationProvider" class="com.aplana.timesheet.util.AuthenticationProviderImpl"/>
 
 </beans>

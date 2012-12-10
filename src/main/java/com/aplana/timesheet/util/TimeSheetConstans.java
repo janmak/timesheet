@@ -25,4 +25,10 @@ public class TimeSheetConstans {
      * Вне проектная деятельность
      */
     public static Integer DETAIL_TYPE_OUTPROJECT = 14;
+    
+    /**
+     * Куки которая ставится для того чтобы запомнить человека
+     */
+    public static String COOKIE_REMEMBER = "REMEMBER";
+    public static String POST_REMEMBER = "remember";
 }
