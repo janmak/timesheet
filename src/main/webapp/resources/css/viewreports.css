@@ -1,9 +1,9 @@
-#report-main p {
-    text-align: center;
-}
-#viewreports{
-    margin: 0 auto;
-}
 #viewreports .statusHoliday{
-    color: red;
+    color: brown;
+}
+#viewreports thead{
+    font-weight: bold;
+}
+#normainweak{
+    width: 100%;
 }

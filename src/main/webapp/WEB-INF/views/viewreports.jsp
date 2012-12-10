@@ -170,8 +170,8 @@
         <table id="viewreports">
             <thead>
                 <tr>
-                    <th width="120">Число</th>
-                    <th width="120">Статус</th>
+                    <th width="120">Дата</th>
+                    <th width="160">Статус</th>
                     <th width="130">Часы</th>
                 </tr>
             </thead>
@@ -199,7 +199,7 @@
                                 <a href="<%=request.getContextPath()%>/report/<fmt:formatDate value="${report.calDate}" pattern="/yyyy/MM/dd/"/>${report.timeSheet.employee.id}">Посмотреть отчёт</a>
                                 <sec:authorize access="hasRole('ROLE_ADMIN')">
                                     <a href="#" onclick="deleteTimeSheet(${report.timeSheet.id})"><img src="<c:url value="/resources/img/delete.png"/>" width="15px" title="Удалить"/></a>
-                                </sec:authorize>
+                                    </sec:authorize>
                             </td>
                             <td class="duration">${report.duration}</td>
                         </tr>
@@ -211,7 +211,7 @@
                                 Работа в выходной день <a href="<%=request.getContextPath()%>/report/<fmt:formatDate value="${report.calDate}" pattern="/yyyy/MM/dd/"/>${report.timeSheet.employee.id}">Посмотреть отчёт</a>
                                 <sec:authorize access="hasRole('ROLE_ADMIN')">
                                     <a href="#" onclick="deleteTimeSheet(${report.timeSheet.id})"><img src="<c:url value="/resources/img/delete.png"/>" width="15px" title="Удалить"/></a>
-                                </sec:authorize>
+                                    </sec:authorize>
                             </td>
                             <td class="duration">${report.duration}</td>
                         </tr>
@@ -219,7 +219,7 @@
                     <c:if test="${report.statusNoReport}">
                         <tr class="statusNoReport toplan">
                             <td><fmt:formatDate value="${report.calDate}" pattern="yyyy.MM.dd"/></td>
-                            <td>Отчёта нет, <a href="<%=request.getContextPath()%>/timesheet?date=<fmt:formatDate value="${report.calDate}" pattern="yyyy-MM-dd"/>&id=${employeeId}">Создать</a></td>
+                            <td>Отчёта нет, <a href="<%=request.getContextPath()%>/timesheet?date=<fmt:formatDate value="${report.calDate}" pattern="yyyy-MM-dd"/>&id=${employeeId}">(Создать)</a></td>
                             <td>${report.duration}</td>
                         </tr>
                     </c:if>
@@ -231,13 +231,21 @@
                         </tr>
                     </c:if>
                 </c:forEach>
-                        <%-- <% } %> --%>
             </tbody>
+            <thead>
+                <tr>
+                    <td colspan="2">Всего(факт):</td>
+                    <td id="durationall">JavaScript is disabled</td>
+                </tr>
+                <tr>
+                    <td colspan="2">Всего(план):</td>
+                    <td id="durationplan">JavaScript is disabled</td>
+                </tr>
+                <tr>
+                    <td colspan="2">Норма (часов) в неделю:</td>
+                    <td><input type="text" id="normainweak"</td>
+                </tr>
+            </thead>
         </table>
-        <div id="report-main">
-            <p><b>Всего факт:</b> <span id="durationall">Включи JavaScript</span></p>
-            <p><b>Всего план:</b> <span id="durationplan">Включи JavaScript</span></p>
-            <p><b>Норма (часов) в неделю:</b> <input type="text" id="normainweak">
-        </div>-->
     </body>
 </html>
