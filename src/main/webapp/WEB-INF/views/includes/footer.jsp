@@ -7,14 +7,10 @@
     try {
         property.load(new FileInputStream("./webapps/timesheet.properties"));
     } catch (Exception e) { }
-    if (property.getProperty("project.version")!=null)
-        version = property.getProperty("project.version");
-    else
-        version = ".Unknown";
+    String footer = property.getProperty("footer.text");
 %>
 <br/>
 <hr/>
 <br/>
 
-<p style="text-align: center">APLANATS v<%=version%> Aplana Software Service <%=DateTimeUtil.currentDay()%>
-</p>
+<p style="text-align: center"><%= footer %></p>
