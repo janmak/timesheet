@@ -170,9 +170,9 @@
         <table id="viewreports">
             <thead>
                 <tr>
-                    <th>Число</th>
-                    <th>Статус</th>
-                    <th>Часы</th>
+                    <th width="120">Число</th>
+                    <th width="120">Статус</th>
+                    <th width="130">Часы</th>
                 </tr>
             </thead>
             <tbody>
@@ -181,13 +181,15 @@
                     <c:if test="${report.statusHoliday}">
                         <tr class="statusHoliday">
                             <td><fmt:formatDate value="${report.calDate}" pattern="yyyy.MM.dd"/></td>
-                            <td colspan="2">Выходной</td>
+                            <td>Выходной</td>
+                            <td></td>
                         </tr>
                     </c:if>
                     <c:if test="${report.statusNotStart}">
                         <tr class="statusNotStart">
                             <td><fmt:formatDate value="${report.calDate}" pattern="yyyy.MM.dd"/></td>
-                            <td colspan="2">Ещё не принят на работу</td>
+                            <td>Ещё не принят на работу</td>
+                            <td></td>
                         </tr>
                     </c:if>
                     <c:if test="${report.statusNormalDay}">
@@ -223,7 +225,9 @@
                     </c:if>
                     <c:if test="${report.statusNotCome}">
                         <tr class="statusNotCome">
-                            <td colspan="3"><fmt:formatDate value="${report.calDate}" pattern="yyyy.MM.dd"/></td>
+                            <td><fmt:formatDate value="${report.calDate}" pattern="yyyy.MM.dd"/></td>
+                            <td></td>
+                            <td></td>
                         </tr>
                     </c:if>
                 </c:forEach>

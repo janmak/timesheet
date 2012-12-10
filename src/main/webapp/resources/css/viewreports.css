@@ -2,5 +2,8 @@
     text-align: center;
 }
 #viewreports{
-    width: 100%;
+    margin: 0 auto;
+}
+#viewreports .statusHoliday{
+    color: red;
 }

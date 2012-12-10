@@ -146,7 +146,7 @@ public class DayTimeSheet implements Comparable<DayTimeSheet> {
      * @return
      */
     public Boolean getStatusNotCome() {
-        if (this.getCurrent().before(this.getCalDate())) {
+        if (!this.getStatusHoliday() && this.getCurrent().before(this.getCalDate())) {
             return true;
         }
         return false;

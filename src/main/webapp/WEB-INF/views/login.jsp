@@ -57,7 +57,8 @@
                     <br/>
                     <input id="inputPass" type="password" name="j_password" value=""/>
                     <br/>
-                    <input type='checkbox' name='remember' value="value" style="width: inherit"/> Запомнить меня
+                    <br/>
+                    <input type='checkbox' name='remember' value="value" style="width: inherit"/> Запомнить меня 
                     <br/>
                     <input class="btnSend" type="submit" value="Войти"/>
                 </form>  <br>
