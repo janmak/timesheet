@@ -1,7 +1,5 @@
 package com.aplana.timesheet.dao;
 
-import com.aplana.timesheet.dao.entity.Division;
-import com.aplana.timesheet.dao.entity.Project;
 import com.aplana.timesheet.reports.*;
 import com.aplana.timesheet.util.DateTimeUtil;
 import com.aplana.timesheet.util.HibernateQueryResultDataSource;
@@ -190,7 +188,7 @@ public class JasperReportDAO {
 		
         if (hasProject) {
             // Выборка по конкретному проекту
-            query = entityManager.createQuery("SELECT empl.name, d.name, p.name, tsd.cqId, sum(tsd.duration), " +
+            query = entityManager.createQuery("SELECT empl.name, d.name, p.name, pt.cqId, sum(tsd.duration), " +
                     "(case when h is null then 0 " +
                     "else " +
                     "case when h.region.id is not null and h.region.id<>empl.region.id then 0 " +
@@ -201,6 +199,7 @@ public class JasperReportDAO {
                     "join ts.calDate c " +
                     "join empl.division d " +
                     "join tsd.project p " +
+                    "left outer  join tsd.projectTask as pt " +
                     "left outer join c.holidays h " +
                     "WHERE " +
                     "tsd.duration > 0 AND " +
@@ -209,15 +208,15 @@ public class JasperReportDAO {
                     divisionClause +
                     regionClause +
                     "c.calDate between :beginDate AND :endDate " +
-                    "GROUP BY empl.name, d.name, p.name, tsd.cqId, 6 " +
-                    "ORDER BY empl.name, p.name, tsd.cqId ");
+                    "GROUP BY empl.name, d.name, p.name, pt.cqId, 6 " +
+                    "ORDER BY empl.name, p.name, pt.cqId ");
 
             query.setParameter("projectId", report.getProjectId());
 
         } else {
             if (report.getFilterProjects()) {
                 // Выборка по всем проектам центра
-                query = entityManager.createQuery("SELECT empl.name, d.name, p.name, tsd.cqId, sum(tsd.duration), " +
+                query = entityManager.createQuery("SELECT empl.name, d.name, p.name, pt.cqId, sum(tsd.duration), " +
                         "(case when h is null then 0 " +
                         "else " +
                         "case when h.region.id is not null and h.region.id<>empl.region.id then 0 " +
@@ -229,6 +228,7 @@ public class JasperReportDAO {
                         "join empl.division d " +
                         "join tsd.project p " +
                         "join p.divisions dp " +
+                        "left outer join tsd.projectTask as pt " +
                         "left outer join c.holidays h " +
                         "WHERE " +
                         "tsd.duration > 0 AND " +
@@ -237,15 +237,15 @@ public class JasperReportDAO {
                         divisionClause +
                         regionClause +
                         "c.calDate between :beginDate AND :endDate " +
-                        "GROUP BY empl.name, d.name, p.name, tsd.cqId, 6 " +
-                        "ORDER BY empl.name, p.name, tsd.cqId ");
+                        "GROUP BY empl.name, d.name, p.name, pt.cqId, 6 " +
+                        "ORDER BY empl.name, p.name, pt.cqId ");
 
                 query.setParameter("divisionId", report.getDivisionId());
 
             } else {
 
                 // Выборка по всем проектам всех центров
-                query = entityManager.createQuery("SELECT empl.name, d.name, p.name, tsd.cqId, sum(tsd.duration), " +
+                query = entityManager.createQuery("SELECT empl.name, d.name, p.name, pt.cqId, sum(tsd.duration), " +
                         "(case when h is null then 0 " +
                         "else " +
                         "case when h.region.id is not null and h.region.id<>empl.region.id then 0 " +
@@ -257,14 +257,15 @@ public class JasperReportDAO {
                         "join empl.division d " +
                         "join tsd.project p " +
                         "left outer join c.holidays h " +
+                        "left outer join tsd.projectTask as pt " +
                         "WHERE " +
                         "tsd.duration > 0 AND " +
                         employeeClause +
                         divisionClause +
                         regionClause +
                         "c.calDate between :beginDate AND :endDate " +
-                        "GROUP BY empl.name, d.name, p.name, tsd.cqId, 6 " +
-                        "ORDER BY empl.name, p.name, tsd.cqId ");
+                        "GROUP BY empl.name, d.name, p.name, pt.cqId, 6 " +
+                        "ORDER BY empl.name, p.name, pt.cqId ");
             }
         }
         if ( hasParameter(regionClause) )
@@ -334,7 +335,7 @@ public class JasperReportDAO {
         if (hasProject) {
 
             // Выборка по конкретному проекту
-            query = entityManager.createQuery("SELECT empl.name, d.name, p.name, tsd.cqId, c.calDate, sum(tsd.duration), " +
+            query = entityManager.createQuery("SELECT empl.name, d.name, p.name, pt.cqId, c.calDate, sum(tsd.duration), " +
                     "(case when h is null then 0 " +
                     "else " +
                     "case when h.region.id is not null and h.region.id<>empl.region.id then 0 " +
@@ -345,6 +346,7 @@ public class JasperReportDAO {
                     "join ts.calDate c " +
                     "join empl.division d " +
                     "join tsd.project p " +
+                    "left outer  join tsd.projectTask as pt " +
                     "left outer join c.holidays h " +
                     "WHERE " +
                     "tsd.duration > 0 AND " +
@@ -353,8 +355,8 @@ public class JasperReportDAO {
                     employeeDivisionClause +
                     regionClause +
                     "c.calDate between :beginDate AND :endDate " +
-                    "GROUP BY empl.name, d.name, p.name, tsd.cqId, c.calDate, h.id, h.region.id, empl.region.id " +
-                    "ORDER BY empl.name, p.name, tsd.cqId, c.calDate ");
+                    "GROUP BY empl.name, d.name, p.name, pt.cqId, c.calDate, h.id, h.region.id, empl.region.id " +
+                    "ORDER BY empl.name, p.name, pt.cqId, c.calDate ");
 
 			query.setParameter("projectId", report.getProjectId());
 
@@ -362,7 +364,7 @@ public class JasperReportDAO {
         } else {
             if (report.getFilterProjects()) {
                 // Выборка по всем проектам центра
-                query = entityManager.createQuery("SELECT empl.name, d.name, p.name, tsd.cqId, c.calDate, sum(tsd.duration), " +
+                query = entityManager.createQuery("SELECT empl.name, d.name, p.name, pt.cqId, c.calDate, sum(tsd.duration), " +
                         "(case when h is null then 0 " +
                         "else " +
                         "case when h.region.id is not null and h.region.id<>empl.region.id then 0 " +
@@ -375,6 +377,7 @@ public class JasperReportDAO {
                         "join tsd.project p " +
                         "join p.divisions dp " +
                         "left outer join c.holidays h " +
+                        "left outer  join tsd.projectTask as pt " +
                         "WHERE " +
                         "tsd.duration > 0 AND " +
                         "dp.id=:divisionId AND " +
@@ -382,15 +385,15 @@ public class JasperReportDAO {
                         employeeDivisionClause +
                         regionClause +
                         "c.calDate between :beginDate AND :endDate " +
-                        "GROUP BY empl.name, d.name, p.name, tsd.cqId, c.calDate, h.id, h.region.id, empl.region.id " +
-                        "ORDER BY empl.name, p.name, tsd.cqId, c.calDate ");
+                        "GROUP BY empl.name, d.name, p.name, pt.cqId, c.calDate, h.id, h.region.id, empl.region.id " +
+                        "ORDER BY empl.name, p.name, pt.cqId, c.calDate ");
 
                 query.setParameter("divisionId", report.getDivisionId());
 
             } else {
 
                 // Выборка по всем проектам всех центров
-                query = entityManager.createQuery("SELECT empl.name, d.name, p.name, tsd.cqId, c.calDate, sum(tsd.duration), " +
+                query = entityManager.createQuery("SELECT empl.name, d.name, p.name, pt.cqId, c.calDate, sum(tsd.duration), " +
                         "(case when h is null then 0 " +
                         "else " +
                         "case when h.region.id is not null and h.region.id<>empl.region.id then 0 " +
@@ -402,14 +405,15 @@ public class JasperReportDAO {
                         "join empl.division d " +
                         "join tsd.project p " +
                         "left outer join c.holidays h " +
+                        "left outer  join tsd.projectTask as pt " +
                         "WHERE " +
                         "tsd.duration > 0 AND " +
                         employeeClause +
                         employeeDivisionClause +
                         regionClause +
                         "c.calDate between :beginDate AND :endDate " +
-                        "GROUP BY empl.name, d.name, p.name, tsd.cqId, c.calDate, h.id, h.region.id, empl.region.id " +
-                        "ORDER BY empl.name, p.name, tsd.cqId, c.calDate ");
+                        "GROUP BY empl.name, d.name, p.name, pt.cqId, c.calDate, h.id, h.region.id, empl.region.id " +
+                        "ORDER BY empl.name, p.name, pt.cqId, c.calDate ");
             }
         }
         if (hasParameter(regionClause))
@@ -520,10 +524,11 @@ public class JasperReportDAO {
 				
         Query query = entityManager.createQuery(
                 "select ts.calDate.calDate, em.name, td.actType.value, td.project.name, td.actCat.value, em.job.name, " +
-                "COALESCE(td.cqId, ''), td.duration, td.description, td.problem " +
+                "COALESCE(pt.cqId, ''), td.duration, td.description, td.problem " +
                 "from TimeSheetDetail td " +
                 "inner join td.timeSheet ts " +
                 "inner join ts.employee em " +
+                "left outer  join tsd.projectTask as pt " +
                 "where " + 
 				divisionClause +
                 regionClause +

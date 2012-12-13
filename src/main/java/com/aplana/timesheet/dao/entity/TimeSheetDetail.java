@@ -38,6 +38,11 @@ public class TimeSheetDetail {
 	@ForeignKey(name = "FK_TIME_SHEET_PROJECT_ROLE")
     private ProjectRole projectRole;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @ForeignKey(name = "FK_TIME_SHEET_PROJECT_TASK")
+    @JoinColumn(name = "task_id")
+    private ProjectTask projectTask;
+
 	@Column(name = "cq_id")
 	private String cqId;
 
@@ -152,7 +157,15 @@ public class TimeSheetDetail {
         this.projectRole = projectRole;
     }
 
-	@Override
+    public ProjectTask getProjectTask() {
+        return projectTask;
+    }
+
+    public void setProjectTask(ProjectTask projectTask) {
+        this.projectTask = projectTask;
+    }
+
+    @Override
 	public String toString() {
 		return new StringBuilder()
 			.append(" id=").append(id)
