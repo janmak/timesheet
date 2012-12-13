@@ -44,6 +44,9 @@ public class TimeSheetDetail {
     private ProjectTask projectTask;
 
 	@Column(name = "cq_id")
+    /**
+     * @deprecated
+     */
 	private String cqId;
 
 	@Column(columnDefinition = "text null")
@@ -95,6 +98,9 @@ public class TimeSheetDetail {
 		return duration;
 	}
 
+    /**
+     * @deprecated
+     */
 	public String getCqId() {
 		return cqId;
 	}
@@ -123,6 +129,9 @@ public class TimeSheetDetail {
 		this.duration = duration;
 	}
 
+    /**
+     * @deprecated
+     */
 	public void setCqId(String cqId) {
 		this.cqId = cqId;
 	}
