@@ -123,6 +123,7 @@
             setDuringDate();
             reloadTimeSheetState();
             recalculateDuration();
+            refreshPlans(dijit.byId('calDate').value, dojo.byId('employeeId').value);
         });
 
         function colorDayWithReportFromThreeMonth(dateInfoHolder, year, month, employeeId){
