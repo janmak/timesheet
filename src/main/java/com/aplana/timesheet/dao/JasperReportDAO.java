@@ -533,9 +533,9 @@ public class JasperReportDAO {
                 "select ts.calDate.calDate, em.name, td.actType.value, td.project.name, td.actCat.value, em.job.name, " +
                 "COALESCE(pt.cqId, ''), td.duration, td.description, td.problem " +
                 "from TimeSheetDetail td " +
+                "left outer join td.projectTask as pt " +
                 "inner join td.timeSheet ts " +
                 "inner join ts.employee em " +
-                "left outer  join tsd.projectTask as pt " +
                 "where " + 
 				divisionClause +
                 regionClause +
