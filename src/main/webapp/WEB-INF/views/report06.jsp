@@ -45,29 +45,6 @@
                     <form:options items="${projectList}" itemLabel="name" itemValue="id"/>
                 </form:select></td>
 			</tr>
-			<tr>
-				<td>
-					<span class="label">Регион</span>
-					<span class="all_regions">
-						<span class="checkbox_without_dojo">
-							<form:checkbox  id="allRegions" name="allRegions"  path="allRegions"/>
-						</span>
-						<span class="checkbox_without_dojo">Все регионы</span>
-					</span>
-				</td>
-			</tr>
-			<tr>
-				<td>							
-					<span class="without_dojo">
-						<form:select id="regionIds" name="regionIds" 
-									 onmouseover="tooltip.show(getTitle(this));"
-									 onmouseout="tooltip.hide();" path="regionIds" multiple="true"
-									 cssClass ="region">
-							<form:options items="${regionList}" itemLabel="name" itemValue="id"/>
-						</form:select>
-					</span>
-				</td>						
-			</tr>
             <tr>
                 <td><span class="label">Начало периода</span><span style="color:red">*</span></td>
                 <td><form:input path="beginDate" id="beginDate" name="beginDate" class="date_picker"
@@ -83,6 +60,29 @@
                                 required="false"
                                 onmouseover="tooltip.show(getTitle(this));"
                                 onmouseout="tooltip.hide();"/></td>
+            </tr>
+            <tr>
+                <td style="width: 225px">
+                    <span class="label" style="float:left">Регион</span>
+							<span style="float: right">
+								<span>
+									<form:checkbox  id="allRegions" name="allRegions"  path="allRegions"/>
+								</span>
+								<span>Все регионы</span>
+							</span>
+                </td>
+            </tr>
+            <tr>
+                <td>
+					<span class="without_dojo">
+						<form:select id="regionIds" name="regionIds"
+                                     onmouseover="tooltip.show(getTitle(this));"
+                                     onmouseout="tooltip.hide();" path="regionIds" multiple="true"
+                                     cssClass ="region">
+                            <form:options items="${regionList}" itemLabel="name" itemValue="id"/>
+                        </form:select>
+					</span>
+                </td>
             </tr>
         </table>
         <div class="radiogroup">

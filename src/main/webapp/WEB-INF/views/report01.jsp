@@ -39,20 +39,6 @@
 
     <div id="form_header">
         <table class="report_params" cellspacing="3">
-			<tr>
-				<td colspan="4"/>
-				<td>
-					<span class="label">Регион</span>
-					<span style="color:red">*</span>
-				</td>
-				<td><span class="all_regions">
-						<span class="checkbox_without_dojo">
-							<form:checkbox id="allRegions" name="allRegions"  path="allRegions"/>
-						</span>
-						<span class="checkbox_without_dojo">Все регионы</span>
-					</span>
-				</td>
-			</tr>
             <tr>
                 <td><span class="label">Центр</span><span style="color:red">*</span></td>
                 <td><form:select id="divisionId" name="divisionId" cssClass="without_dojo"
@@ -70,15 +56,8 @@
 						<form:options items="${categoryList}" itemLabel="title"/>
 					</form:select>
 				</td>
-                <td rowspan="2" colspan="2">					
-					<span class="without_dojo">
-						<form:select id="regionIds" name="regionIds" 
-									 onmouseover="tooltip.show(getTitle(this));"
-									 onmouseout="tooltip.hide();" path="regionIds" multiple="true"
-									 cssClass ="region">
-							<form:options items="${regionList}" itemLabel="name" itemValue="id"/>
-						</form:select>
-					</span>
+                <td rowspan="2" colspan="2">
+
 				</td>				
             </tr>
             <tr>
@@ -98,6 +77,25 @@
                                 onmouseout="tooltip.hide();"/></td>
             </tr>
         </table>
+        <div style="width: 225px">
+            <div style="float: left">
+                <span class="label">Регион</span>
+                <span style="color:red">*</span>
+            </div>
+            <div>
+            <span class="all_regions">
+                        <form:checkbox id="allRegions" name="allRegions" path="allRegions"/>
+                    Все регионы
+            </span>
+            </div>
+        <span class="without_dojo">
+            <form:select id="regionIds" name="regionIds"
+                         onmouseover="tooltip.show(getTitle(this));"
+                         onmouseout="tooltip.hide();" path="regionIds" multiple="true"
+                         cssClass="region">
+                <form:options items="${regionList}" itemLabel="name" itemValue="id"/>
+            </form:select>
+        </span></div>
         <div class="radiogroup">
             <div class="label"><fmt:message key="report.formattitle"/></div>
             <ul class="radio">
