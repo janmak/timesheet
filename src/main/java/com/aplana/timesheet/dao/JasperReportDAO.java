@@ -36,11 +36,14 @@ public class JasperReportDAO {
 		}
 		boolean hasRegion;
 		String regionClause;
+        String regionClause2;
 		if (report.hasRegions() && !report.isAllRegions()) {
 			regionClause = "em.region.id in :regionIds and ";
+            regionClause2 = "region.id in :regionIds and ";
 			hasRegion = true;
 		} else {
 			regionClause = "";
+            regionClause2 = "";
 			hasRegion = false;
 		}
         Query query = entityManager.createQuery(
@@ -48,20 +51,22 @@ public class JasperReportDAO {
                         "sum(td.duration)-8, sum(td.duration), h.id, h.region.id, " +
 						"(case when h is not null then (case when project is not null then project.name else cast('Внепроектная деятельность' as string) end) else cast('%NO_GROUPING%' as string) end), " +
                         "(case when h is not null then td.duration else cast(-1 as float) end) " +
+                        ", region.name " +
                         "from TimeSheetDetail td " +
                         "inner join td.timeSheet ts " +
                         "inner join ts.employee em " +
+                        "inner join em.region as region " +
                         "left outer join ts.calDate.holidays h " +
 						"left outer join td.project project " +
                         "where em.division.id = :divisionId and " +
 						// В этом отчете учитываются только следующие виды деятельности "Проектная", "Пресейловая", "Внепроектная" (соответсвенно)
 						"td.actType.id in (12, 13, 14) and " +
-						regionClause +
+						regionClause2 +
                         "ts.calDate.calDate between :beginDate and :endDate " +
-                        "and ((h.region.id is null) or (h.region.id=em.region.id)) " +
+                        "and ((h.region.id is null) or (h.region.id=region.id)) " +
 						workDaySeparator +
-                        "group by em.id, em.name, ts.calDate.calDate, h, h.region.id, 9, 10 " +
-                        "having (sum(td.duration) > 8) or (h is not null)" +
+                        "group by em.id, em.name, ts.calDate.calDate, h, h.region.id, 9, 10, region.name " +
+                        "having (sum(td.duration) > 8) or (h is not null) " +
                         "order by em.name, h.id desc, ts.calDate.calDate");
 
         if (hasRegion) {
@@ -131,7 +136,7 @@ public class JasperReportDAO {
         }
 
         if (resultList != null && !resultList.isEmpty()) {
-            String[] fields = new String[]{"id", "name", "caldate", "projnames", "overtime", "duration", "holiday", "region", "projdetail", "durationdetail"};
+            String[] fields = new String[]{"id", "name", "caldate", "projnames", "overtime", "duration", "holiday", "region", "projdetail", "durationdetail", "region_name"};
             return new HibernateQueryResultDataSource(resultList, fields);
         } else {
             return null;
@@ -280,6 +285,8 @@ public class JasperReportDAO {
         query.setParameter("endDate", DateTimeUtil.stringToTimestamp(report.getEndDate()));
 
         List resultList = query.getResultList();
+
+
 
         if (resultList != null && !resultList.isEmpty()) {
             String[] fields = new String[] { "name", "empldivision", "project",
@@ -454,7 +461,7 @@ public class JasperReportDAO {
 			divisionClause = "";
 		}
 		
-        Query query = entityManager.createQuery("select c.calDate, emp.name " +
+        Query query = entityManager.createQuery("select c.calDate, emp.name, emp.region.name " +
                 "from Calendar c, Employee emp " +
                 "where c.calDate between :beginDate and " +
                 "(CASE  " +
@@ -491,7 +498,7 @@ public class JasperReportDAO {
         List resultList = query.getResultList();
 
         if (resultList != null && !resultList.isEmpty()) {
-            String[] fields = new String[]{"date", "name"};
+            String[] fields = new String[]{"date", "name", "region_name"};
             return new HibernateQueryResultDataSource(resultList, fields);
         } else {
             return null;

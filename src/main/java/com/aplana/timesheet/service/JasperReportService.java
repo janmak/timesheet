@@ -1,11 +1,9 @@
 package com.aplana.timesheet.service;
 
 import com.aplana.timesheet.reports.TSJasperReport;
-import com.aplana.timesheet.util.DateTimeUtil;
 import com.aplana.timesheet.util.JReportBuildError;
 import net.sf.jasperreports.engine.*;
 import net.sf.jasperreports.engine.export.*;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,8 +17,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
-import java.net.URL;
-import java.text.DecimalFormatSymbols;
 import java.text.SimpleDateFormat;
 import java.util.*;
 

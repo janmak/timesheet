@@ -409,14 +409,14 @@
 
         <!-- Jasper Reports -->
         <dependency>
-            <groupId>jasperreports</groupId>
+            <groupId>net.sf.jasperreports</groupId>
             <artifactId>jasperreports</artifactId>
-            <version>3.5.3</version>
+            <version>5.0.0</version>
         </dependency>
         <dependency>
             <groupId>org.apache.poi</groupId>
             <artifactId>poi</artifactId>
-            <version>3.2-FINAL</version>
+            <version>3.9</version>
         </dependency>
 
 <!--   SPNEGO. Не реализовано
