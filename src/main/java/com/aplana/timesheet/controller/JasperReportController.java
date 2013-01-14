@@ -1,41 +1,30 @@
 package com.aplana.timesheet.controller;
 
+import com.aplana.timesheet.controller.report.JasperReportModelAndViewGeneratorsFactory;
 import com.aplana.timesheet.dao.JasperReportDAO;
-import com.aplana.timesheet.dao.entity.Division;
 import com.aplana.timesheet.dao.entity.Region;
 import com.aplana.timesheet.form.validator.ReportFormValidator;
 import com.aplana.timesheet.reports.*;
-import com.aplana.timesheet.service.*;
-import com.aplana.timesheet.util.EmployeeHelper;
+import com.aplana.timesheet.service.JasperReportService;
+import com.aplana.timesheet.service.RegionService;
+import com.aplana.timesheet.service.SecurityService;
 import com.aplana.timesheet.util.JReportBuildError;
-import com.aplana.timesheet.util.TimeSheetUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.beans.propertyeditors.CustomCollectionEditor;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
+import org.springframework.web.bind.ServletRequestDataBinder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.View;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.aplana.timesheet.util.ProjectHelper.getProjectListJson;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Set;
-import org.springframework.beans.propertyeditors.CustomCollectionEditor;
-import org.springframework.beans.propertyeditors.CustomDateEditor;
-import org.springframework.web.bind.ServletRequestDataBinder;
 
 @Controller
 public class JasperReportController {
@@ -46,12 +35,6 @@ public class JasperReportController {
     private JasperReportService jasperReportService;
 
     @Autowired
-    private ProjectService projectService;
-
-    @Autowired
-    private DivisionService divisionService;
-
-    @Autowired
     private RegionService regionService;
 
     @Autowired
@@ -60,107 +43,23 @@ public class JasperReportController {
     @Autowired
     private ReportFormValidator reportValidator;
 
-    @Autowired
-    private EmployeeHelper employeeHelper;
-
     @SuppressWarnings("SpringJavaAutowiringInspection")
     @Autowired
     private ServletContext context;
 
 	@Autowired
-	SecurityService securityService;
+	private SecurityService securityService;
+
+    @Autowired
+    private JasperReportModelAndViewGeneratorsFactory factory;
 
     public ModelAndView createReportMAV(Integer number) throws JReportBuildError {
         return createReportMAV(number, null);
     }
 
     public ModelAndView createReportMAV(Integer number, TSJasperReport form) throws JReportBuildError {
-
-        if (form == null) {
-            switch (number) {
-                case 6:
-                    form = new Report06();
-                    break;
-                case 5:
-                    form = new Report05();
-                    break;
-                case 2:
-                    form = new Report02();
-                    break;
-                case 4:
-                    form = new Report04();
-                    break;
-                case 1:
-                    form = new Report01();
-                    break;
-                case 3:
-                    form = new Report03();
-                    break;
-            }
-        }
-
-        ModelAndView mav;
-        switch (number) {
-            case 6:
-                mav = new ModelAndView("report06");
-                mav.addObject("reportForm", form);
-                mav.addObject("projectList", projectService.getProjects());
-                mav.addObject("regionList", regionService.getRegions());
-                return mav;
-            case 5:
-                mav = new ModelAndView("report05");
-                mav.addObject("reportForm", form);
-				List<Division> divisions =  divisionService.getDivisions();
-                mav.addObject("divisionList", divisions);
-                mav.addObject("regionList", regionService.getRegions());
-                mav.addObject("employeeListJson", employeeHelper.getEmployeeListJson(divisions));
-                return mav;
-            case 2:
-				mav = new ModelAndView("report02");
-				mav.addObject("reportForm", form);
-				mav.addObject("projectList", projectService.getAll());
-				divisions = divisionService.getDivisions();
-				mav.addObject("divisionList", divisions);
-                mav.addObject("regionList", regionService.getRegions());
-				mav.addObject("projectListJson", projectService.getProjectListJson(divisions));
-				mav.addObject("fullProjectListJson", projectService.getProjectListJson());
-				mav.addObject("employeeListJson", employeeHelper.getEmployeeListJson(divisions));
-
-				mav.addObject("filterProjects", "checked");
-				return mav;
-            case 4:
-                mav = new ModelAndView("report04");
-                mav.addObject("reportForm", form);
-                mav.addObject("divisionList", divisionService.getDivisions());
-                mav.addObject("regionList", regionService.getRegions());
-                return mav;
-            case 1:
-                mav = new ModelAndView("report01");
-                mav.addObject("reportForm", form);
-                mav.addObject("divisionList", divisionService.getDivisions());
-                mav.addObject("regionList", regionService.getRegions());
-				List<OverTimeCategory> ls = new ArrayList<OverTimeCategory>();
-				ls.add(OverTimeCategory.All);
-				ls.add(OverTimeCategory.Holiday);
-				ls.add(OverTimeCategory.Simple);
-				mav.addObject("categoryList", ls);
-                return mav;
-            case 3:
-                mav = new ModelAndView("report03");
-                mav.addObject("reportForm", form);
-                mav.addObject("projectList", projectService.getAll());
-                divisions = divisionService.getDivisions();
-                mav.addObject("divisionList", divisions);
-                mav.addObject("regionList", regionService.getRegions());
-                mav.addObject("projectListJson", projectService.getProjectListJson(divisions));
-                mav.addObject("fullProjectListJson", projectService.getProjectListJson());
-                mav.addObject("employeeListJson", employeeHelper.getEmployeeListJson(divisions));
-
-                mav.addObject("filterProjects", "checked");
-                return mav;
-            default:
-                throw new JReportBuildError("Error forming report: number " + number.toString() + " not found.");
-        }
+        JasperReportModelAndViewGenerator generator = factory.getJasperReportModelAndViewGeneratorById( number );
+        return generator.getModelAndViewForReport( form );
     }
 
     private ModelAndView showReport(TSJasperReport report, BindingResult result, Integer printtype, int numberReport, HttpServletResponse response, HttpServletRequest request) throws JReportBuildError {

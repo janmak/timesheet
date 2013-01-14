@@ -1,0 +1,78 @@
+package com.aplana.timesheet.controller.report;
+
+import com.aplana.timesheet.controller.JasperReportModelAndViewGenerator;
+import com.aplana.timesheet.dao.entity.Division;
+import com.aplana.timesheet.reports.TSJasperReport;
+import com.aplana.timesheet.service.DivisionService;
+import com.aplana.timesheet.service.ProjectService;
+import com.aplana.timesheet.service.RegionService;
+import com.aplana.timesheet.util.EmployeeHelper;
+import com.aplana.timesheet.util.JReportBuildError;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.servlet.ModelAndView;
+
+import java.util.List;
+
+/**
+ * @author eshangareev
+ * @version 1.0
+ */
+public abstract class AbstractJasperReportModelAndViewGenerator implements JasperReportModelAndViewGenerator {
+
+    @Autowired
+    private RegionService regionService;
+
+    @Autowired
+    private DivisionService divisionService;
+
+    @Autowired
+    private ProjectService projectService;
+
+    @Autowired
+    private EmployeeHelper employeeHelper;
+
+    @Override
+    public final ModelAndView getModelAndViewForReport( TSJasperReport form ) throws JReportBuildError {
+        ModelAndView mav = new ModelAndView(getViewName());
+
+        mav.addObject("reportForm", form == null ? getForm() : form);
+        mav.addObject("regionList", regionService.getRegions());
+
+        fillSpecificProperties( mav );
+
+        return mav;
+    }
+
+    protected abstract void fillSpecificProperties( final ModelAndView mav );
+
+    protected abstract TSJasperReport getForm();
+
+    protected abstract String getViewName();
+
+    protected void fillDivisionList( final ModelAndView mav ){
+        fillDivisionList( mav, false, false );
+    }
+
+    protected void fillDivisionList(
+            final ModelAndView mav, boolean fillProjectListJson, boolean fillEmployeeListJson
+    ){
+        List<Division> divisions = divisionService.getDivisions();
+        mav.addObject("divisionList", divisions );
+        if( fillProjectListJson )
+            mav.addObject("projectListJson", projectService.getProjectListJson(divisions));
+        if( fillEmployeeListJson )
+            mav.addObject("employeeListJson", employeeHelper.getEmployeeListJson(divisions));
+    }
+
+    protected void fillWithAllProjects( final ModelAndView mav ) {
+        mav.addObject("projectList", projectService.getAll());
+    }
+
+    protected void fillFullProjectListJson( final ModelAndView mav ){
+        mav.addObject("fullProjectListJson", projectService.getProjectListJson());
+    }
+
+    protected void fillWithProjects( final ModelAndView mav ) {
+        mav.addObject("projectList", projectService.getProjects());
+    }
+}
