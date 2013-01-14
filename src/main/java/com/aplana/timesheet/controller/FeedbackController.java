@@ -102,32 +102,37 @@ public class FeedbackController {
 	
 	//Основной метод GET
 	@RequestMapping(value = "/feedback", method = RequestMethod.GET)
-	 public ModelAndView sendReportFeedback(@ModelAttribute("feedbackForm")FeedbackForm fbForm, BindingResult result) {
+	public ModelAndView sendReportFeedback(@ModelAttribute("feedbackForm")FeedbackForm fbForm, BindingResult result) {
 			
 		Properties properties = new Properties();
 		FileInputStream fis = null;
-		
-		try {
-			fis = new FileInputStream(TimeSheetConstans.PROPERTY_PATH);
-		} catch (FileNotFoundException ex) {
-			logger.error("Can not find propety file {}", TimeSheetConstans.PROPERTY_PATH);
-			logger.error("", ex);
-		}
-		
-		String jiraIssueCreateUrl = null;
-		if (fis != null) {
-			try {
-				properties.load(fis);
-				jiraIssueCreateUrl = properties.getProperty("jira.issue.create.url");
-				if(jiraIssueCreateUrl != null && jiraIssueCreateUrl.isEmpty()) {
-					jiraIssueCreateUrl = null;
-					logger.warn("In your properties not assign 'jira.issue.create.url', some functions will be disabled");
-				}					
-			} catch (IOException ex) {
-				logger.error("", ex);
-			}
-		}
-		
+
+        String jiraIssueCreateUrl = null;
+
+        try {
+            fis = new FileInputStream(TimeSheetConstans.PROPERTY_PATH);
+
+            properties.load( fis );
+
+            jiraIssueCreateUrl = properties.getProperty( "jira.issue.create.url" );
+            if ( jiraIssueCreateUrl != null && jiraIssueCreateUrl.isEmpty() ) {
+                jiraIssueCreateUrl = null;
+                logger.warn( "In your properties not assign 'jira.issue.create.url', some functions will be disabled" );
+            }
+        } catch (FileNotFoundException ex) {
+            logger.error("Can not find propety file {}", TimeSheetConstans.PROPERTY_PATH);
+            logger.error("", ex);
+        } catch (IOException ex) {
+            logger.error("", ex);
+        } finally {
+            if ( fis != null )
+                try {
+                    fis.close();
+                } catch ( IOException e ) {
+                    logger.error( "Can't close FileInputStream", TimeSheetConstans.PROPERTY_PATH );
+                }
+        }
+
 		ModelAndView mav = new ModelAndView("feedback");
 		mav.addObject("feedbackForm", fbForm);
 		mav.addObject("jiraIssueCreateUrl", jiraIssueCreateUrl);
@@ -151,9 +156,10 @@ public class FeedbackController {
 	 * форме приложения.
 	 */
 	private Map<String, Object> getListsToMAV() {
-		Map<String, Object> result = new HashMap<String, Object>();
-		
-		List<Division> divisions = divisionService.getDivisions();
+        List<Division> divisions = divisionService.getDivisions();
+
+        Map<String, Object> result = new HashMap<String, Object>();
+
 		result.put("divisionList", divisions);
 		result.put("employeeListJson", getEmployeeListJson(divisions));
 
