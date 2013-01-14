@@ -159,15 +159,15 @@ public class Employee {
     @Override
     public String toString() {
 		StringBuilder sb = new StringBuilder()
-                .append(" id=").append(id)
-                .append(" name=").append(name)
-                .append(" email=").append(email)
-                .append(" startDate=").append(startDate)
-                .append(" endDate=").append(endDate)
-                .append(" manager [").append(manager).append("]")
-                .append(" division [").append(division).append("]")
-                .append(" job [").append(job).append("]")
-                .append(" region [").append(region.getLdapCity() + ", " + region.getName()).append("]")
+                .append( " id=" ).append( id )
+                .append( " name=" ).append( name )
+                .append( " email=" ).append( email )
+                .append( " startDate=" ).append( startDate )
+                .append( " endDate=" ).append( endDate )
+                .append( " manager [" ).append( manager ).append( "]" )
+                .append( " division [" ).append( division ).append( "]" )
+                .append( " job [" ).append( job ).append( "]" )
+                .append( " region [" ).append( region.getLdapCity() ).append( ", " ).append( region.getName() ).append( "]" )
                 .append(" ldap=").append(ldap)
 				.append(" objectSid=").append(objectSid);
         return sb.toString();

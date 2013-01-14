@@ -95,47 +95,46 @@ public class JasperReportDAO {
 
         List projResultList = projQuery.getResultList();
 
-        String projNames = "";
-
+        String projNames;
         List<String> projNamesList;
 
         // Пробежим весь список отчетов и заполним в них списки проектов, над которыми работали сотрудники
-        for (Iterator iterator = resultList.iterator(); iterator.hasNext(); ) {
-            Object[] next = (Object[]) iterator.next();
+        for ( Object aResultList : resultList ) {
+            Object[] next = ( Object[] ) aResultList;
 
-            if (next[6] != null)
+            if ( next[ 6 ] != null )
                 continue;
 
-            Integer emplId = (Integer) next[0];
-            Timestamp date = (Timestamp) next[2];
+            Integer emplId = ( Integer ) next[ 0 ];
+            Timestamp date = ( Timestamp ) next[ 2 ];
 
             projNamesList = new ArrayList<String>();
 
-            for (Iterator iterator1 = projResultList.iterator(); iterator1.hasNext(); ) {
-                Object[] o = (Object[]) iterator1.next();
+            for ( Object aProjResultList : projResultList ) {
+                Object[] o = ( Object[] ) aProjResultList;
 
-                if (o[0].equals(emplId) && o[1].equals(date)) {
-                    if (!projNamesList.contains(o[2])) {
-                        projNamesList.add((String) o[2]);
+                if ( o[ 0 ].equals( emplId ) && o[ 1 ].equals( date ) ) {
+                    if ( ! projNamesList.contains( o[ 2 ] ) ) {
+                        projNamesList.add( ( String ) o[ 2 ] );
                     }
                 }
             }
 
             projNames = "";
 
-            for (Iterator<String> namesIterator = projNamesList.iterator(); namesIterator.hasNext(); ) {
+            for ( Iterator<String> namesIterator = projNamesList.iterator(); namesIterator.hasNext(); ) {
                 String nextName = namesIterator.next();
 
                 projNames += nextName;
-                if (namesIterator.hasNext())
+                if ( namesIterator.hasNext() )
                     projNames += ", ";
             }
 
-            next[3] = projNames;
+            next[ 3 ] = projNames;
 
         }
 
-        if (resultList != null && !resultList.isEmpty()) {
+        if ( !resultList.isEmpty() ) {
             String[] fields = new String[]{"id", "name", "caldate", "projnames", "overtime", "duration", "holiday", "region", "projdetail", "durationdetail", "region_name"};
             return new HibernateQueryResultDataSource(resultList, fields);
         } else {
@@ -150,27 +149,15 @@ public class JasperReportDAO {
 	 * @return true - условие заполненино, false - условие пустое
 	 */
 	private boolean hasParameter(String clause) {
-		boolean val;
-		if(clause != null && !clause.isEmpty()) {
-			val = true;
-		} else {
-			val = false;
-		}
-		
-		return val;
+        return clause != null && ! clause.isEmpty();
 	}
 
     @Transactional(readOnly = true)
     public HibernateQueryResultDataSource getReport02Data(Report02 report) {
-        Query query = null;
-		boolean hasProject;
-		
-		if (report.getProjectId() != null && report.getProjectId() != 0) {
-			hasProject = true;
-		} else {
-			hasProject = false;
-		}
-		String regionClause;
+
+        boolean hasProject = report.getProjectId() != null && report.getProjectId() != 0;
+
+        String regionClause;
 		if (report.hasRegions() && !report.isAllRegions()) {
 			regionClause = "empl.region.id in :regionIds AND ";
 		} else {
@@ -190,7 +177,8 @@ public class JasperReportDAO {
 		} else {
 			employeeClause = "";
 		}
-		
+
+        Query query;
         if (hasProject) {
             // Выборка по конкретному проекту
             query = entityManager.createQuery("SELECT empl.name, d.name, p.name, pt.cqId, sum(tsd.duration), " +
@@ -300,8 +288,8 @@ public class JasperReportDAO {
     @Transactional(readOnly = true)
     public HibernateQueryResultDataSource getReport03Data(Report03 report) {
 
-        Query query = null;
-		boolean hasProject;
+        Query query;
+
 		boolean hasEmployee;
 		String employeeClause;
 		boolean hasEmployeeDivision;
@@ -332,14 +320,8 @@ public class JasperReportDAO {
 			hasRegion = false;
 			regionClause = "";
 		}
-		
-		if (report.getProjectId() != null && report.getProjectId() != 0) {
-			hasProject = true;
-		} else {
-			hasProject = false;
-		}
-		
-        if (hasProject) {
+
+        if ( report.getProjectId() != null && report.getProjectId() != 0 ) {
 
             // Выборка по конкретному проекту
             query = entityManager.createQuery("SELECT empl.name, d.name, p.name, pt.cqId, c.calDate, sum(tsd.duration), " +

@@ -7,11 +7,9 @@ import javax.servlet.http.HttpSession;
 import java.io.IOException;
 
 /**
- * Created with IntelliJ IDEA.
  * User: eyaroslavtsev
  * Date: 06.08.12
  * Time: 14:10
- * To change this template use File | Settings | File Templates.
  */
 public class AutentificationFilter implements Filter {
     public void destroy() {
@@ -20,7 +18,6 @@ public class AutentificationFilter implements Filter {
     public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain) throws ServletException, IOException {
 
         HttpServletRequest request = (HttpServletRequest) req;
-        HttpServletResponse response = (HttpServletResponse) resp;
         HttpSession session = request.getSession(false);
         try {
             String s = request.getParameter("j_username");

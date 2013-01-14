@@ -57,11 +57,11 @@ public class PersonalAlertSender extends MailSender {
 
         String monthName;
 
-        for (Iterator<String> iterator = passedDays.iterator(); iterator.hasNext(); ) {
-            String next = iterator.next();
-            monthName = DateTimeUtil.getMonthTxt(next);
-            if (!monthList.contains(monthName))
-                monthList.add(monthName);
+        for ( String next : passedDays ) {
+            monthName = DateTimeUtil.getMonthTxt( next );
+            if ( ! monthList.contains( monthName ) ) {
+                monthList.add( monthName );
+            }
         }
 
         String text = "";
@@ -92,10 +92,9 @@ public class PersonalAlertSender extends MailSender {
 
             logger.info("Performing personal mailing.");
 
-            Iterator<ReportCheck> iterator = reportCheckList.iterator();
-            while (iterator.hasNext()) {
-                currentReportCheck = iterator.next();
-                message = new MimeMessage(session);
+            for ( ReportCheck aReportCheckList : reportCheckList ) {
+                currentReportCheck = aReportCheckList;
+                message = new MimeMessage( session );
                 initMessageHead();
                 initMessageBody();
 

@@ -39,25 +39,75 @@ public class Division {
 
 	public Division() {	}
 
-	public String getLdapName() { return ldapName; }
-	public void setLdapName(String ldapName) { this.ldapName = ldapName; }
-	public Employee getLeader() { return leader; }
-	public void setLeader(Employee leader) { this.leader = leader; }
-	public Division(Integer id) { this.id = id; }
-	public boolean isActive() { return active; }
-	public void setActive(boolean active) { this.active = active; }
-	public Set<Project> getProjects() { return projects; }
-	public void setProjects(Set<Project> projects) { this.projects = projects; }
-	public Set<Employee> getEmployees() { return employees; }
-	public void setEmployees(Set<Employee> employees) { this.employees = employees; }
-	public Integer getId() { return id; }
-	public void setId(Integer id) { this.id = id; }
-	public String getName() { return name; }
-	public void setName(String name) { this.name = name; }
-	public String getLdap_objectSid() {	return ldapObjectSid; }
-	public void setLdap_objectSid(String ldap_objectSid) { this.ldapObjectSid = ldap_objectSid; }
-	
-	public String toString() {
+    public String getLdapName() {
+        return ldapName;
+    }
+
+    public void setLdapName( String ldapName ) {
+        this.ldapName = ldapName;
+    }
+
+    public Employee getLeader() {
+        return leader;
+    }
+
+    public void setLeader( Employee leader ) {
+        this.leader = leader;
+    }
+
+    public Division( Integer id ) {
+        this.id = id;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive( boolean active ) {
+        this.active = active;
+    }
+
+    public Set<Project> getProjects() {
+        return projects;
+    }
+
+    public void setProjects( Set<Project> projects ) {
+        this.projects = projects;
+    }
+
+    public Set<Employee> getEmployees() {
+        return employees;
+    }
+
+    public void setEmployees( Set<Employee> employees ) {
+        this.employees = employees;
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId( Integer id ) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName( String name ) {
+        this.name = name;
+    }
+
+    public String getLdap_objectSid() {
+        return ldapObjectSid;
+    }
+
+    public void setLdap_objectSid( String ldap_objectSid ) {
+        this.ldapObjectSid = ldap_objectSid;
+    }
+
+    public String toString() {
 		StringBuilder sb = new StringBuilder()
 			.append(" id=").append(id)
 			.append(" name=").append(name)

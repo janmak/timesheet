@@ -97,9 +97,8 @@ public class ReportCheckService {
      * @param sundayCheck
      */
     public void storeReportCheck(String firstDay, String lastDay, boolean sundayCheck) {
-        FileInputStream propertiesFile = null;
         try {
-            propertiesFile = new FileInputStream(TimeSheetConstans.PROPERTY_PATH);
+            FileInputStream propertiesFile = new FileInputStream( TimeSheetConstans.PROPERTY_PATH );
 
             mailConfig.load(propertiesFile);
 
@@ -149,7 +148,7 @@ public class ReportCheckService {
                     //если рабочий день
                     if (holidayDAO.isWorkDay(day, emp.getRegion())) {
                         //если день после устройства на работу включительно
-                        if (calendar.getCalDate().before(emp.getStartDate()) == false) {
+                        if ( ! calendar.getCalDate().before( emp.getStartDate() ) ) {
                             //если сотрудник не списал рабочее время за этот день
                             if (timeSheetService.findForDateAndEmployee(day, emp.getId()) == null) {
                                 reportsNotSendNumber++;

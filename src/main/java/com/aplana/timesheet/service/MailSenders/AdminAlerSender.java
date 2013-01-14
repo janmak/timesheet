@@ -65,7 +65,7 @@ public class AdminAlerSender extends MailSender {
 	
 	@Override
     protected void initMessageBody() {
-		Map model = new HashMap();
+		Map<String, List<DivisionLdap>> model = new HashMap<String, List<DivisionLdap>>();
 		model.put("divisionList", divisionList);
 		
 		String messageBody = VelocityEngineUtils.mergeTemplateIntoString(

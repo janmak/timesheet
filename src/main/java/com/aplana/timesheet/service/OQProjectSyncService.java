@@ -72,9 +72,8 @@ public class OQProjectSyncService {
 
     @PostConstruct
     private void Init() {
-        FileInputStream propertiesFile = null;
         try {
-            propertiesFile = new FileInputStream(TimeSheetConstans.PROPERTY_PATH);
+            FileInputStream propertiesFile = new FileInputStream(TimeSheetConstans.PROPERTY_PATH);
 
             Properties syncConfig = new Properties();
             syncConfig.load(propertiesFile);
@@ -122,7 +121,6 @@ public class OQProjectSyncService {
             XPathExpression expr = xpath.compile("/root/projects/project");
             NodeList nodes = (NodeList) expr.evaluate(doc, XPathConstants.NODESET);
             NamedNodeMap nodeMap;
-            List<Project> syncProjects = new ArrayList<Project>();
             {
                 Project project;
                 trace.append("В файле синхронизации найдено: ").append(nodes.getLength()).append(" проектов\n");

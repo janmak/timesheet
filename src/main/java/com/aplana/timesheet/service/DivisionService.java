@@ -62,34 +62,29 @@ public class DivisionService {
 		List<DivisionLdap> forAppend = new ArrayList<DivisionLdap>();
 		
 		sb.append("Start synchronization divisions.\n\n");
-		for (int indexLdap = 0; indexLdap < fromLdap.size(); indexLdap++) {
-			DivisionLdap ldapDiv = fromLdap.get(indexLdap);
-			if (ldapDiv.isLeaderVerified()) {
-				boolean exist = false;
-				for (int indexDb = 0; indexDb < fromDb.size(); indexDb++) {
-					Division dbDiv = fromDb.get(indexDb);
-					String dbSid = dbDiv.getLdap_objectSid();
-					String ldapSid = ldapDiv.getLdapObjectSid();
-					if (dbSid != null && dbSid.equals(ldapSid)) {
-						if (dbDiv.isActive()) {
-							boolean updated = false;
-							updated = updated | updateName(dbDiv, ldapDiv);
-							updated = updated | updateLeader(dbDiv, ldapDiv);
-							if (updated) {
-								forUpdate.add(dbDiv);
-							}
-						}
-						exist = true;
-						break;
-					}
-				}
-				if (!exist) {
-					forAppend.add(ldapDiv);
-				}
-			} else {
-				withBadLeader.add(ldapDiv);
-			}
-		}
+        for ( DivisionLdap ldapDiv : fromLdap ) {
+            if ( ldapDiv.isLeaderVerified() ) {
+                boolean exist = false;
+                for ( Division dbDiv : fromDb ) {
+                    String dbSid = dbDiv.getLdap_objectSid();
+                    String ldapSid = ldapDiv.getLdapObjectSid();
+                    if ( dbSid != null && dbSid.equals( ldapSid ) ) {
+                        if ( dbDiv.isActive() ) {
+                            if ( updateName( dbDiv, ldapDiv )|| updateLeader( dbDiv, ldapDiv ) ) {
+                                forUpdate.add( dbDiv );
+                            }
+                        }
+                        exist = true;
+                        break;
+                    }
+                }
+                if ( ! exist ) {
+                    forAppend.add( ldapDiv );
+                }
+            } else {
+                withBadLeader.add( ldapDiv );
+            }
+        }
 		
 		sb.append(add(forAppend));
 		sb.append(divisionDAO.setDivision(forUpdate));

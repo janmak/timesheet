@@ -27,8 +27,7 @@ public class DictionaryItemDAO {
 		Query query = entityManager
 			.createQuery("from DictionaryItem as di where di.dictionary = :dictionary order by di.value desc");
 		query.setParameter("dictionary", dictionaryDAO.find(DictionaryDAO.CATEGORY_OF_ACTIVITY_ID));
-		List<DictionaryItem> result = query.getResultList();
-		return result;
+        return query.getResultList();
 	}
 
 	@Transactional(readOnly = true)
@@ -37,13 +36,11 @@ public class DictionaryItemDAO {
 		Query query = entityManager
 			.createQuery("from DictionaryItem as di where di.dictionary = :dictionary order by di.value desc");
 		query.setParameter("dictionary", dictionaryDAO.find(DictionaryDAO.TYPES_OF_ACTIVITY_ID));
-		List<DictionaryItem> result = query.getResultList();
-		return result;
+        return query.getResultList();
 	}
 
 	@Transactional(readOnly = true)
 	public DictionaryItem find(Integer id) {
-		DictionaryItem dictionaryItem = entityManager.find(DictionaryItem.class, id);
-		return dictionaryItem;
+        return entityManager.find(DictionaryItem.class, id);
 	}
 }

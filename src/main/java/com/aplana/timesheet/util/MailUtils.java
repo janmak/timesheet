@@ -41,9 +41,8 @@ public class MailUtils {
      * @param mailConfig
      */
     public static void loadMailConfig(Properties mailConfig) {
-        FileInputStream propertiesFile = null;
         try {
-            propertiesFile = new FileInputStream(TimeSheetConstans.PROPERTY_PATH);
+            FileInputStream propertiesFile = new FileInputStream( TimeSheetConstans.PROPERTY_PATH );
 
             mailConfig.load(propertiesFile);
         } catch (FileNotFoundException e1) {

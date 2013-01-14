@@ -35,7 +35,7 @@ public class TimeSheetDeletedSender extends MailSender {
         email.append(",").append(sendMailService.getProjectParticipantsEmails(deletedTimeSheet));
         List<Employee> managers = sendMailService.employeeService.getRegionManager(deletedTimeSheet.getEmployee().getId());
         for(Employee manager:managers) {
-            email.append("," + manager.getEmail());
+            email.append( "," ).append( manager.getEmail() );
         }
         String uniqueSendingEmails = MailUtils.deleteEmailDublicates(email.toString());
         logger.debug("To address: {}", uniqueSendingEmails);

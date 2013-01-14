@@ -34,9 +34,8 @@ public class ProjectTaskDAO {
 			.createQuery("from ProjectTask as pt where pt.project=:project and pt.active=:active");
 		query.setParameter("project", projectDAO.find(projectId));
 		query.setParameter("active", true);
-		List<ProjectTask> result = query.getResultList();
 
-		return result;
+        return query.getResultList();
 	}
 	
 	/**

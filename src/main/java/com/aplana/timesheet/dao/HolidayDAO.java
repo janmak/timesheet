@@ -29,10 +29,10 @@ public class HolidayDAO {
         query.setParameter("calDate", DateTimeUtil.stringToTimestamp(date));
         List holidayList = query.getResultList();
 
-        for (Iterator iterator = holidayList.iterator(); iterator.hasNext(); ) {
-            Holiday next = (Holiday) iterator.next();
+        for ( Object aHolidayList : holidayList ) {
+            Holiday next = ( Holiday ) aHolidayList;
 
-            result = !((next.getRegion() == null) || (next.getRegion().equals(region)));
+            result = ! ( ( next.getRegion() == null ) || ( next.getRegion().equals( region ) ) );
         }
 
         return result;

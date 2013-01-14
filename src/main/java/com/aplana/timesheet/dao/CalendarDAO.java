@@ -54,17 +54,15 @@ public class CalendarDAO {
 	public String getMonthTxt (Integer month){
 		Query query = entityManager.createQuery("select distinct(c.monthTxt) from Calendar as c where month=:monthPar");
 		query.setParameter("monthPar", month);
-		String monthTxt = query.getResultList().get(0).toString();
-		return monthTxt;		
+
+        return query.getResultList().get(0).toString();
 	}
 	
 	@SuppressWarnings("unchecked")
 	public List<Integer> getMonth(Integer year){
 		Query query = entityManager.createQuery("select distinct(c.month) from Calendar as c where month in (select distinct(c.month) from Calendar as c where year=:yearPar) order by c.month asc");
 		query.setParameter("yearPar", year);
-		List<Integer> monthList = new ArrayList<Integer>(); 
-		monthList = ((List<Integer>)query.getResultList());
-		return monthList;
+        return ( ( List<Integer> ) query.getResultList() );
 	}
 	/**
 	 * Возвращает все даты
@@ -96,8 +94,7 @@ public class CalendarDAO {
 		Query query = entityManager.createQuery("select c.calDate from Calendar as c where c.year =:yearPar and c.month =:monthPar");
 		query.setParameter("yearPar", year);
 		query.setParameter("monthPar", month);
-		if (query.getResultList() == null) {return false;}
-		else return true;
+        return query.getResultList() != null;
 	}
 
     /**
@@ -133,8 +130,7 @@ public class CalendarDAO {
                         "order by c.calDate asc " +
                         "limit 1");
         query.setParameter("calDatePar", new Date(day.getCalDate().getTime()));
-        List<Calendar> result = query.getResultList();
-        return result.get(0);
+        return ( Calendar ) query.getResultList().get( 0 );
 
     }
 	

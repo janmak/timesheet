@@ -44,7 +44,7 @@ public class FeedbackFormValidator implements Validator {
 		}
 		// Неверный тип проблемы
 		else{ 
-			if (!isFeedbackTypeValid(feedbackType.intValue())) {
+			if (!isFeedbackTypeValid( feedbackType )) {
 				errors.rejectValue("feedbackType", "error.fbform.feedbackType.invalid", "Неверный тип сообщения.");
 			}else{ 
 				if(!feedbackType.equals("Меня нет в списке")){
@@ -81,7 +81,7 @@ public class FeedbackFormValidator implements Validator {
 			}
 		}
 		// Суть проблемы не описана
-		if (feedbackDescription == null || feedbackDescription == "") {
+		if (feedbackDescription == null || feedbackDescription.equals( "" ) ) {
 			errors.rejectValue("feedbackDescription", "error.fbform.feedbackDescription.required", "Текст сообщения не заполнен.");
 		}
 		// Лимит на суммарный размер файлов првышен
@@ -93,26 +93,25 @@ public class FeedbackFormValidator implements Validator {
 	
 	
 	private boolean isDivisionValid(Integer division) {
-		if (divisionService.find(division) == null) { return false; }
-		return true;
-	}
+        return divisionService.find( division ) != null;
+    }
 	private boolean isEmployeeValid(Integer employee) {
-		if (employeeService.find(employee) == null) { return false; }
-		return true;
-	}
+        return employeeService.find( employee ) != null;
+    }
 	private boolean isFeedbackTypeValid(int feedbackType) {
 		return feedbackType > -1 && feedbackType < 6;
 	}
 	private boolean areFilesValid(MultipartFile[] files){
 		long sumSize = 0;
-		for(int i =0; i<files.length; i++){
-			if (files[i] != null && !files[i].isEmpty()) 
-				sumSize += files[i].getSize();
-		}
-		return (sumSize <= SUM_FILE_SIZE);
+        for ( MultipartFile file : files ) {
+            if ( file != null && ! file.isEmpty() ) {
+                sumSize += file.getSize();
+            }
+        }
+        return (sumSize <= SUM_FILE_SIZE);
 	}
 	private boolean isEmailValid(String email){
-		Pattern pattern = Pattern.compile("[a-zA-Z]{1}[a-zA-Z\\d\\u002E\\u005F]+@([a-zA-Z]+\\u002E){1,2}((net)|(com)|(org)|(ru))");
+		Pattern pattern = Pattern.compile("[a-zA-Z][a-zA-Z\\d\\u002E\\u005F]+@([a-zA-Z]+\\u002E){1,2}((net)|(com)|(org)|(ru))");
 		Matcher matcher = pattern.matcher(email);
 		return matcher.matches();
 	}

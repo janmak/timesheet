@@ -34,9 +34,8 @@ public class AvailableActivityCategoryDAO {
 				+ "ac.actType=:actType and ac.projectRole=:projectRole");
 		query.setParameter("actType", actType);
 		query.setParameter("projectRole", projectRole);
-		List<AvailableActivityCategory> result = query.getResultList();
 
-		return result;
+        return query.getResultList();
 	}
 	
 	/**
@@ -59,8 +58,7 @@ public class AvailableActivityCategoryDAO {
 		query.setParameter("actType", actType);
 		query.setParameter("project", project);
 		query.setParameter("projectRole", projectRole);
-		List<AvailableActivityCategory> result = query.getResultList();
 
-		return result;
+        return query.getResultList();
 	}
 }

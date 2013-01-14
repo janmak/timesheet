@@ -268,7 +268,7 @@ public class TimeSheetFormValidator implements Validator {
                         }
                     }
                 }
-                double duration = 0;
+                double duration;
                 // Необходимо указать часы
                 if (durationStr != null) {
                     ValidationUtils.rejectIfEmptyOrWhitespace(errors,
@@ -278,7 +278,7 @@ public class TimeSheetFormValidator implements Validator {
                     // Часы должны быть указаны в правильном формате (1, 1.2, 5.5 и т.п.)
 					// and may be 1,2; 2,3
                     if (!durationStr.equals("")) {
-                        Pattern p1 = Pattern.compile("([0-9]*)(\\.|\\,)[0-9]");
+                        Pattern p1 = Pattern.compile("([0-9]*)(\\.|,)[0-9]");
                         Pattern p2 = Pattern.compile("([0-9]*)");
                         Matcher m1 = p1.matcher(durationStr);
                         Matcher m2 = p2.matcher(durationStr);
@@ -339,85 +339,50 @@ public class TimeSheetFormValidator implements Validator {
     */
 
     private boolean isCaldateUniqueForCurrentEmployee(String calDate, Integer employeeId) {
-        TimeSheet timeSheet = timeSheetService.findForDateAndEmployee(calDate, employeeId);
-        if (timeSheet != null) {
-            return false;
-        }
-        return true;
+        return timeSheetService.findForDateAndEmployee(calDate, employeeId) == null;
     }
 
     /*
       * Возвращает true, если введённая дата присутствует в таблице calendar и false, если нет.
       */
     private boolean isCaldateValid(String date) {
-        if (calendarService.find(date) == null) {
-            return false;
-        }
-        return true;
+        return calendarService.find( date ) != null;
     }
 
     private boolean isDivisionValid(Integer division) {
-        if (divisionService.find(division) == null) {
-            return false;
-        }
-        return true;
+        return divisionService.find( division ) != null;
     }
 
     private boolean isEmployeeValid(Integer employee) {
-        if (employeeService.find(employee) == null) {
-            return false;
-        }
-        return true;
+        return employeeService.find( employee ) != null;
     }
 
     private boolean isActTypeValid(Integer actType) {
-        if (dictionaryItemService.find(actType) == null) {
-            return false;
-        }
-        return true;
+        return dictionaryItemService.find( actType ) != null;
     }
 
     private boolean isActCatValid(Integer actCat, ProjectRole emplJob) {
-        if (actCat == null) {
+        if (actCat == null ||
+                //У проектной роли "Руководитель центра" нет доступных категорий активности.
+                ( emplJob.getCode().equals("DR") && actCat == 0 )
+        ) {
             return true;
         }
-        //У проектной роли "Руководитель центра" нет доступных категорий активности.
-        if (emplJob.getCode().equals("DR") && actCat == 0) {
-            return true;
-        }
-        if (dictionaryItemService.find(actCat) == null) {
-            return false;
-        }
-        return true;
+        return dictionaryItemService.find(actCat) != null;
     }
 
     private boolean isProjectValid(Integer project) {
-        if (project == null) {
-            return true;
-        }
-        if (projectService.findActive(project) == null) {
-            return false;
-        }
-        return true;
+        return project == null || projectService.findActive( project ) != null;
     }
 
     private boolean isProjectRoleValid(Integer projectRole) {
-        if (projectRole == null) {
-            return true;
-        }
-        if (projectRoleService.findActive(projectRole) == null) {
-            return false;
-        }
-        return true;
+        return projectRole == null || projectRoleService.findActive( projectRole ) != null;
     }
 
     private boolean isProjectTaskValid(Integer project, String task) {
         if (project == null && task == null) {
             return true;
         }
-        if (projectTaskService.find(project, task) == null) {
-            return false;
-        }
-        return true;
+        return projectTaskService.find( project, task ) != null;
     }
 }

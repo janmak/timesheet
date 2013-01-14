@@ -64,7 +64,7 @@ public class ProjectRoleDAO {
 	 */
 	@Transactional(readOnly = true)
 	public ProjectRole find(String title) {
-		ProjectRole result = null;
+		ProjectRole result;
 		Query query = entityManager
 			.createQuery("from ProjectRole as pr where pr.active=:active and pr.ldapTitle like :title");
 		query.setParameter("active", true);

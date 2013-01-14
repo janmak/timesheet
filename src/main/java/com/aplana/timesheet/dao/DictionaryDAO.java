@@ -19,15 +19,13 @@ public class DictionaryDAO {
 
 	@Transactional(readOnly = true)
 	public Dictionary find(Integer id) {
-		Dictionary dictionary = entityManager.find(Dictionary.class, id);
-		return dictionary;
+        return entityManager.find(Dictionary.class, id);
 	}
 
 	@Transactional(readOnly = true)
 	@SuppressWarnings("unchecked")
 	public List<Dictionary> getDictionaries() {
 		Query query = entityManager.createQuery("from Dictionary");
-		List<Dictionary> result = query.getResultList();
-		return result;
+        return query.getResultList();
 	}
 }
