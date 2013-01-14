@@ -71,7 +71,7 @@ public class EmployeeLdapService {
 	/**
 	 * Синхронизует неактивных сотрудников из ldap с сотрудниками из базы
 	 * системы списания занятости.
-	 * @param disabledEmps
+	 * @param employeeLdapDao
 	 */
 	private void syncDisabledEmployees(EmployeeLdapDAO employeeLdapDao) {
 		logger.info("Start synchronize disabled employees.");
@@ -187,6 +187,7 @@ public class EmployeeLdapService {
             employee.setDivision(divisionService.find(employeeLdap.getDepartment()));
             employee.setLdap(employeeLdap.getLdapCn());
             employee.setStartDate(DateTimeUtil.stringToTimestamp(DateTimeUtil.increaseDay(DateTimeUtil.currentDay())));
+            employee.setObjectSid(employeeLdap.getObjectSid()); // KSS 14.01.2013
 
             ProjectRole job = projectRoleService.find(employeeLdap.getTitle());
             if (job != null) {
