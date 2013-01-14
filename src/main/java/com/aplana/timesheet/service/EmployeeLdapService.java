@@ -10,11 +10,7 @@ import com.aplana.timesheet.util.DateTimeUtil;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.xml.XmlBeanFactory;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 
@@ -38,11 +34,15 @@ public class EmployeeLdapService {
 
 	@Autowired
 	private EmployeeLdapDAO employeeLdapDao;
+
+
+    private enum EmployeeType {
+        EMPLOYEE, MANAGER, NEW_EMPLOYEE
+    }
 	
 	/**
 	 * Отображение ProjectRole --> роль в системе списания занятости.
 	 */
-
     public String synchronizeOneEmployee(String email) {
         return syncOneActiveEmployee(employeeLdapDao,email);
     }
@@ -62,7 +62,7 @@ public class EmployeeLdapService {
 			syncDisabledEmployees(employeeLdapDao);
 		} catch (DataAccessException e) {
 			logger.error("Error occured " + e.getCause());
-            trace.append("Error occured " + e.getCause());
+            trace.append("Error occured ").append(e.getCause());
 		}
 		trace.append("Synchronization with ldap finished.\n\n");
 		logger.info("Synchronization with ldap finished.");
@@ -71,7 +71,7 @@ public class EmployeeLdapService {
 	/**
 	 * Синхронизует неактивных сотрудников из ldap с сотрудниками из базы
 	 * системы списания занятости.
-	 * @param disabledEmps
+	 * @param employeeLdapDao – дао
 	 */
 	private void syncDisabledEmployees(EmployeeLdapDAO employeeLdapDao) {
 		logger.info("Start synchronize disabled employees.");
@@ -90,8 +90,7 @@ public class EmployeeLdapService {
 		for (Employee empDb : employeesDb) {
             //если в базе сотрудник помечен как НЕ уволенный(нет даты увольнения)
             //archived больше не используется
-            if (empDb.getEndDate()==null)
-            {
+            if (empDb.getEndDate()==null) {
                 for (EmployeeLdap empLdap : disabledEmployeesLdap) {
                     if(empDb.getLdap().equals(empLdap.getObjectSid())) {
                         logger.debug("Employee {} disabled in ldap, but active in db.", empLdap.getDisplayName());
@@ -108,65 +107,42 @@ public class EmployeeLdapService {
 		}
 
         //синхронизирует сотрудников, если есть что синхронизировать
-		if (empsToSync.size() > 0) { trace.append(employeeService.setEmployees(empsToSync)); }
-		else { logger.info("Nothing to sync."); }
+		if (!empsToSync.isEmpty()) {
+            trace.append(employeeService.setEmployees(empsToSync));
+        } else {
+            logger.info("Nothing to sync.");
+        }
 	}
 	
 	/**
 	 * Синхронизует руководителей подразделений из ldap 
 	 * с базой данных системы списания занятости.
-	 * @param employeeLdapDao
+	 * @param employeeLdapDao - дао
 	 */
-	private void syncDivisionLeaders(EmployeeLdapDAO employeeLdapDao) {
+	private String syncDivisionLeaders(EmployeeLdapDAO employeeLdapDao) {
 		logger.info("Start synchronize division leaders.");
 		trace.append("Start synchronize division leaders.\n\n");
 		List<Division> divisions = divisionService.getDivisions();
 		List<Employee> managersToSync = new ArrayList<Employee>();
-		for (Division division : divisions) {
+        StringBuffer errors = new StringBuffer();
+        for (Division division : divisions) {
 			List<EmployeeLdap> divLeader = employeeLdapDao
 				.getDivisionLeader(division.getLeader().getName(), division.getLdapName());
 			logger.debug("Division '{}' has {} leader", division.getLdapName(), divLeader.size());
-            Employee manager = new Employee();
+
             EmployeeLdap managerLdap = divLeader.get(0);
 
-            manager.setName(managerLdap.getDisplayName());
-            manager.setDivision(divisionService.find(managerLdap.getDepartment()));
-			manager.setObjectSid(managerLdap.getObjectSid());
-            ProjectRole job = projectRoleService.find(managerLdap.getTitle());
+            Employee manager = createAndFillEmployee( managerLdap, division, EmployeeType.MANAGER, errors );
 
-            if (job != null) {
-                manager.setJob(job);
-            } else {
-                manager.setJob(projectRoleService.getUndefinedRole());
-            }
-
-            manager.setManager(null);
-            manager.setEmail(managerLdap.getMail());
-            manager.setLdap(managerLdap.getLdapCn());
-            List<Region> list =  regionService.getRegions();
-            loop:
-            for(Region reg: list){
-                String[] regs = reg.getLdapCity().split(",");
-                for(String region: regs){
-                    if(managerLdap.getCity().contains(region.trim())){
-                        manager.setRegion(regionService.findRegionByCity(region.trim()));
-                        continue loop;
-                    }
-                }
-            }
-			Employee emp = employeeService.findByObjectSid(managerLdap.getObjectSid());
-            manager.setRole(projectRoleService.getSysRole(manager.getJob().getId()).getSysRoleId());
-
-            //есть лидер в БД
-			if (emp != null) {
-                manager.setId(emp.getId());
-                manager.setStartDate(emp.getStartDate());
-                if(manager.getJob()==null) manager.setJob(projectRoleService.getUndefinedRole());
-            }
             managersToSync.add(manager);
 		}
-		if (managersToSync.size() > 0) { trace.append(employeeService.setEmployees(managersToSync)); }
-		else { logger.info("Nothing to sync."); }
+		if (!managersToSync.isEmpty()) {
+            trace.append(employeeService.setEmployees(managersToSync));
+        } else {
+            logger.info("Nothing to sync.");
+        }
+
+        return errors.toString();
 	}
 
     /**
@@ -175,151 +151,173 @@ public class EmployeeLdapService {
      */
     private  String syncOneActiveEmployee(EmployeeLdapDAO employeeLdapDao,String email) {
         logger.info("Start synchronize employee.");
-        String errors="";
+
+        StringBuffer errors = new StringBuffer();
         //пользователь из LDAP по email
         EmployeeLdap employeeLdap = employeeLdapDao.getEmployee(email);
         //проверка не нужна, но нАдо
         if(employeeLdap!=null) {
             //создаем нового сотрудника
-            Employee employee = new Employee();
-            employee.setName(employeeLdap.getDisplayName());
-            employee.setEmail(employeeLdap.getMail().trim());
-            employee.setDivision(divisionService.find(employeeLdap.getDepartment()));
-            employee.setLdap(employeeLdap.getLdapCn());
-            employee.setStartDate(DateTimeUtil.stringToTimestamp(DateTimeUtil.increaseDay(DateTimeUtil.currentDay())));
-
-            ProjectRole job = projectRoleService.find(employeeLdap.getTitle());
-            if (job != null) {
-                employee.setJob(job);
-            } else {
-                employee.setJob(projectRoleService.getUndefinedRole());
-                errors+="job, ";
-            }
-            employee.setRole(projectRoleService.getSysRole(employee.getJob().getId()).getSysRoleId());
-            //ищем регион сотруднику
-            List<Region> list =  regionService.getRegions();
-            boolean isSetRegion=false;
-            loop:
-            for(Region reg: list){
-                String[] regs = reg.getLdapCity().split(",");
-                for(String region: regs){
-                    if(employeeLdap.getCity().contains(region.trim())){
-                        employee.setRegion(regionService.findRegionByCity(region.trim()));
-                        isSetRegion=true;
-                        continue loop;
-                    }
-                }
-            }
-            if(!isSetRegion) errors+="region, ";
-
-            //берем подразделение и менеджера по подразделению
-            String department=employeeLdap.getDepartment();
-            if(department!=null && department!="")
-            {
-                //если не найдет внутри find стоит
-                Division division=divisionService.find(department);
-                if(division==null) errors+="division(department), ";
-                Employee manager = employeeService.find(division.getLeader().getName());
-                if(manager==null) errors+="manager, ";
-                employee.setManager(manager);
-            }
-            else {
-                errors+="division(department), manager,";
-            }
-
+            Employee employee = createAndFillEmployee( employeeLdap, errors );
             //добавляем в БД сотрудника
-            if(errors=="") employeeService.setEmployee(employee);
-            return errors;
-        }
-        else {
+            if( errors.length() == 0 ) employeeService.setEmployee(employee);
+
+            return errors.toString();
+        } else {
             return null;
         }
     }
 
-
 	/**
 	 * Синхронизует активных сотрудников из ldap 
 	 * с базой данных системы списания занятости.
-	 * @param employeeLdapDao
+	 * @param employeeLdapDao - дао
 	 */
-    private void syncActiveEmployees(EmployeeLdapDAO employeeLdapDao) {
+    private String syncActiveEmployees(EmployeeLdapDAO employeeLdapDao) {
         logger.info("Start synchronize active employees.");
         trace.append("Start synchronize active employees.\n\n");
-        List<EmployeeLdap> employeesLdap = null;
+        List<EmployeeLdap> employeesLdap;
+
+        StringBuffer errors = new StringBuffer();
+
         List<Employee> empsToSync = new ArrayList<Employee>();
         for (Division division : divisionService.getDivisions()) {
             employeesLdap = employeeLdapDao.getEmployyes(division.getLdapName());
             logger.debug("Ldap division {} has {} employees", division.getLdapName(), employeesLdap.size());
 
             for(EmployeeLdap employeeLdap:employeesLdap) {
+                Employee employee = createAndFillEmployee( employeeLdap, division, EmployeeType.EMPLOYEE, errors );
 
-                Employee employee=new Employee();
-
-                employee.setName(employeeLdap.getDisplayName());
-                employee.setDivision(divisionService.find(employeeLdap.getDepartment()));
-				employee.setObjectSid(employeeLdap.getObjectSid());
-                ProjectRole job = projectRoleService.find(employeeLdap.getTitle());
-
-                if (job != null)
-                    employee.setJob(job);
-                 else
-                    employee.setJob(projectRoleService.getUndefinedRole());
-
-                employee.setEmail(employeeLdap.getMail());
-                employee.setLdap(employeeLdap.getLdapCn());
-                List<Region> list =  regionService.getRegions();
-                loop:
-                for(Region reg: list){
-                    String[] regs = reg.getLdapCity().split(",");
-                    for(String region: regs){
-                        if(employeeLdap.getCity().contains(region.trim())){
-                            employee.setRegion(regionService.findRegionByCity(region.trim()));
-                            continue loop;
-                        }
-                    }
-                }
-                employee.setRole(projectRoleService.getSysRole(employee.getJob().getId()).getSysRoleId());
-                Employee empInDbByLdapName=employeeService.findByLdapName(employeeLdap.getLdapCn());
-                Employee empInDbByName = employeeService.findByEmail(employeeLdap.getMail());
-				Employee empInDbByObjectSid = employeeService.findByObjectSid(employeeLdap.getObjectSid());
-
-				if (empInDbByObjectSid != null) {
-					employee.setId(empInDbByObjectSid.getId());
-                    employee.setStartDate(empInDbByObjectSid.getStartDate());
-					employee.setManager(empInDbByObjectSid.getManager());
-				} else
-                //есть сотрудник в БД
-                //Миша: для существующих поле манагер не обновлялось, при этом остальные поля должны обновляться
-                //сперва должно сравниваться по полю LDAP, если нет то по полю EMAIL, если нет то считать что сотрудник новый и добавлять
-                if(empInDbByLdapName != null) {
-                    employee.setId(empInDbByLdapName.getId());
-                    employee.setStartDate(empInDbByLdapName.getStartDate());
-                    employee.setManager(empInDbByLdapName.getManager());
-                }
-                else if (empInDbByName != null) {
-                    employee.setId(empInDbByName.getId());
-                    employee.setStartDate(empInDbByName.getStartDate());
-                    employee.setManager(empInDbByName.getManager());
-                }
-                //если сотрудник не в БД
-                else {
-                    logger.info(employeeLdap.getMail()+"no in db");
-                    Employee manager = employeeService.find(division.getLeader().getName());
-                    employee.setStartDate(DateTimeUtil.ldapDateToTimestamp(employeeLdap.getWhenCreated()));
-                    employee.setManager(manager);
-                }
                 if (employee.getManager() != null) {
 					empsToSync.add(employee);
 				}
             }
         }
-        if (empsToSync.size() > 0) {
+        if (!empsToSync.isEmpty()) {
             logger.debug("There are {} new employees", empsToSync.size());
             trace.append(employeeService.setEmployees(empsToSync));
-        } else { logger.info("Nothing to sync."); }
+        } else {
+            logger.info("Nothing to sync.");
+        }
+
+        return errors.toString();
     }
 
-	public String getTrace() {
+    private Employee createAndFillEmployee(
+            EmployeeLdap employeeLdap,
+            Division division,
+            EmployeeType employeeType,
+            StringBuffer errors
+    ) {
+        return createAndFillEmployee( employeeLdap, division, errors, employeeType );
+    }
+
+    private Employee createAndFillEmployee(
+        EmployeeLdap employeeLdap,
+        StringBuffer errors
+    ) {
+        return createAndFillEmployee( employeeLdap, null, errors, EmployeeType.NEW_EMPLOYEE );
+    }
+
+    private Employee createAndFillEmployee(
+        EmployeeLdap employeeLdap,
+            Division division,
+            StringBuffer errors,
+            EmployeeType employeeType
+    ) {
+        Employee employee=new Employee();
+
+        employee.setObjectSid( employeeLdap.getObjectSid() );
+        employee.setName( employeeLdap.getDisplayName() );
+        employee.setEmail( employeeLdap.getMail().trim() );
+        employee.setLdap( employeeLdap.getLdapCn() );
+
+        employee.setRole(projectRoleService.getSysRole(employee.getJob().getId()).getSysRoleId());
+
+        findAndFillJobField( employeeLdap, errors, employee );
+        findAndFillRegionField( employeeLdap, errors, employee );
+
+        switch ( employeeType ){
+            case NEW_EMPLOYEE:
+                employee.setStartDate(DateTimeUtil.stringToTimestamp(DateTimeUtil.increaseDay(DateTimeUtil.currentDay())));
+
+                //берем подразделение и менеджера по подразделению
+                String department=employeeLdap.getDepartment();
+                if( department!=null && ! department.equals( "" ) ) {
+                    //если не найдет внутри find стоит
+                    Division findedDivision=divisionService.find(department);
+                    if(findedDivision==null){
+                        errors.append( "division(department), " );
+                    } else {
+                        Employee manager = employeeService.find(findedDivision.getLeader().getName());
+                        if ( manager == null ) {
+                            errors.append( "manager, " );
+                        } else {
+                            employee.setManager(manager);
+                        }
+                    }
+                } else {
+                    errors.append( "division(department), manager," );
+                }
+                break;
+        case EMPLOYEE:
+        case  MANAGER:
+            employee.setDivision( divisionService.find( employeeLdap.getDepartment() ) );
+
+            Employee empInDbByObjectSid = employeeService.findByObjectSid( employeeLdap.getObjectSid() );
+
+            if (empInDbByObjectSid != null) {
+                employee.setId(empInDbByObjectSid.getId());
+                employee.setStartDate(empInDbByObjectSid.getStartDate());
+                employee.setManager(empInDbByObjectSid.getManager());
+            //есть сотрудник в БД
+            //Миша: для существующих поле манагер не обновлялось, при этом остальные поля должны обновляться
+            //сперва должно сравниваться по полю LDAP, если нет то по полю EMAIL, если нет то считать что сотрудник новый и добавлять
+            } else {
+                logger.error(employeeLdap.getMail()+"no in db"); //TODO оповещение админа?
+                Employee manager = employeeService.find(division.getLeader().getName());
+                employee.setStartDate( DateTimeUtil.ldapDateToTimestamp( employeeLdap.getWhenCreated() ) );
+                employee.setManager(manager);
+            }
+
+            if ( employeeType == EmployeeType.MANAGER ){
+                employee.setManager( null );
+            }
+            break;
+        }
+
+        return employee;
+    }
+
+    private void findAndFillRegionField( EmployeeLdap employeeLdap, StringBuffer errors, Employee employee ) {
+        //ищем регион сотруднику
+        List<Region> list =  regionService.getRegions();
+        boolean isSetRegion=false;
+        loop:
+        for(Region reg: list){
+            String[] regs = reg.getLdapCity().split(",");
+            for(String region: regs){
+                if(employeeLdap.getCity().contains(region.trim())){
+                    employee.setRegion(regionService.findRegionByCity(region.trim()));
+                    isSetRegion=true;
+                    continue loop;
+                }
+            }
+        }
+        if(!isSetRegion) errors.append( "region, " );
+    }
+
+    private void findAndFillJobField( EmployeeLdap employeeLdap, StringBuffer errors, Employee employee ) {
+        ProjectRole job = projectRoleService.find(employeeLdap.getTitle());
+        if (job != null) {
+            employee.setJob(job);
+        } else {
+            employee.setJob(projectRoleService.getUndefinedRole());
+            errors.append( "job, " );
+        }
+    }
+
+    public String getTrace() {
 		return this.trace.toString();
 	}
 }
