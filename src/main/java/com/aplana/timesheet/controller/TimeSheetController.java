@@ -67,16 +67,16 @@ public class TimeSheetController {
         TimeSheetForm tsForm = new TimeSheetForm();
 
         TimeSheetUser securityUser = securityService.getSecurityPrincipal();
-        if (securityUser != null) {
-            tsForm.setDivisionId(securityUser.getEmployee().getDivision().getId());
-            tsForm.setEmployeeId(securityUser.getEmployee().getId());
-        }
-        if (id!=null) {
+
+        if ( id !=null) {
             tsForm.setDivisionId(employeeService.find(id).getDivision().getId());
             tsForm.setEmployeeId(id);
+        } else if ( securityUser != null) {
+            tsForm.setDivisionId( securityUser.getEmployee().getDivision().getId() );
+            tsForm.setEmployeeId( securityUser.getEmployee().getId() );
         }
+
         if (date != null) {
-            DateTimeUtil.stringToDate(date, "dd.MM.yyyy");
             tsForm.setCalDate(date);
             mav.addObject("selectedCalDateJson", getSelectedCalDateJson(tsForm));   //выставляем дату для DateTextBox
         } else {

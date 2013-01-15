@@ -22,32 +22,33 @@ public class ManagerController {
     public String managerPanel(Model model) {
 		Properties properties = new Properties();
 		FileInputStream fis = null;
-		
+        String pentahoPath = null;
 		try {
 			fis = new FileInputStream(TimeSheetConstans.PROPERTY_PATH);
-		} catch (FileNotFoundException ex) {
-			logger.error("Can not find propety file {}", TimeSheetConstans.PROPERTY_PATH);
-			logger.error("", ex);
-		}
-		
-		String pentahoPath = null;
-		if (fis != null) {
-			try {
-				properties.load(fis);
-				pentahoPath = properties.getProperty("pentaho.url");
-				if(pentahoPath != null && pentahoPath.isEmpty()) {
-					pentahoPath = null;
-					logger.warn("In your properties not assign 'pentaho.url', some functions will be disabled");
-				}
-			} catch (IOException ex) {
-				logger.error("", ex);
-			}
+
+            properties.load(fis);
+            pentahoPath = properties.getProperty("pentaho.url");
+            if(pentahoPath != null && pentahoPath.isEmpty()) {
+                pentahoPath = null;
+                logger.warn("In your properties not assign 'pentaho.url', some functions will be disabled");
+            }
+        } catch (FileNotFoundException ex) {
+            logger.error("Can not find propety file {}", TimeSheetConstans.PROPERTY_PATH);
+            logger.error("", ex);
+        } catch (IOException ex) {
+            logger.error("", ex);
+        } finally {
+            if ( fis != null ) {
+                try {
+                    fis.close();
+                } catch ( IOException e ) {
+                    logger.error( "Can't close file stream {}", TimeSheetConstans.PROPERTY_PATH );
+                }
+            }
+        }
 			
-		}
 		model.addAttribute("pentahoUrl", pentahoPath);
         return "managerPanel";
     }
-
-
 }
 

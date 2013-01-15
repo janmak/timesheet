@@ -24,6 +24,7 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Controller
@@ -62,17 +63,23 @@ public class JasperReportController {
         return generator.getModelAndViewForReport( form );
     }
 
-    private ModelAndView showReport(TSJasperReport report, BindingResult result, Integer printtype, int numberReport, HttpServletResponse response, HttpServletRequest request) throws JReportBuildError {
+    private ModelAndView showReport (
+            BaseReport report,
+            BindingResult result,
+            Integer printtype,
+            int numberReport,
+            HttpServletResponse response,
+            HttpServletRequest request
+    ) throws JReportBuildError {
+        fillRegionName(report);
+
         report.setReportDAO(reportDAO);
         reportValidator.validate(report, result);
 
         ModelAndView mav;
 
         if (result.hasErrors()) {
-            mav = createReportMAV(numberReport, report);
-            mav.addObject("errors", result.getAllErrors());
-
-            return mav;
+            return getModelAndViewForErrors( report, numberReport, result.getAllErrors() );
         }
 
         if (jasperReportService.makeReport(report, printtype, response, request)) {
@@ -84,14 +91,20 @@ public class JasperReportController {
 	        	return null;
 	        }
         } else {
-            mav = createReportMAV(numberReport, report);
-            List<ObjectError> errors = new ArrayList<ObjectError>(1);
             //Если необходимо конкретизировать ошибку для пустого отчета то можно сделать это здесь
             //для всех отчетов выводится error.reportform.nodata
-            errors.add(new ObjectError(report.getJRName(), new String[]{"error.reportform.nodata"}, null, null));
-			mav.addObject("errors", errors);
-            return mav;
+            return getModelAndViewForErrors( report, numberReport,
+                    Arrays.asList(new ObjectError(report.getJRName(), new String[]{"error.reportform.nodata"}, null, null)));
         }
+    }
+
+    private ModelAndView getModelAndViewForErrors(
+            TSJasperReport report, int numberReport, List<ObjectError> errors
+    ) throws JReportBuildError {
+        ModelAndView mav = createReportMAV( numberReport, report );
+        mav.addObject("errors", errors );
+
+        return mav;
     }
 
     @RequestMapping(value = "/managertools/report/{number}", method = RequestMethod.GET)
@@ -100,53 +113,77 @@ public class JasperReportController {
     }
 
     @RequestMapping(value = "/managertools/report/1", method = RequestMethod.POST)
-    public ModelAndView showReport01(@ModelAttribute("reportForm") Report01 report, BindingResult result,
-                                     @RequestParam("printtype") Integer printtype, HttpServletResponse response, HttpServletRequest request) throws JReportBuildError {
-        fillRegionName(report);
+    public ModelAndView showReport01(
+            @ModelAttribute("reportForm") Report01 report,
+            BindingResult result,
+            @RequestParam("printtype") Integer printtype,
+            HttpServletResponse response,
+            HttpServletRequest request
+    ) throws JReportBuildError {
         return showReport(report, result, printtype, 1, response, request);
     }
 
     @RequestMapping(value = "/managertools/report/2", method = RequestMethod.POST)
-    public ModelAndView showReport02(@ModelAttribute("reportForm") Report02 report, BindingResult result,
-                                     @RequestParam("printtype") Integer printtype, HttpServletResponse response, HttpServletRequest request) throws JReportBuildError {
-        fillRegionName(report);
+    public ModelAndView showReport02(
+            @ModelAttribute("reportForm") Report02 report,
+            BindingResult result,
+            @RequestParam("printtype") Integer printtype,
+            HttpServletResponse response,
+            HttpServletRequest request
+    ) throws JReportBuildError {
         return showReport(report, result, printtype, 2, response, request);
     }
 
     @RequestMapping(value = "/managertools/report/3", method = RequestMethod.POST)
-    public ModelAndView showReport03(@ModelAttribute("reportForm") Report03 report, BindingResult result,
-                                     @RequestParam("printtype") Integer printtype, HttpServletResponse response, HttpServletRequest request) throws JReportBuildError {
-        fillRegionName(report);
+    public ModelAndView showReport03(
+            @ModelAttribute("reportForm") Report03 report,
+            BindingResult result,
+            @RequestParam("printtype") Integer printtype,
+            HttpServletResponse response,
+            HttpServletRequest request
+    ) throws JReportBuildError {
         return showReport(report, result, printtype, 3, response, request);
     }
 
     @RequestMapping(value = "/managertools/report/4", method = RequestMethod.POST)
-    public ModelAndView showReport04(@ModelAttribute("reportForm") Report04 report, BindingResult result,
-                                     @RequestParam("printtype") Integer printtype, HttpServletResponse response, HttpServletRequest request) throws JReportBuildError {
-        fillRegionName(report);
+    public ModelAndView showReport04(
+            @ModelAttribute("reportForm") Report04 report,
+            BindingResult result,
+            @RequestParam("printtype") Integer printtype,
+            HttpServletResponse response,
+            HttpServletRequest request
+    ) throws JReportBuildError {
         return showReport(report, result, printtype, 4, response, request);
     }
 
     @RequestMapping(value = "/managertools/report/5", method = RequestMethod.POST)
-    public ModelAndView showReport05(@ModelAttribute("reportForm") Report05 report, BindingResult result,
-                                     @RequestParam("printtype") Integer printtype, HttpServletResponse response, HttpServletRequest request) throws JReportBuildError {
-        fillRegionName(report);
+    public ModelAndView showReport05(
+            @ModelAttribute("reportForm") Report05 report,
+            BindingResult result,
+            @RequestParam("printtype") Integer printtype,
+            HttpServletResponse response,
+            HttpServletRequest request
+    ) throws JReportBuildError {
         return showReport(report, result, printtype, 5, response, request);
     }
 
     @RequestMapping(value = "/managertools/report/6", method = RequestMethod.POST)
-    public ModelAndView showReport06(@ModelAttribute("reportForm") Report06 report, BindingResult result,
-                                     @RequestParam("printtype") Integer printtype, HttpServletResponse response, HttpServletRequest request) throws JReportBuildError {
-        fillRegionName(report);
+    public ModelAndView showReport06(
+            @ModelAttribute("reportForm") Report06 report,
+            BindingResult result,
+            @RequestParam("printtype") Integer printtype,
+            HttpServletResponse response,
+            HttpServletRequest request
+    ) throws JReportBuildError {
         return showReport(report, result, printtype, 6, response, request);
     }
 
     // Нужно для отображения названия региона в сформированном отчете
     private void fillRegionName(BaseReport report) {
 		List<Integer> regionIds = report.getRegionIds();
-		if(regionIds != null && regionIds.size() != 0) {
+		if(regionIds != null && !regionIds.isEmpty()) {
 			
-			ArrayList<String> regionNames = new ArrayList<String>(regionIds.size());
+			List<String> regionNames = new ArrayList<String>(regionIds.size());
             for ( Integer regionId : regionIds ) {
                 Region region = regionService.find( regionId );
                 String rName = "";

@@ -32,6 +32,7 @@ public class LoginController {
 
     @Autowired
     private SendMailService sendMailService;
+    private static final SimpleDateFormat DATE_WITH_TIME_FORMAT = new SimpleDateFormat( "dd.MM.yyyy HH:mm:ss" );
 
     @RequestMapping(value = "/login", method = RequestMethod.GET)
     public String loginForm(ModelMap model) {
@@ -39,52 +40,50 @@ public class LoginController {
     }
 
     @RequestMapping(value="/loginfailed", method = RequestMethod.GET)
-    public String loginerror(ModelMap model, HttpServletRequest request) {
-        String username="";
+    public String loginError(ModelMap model, HttpServletRequest request) {
+//        String username="";
 
-        HttpSession session = request.getSession(false);
-        if(session != null) {
-            Object usrnameObj =
-                    session.getAttribute(UsernamePasswordAuthenticationFilter.SPRING_SECURITY_LAST_USERNAME_KEY);
+//        HttpSession session = request.getSession(false);
+//        if(session != null) {
+//            Object usrnameObj =
+//                    session.getAttribute(UsernamePasswordAuthenticationFilter.SPRING_SECURITY_LAST_USERNAME_KEY);
 
-            username = (usrnameObj != null) ? usrnameObj.toString() : null;
-        }
+//            username = (usrnameObj != null) ? usrnameObj.toString() : null;
+//        }
 
         model.addAttribute("error", "true");
         return "login";
-
     }
 
     @RequestMapping(value="/logout", method = RequestMethod.GET)
     public String logout(ModelMap model) {
-
         return "login";
-
     }
 
     //форма отпраки сообщения
     @RequestMapping(value="/adminMessage" , method = RequestMethod.GET)
     public ModelAndView sendMessage(HttpServletRequest request) {
-        ModelAndView mav=new ModelAndView("adminMessage");
-
-        mav.addObject("adminMessageForm",new AdminMessageForm());
-        return mav;
+        return new ModelAndView("adminMessage").addObject("adminMessageForm",new AdminMessageForm());
     }
 
     //по нажатию на кнопку отправить
     @RequestMapping(value = "/adminMessage", method = RequestMethod.POST)
-    public ModelAndView adminMessage(@ModelAttribute("adminMessageForm") AdminMessageForm adminMessageForm,  BindingResult result, HttpServletRequest request) {
+    public ModelAndView adminMessage(
+            @ModelAttribute("adminMessageForm") AdminMessageForm adminMessageForm,
+            BindingResult result,
+            HttpServletRequest request
+    ) {
         ModelAndView mav;
+
         adminMessageFormValidator.validate(adminMessageForm, result);
+
         if (result.hasErrors()) {
             mav=new ModelAndView("adminMessage");
             mav.addObject("errors",result.getAllErrors());
             return mav;
         }
-        //берем дату
-        Date date=new Date();
-        SimpleDateFormat norm = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
-        String dateString = norm.format(date);
+
+        String dateString = DATE_WITH_TIME_FORMAT.format( new Date() );
 
         //берем последнюю ошибку
         HttpSession httpSession=request.getSession(false);
@@ -93,7 +92,7 @@ public class LoginController {
         String name=httpSession.getAttribute("lastLogin").toString();
 
         //проверяем
-        if (error.isEmpty()) error="user don't indicated error";
+        if(error.isEmpty()) error="user don't indicated error";
         if(name.isEmpty()) name="user don't indicated login";
 
         //цепляем дополнительные данные

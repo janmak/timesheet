@@ -43,9 +43,9 @@ public class FeedbackController {
 	private SecurityService securityService;
 	@Autowired
 	private MessageSource messageSource;
-	
+
 	//IDs подразделения и сотрудника по умолчанию
-	private Integer divisionId = 0, employeeId = 0;
+	private Integer divisionId = 0, employeeId = 0; //TODO зачем это нужно? контроллер — синглтон, они будут доступны всем
 
 	// Эти коды должны соответствовать страничке feedback.jsp
 	private static final String[] FEEDBACK_TYPE_NAME_KEYS = {

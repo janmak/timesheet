@@ -14,8 +14,6 @@ public class AdminController {
 
     @RequestMapping
     public ModelAndView adminPanel() {
-        ModelAndView mav = new ModelAndView("adminPanel");
-        mav.addObject("showalluser", employeeService.isShowAll());
-        return mav;
+        return new ModelAndView("adminPanel").addObject("showalluser", employeeService.isShowAll());
     }
 }

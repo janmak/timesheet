@@ -418,12 +418,17 @@
             <artifactId>poi</artifactId>
             <version>3.9</version>
         </dependency>
-
-<!--   SPNEGO. Не реализовано
         <dependency>
-        	<groupId>org.springframework.security.extensions</groupId>
-        	<artifactId>spring-security-kerberos-core</artifactId>
-        	<version>1.0.0.CI-SNAPSHOT-van</version>
-        </dependency>-->
+            <groupId>com.intellij</groupId>
+            <artifactId>annotations</artifactId>
+            <version>9.0.4</version>
+        </dependency>
+
+        <!--   SPNEGO. Не реализовано
+                <dependency>
+                    <groupId>org.springframework.security.extensions</groupId>
+                    <artifactId>spring-security-kerberos-core</artifactId>
+                    <version>1.0.0.CI-SNAPSHOT-van</version>
+                </dependency>-->
 	</dependencies>
 </project>
