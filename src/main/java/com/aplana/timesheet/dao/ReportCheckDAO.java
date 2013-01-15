@@ -32,10 +32,10 @@ public class ReportCheckDAO{
 	@Transactional(readOnly = true)
 	@SuppressWarnings("unchecked")
 	public ReportCheck getDayEmpReportCheck(String date, Employee employee) {
-		Query query = entityManager
-		.createQuery("from ReportCheck as r WHERE r.employee = :emp and r.checkdate =:date");
-		query.setParameter("date", date);
-		query.setParameter("emp", employee);
+		Query query = entityManager.createQuery(
+                "from ReportCheck as r WHERE r.employee = :emp and r.checkdate =:date"
+        ).setParameter("date", date).setParameter("emp", employee);
+
 		List<ReportCheck> result = query.getResultList();
 		logger.debug("getDayEmpReportCheck List<ReportCheck> result size = {}", result.size());
 

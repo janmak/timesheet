@@ -45,20 +45,18 @@ public class EmployeeDAO {
 	@Transactional(readOnly = true)
 	public Employee find(String name) {
 		if ("".equals(name)) { return null; }
-		Employee result;
-		Query query = entityManager
-			.createQuery("from Employee as e where e.name=:name");
-		query.setParameter("name", name);
+
+		Query query = entityManager.createQuery(
+                "from Employee as e where e.name=:name"
+        ).setParameter( "name", name );
 		try {
-			result = (Employee) query.getSingleResult();
+            return (Employee) query.getSingleResult();
 		} catch (NoResultException e) {
 			logger.warn("Employee with name '{}' not found.", name);
-			return null;
 		} catch (NonUniqueResultException e) {
 			logger.warn("More than one employee with name '{}' was found.", name);
-			return null;
 		}
-		return result;
+        return null;
 	}
 
     /**
@@ -71,36 +69,36 @@ public class EmployeeDAO {
     @Transactional(readOnly = true)
     public Employee findByEmail(String email) {
         if ("".equals(email)) { return null; }
-        Employee result;
-        Query query = entityManager
-                .createQuery("select e from Employee as e where e.email=:email");
-        query.setParameter("email", email);
+
+        Query query = entityManager.createQuery(
+                "select e from Employee as e where e.email=:email"
+        ).setParameter( "email", email );
         try {
-            result = (Employee) query.getSingleResult();
+            Employee result = (Employee) query.getSingleResult();
+            // Загружаем детализации, чтобы не было проблем из-за lazy загрузки.
+            Hibernate.initialize(result);
+            Hibernate.initialize(result.getDivision());
+            Hibernate.initialize(result.getManager());
+            return result;
         } catch (NoResultException e) {
             logger.warn("Employee with email '{}' not found.", email);
-            return null;
         } catch (NonUniqueResultException e) {
             logger.warn("More than one employee with email '{}' was found.", email);
-            return null;
         }
-
-        // Загружаем детализации, чтобы не было проблем из-за lazy загрузки.
-        Hibernate.initialize(result);
-        Hibernate.initialize(result.getDivision());
-        Hibernate.initialize(result.getManager());
-
-        return result;
+        return null;
     }
 
 
 	public Employee findByLdapName(String ldap) {
-		Query query = this.entityManager.createQuery("select e from Employee e where e.ldap like :ldap");
-		query.setMaxResults(1);
-		query.setParameter("ldap", "%"+ldap+"%");
+		Query query = this.entityManager.createQuery(
+                "select e from Employee e where e.ldap like :ldap"
+        ).setMaxResults( 1 ).setParameter( "ldap", "%" + ldap + "%" );
+
 		List employees = query.getResultList();
-		if(employees != null && employees.size() > 0)
-			return (Employee)employees.get(0);
+
+        if ( employees != null && ! employees.isEmpty() ) {
+            return (Employee)employees.get(0);
+        }
 		return null;
 	}
 	
@@ -115,11 +113,13 @@ public class EmployeeDAO {
 	public List<Employee> getEmployeesForSync(Division division) {
 		Query query;
 		if (division == null) {
-			query = entityManager
-				.createQuery("from Employee as e where e.notToSync=:notToSync");
+			query = entityManager.createQuery(
+                    "from Employee as e where e.notToSync=:notToSync"
+            );
 		} else {
-			query = entityManager
-				.createQuery("from Employee as e where e.notToSync=:notToSync and e.division=:division");
+			query = entityManager.createQuery(
+                    "from Employee as e where e.notToSync=:notToSync and e.division=:division"
+            );
 			query.setParameter("division", division);
 		}
 		query.setParameter("notToSync", false);
@@ -132,11 +132,9 @@ public class EmployeeDAO {
     public List<Employee> getAllEmployeesDivision(Division division) {
         Query query;
         if (division == null) {
-            query = entityManager
-                    .createQuery("FROM Employee");
+            query = entityManager.createQuery( "FROM Employee" );
         } else {
-            query = entityManager
-                    .createQuery("FROM Employee AS e WHERE e.division=:division");
+            query = entityManager.createQuery( "FROM Employee AS e WHERE e.division=:division" );
             query.setParameter("division", division);
         }
 
@@ -152,9 +150,11 @@ public class EmployeeDAO {
     public List<Employee> getRegionManager (Integer employeeId) {
         Query query = this.entityManager.createQuery(
                 "select m.employee from  Employee e, Manager m " +
-                "where e.id = :emp_id AND m.division.id = e.division.id " +
-                "AND m.region.id = e.region.id");
-        query.setParameter("emp_id", employeeId);
+                "where e.id = :emp_id " +
+                    "AND m.division.id = e.division.id " +
+                    "AND m.region.id = e.region.id"
+        ).setParameter( "emp_id", employeeId );
+
         return query.getResultList();
     }
 
@@ -168,31 +168,27 @@ public class EmployeeDAO {
 	public List<Employee> getEmployees(Division division) {
 		Query query;
 
-        Calendar cal = Calendar.getInstance();
-        Date maxModDate = cal.getTime();
+        Date maxModDate = new Date();
 
 		if (division == null) {
-			query = entityManager
-                //действующий сотрудник-который на текущий момент либо не имеет endDate, либо endDate<=cuDate
-                .createQuery(
-                        "FROM Employee AS emp " +
-                                "WHERE (emp.endDate IS NOT NULL AND emp.endDate >= :curDate) " +
+			query = entityManager.createQuery(
+                    //действующий сотрудник-который на текущий момент либо не имеет endDate, либо endDate<=cuDate
+                    "FROM Employee AS emp " +
+                            "WHERE (emp.endDate IS NOT NULL " +
+                                "AND emp.endDate >= :curDate) " +
                                 "OR (emp.endDate IS NULL) " +
-                        "ORDER BY emp.name"
-                );
-            query.setParameter("curDate", maxModDate);
+                            "ORDER BY emp.name"
+            ).setParameter("curDate", maxModDate);
 		} else {
-			query = entityManager
-                .createQuery(
-                        "FROM Employee AS emp " +
-                                "WHERE (emp.division=:division AND emp.endDate IS NOT NULL AND emp.endDate >= :curDate) " +
-                                "OR (emp.division=:division AND emp.endDate IS NULL) " +
-                                "ORDER BY emp.name"
-                );
-
-            query.setParameter("curDate", maxModDate);
-            query.setParameter("division", division);
-
+			query = entityManager.createQuery(
+                    "FROM Employee AS emp " +
+                            "WHERE (emp.division=:division " +
+                                "AND emp.endDate IS NOT NULL " +
+                                "AND emp.endDate >= :curDate) " +
+                                "OR (emp.division=:division " +
+                                "AND emp.endDate IS NULL) " +
+                            "ORDER BY emp.name"
+            ).setParameter("curDate", maxModDate).setParameter("division", division);
 		}
 
         return query.getResultList();
@@ -213,9 +209,10 @@ public class EmployeeDAO {
 
     public boolean isNotToSync(Employee employee) {
         Query query;
-        query = entityManager
-                .createQuery("FROM Employee AS e WHERE e.email=:email");
-        query.setParameter("email", employee.getEmail().trim());
+        query = entityManager.createQuery(
+                "FROM Employee AS e WHERE e.email=:email"
+        ).setParameter("email", employee.getEmail().trim());
+
         List<Employee> result = query.getResultList();
 
         return result != null &&  ! result.isEmpty() && result.get( 0 ).isNotToSync();
@@ -230,21 +227,17 @@ public class EmployeeDAO {
 	@Transactional
 	public StringBuffer setEmployees(List<Employee> employees) {
         StringBuffer trace = new StringBuffer();
-        trace.append("");
 		for (Employee emp : employees) {
             if ( ! isNotToSync( emp ) ) {
-                if ( emp.getId() != null ) {
-                    trace.append( "Updated user: " ).append( emp.getEmail() )
-                            .append( " " ).append( emp.getName() ).append( "\n" );
-                } else {
-                    trace.append( "Added user: " ).append( emp.getEmail() )
-                            .append( " " ).append( emp.getName() ).append( "\n" );
-                }
+                trace.append( String.format(
+                        "%s user: %s %s\n", emp.getId() != null ? "Updated" : "Added", emp.getEmail(), emp.getName()
+                ) );
 
                 setEmployee( emp );
             } else {
-                trace.append( "\nUser: " ).append( emp.getEmail() ).append( " " ).append( emp.getName() )
-                        .append( " marked not_to_sync.(Need update)\n" ).append( emp.toString() ).append( "\n\n" );
+                trace.append( String.format(
+                        "\nUser: %s %s marked not_to_sync.(Need update)\n%s\n\n",
+                        emp.getEmail(), emp.getName(), emp.toString() ));
             }
         }
         trace.append("\n\n");
@@ -257,19 +250,16 @@ public class EmployeeDAO {
 	@Transactional(readOnly = true)
 	public Employee findByObjectSid(String ObjectSid) {
 		if ("".equals(ObjectSid)) { return null; }
-		Employee result;
-		Query query = entityManager
-			.createQuery("from Employee as e where e.objectSid=:objectSid");
-		query.setParameter("objectSid", ObjectSid);
+		Query query = entityManager.createQuery(
+                "from Employee as e where e.objectSid=:objectSid"
+        ).setParameter("objectSid", ObjectSid);
 		try {
-			result = (Employee) query.getSingleResult();
+			return  (Employee) query.getSingleResult();
 		} catch (NoResultException e) {
 			logger.warn("Employee with objectSid '{}' not found.", ObjectSid);
-			return null;
 		} catch (NonUniqueResultException e) {
 			logger.warn("More than one employee with objectSid '{}' was found.", ObjectSid);
-			return null;
 		}
-		return result;
-	}
+        return null;
+    }
 }

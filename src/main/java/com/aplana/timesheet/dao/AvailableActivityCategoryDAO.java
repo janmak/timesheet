@@ -29,11 +29,11 @@ public class AvailableActivityCategoryDAO {
 	@SuppressWarnings("unchecked")
 	@Transactional(readOnly = true)
 	public List<AvailableActivityCategory> getAvailableActivityCategories(
-														DictionaryItem actType, ProjectRole projectRole) {
-		Query query = entityManager.createQuery("from AvailableActivityCategory as ac where "
-				+ "ac.actType=:actType and ac.projectRole=:projectRole");
-		query.setParameter("actType", actType);
-		query.setParameter("projectRole", projectRole);
+           DictionaryItem actType, ProjectRole projectRole
+    ) {
+		Query query = entityManager.createQuery(
+                "from AvailableActivityCategory as ac where ac.actType=:actType and ac.projectRole=:projectRole"
+        ).setParameter("actType", actType).setParameter("projectRole", projectRole);
 
         return query.getResultList();
 	}
@@ -52,12 +52,12 @@ public class AvailableActivityCategoryDAO {
 	@SuppressWarnings("unchecked")
 	@Transactional(readOnly = true)
 	public List<AvailableActivityCategory> getAvailableActivityCategories(
-										DictionaryItem actType, Project project, ProjectRole projectRole) {
-		Query query = entityManager.createQuery("from AvailableActivityCategory as ac where "
-				+ "ac.actType=:actType and ac.project=:project and ac.projectRole=:projectRole");
-		query.setParameter("actType", actType);
-		query.setParameter("project", project);
-		query.setParameter("projectRole", projectRole);
+           DictionaryItem actType, Project project, ProjectRole projectRole
+    ) {
+		Query query = entityManager.createQuery(
+                "from AvailableActivityCategory as ac " +
+                        "where ac.actType=:actType and ac.project=:project and ac.projectRole=:projectRole"
+        ).setParameter("actType", actType).setParameter("project", project).setParameter("projectRole", projectRole);
 
         return query.getResultList();
 	}

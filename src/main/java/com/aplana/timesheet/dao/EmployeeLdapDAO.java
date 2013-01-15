@@ -29,25 +29,22 @@ public class EmployeeLdapDAO {
     public EmployeeLdap getEmployee(String email) {
         logger.info("Getting Employee {} from LDAP",email);
 
-        AndFilter andFilter = new AndFilter();
-        andFilter.and(new EqualsFilter("mail",email));
+        AndFilter andFilter = new AndFilter().and(new EqualsFilter("mail",email));
         logger.debug("LDAP Query {}", andFilter.encode());
-        List<EmployeeLdap> employees =ldapTemplate.search("",andFilter.encode(),new EmployeeAttributeMapper());
-        return employees.get(0);
+        return ( EmployeeLdap ) ldapTemplate.search("",andFilter.encode(),new EmployeeAttributeMapper()).get( 0 );
     }
-
-
 
 	@SuppressWarnings("unchecked")
 	public List<EmployeeLdap> getEmployyes(String department) {
 		logger.info("Getting Employees from LDAP.");
-		AndFilter andFilter = new AndFilter();
-		andFilter.and(new EqualsFilter("department", department));
-		andFilter.and(new PresentFilter("memberOf"));
+		AndFilter andFilter = new AndFilter()
+                .and(new EqualsFilter("department", department))
+                .and( new PresentFilter( "memberOf" ) );
 		logger.debug("LDAP Query {}", andFilter.encode());
 		List<EmployeeLdap> employees = ldapTemplate.search("", andFilter.encode(), new EmployeeAttributeMapper());
 		logger.debug("Employees size is {}", employees.size());
-		if(employees.size()>0)logger.debug("Employee {} City is {}", employees.get(0).getDisplayName(), employees.get(0).getCity());
+		if(!employees.isEmpty())
+            logger.debug("Employee {} City is {}", employees.get(0).getDisplayName(), employees.get(0).getCity());
 		return employees;
 	}
 	
@@ -56,8 +53,8 @@ public class EmployeeLdapDAO {
 		logger.info("Getting Disabled Employees from LDAP.");
 		DistinguishedName dn = new DistinguishedName();
 	    dn.add("ou", "Disabled Users");
-		AndFilter andFilter = new AndFilter();
-		andFilter.and(new EqualsFilter("objectClass", "person"));
+
+        AndFilter andFilter = new AndFilter().and(new EqualsFilter("objectClass", "person"));
 		logger.debug("LDAP Query {}", andFilter.encode());
 		return ldapTemplate.search(dn, andFilter.encode(), new EmployeeAttributeMapper());
 	}
@@ -65,27 +62,25 @@ public class EmployeeLdapDAO {
 	@SuppressWarnings("unchecked")
 	public List<EmployeeLdap> getDivisionLeader(String name, String division) {
 		logger.info("Getting Division Leaders from LDAP.");
-		AndFilter andFilter = new AndFilter();
-		andFilter.and(new EqualsFilter("displayName", name));
-		andFilter.and(new EqualsFilter("department", division));
-		logger.debug("LDAP Query {}", andFilter.encode());
+        AndFilter andFilter = new AndFilter()
+                .and( new EqualsFilter( "displayName", name ) )
+                .and( new EqualsFilter( "department", division ) );
+        logger.debug("LDAP Query {}", andFilter.encode());
 		return ldapTemplate.search("", andFilter.encode(), new EmployeeAttributeMapper());
 	}
 
 	public EmployeeLdap getEmployeeByName(String name) {
 		try {
-			AndFilter andFilter = new AndFilter();
-            name = name.replaceAll("/", ",");
-			andFilter.and(new EqualsFilter("distinguishedName", name));
-				List<EmployeeLdap> employees = (List<EmployeeLdap>)ldapTemplate.search("" , andFilter.encode(), new EmployeeAttributeMapper());
+			AndFilter andFilter = new AndFilter().and(new EqualsFilter("distinguishedName", name.replaceAll("/", ",")));
+            List employees = ldapTemplate.search("" , andFilter.encode(), new EmployeeAttributeMapper());
 			if((employees != null) && !employees.isEmpty())
-				return employees.get(0);
+				return ( EmployeeLdap ) employees.get(0);
 		}
-		catch (NameNotFoundException e) { logger.debug("Not found: " + name); }
+		catch (NameNotFoundException e) {
+            logger.debug("Not found: " + name);
+        }
 		return null;
 	}
-
-
 
     private class EmployeeAttributeMapper implements AttributesMapper {
 		public Object mapFromAttributes(Attributes attributes) throws NamingException {

@@ -11,6 +11,7 @@ import javax.persistence.*;
 import java.util.List;
 
 @Repository
+@SuppressWarnings("unchecked")
 public class ProjectDAO {
     private static final Logger logger = LoggerFactory.getLogger(ProjectDAO.class);
     private StringBuffer trace;
@@ -32,12 +33,12 @@ public class ProjectDAO {
     /**
      * Возвращает все активные проекты\пресейлы.
      */
-    @SuppressWarnings("unchecked")
     @Transactional(readOnly = true)
     public List<Project> getAll() {
-        Query query = entityManager
-                .createQuery("from Project as p where p.active=:active");
-        query.setParameter("active", true);
+        Query query = entityManager.createQuery(
+                "from Project as p where p.active=:active"
+        ).setParameter( "active", true );
+
         return query.getResultList();
     }
 
@@ -47,10 +48,10 @@ public class ProjectDAO {
     @Transactional(readOnly = true)
     @SuppressWarnings("unchecked")
     public List<Project> getProjects() {
-        Query query = entityManager
-                .createQuery("from Project as p where p.state=:state and p.active=:active");
-        query.setParameter("state", dictionaryItemDAO.find(DictionaryItemDAO.PROJECTS_ID));
-        query.setParameter("active", true);
+        Query query = entityManager.createQuery(
+                "from Project as p where p.state=:state and p.active=:active"
+        ).setParameter( "state", dictionaryItemDAO.find( DictionaryItemDAO.PROJECTS_ID ) ).setParameter( "active", true );
+
         return query.getResultList();
     }
 
@@ -60,11 +61,12 @@ public class ProjectDAO {
     @Transactional(readOnly = true)
     @SuppressWarnings("unchecked")
     public List<Project> getPresales() {
-        Query query = entityManager
-                .createQuery("from Project as p where p.state=:state and p.active=:active and p.id<>:anaccounted_presale");
-        query.setParameter("state", dictionaryItemDAO.find(DictionaryItemDAO.PRESALES_ID));
-        query.setParameter("active", true);
-        query.setParameter("anaccounted_presale", ANACCOUNTED_PRESALE_ID);
+        Query query = entityManager.createQuery(
+                "from Project as p where p.state=:state and p.active=:active and p.id<>:anaccounted_presale" )
+                .setParameter( "state", dictionaryItemDAO.find( DictionaryItemDAO.PRESALES_ID ) )
+                .setParameter( "active", true )
+                .setParameter( "anaccounted_presale", ANACCOUNTED_PRESALE_ID );
+
         return query.getResultList();
     }
 
@@ -86,28 +88,27 @@ public class ProjectDAO {
      */
     @Transactional(readOnly = true)
     public Project findActive(Integer id) {
-        Project result;
-        Query query = entityManager.createQuery("from Project as p where p.id=:id and p.active=:active");
-        query.setParameter("active", true);
-        query.setParameter("id", id);
+        Query query = entityManager.createQuery(
+                "from Project as p where p.id=:id and p.active=:active"
+        ).setParameter("active", true).setParameter("id", id);
+
         try {
-            result = (Project) query.getSingleResult();
+            return  (Project) query.getSingleResult();
         } catch (NoResultException e) {
-            result = null;
+            return null;
         }
-        return result;
     }
 
     /**
      * Возвращает все активные проекты\пресейлы для которых в CQ заведены
      * проектные задачи. (cq_required=true)
      */
-    @SuppressWarnings("unchecked")
     @Transactional(readOnly = true)
     public List<Project> getProjectsWithCq() {
-        Query query = entityManager
-                .createQuery("from Project as p where p.cqRequired='true' and p.active=:active");
-        query.setParameter("active", true);
+        Query query = entityManager.createQuery(
+                "from Project as p where p.cqRequired='true' and p.active=:active"
+        ).setParameter( "active", true );
+
         return query.getResultList();
     }
 
@@ -117,13 +118,12 @@ public class ProjectDAO {
      * @param project
      * @return
      */
-    @SuppressWarnings("unchecked")
     @Transactional(readOnly = true)
     public List<ProjectParticipant> getParticipants(Project project) {
-        Query query = entityManager
-                .createQuery("from ProjectParticipant as pp where pp.active=:active and pp.project=:project");
-        query.setParameter("active", true);
-        query.setParameter("project", project);
+        Query query = entityManager.createQuery(
+                "from ProjectParticipant as pp where pp.active=:active and pp.project=:project"
+        ).setParameter( "active", true ).setParameter( "project", project );
+
         return query.getResultList();
     }
 
@@ -133,35 +133,33 @@ public class ProjectDAO {
      * @param project, employee
      * @return
      */
-    @SuppressWarnings("unchecked")
     @Transactional(readOnly = true)
     public List<ProjectParticipant> getEmployeeProjectRoles(Project project, Employee employee) {
-        Query query = entityManager
-                .createQuery("from ProjectParticipant as pp where pp.active=:active and pp.project=:project and pp.employee=:employee");
-        query.setParameter("active", true);
-        query.setParameter("project", project);
-        query.setParameter("employee", employee);
+        Query query = entityManager.createQuery(
+                "from ProjectParticipant as pp where pp.active=:active and pp.project=:project and pp.employee=:employee"
+        ).setParameter( "active", true ).setParameter( "project", project ).setParameter( "employee", employee );
+
         return query.getResultList();
     }
 
     @Transactional(readOnly = true)
     public Project findByName(String name) {
-        Query query = entityManager.createQuery("from Project as p where p.name=:name");
-        query.setParameter("name", name);
-        if (query.getResultList().size() == 0)
-            return null;
-        return (Project) query.getResultList().get(0);
+        Query query = entityManager.createQuery(
+                "from Project as p where p.name=:name"
+        ).setParameter( "name", name );
+
+        List resultList = query.getResultList();
+        return resultList.isEmpty()? null : (Project) resultList.get( 0 );
     }
 
     @Transactional(readOnly = true)
     public Project findByProjectId(String projectId) {
-        Query query = entityManager.createQuery("select p from Project p where p.projectId=:projectId");
-        query.setParameter("projectId", projectId);
-        query.setMaxResults(1);
+        Query query = entityManager.createQuery(
+                "select p from Project p where p.projectId=:projectId"
+        ).setParameter( "projectId", projectId ).setMaxResults( 1 );
+
         List result = query.getResultList();
-        if (result.size() > 0)
-            return (Project) result.get(0);
-        return null;
+        return result.isEmpty() ? null : (Project) result.get(0);
     }
 
     @Transactional
@@ -169,21 +167,13 @@ public class ProjectDAO {
         DictionaryItem item = dictionaryItemDAO.find(12); // Проект
         Project exProject = findByProjectId(project.getProjectId());
         if (exProject != null) {
-            exProject.setActive(project.isActive());
-            exProject.setManager(project.getManager());
-            if (project.getDivisions() != null)
-                exProject.getDivisions().addAll(project.getDivisions());
-            exProject.setState(item);
+            fillProject( exProject, project, item );
             entityManager.merge(exProject);
         } else {
             Project existingProject = findByName(project.getName());
             if (existingProject != null) {
-                existingProject.setProjectId(project.getProjectId());
-                existingProject.setActive(project.isActive());
-                existingProject.setManager(project.getManager());
-                if (project.getDivisions() != null)
-                    existingProject.getDivisions().addAll(project.getDivisions());
-                existingProject.setState(item);
+                fillProject( existingProject, project, item );
+                existingProject.setProjectId( project.getProjectId() );
                 if (trace != null) trace.append("Обновлен проект: ").append(project).append("\n");
                 entityManager.merge(existingProject);
             } else {
@@ -195,5 +185,13 @@ public class ProjectDAO {
                 }
             }
         }
+    }
+
+    private void fillProject( Project exProject, Project project, DictionaryItem item ) {
+        exProject.setActive(project.isActive());
+        exProject.setManager(project.getManager());
+        if (project.getDivisions() != null)
+            exProject.getDivisions().addAll(project.getDivisions());
+        exProject.setState(item);
     }
 }

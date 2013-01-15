@@ -25,8 +25,10 @@ public class HolidayDAO {
 
     public Boolean isWorkDay(String date, Region region) {
         Boolean result = true;
-        Query query = entityManager.createQuery("select h from Holiday as h where h.calDate.calDate=:calDate");
-        query.setParameter("calDate", DateTimeUtil.stringToTimestamp(date));
+        Query query = entityManager.createQuery(
+                "select h from Holiday as h where h.calDate.calDate=:calDate"
+        ).setParameter("calDate", DateTimeUtil.stringToTimestamp(date));
+
         List holidayList = query.getResultList();
 
         for ( Object aHolidayList : holidayList ) {
@@ -39,8 +41,6 @@ public class HolidayDAO {
     }
 
     public Boolean isWorkDay(String date) {
-
         return isWorkDay(date, null);
     }
-
 }

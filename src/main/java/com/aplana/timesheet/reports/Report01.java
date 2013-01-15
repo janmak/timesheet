@@ -26,7 +26,7 @@ public class Report01 extends BaseReport {
 
     @Override
     public JRDataSource prepareDataSource() {
-        return reportDAO.getReport01Data(this);
+        return reportDAO.getReportData(this);
     }
 
     private Integer divisionId;

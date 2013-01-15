@@ -21,7 +21,7 @@ public class Report02 extends BaseReport {
 
     @Override
     public JRDataSource prepareDataSource() {
-        return reportDAO.getReport02Data(this);
+        return reportDAO.getReportData(this);
     }
 
     private boolean filterProjects = true;

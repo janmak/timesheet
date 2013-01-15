@@ -20,27 +20,32 @@ public class RegionDAO {
 
 	public Region find(String regionName) {
 		logger.info("===== RegionName {} =====", regionName);
-		Query query = entityManager.createQuery("from Region as r where r.name =:regionName");
-		query.setParameter("regionName", regionName);
+		Query query = entityManager.createQuery(
+                "from Region as r where r.name =:regionName"
+        ).setParameter( "regionName", regionName );
+
         return ( Region ) query.getResultList().get( 0 );
 	}
 
 	public Region find(Integer regionId) {
-		Query query = entityManager.createQuery("from Region as r where r.id =:regionId");
-		query.setParameter("regionId", regionId);
+		Query query = entityManager.createQuery(
+                "from Region as r where r.id =:regionId"
+        ).setParameter( "regionId", regionId );
+
         return ( Region ) query.getResultList().get( 0 );
 	}
 
 	public Region findRegionByCity(String city) {
 		logger.info("===== City: {} =======",city);
-		Query query = entityManager.createQuery("from Region as r where r.ldapCity like '%'||:city||'%'");
-		query.setParameter("city", city);
+		Query query = entityManager.createQuery(
+                "from Region as r where r.ldapCity like '%'||:city||'%'"
+        ).setParameter( "city", city );
+
         return ( Region ) query.getResultList().get( 0 );
 	}
 
     @SuppressWarnings("unchecked")
 	public List<Region> getRegions() {
-		Query query = entityManager.createQuery("from Region as r");
-        return ( List<Region> ) query.getResultList();
+        return ( List<Region> ) entityManager.createQuery("from Region as r").getResultList();
 	}
 }

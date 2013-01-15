@@ -30,10 +30,9 @@ public class ProjectTaskDAO {
 	@Transactional(readOnly = true)
 	@SuppressWarnings("unchecked")
 	public List<ProjectTask> getProjectTasks(Integer projectId) {
-		Query query = entityManager
-			.createQuery("from ProjectTask as pt where pt.project=:project and pt.active=:active");
-		query.setParameter("project", projectDAO.find(projectId));
-		query.setParameter("active", true);
+		Query query = entityManager.createQuery(
+                "from ProjectTask as pt where pt.project=:project and pt.active=:active"
+        ).setParameter("project", projectDAO.find(projectId)).setParameter("active", true);
 
         return query.getResultList();
 	}
@@ -45,18 +44,15 @@ public class ProjectTaskDAO {
 	@Transactional(readOnly = true)
 	public ProjectTask find(Integer project, String task) {
 		Project proj = projectDAO.findActive(project);
-		ProjectTask result;
 		if (proj == null || task == null) { return null; }
-		Query query = entityManager
-			.createQuery("from ProjectTask as pt where pt.project=:project and cqId=:task and pt.active=:active");
-		query.setParameter("project", proj);
-		query.setParameter("task", task);
-		query.setParameter("active", true);
+
+        Query query = entityManager.createQuery(
+                "from ProjectTask as pt where pt.project=:project and cqId=:task and pt.active=:active"
+        ).setParameter("project", proj).setParameter("task", task).setParameter("active", true);
 		try {
-			result = (ProjectTask) query.getSingleResult();
+			return (ProjectTask) query.getSingleResult();
 		} catch (NoResultException e) {
-			result = null;
+			return null;
 		}
-		return result;
 	}
 }

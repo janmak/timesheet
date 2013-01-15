@@ -21,7 +21,7 @@ public class Report04 extends BaseReport {
 
     @Override
     public JRDataSource prepareDataSource() {
-        return reportDAO.getReport04Data(this);
+        return reportDAO.getReportData(this);
     }
 
     @Override

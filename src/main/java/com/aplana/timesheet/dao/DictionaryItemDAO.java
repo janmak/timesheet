@@ -24,18 +24,20 @@ public class DictionaryItemDAO {
 	@Transactional(readOnly = true)
 	@SuppressWarnings("unchecked")
 	public List<DictionaryItem> getCategoryOfActivity() {
-		Query query = entityManager
-			.createQuery("from DictionaryItem as di where di.dictionary = :dictionary order by di.value desc");
-		query.setParameter("dictionary", dictionaryDAO.find(DictionaryDAO.CATEGORY_OF_ACTIVITY_ID));
+		Query query = entityManager.createQuery(
+                "from DictionaryItem as di where di.dictionary = :dictionary order by di.value desc"
+        ).setParameter("dictionary", dictionaryDAO.find(DictionaryDAO.CATEGORY_OF_ACTIVITY_ID));
+
         return query.getResultList();
 	}
 
 	@Transactional(readOnly = true)
 	@SuppressWarnings("unchecked")
 	public List<DictionaryItem> getTypesOfActivity() {
-		Query query = entityManager
-			.createQuery("from DictionaryItem as di where di.dictionary = :dictionary order by di.value desc");
-		query.setParameter("dictionary", dictionaryDAO.find(DictionaryDAO.TYPES_OF_ACTIVITY_ID));
+		Query query = entityManager.createQuery(
+                "from DictionaryItem as di where di.dictionary = :dictionary order by di.value desc"
+        ).setParameter("dictionary", dictionaryDAO.find(DictionaryDAO.TYPES_OF_ACTIVITY_ID));
+
         return query.getResultList();
 	}
 

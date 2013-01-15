@@ -25,7 +25,6 @@ public class DictionaryDAO {
 	@Transactional(readOnly = true)
 	@SuppressWarnings("unchecked")
 	public List<Dictionary> getDictionaries() {
-		Query query = entityManager.createQuery("from Dictionary");
-        return query.getResultList();
+        return entityManager.createQuery("from Dictionary").getResultList();
 	}
 }

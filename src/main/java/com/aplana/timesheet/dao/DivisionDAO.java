@@ -44,9 +44,10 @@ public class DivisionDAO {
 	@Transactional(readOnly = true)
 	@SuppressWarnings("unchecked")
 	public List<Division> getDivisions() {
-		Query query = entityManager
-			.createQuery("from Division as d where d.active=:active order by d.name asc");
-		query.setParameter("active", true);
+		Query query = entityManager.createQuery(
+                "from Division as d where d.active=:active order by d.name asc"
+        ).setParameter( "active", true );
+
 		return query.getResultList();
 	}
 
@@ -62,17 +63,16 @@ public class DivisionDAO {
 	 */
 	@Transactional(readOnly = true)
 	public Division find(String title) {
-		Division result = null;
-		Query query = entityManager
-			.createQuery("from Division as d where d.active=:active and d.ldapName=:title");
-		query.setParameter("active", true);
-		query.setParameter("title", title);
-		try {
-			result = (Division) query.getSingleResult();
+		Query query = entityManager.createQuery(
+                "from Division as d where d.active=:active and d.ldapName=:title"
+        ).setParameter( "active", true ).setParameter( "title", title );
+
+        try {
+			return  (Division) query.getSingleResult();
 		} catch (NoResultException e) {
 			logger.warn("Department with title '{}' not found.", title);
+            return null;
 		}
-		return result;
 	}
 	
 	/**
@@ -81,38 +81,30 @@ public class DivisionDAO {
 	@Transactional(readOnly = true)
 	@SuppressWarnings("unchecked")
 	public List<Division> getDivisionsAll() {
-		Query query = entityManager
-			.createQuery("from Division as d order by d.name asc");
+		Query query = entityManager.createQuery(
+                "from Division as d order by d.name asc"
+        );
 		return query.getResultList();
 	}
 	
 	public List<DivisionLdap> getDivisionsFromLDAP() {
-		AndFilter filter = new AndFilter();
-		filter.and(new EqualsFilter("objectClass", "group"));
-		filter.and(new LikeFilter("cn", "_Project Center *"));
-		List<DivisionLdap> divisions =ldapTemplate.search("",filter.encode(),new DivisionAttributeMapper());
-		getMembersObjectSid(divisions);
-		return divisions;
+		AndFilter filter = new AndFilter()
+                .and( new EqualsFilter( "objectClass", "group" ) )
+		        .and( new LikeFilter( "cn", "_Project Center *" ) );
+		return getMembersObjectSid(ldapTemplate.search("",filter.encode(),new DivisionAttributeMapper()));
 	}
 	
 	@Transactional(readOnly = false)
 	@SuppressWarnings("unchecked")
-	public StringBuffer setDivision(Division division) {
-		String prefix;
-		StringBuffer sb = new StringBuffer();
-		if(division.getId() == null) {
-			prefix = "Add";
-		} else {
-			prefix = "Update";
-		}
-		sb.append(prefix).append(" division ").append(division.getName()).append("\n");
-		logger.info(sb.toString());
-		entityManager.merge(division);
-		
-		return sb;
-	}
-	
-	@Transactional(readOnly = false)
+	public String setDivision( Division division ) {
+        String message = String.format( "%s division %s \n", division.getId() == null ? "Add" : "Update", division.getName() );
+        logger.info( message );
+        entityManager.merge( division );
+
+        return message;
+    }
+
+    @Transactional(readOnly = false)
 	@SuppressWarnings("unchecked")
 	public StringBuffer setDivision(List<Division> divisions) {
 		StringBuffer sb = new StringBuffer("");
@@ -122,11 +114,11 @@ public class DivisionDAO {
 		return sb;
 	}
 
-	private void getMembersObjectSid(List<DivisionLdap> divisions) {
+	private List<DivisionLdap> getMembersObjectSid(List<DivisionLdap> divisions) {
 		for(DivisionLdap div : divisions){
 			div.setLeaderVerified(false);
 			if (div.getMembers() != null) {
-				ArrayList<String> membersObjectSid = new ArrayList<String>(div.getMembers().size());
+				List<String> membersObjectSid = new ArrayList<String>(div.getMembers().size());
 				for (String distinguishedName : div.getMembers()) {
 					EqualsFilter filter = new EqualsFilter("distinguishedName", distinguishedName);
 					List<String> employeesSid = ldapTemplate.search("", filter.encode(), new MemberMapper());
@@ -143,7 +135,8 @@ public class DivisionDAO {
 				div.setMembers(membersObjectSid);
 			}
 		}
-	}
+        return divisions;
+    }
 	
 	
 	private static class DivisionAttributeMapper implements AttributesMapper {
@@ -176,7 +169,7 @@ public class DivisionDAO {
 					return;
 				}
 			}
-			NamingEnumeration<Object> members= (NamingEnumeration<Object>) membersAttribute.getAll();
+			NamingEnumeration<Object> members = (NamingEnumeration<Object>) membersAttribute.getAll();
 			while(members.hasMore()) {
 				Object hold = members.next();
 				if(hold instanceof String) {
@@ -196,7 +189,6 @@ public class DivisionDAO {
 	}
 
 	private static class MemberMapper implements AttributesMapper {
-
 		@Override
 		public Object mapFromAttributes(Attributes attributes) throws NamingException {
 			return LdapAplanaUtils.getSidAttribute(attributes.get("objectSid"));

@@ -35,17 +35,15 @@ public class ProjectRoleDAO {
 	@Transactional(readOnly = true)
 	public ProjectRole findActive(Integer id) {
 		if (id == null) { return null; }
-		ProjectRole result;
-		Query query = entityManager
-			.createQuery("from ProjectRole as pr where pr.id=:id and pr.active=:active");
-		query.setParameter("active", true);
-		query.setParameter("id", id);
+
+		Query query = entityManager.createQuery(
+                "from ProjectRole as pr where pr.id=:id and pr.active=:active"
+        ).setParameter("active", true).setParameter("id", id);
 		try {
-			result = (ProjectRole) query.getSingleResult();
+			return (ProjectRole) query.getSingleResult();
 		} catch (NoResultException e) {
-			result = null;
+			return null;
 		}
-		return result;
 	}
 	
 	/**
@@ -54,8 +52,10 @@ public class ProjectRoleDAO {
 	@Transactional(readOnly = true)
 	@SuppressWarnings("unchecked")
 	public List<ProjectRole> getProjectRoles() {
-		Query query = entityManager.createQuery("from ProjectRole as pr where pr.active=:active");
-		query.setParameter("active", true);
+		Query query = entityManager.createQuery(
+                "from ProjectRole as pr where pr.active=:active"
+        ).setParameter("active", true);
+
 		return query.getResultList();
 	}
 	
@@ -64,36 +64,37 @@ public class ProjectRoleDAO {
 	 */
 	@Transactional(readOnly = true)
 	public ProjectRole find(String title) {
-		ProjectRole result;
-		Query query = entityManager
-			.createQuery("from ProjectRole as pr where pr.active=:active and pr.ldapTitle like :title");
-		query.setParameter("active", true);
-		query.setParameter("title", "%"+title+"%");
-            try {
-                result = (ProjectRole) query.getSingleResult();
-            } catch (NoResultException e) {
-                result=findByCode("ND");
-            }
-		return result;
+		Query query = entityManager.createQuery(
+                "from ProjectRole as pr where pr.active=:active and pr.ldapTitle like :title"
+        ).setParameter("active", true).setParameter("title", "%"+title+"%");
+        try {
+            return  (ProjectRole) query.getSingleResult();
+        } catch (NoResultException e) {
+            return findByCode("ND");
+        }
 	}
 
     public ProjectRole findByName(String s) {
-        Query query=entityManager.createQuery("FROM ProjectRole AS pr WHERE pr.active=:active AND pr.name like :name");
-        query.setParameter("active", true);
-        query.setParameter("name", "%"+s+"%");
+        Query query=entityManager.createQuery(
+                "FROM ProjectRole AS pr WHERE pr.active=:active AND pr.name like :name"
+        ).setParameter("active", true).setParameter("name", "%"+s+"%");
+
         return (ProjectRole) query.getSingleResult();
     }
 
     public ProjectRole findByCode(String s) {
-        Query query=entityManager.createQuery("FROM ProjectRole AS pr WHERE pr.active=:active AND pr.code=:code");
-        query.setParameter("active", true);
-        query.setParameter("code", s);
+        Query query=entityManager.createQuery(
+                "FROM ProjectRole AS pr WHERE pr.active=:active AND pr.code=:code"
+        ).setParameter("active", true).setParameter("code", s);
+
         return (ProjectRole) query.getResultList().get(0);
     }
 
     public ProjectRole getSysRole(Integer roleId) {
-        Query query=entityManager.createQuery("FROM ProjectRole AS pr WHERE pr.id=:id");
-        query.setParameter("id", roleId);
+        Query query=entityManager.createQuery(
+                "FROM ProjectRole AS pr WHERE pr.id=:id"
+        ).setParameter("id", roleId);
+
         return (ProjectRole) query.getResultList().get(0);
     }
 }
