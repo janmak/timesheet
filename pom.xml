@@ -166,8 +166,14 @@
             <artifactId>jstl</artifactId>
             <version>1.2</version>
         </dependency>
-	
-		<!-- Bean Validation Dependencies -->
+
+        <dependency>
+            <groupId>com.intellij</groupId>
+            <artifactId>annotations</artifactId>
+            <version>9.0.4</version>
+        </dependency>
+
+        <!-- Bean Validation Dependencies -->
 		<dependency>
 			<groupId>javax.validation</groupId>
 			<artifactId>validation-api</artifactId>
@@ -417,11 +423,6 @@
             <groupId>org.apache.poi</groupId>
             <artifactId>poi</artifactId>
             <version>3.9</version>
-        </dependency>
-        <dependency>
-            <groupId>com.intellij</groupId>
-            <artifactId>annotations</artifactId>
-            <version>9.0.4</version>
         </dependency>
 
         <!--   SPNEGO. Не реализовано

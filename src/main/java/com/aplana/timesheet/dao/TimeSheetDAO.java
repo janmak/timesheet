@@ -2,6 +2,7 @@ package com.aplana.timesheet.dao;
 
 import com.aplana.timesheet.dao.entity.*;
 import com.aplana.timesheet.dao.entity.Calendar;
+import com.aplana.timesheet.enums.TypeOfActivity;
 import com.aplana.timesheet.util.TimeSheetConstans;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -107,10 +108,11 @@ public class TimeSheetDAO {
                 map.put(calDate.getTime(), ds);
             } else {
                 DayTimeSheet dts = map.get(calDate.getTime());
+                TypeOfActivity typeOfActivity = TypeOfActivity.getById( actType );
                 if (duration != null
-                        && (TimeSheetConstans.DETAIL_TYPE_OUTPROJECT.equals(actType)
-                        || TimeSheetConstans.DETAIL_TYPE_PRESALE.equals(actType)
-                        || TimeSheetConstans.DETAIL_TYPE_PROJECT.equals(actType))
+                        && (typeOfActivity == TypeOfActivity.NON_PROJECT
+                                || typeOfActivity == TypeOfActivity.PRESALE
+                                || typeOfActivity == TypeOfActivity.PROJECT)
                 ) {
                     dts.setDuration(dts.getDuration().add(duration));
                 }
