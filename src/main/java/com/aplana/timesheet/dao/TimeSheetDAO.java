@@ -108,12 +108,7 @@ public class TimeSheetDAO {
                 map.put(calDate.getTime(), ds);
             } else {
                 DayTimeSheet dts = map.get(calDate.getTime());
-                TypeOfActivity typeOfActivity = TypeOfActivity.getById( actType );
-                if (duration != null
-                        && (typeOfActivity == TypeOfActivity.NON_PROJECT
-                                || typeOfActivity == TypeOfActivity.PRESALE
-                                || typeOfActivity == TypeOfActivity.PROJECT)
-                ) {
+                if (duration != null && TypeOfActivity.isEfficientActivity( actType ) ) {
                     dts.setDuration(dts.getDuration().add(duration));
                 }
             }

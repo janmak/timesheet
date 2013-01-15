@@ -33,6 +33,27 @@ public enum TypeOfActivity {
         return name;
     }
 
+    /**
+     * Проверяет, входит ли тип активности в перечень тех, по которым нужно считать время работы
+     * @param id ид типа работы
+     * @return
+     */
+    public static boolean isEfficientActivity( int id ) {
+        return isEfficientActivity( getById( id ) );
+    }
+
+    /**
+     * Проверяет, входит ли тип активности в перечень тех, по которым нужно считать время работы
+     * @param typeOfActivity тип работы
+     * @return
+     */
+    public static boolean isEfficientActivity( TypeOfActivity typeOfActivity ) {
+        return  typeOfActivity == NON_PROJECT
+                || typeOfActivity == PRESALE
+                || typeOfActivity == PROJECT
+                || typeOfActivity == PROJECT_PRESALE;
+    }
+
     public static TypeOfActivity getById( int id ) {
         for ( TypeOfActivity typeOfActivity : TypeOfActivity.values() ) {
             if ( typeOfActivity.getId() == id ) {
