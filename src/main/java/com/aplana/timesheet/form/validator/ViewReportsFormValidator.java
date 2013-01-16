@@ -12,7 +12,7 @@ import org.springframework.validation.Validator;
 
 
 @Service
-public class ViewReportsFormValidator implements Validator {
+public class ViewReportsFormValidator extends AbstractValidator {
 	private static final Logger logger = LoggerFactory.getLogger(ViewReportsController.class);
 
 	@Autowired
@@ -29,32 +29,31 @@ public class ViewReportsFormValidator implements Validator {
 		logger.debug("Year = {} and Month = {}.", year, month);
 		
 		// Год не выбран.
-		if (year == null || year == 0) {
-			errors.rejectValue("year", 
-					"error.tsform.year.required", 
-					"Не выбран год.");
-		}
-		
-		// Неверный год
-		else if (!isYearValid(year)) {
-			errors.rejectValue("year", 
-					"error.tsform.year.invalid", 
-					"Выбран неверный год.");
-		}
+        if ( isNotChoosed( year ) ) {
+            errors.rejectValue( "year",
+                    "error.tsform.year.required",
+                    "Не выбран год." );
+        }
+        // Неверный год
+        else if ( ! isYearValid( year ) ) {
+            errors.rejectValue( "year",
+                    "error.tsform.year.invalid",
+                    "Выбран неверный год." );
+        }
 		
 		// Месяц не выбран.
-		if (month == null || month == 0) {
-			errors.rejectValue("month", 
-					"error.tsform.month.required", 
-					"Не выбран месяц.");
-		}
-		
-		// Неверный месяц
-		else if(!isMonthValid(year, month)){
-			errors.rejectValue("month", 
-					"error.tsform.month.required", 
-					"Выбран неверный месяц.");
-		}
+        if ( isNotChoosed( month ) ) {
+            errors.rejectValue( "month",
+                    "error.tsform.month.required",
+                    "Не выбран месяц." );
+        }
+
+        // Неверный месяц
+        else if ( ! isMonthValid( year, month ) ) {
+            errors.rejectValue( "month",
+                    "error.tsform.month.required",
+                    "Выбран неверный месяц." );
+        }
 		
 	}
 	private boolean isYearValid(Integer year) {

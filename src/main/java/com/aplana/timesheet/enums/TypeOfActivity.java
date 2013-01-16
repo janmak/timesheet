@@ -54,6 +54,20 @@ public enum TypeOfActivity {
                 || typeOfActivity == PROJECT_PRESALE;
     }
 
+    public static boolean isProjectActivity( TypeOfActivity typeOfActivity ) {
+        return     PROJECT == typeOfActivity
+                || PRESALE == typeOfActivity
+                || PROJECT_PRESALE == typeOfActivity;
+    }
+
+    public static boolean isNotEfficientActivity( int id ) {
+        return ! isEfficientActivity( id );
+    }
+
+    public static boolean isNotEfficientActivity( TypeOfActivity typeOfActivity ) {
+        return ! isEfficientActivity( typeOfActivity );
+    }
+
     public static TypeOfActivity getById( int id ) {
         for ( TypeOfActivity typeOfActivity : TypeOfActivity.values() ) {
             if ( typeOfActivity.getId() == id ) {
