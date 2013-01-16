@@ -399,7 +399,7 @@
                 <th width="120px">Тип активности</th>
                 <th width="200px">Название проекта/пресейла</th>
                 <th width="130px">Проектная роль</th>
-                <th width="170px">Категория активности</th>
+                <th width="170px">Активность</th>
                 <th width="130px">Задача</th>
                 <th width="30px">ч.</th>
                 <th width="200px">Комментарии</th>
