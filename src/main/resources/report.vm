@@ -8,6 +8,7 @@
 	<li><h2><b>Что было сделано:</b></h2></li>
 	<ol>
 	#foreach($tsDetail in $tsDetails)
+        #set ($workplaceId = $"")
 		#set ($actTypeId = $"")
 		#set ($cqId = $"")
 		#set ($duration = $"")
@@ -15,6 +16,7 @@
 		#set ($actCatId = $"")
 		#set ($projectId = $"")
 		#set ($problem = $"")
+        #set ($workplaceId = $tsDetail.getWorkplace().getId())
 		#set ($actTypeId = $tsDetail.getActType().getId())
 		#set ($cqId = $tsDetail.getCqId())
 		#set ($duration = $tsDetail.getDuration())
@@ -30,6 +32,14 @@
 				#set ($isProblems = $true)
 			#end 
 	<li>
+        <b> Место работы:
+            #if ($workplaceId != $null && !$workplaceId.equals($""))
+                $dictionaryItemService.find($workplaceId).getValue()
+            #else
+                Неизвестно
+            #end
+            </br>
+        </b>
 		<b> $dictionaryItemService.find($actTypeId).getValue() </b>
 			#if ($actTypeId <= 13) 
 		<b> $projectName </b>

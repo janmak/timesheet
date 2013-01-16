@@ -10,6 +10,7 @@
 		#set ($cqId = $"")
 		#set ($duration = $"")
 		#set ($description = $"")
+        #set ($workplaceId = $"")
 		#set ($actTypeId = $"")
 		#set ($actCatId = $"")
 		#set ($projectId = $"")
@@ -17,6 +18,7 @@
 		#set ($cqId = $tsRow.getCqId())
 		#set ($duration = $tsRow.getDuration())
 		#set ($description = $tsRow.getDescriptionEscaped())
+        #set ($workplaceId = $tsDetail.getWorkplace().getId())
 		#set ($actTypeId = $tsRow.getActivityTypeId())
 		#set ($actCatId = $tsRow.getActivityCategoryId())
 		#set ($projectId = $tsRow.getProjectId())
@@ -28,6 +30,14 @@
 			#set ($isProblems = $true)
 		#end 
 	<li>
+        <b> Место работы:
+            #if ($workplaceId != $null && !$workplaceId.equals($""))
+                $dictionaryItemService.find($workplaceId).getValue()
+            #else
+                Неизвестно
+            #end
+            </br>
+        </b>
 		<b> $dictionaryItemService.find($actTypeId).getValue() </b>
 		#if ($actTypeId <= 13) 
 		<b> $projectName </b>
