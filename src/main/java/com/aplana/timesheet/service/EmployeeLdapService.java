@@ -93,7 +93,7 @@ public class EmployeeLdapService {
             //archived больше не используется
             if (empDb.getEndDate()==null) {
                 for (EmployeeLdap empLdap : disabledEmployeesLdap) {
-                    if(empDb.getLdap().equals(empLdap.getObjectSid())) {
+                    if(empDb.getEmail().equals(empLdap.getMail())) {
                         logger.debug("Employee {} disabled in ldap, but active in db.", empLdap.getDisplayName());
                         logger.debug("And was marked like archived.");
 
@@ -128,7 +128,7 @@ public class EmployeeLdapService {
         StringBuffer errors = new StringBuffer();
         for (Division division : divisions) {
 			List<EmployeeLdap> divLeader = employeeLdapDao
-				.getDivisionLeader(division.getLeader().getName(), division.getLdapName());
+				.getDivisionLeader(division.getLeader(), division.getLdapName());
 			logger.debug("Division '{}' has {} leader", division.getLdapName(), divLeader.size());
 
             EmployeeLdap managerLdap = divLeader.get(0);
@@ -228,12 +228,17 @@ public class EmployeeLdapService {
     ) {
         Employee employee=new Employee();
 
-        employee.setObjectSid( employeeLdap.getObjectSid() );
         employee.setName( employeeLdap.getDisplayName() );
         employee.setEmail( employeeLdap.getMail().trim() );
         employee.setLdap( employeeLdap.getLdapCn() );
 
-        employee.setRole(projectRoleService.getSysRole(employee.getJob().getId()).getSysRoleId());
+		ProjectRole role = employee.getJob();
+		if (role != null) {
+			ProjectRole sysRole = projectRoleService.getSysRole(employee.getJob().getId());
+			if (sysRole != null) {
+				employee.setRole(sysRole.getSysRoleId());
+			}
+		}
 
         findAndFillJobField( employeeLdap, errors, employee );
         findAndFillRegionField( employeeLdap, errors, employee );
@@ -241,6 +246,9 @@ public class EmployeeLdapService {
         switch ( employeeType ){
             case NEW_EMPLOYEE:
                 employee.setStartDate(DateTimeUtil.stringToTimestamp(DateTimeUtil.increaseDay(DateTimeUtil.currentDay())));
+
+                // Устанавливаем подразделение для сотрудника
+                employee.setDivision( divisionService.find( employeeLdap.getDepartment() ) );
 
                 //берем подразделение и менеджера по подразделению
                 String department=employeeLdap.getDepartment();
@@ -250,7 +258,7 @@ public class EmployeeLdapService {
                     if(findedDivision==null){
                         errors.append( "division(department), " );
                     } else {
-                        Employee manager = employeeService.find(findedDivision.getLeader().getName());
+                        Employee manager = employeeService.find(findedDivision.getLeader());
                         if ( manager == null ) {
                             errors.append( "manager, " );
                         } else {
@@ -265,18 +273,18 @@ public class EmployeeLdapService {
         case  MANAGER:
             employee.setDivision( divisionService.find( employeeLdap.getDepartment() ) );
 
-            Employee empInDbByObjectSid = employeeService.findByObjectSid( employeeLdap.getObjectSid() );
-
-            if (empInDbByObjectSid != null) {
-                employee.setId(empInDbByObjectSid.getId());
-                employee.setStartDate(empInDbByObjectSid.getStartDate());
-                employee.setManager(empInDbByObjectSid.getManager());
+            //Employee empInDbByObjectSid = employeeService.findByObjectSid( employeeLdap.getObjectSid() );
+			Employee empInDbByMail = employeeService.findByEmail( employeeLdap.getMail() );
+            if (empInDbByMail != null) {
+                employee.setId(empInDbByMail.getId());
+                employee.setStartDate(empInDbByMail.getStartDate());
+                employee.setManager(empInDbByMail.getManager());
             //есть сотрудник в БД
             //Миша: для существующих поле манагер не обновлялось, при этом остальные поля должны обновляться
             //сперва должно сравниваться по полю LDAP, если нет то по полю EMAIL, если нет то считать что сотрудник новый и добавлять
             } else {
                 logger.error(employeeLdap.getMail()+"no in db"); //TODO оповещение админа?
-                Employee manager = employeeService.find(division.getLeader().getName());
+                Employee manager = employeeService.find(division.getLeader());
                 employee.setStartDate( DateTimeUtil.ldapDateToTimestamp( employeeLdap.getWhenCreated() ) );
                 employee.setManager(manager);
             }

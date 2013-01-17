@@ -32,18 +32,6 @@
 		<beans:property name="cronExpression" value="${scheduler.ldap}" />
 	</beans:bean>
 
-	<beans:bean id="divisionsServiceJob"
- 		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
-		<beans:property name="targetObject" ref="divisionService" />
-		<beans:property name="targetMethod" value="synchronize" />
-	</beans:bean>
-
-	<beans:bean id="divisionsServiceCronTrigger"
-		class="org.springframework.scheduling.quartz.CronTriggerBean">
-		<beans:property name="jobDetail" ref="divisionsServiceJob" />
-		<beans:property name="cronExpression" value="${scheduler.ldap}" />
-	</beans:bean>
-
 	<beans:bean id="oqProjectSyncServiceJob"
 				class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
 		<beans:property name="targetObject" ref="oqProgectSyncService" />

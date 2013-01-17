@@ -2,7 +2,6 @@ package com.aplana.timesheet.dao;
 
 import com.aplana.timesheet.dao.entity.Division;
 import com.aplana.timesheet.dao.entity.Employee;
-import com.aplana.timesheet.util.DateTimeUtil;
 import org.hibernate.Hibernate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -243,23 +242,4 @@ public class EmployeeDAO {
         trace.append("\n\n");
         return trace;
 	}
-	
-	/**
-	 * Ищет сотрудника по objectSid
-	 */
-	@Transactional(readOnly = true)
-	public Employee findByObjectSid(String ObjectSid) {
-		if ("".equals(ObjectSid)) { return null; }
-		Query query = entityManager.createQuery(
-                "from Employee as e where e.objectSid=:objectSid"
-        ).setParameter("objectSid", ObjectSid);
-		try {
-			return  (Employee) query.getSingleResult();
-		} catch (NoResultException e) {
-			logger.warn("Employee with objectSid '{}' not found.", ObjectSid);
-		} catch (NonUniqueResultException e) {
-			logger.warn("More than one employee with objectSid '{}' was found.", ObjectSid);
-		}
-        return null;
-    }
 }
