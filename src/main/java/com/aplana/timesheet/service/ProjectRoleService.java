@@ -48,7 +48,7 @@ public class ProjectRoleService {
 	}
 	
 	/** Возвращает объект роли, которая не определена. */
-	public ProjectRole getUndefinedRole() {
+	public ProjectRole getUndefinedRole() { //TODO заменить вызовы на установку enum'a
         //роль не определена
         return projectRoleDAO.findByCode("ND");
 	}

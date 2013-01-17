@@ -55,6 +55,7 @@ public class JasperReportService {
         }
         return sb.toString();
     }
+
     public boolean makeReport(TSJasperReport report, int printtype, HttpServletResponse response, HttpServletRequest httpServletRequest) throws JReportBuildError {
 
         report.checkParams();

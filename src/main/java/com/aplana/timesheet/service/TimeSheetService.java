@@ -2,6 +2,7 @@ package com.aplana.timesheet.service;
 
 import com.aplana.timesheet.dao.TimeSheetDAO;
 import com.aplana.timesheet.dao.entity.*;
+import com.aplana.timesheet.enums.TypeOfActivity;
 import com.aplana.timesheet.form.TimeSheetForm;
 import com.aplana.timesheet.form.TimeSheetTableRowForm;
 import com.aplana.timesheet.util.DateTimeUtil;
@@ -111,11 +112,11 @@ public class TimeSheetService {
             Set<TimeSheetDetail> timeSheetDetails = new LinkedHashSet<TimeSheetDetail>();
             TimeSheetDetail timeSheetDetail = new TimeSheetDetail();
             if (tsForm.isLongVacation()) {
-                timeSheetDetail.setActType(dictionaryItemService.find(DictionaryItemService.VACATION_ID));
-                timeSheetDetail.setDescription("Отпуск");
+                timeSheetDetail.setActType( dictionaryItemService.find( TypeOfActivity.VACATION.getId() ) );
+                timeSheetDetail.setDescription( TypeOfActivity.VACATION.getName() );
             } else if (tsForm.isLongIllness()) {
-                timeSheetDetail.setActType(dictionaryItemService.find(DictionaryItemService.ILLNESS_ID));
-                timeSheetDetail.setDescription("Болезнь");
+                timeSheetDetail.setActType( dictionaryItemService.find( TypeOfActivity.ILLNESS.getId() ) );
+                timeSheetDetail.setDescription( TypeOfActivity.ILLNESS.getName() );
             }
             timeSheetDetail.setTimeSheet(timeSheet);
             timeSheetDetails.add(timeSheetDetail);

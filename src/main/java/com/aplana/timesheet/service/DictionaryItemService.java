@@ -9,10 +9,8 @@ import java.util.List;
 
 @Service
 public class DictionaryItemService {
-	public static final Integer VACATION_ID = 16;
-	public static final Integer ILLNESS_ID = 17;
-	
-	@Autowired
+
+    @Autowired
 	private DictionaryItemDAO dictionaryItemDAO;
 
 	public List<DictionaryItem> getCategoryOfActivity() {

@@ -12,11 +12,11 @@ public class DictionaryService {
     @Autowired
     DictionaryDAO dictionaryDAO;
 
-    public Dictionary find(Integer id) {
-	return dictionaryDAO.find(id);
+    public Dictionary find( Integer id ) {
+        return dictionaryDAO.find( id );
     }
 
     public List<Dictionary> getDictionaries() {
-	return dictionaryDAO.getDictionaries();
+        return dictionaryDAO.getDictionaries();
     }
 }

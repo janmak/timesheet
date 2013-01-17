@@ -54,41 +54,41 @@ public class CalendarService
 	 * Формирует список годов, которые есть в таблице списания занятости.	 
 	 * @return список List Calendar.
 	 */
-	public List<Calendar> getYearsList(){
-		Calendar minYear = calendarDAO.getMinMaxDateList().get(0);		
-		Calendar maxYear = calendarDAO.getMinMaxDateList().get(1);
-		List<Calendar> yearList = new ArrayList<Calendar>();
-		yearList.add(0, minYear);
-		int i;
-		if ( ! minYear.equals( maxYear ) ) {
-		for (i=minYear.getYear()+1; i <= maxYear.getYear(); i++){
-			yearList.add(new Calendar( i, 1, calendarDAO.getMonthTxt(1)));
-		}
-		}
-		return yearList;
-	}
+    public List<Calendar> getYearsList() {
+        Calendar minYear = calendarDAO.getMinDateList();
+        int maxYear = calendarDAO.getMaxDateList().getYear();
 
-	/**
+        List<Calendar> yearList = new ArrayList<Calendar>();
+        yearList.add( minYear );
+        if ( minYear.getYear() != maxYear ) {
+            for ( int i = minYear.getYear() + 1; i <= maxYear; i++ ) {
+                yearList.add( new Calendar( i, 1, calendarDAO.getMonthTxt( 1 ) ) );
+            }
+        }
+        return yearList;
+    }
+
+    /**
 	 * Формирует список месяцев, соответствующие годам, которые есть в системе.	 
 	 * @return список List Calendar.
-	 */
-		public List<Calendar> getMonthList(Integer year){
-		List<Calendar> monthList = new ArrayList<Calendar>();
+     */
+    public List<Calendar> getMonthList( Integer year ) {
+        List<Calendar> monthList = new ArrayList<Calendar>();
         List<Integer> tempList = calendarDAO.getMonth( year );
         for ( Integer aTempList : tempList ) {
             monthList.add( new Calendar( year, aTempList, calendarDAO.getMonthTxt( aTempList ) ) );
         }
-		return monthList;
-	}
-	
-	/**
+        return monthList;
+    }
+
+    /**
 	 * Формирует список дней для одного месяца.
 	 * @param year
 	 * @param month
 	 * @return
 	 */
 	public List<Calendar> getDateList(Integer year, Integer month){
-			return calendarDAO.getDateList(year, month);
+        return calendarDAO.getDateList(year, month);
 	}
 	
 	/**
@@ -106,9 +106,9 @@ public class CalendarService
 	 * @param month
 	 * @return
 	 */
-	public boolean monthValid(Integer year, Integer month) {
-		return calendarDAO.monthValid(year, month);
-		}
+    public boolean monthValid( Integer year, Integer month ) {
+        return calendarDAO.monthValid( year, month );
+    }
 
     public Calendar getLastWorkDay(Calendar day, Region region) {
         return calendarDAO.getLastWorkDay(day, region);
@@ -117,6 +117,4 @@ public class CalendarService
     public Calendar getNextWorkDay(Calendar day, Region region) {
         return calendarDAO.getNextWorkDay(day, region);
     }
-
-
 }

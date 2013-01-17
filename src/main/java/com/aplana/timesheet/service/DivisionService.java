@@ -53,32 +53,17 @@ public class DivisionService {
 	}
 	
 	public StringBuffer synchronize() {
-		List<DivisionLdap> withBadLeader = new ArrayList<DivisionLdap>();
-		List<Division> fromDb = divisionDAO.getDivisionsAll();
-		List<DivisionLdap> fromLdap = divisionDAO.getDivisionsFromLDAP();
-		StringBuffer sb = new StringBuffer("");
-		
-		List<Division> forUpdate = new ArrayList<Division>();
+        StringBuffer sb = new StringBuffer();
+
+        List<DivisionLdap> withBadLeader = new ArrayList<DivisionLdap>();
+
+        List<Division> forUpdate = new ArrayList<Division>();
 		List<DivisionLdap> forAppend = new ArrayList<DivisionLdap>();
 		
 		sb.append("Start synchronization divisions.\n\n");
-        for ( DivisionLdap ldapDiv : fromLdap ) {
+        for ( DivisionLdap ldapDiv : divisionDAO.getDivisionsFromLDAP() ) {
             if ( ldapDiv.isLeaderVerified() ) {
-                boolean exist = false;
-                for ( Division dbDiv : fromDb ) {
-                    String dbSid = dbDiv.getLdap_objectSid();
-                    String ldapSid = ldapDiv.getLdapObjectSid();
-                    if ( dbSid != null && dbSid.equals( ldapSid ) ) {
-                        if ( dbDiv.isActive() ) {
-                            if ( updateName( dbDiv, ldapDiv )|| updateLeader( dbDiv, ldapDiv ) ) {
-                                forUpdate.add( dbDiv );
-                            }
-                        }
-                        exist = true;
-                        break;
-                    }
-                }
-                if ( ! exist ) {
+                if ( ! renameMe( forUpdate, ldapDiv ) ) {
                     forAppend.add( ldapDiv );
                 }
             } else {
@@ -94,7 +79,22 @@ public class DivisionService {
 		
 	}
 
-	private boolean updateName(Division dbDiv, DivisionLdap ldapDiv) {
+    private boolean renameMe( List<Division> forUpdate, DivisionLdap ldapDiv ) {
+        List<Division> fromDb = divisionDAO.getDivisionsAll();
+
+        for ( Division dbDiv : fromDb ) {
+            String dbSid = dbDiv.getLdap_objectSid();
+            if ( dbSid != null && dbSid.equals( ldapDiv.getLdapObjectSid() ) ) {
+                if ( dbDiv.isActive() && ( updateName( dbDiv, ldapDiv ) || updateLeader( dbDiv, ldapDiv ) ) ) {
+                    forUpdate.add( dbDiv );
+                }
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean updateName(Division dbDiv, DivisionLdap ldapDiv) {
 		if((dbDiv.getLdapName() == null) || !dbDiv.getLdapName().equals(ldapDiv.getLdap_name())) {
 			dbDiv.setLdapName(ldapDiv.getLdap_name());
 			return true;
@@ -133,16 +133,20 @@ public class DivisionService {
 		StringBuffer sb = new StringBuffer();
 		for(DivisionLdap ldapDiv : forAppend) {
 			Division division = new Division();
-			division.setName(ldapDiv.getLdap_name());
-			division.setLdapName(ldapDiv.getLdap_name());
-			division.setLdap_objectSid(ldapDiv.getLdapObjectSid());
-			Employee leader = employeeService.findByObjectSid(ldapDiv.getLeaderSid());
-			if(leader == null) {
+
+            division.setName            (ldapDiv.getLdap_name());
+			division.setLdapName        (ldapDiv.getLdap_name());
+			division.setLdap_objectSid  (ldapDiv.getLdapObjectSid());
+
+            Employee leader = employeeService.findByObjectSid(ldapDiv.getLeaderSid());
+            division.setLeader(leader);
+
+            if(leader == null) {
 				logger.debug("div name {}", ldapDiv.getLdap_name());
 				logger.debug("not found leader sid {}", ldapDiv.getLeaderSid());
 			}
-			division.setLeader(leader);
-			Set<Employee> employees = getEmpoyees(ldapDiv.getMembers());
+
+            Set<Employee> employees = getEmpoyees(ldapDiv.getMembers());
 			division.setEmployees(employees);
 			division.setActive(true);
 			sb.append(divisionDAO.setDivision(division));

@@ -8,6 +8,7 @@ import com.aplana.timesheet.dao.entity.Region;
 import com.aplana.timesheet.dao.entity.ldap.EmployeeLdap;
 import com.aplana.timesheet.util.DateTimeUtil;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -243,7 +244,7 @@ public class EmployeeLdapService {
 
                 //берем подразделение и менеджера по подразделению
                 String department=employeeLdap.getDepartment();
-                if( department!=null && ! department.equals( "" ) ) {
+                if( StringUtils.isNotBlank(department) ) {
                     //если не найдет внутри find стоит
                     Division findedDivision=divisionService.find(department);
                     if(findedDivision==null){
