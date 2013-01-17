@@ -246,6 +246,9 @@ public class EmployeeLdapService {
             case NEW_EMPLOYEE:
                 employee.setStartDate(DateTimeUtil.stringToTimestamp(DateTimeUtil.increaseDay(DateTimeUtil.currentDay())));
 
+                // Устанавливаем подразделение для сотрудника
+                employee.setDivision( divisionService.find( employeeLdap.getDepartment() ) );
+
                 //берем подразделение и менеджера по подразделению
                 String department=employeeLdap.getDepartment();
                 if( department!=null && ! department.equals( "" ) ) {
