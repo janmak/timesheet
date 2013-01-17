@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Controller
@@ -51,8 +50,8 @@ public class TimeSheetController {
     EmployeeLdapService employeeLdapService;
     @Autowired
     SecurityService securityService;
-	@Autowired
-	EmployeeHelper employeeHelper;
+    @Autowired
+    EmployeeHelper employeeHelper;
     @Autowired
     ViewReportHelper viewReportHelper;
 
@@ -86,6 +85,7 @@ public class TimeSheetController {
         mav.addObject("selectedProjectRolesJson", "[{row:'0', role:''}]");
         mav.addObject("selectedProjectTasksJson", "[{row:'0', task:''}]");
         mav.addObject("selectedProjectsJson", "[{row:'0', project:''}]");
+        mav.addObject("selectedWorkplaceJson", "[{row:'0', workplace:''}]");
         mav.addObject("selectedActCategoriesJson", "[{row:'0', actCat:''}]");
         mav.addObject("selectedLongVacationIllnessJson", getSelectedLongVacationIllnessJson(tsForm));
 
@@ -127,6 +127,7 @@ public class TimeSheetController {
             mavWithErrors.addObject("selectedProjectsJson", getSelectedProjectsJson(tsForm));
             mavWithErrors.addObject("selectedProjectRolesJson", getSelectedProjectRolesJson(tsForm));
             mavWithErrors.addObject("selectedProjectTasksJson", getSelectedProjectTasksJson(tsForm));
+            mavWithErrors.addObject("selectedWorkplaceJson", getSelectedWorkplaceJson(tsForm));
             mavWithErrors.addObject("selectedActCategoriesJson", getSelectedActCategoriesJson(tsForm));
             mavWithErrors.addObject("selectedLongVacationIllnessJson", getSelectedLongVacationIllnessJson(tsForm));
             mavWithErrors.addObject("selectedCalDateJson", getSelectedCalDateJson(tsForm));
@@ -158,6 +159,7 @@ public class TimeSheetController {
             mavWithErrors.addObject("selectedProjectTasksJson", "[{row:'0', task:''}]");
             mavWithErrors.addObject("selectedProjectsJson", "[{row:'0', project:''}]");
             mavWithErrors.addObject("selectedActCategoriesJson", "[{row:'0', actCat:''}]");
+            mavWithErrors.addObject("selectedWorkplace", "[{row:'0', workplace:''}]");
             mavWithErrors.addObject("selectedCalDateJson", "''");
             mavWithErrors.addObject("selectedLongVacationIllnessJson", getSelectedLongVacationIllnessJson(tsForm));
             mavWithErrors.addAllObjects(getListsToMAV());
@@ -170,7 +172,7 @@ public class TimeSheetController {
         ModelAndView mav = new ModelAndView("selected");
         mav.addObject("timeSheetForm", tsForm);
         logger.info("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
-        
+
 
         return mav;
     }
@@ -205,18 +207,18 @@ public class TimeSheetController {
       */
     private Map<String, Object> getListsToMAV() {
         Map<String, Object> result = new HashMap<String, Object>();
+
         List<DictionaryItem> typesOfActivity = dictionaryItemService.getTypesOfActivity();
-        StringBuilder typesOfActivityJson = new StringBuilder();
-        typesOfActivityJson.append("[");
-        for (DictionaryItem item : typesOfActivity) {
-            typesOfActivityJson.append("{id:'");
-            typesOfActivityJson.append(item.getId().toString());
-            typesOfActivityJson.append("', value:'");
-            typesOfActivityJson.append(item.getValue());
-            typesOfActivityJson.append("'},");
-        }
         result.put("actTypeList", typesOfActivity);
-        result.put("actTypeJson", typesOfActivityJson.toString().substring(0, (typesOfActivityJson.toString().length() - 1)) + "]");
+
+        String typesOfActivityJson = getDictionaryItemsInJson(typesOfActivity);
+        result.put("actTypeJson", typesOfActivityJson);
+
+        List<DictionaryItem> workplaces = dictionaryItemService.getWorkplaces();
+        result.put("workplaceList", workplaces);
+
+        String workplacesJson = getDictionaryItemsInJson(workplaces);
+        result.put("workplaceJson", workplacesJson);
 
         List<Division> divisions = divisionService.getDivisions();
         result.put("divisionList", divisions);
@@ -224,17 +226,11 @@ public class TimeSheetController {
         result.put("employeeListJson", employeeHelper.getEmployeeListJson(divisions));
 
         List<DictionaryItem> categoryOfActivity = dictionaryItemService.getCategoryOfActivity();
-        StringBuilder actCategoryListJson = new StringBuilder();
-        actCategoryListJson.append("[");
-        for (DictionaryItem item : categoryOfActivity) {
-            actCategoryListJson.append("{id:'");
-            actCategoryListJson.append(item.getId().toString());
-            actCategoryListJson.append("', value:'");
-            actCategoryListJson.append(item.getValue());
-            actCategoryListJson.append("'},");
-        }
         result.put("actCategoryList", categoryOfActivity);
-        result.put("actCategoryListJson", actCategoryListJson.toString().substring(0, (actCategoryListJson.toString().length() - 1)) + "]");
+
+        String actCategoryListJson = getDictionaryItemsInJson(categoryOfActivity);
+        result.put("actCategoryListJson", actCategoryListJson);
+
         result.put("availableActCategoriesJson", getAvailableActCategoriesJson());
 
         result.put("projectListJson", projectService.getProjectListJson(divisions));
@@ -262,6 +258,22 @@ public class TimeSheetController {
         result.put("projectRoleListJson", projectRoleListJson.toString().substring(0, (projectRoleListJson.toString().length() - 1)) + "]");
 
         return result;
+    }
+
+    private String getDictionaryItemsInJson(List<DictionaryItem> items) {
+        StringBuilder builder = new StringBuilder();
+        builder.append("[");
+        for (DictionaryItem item : items) {
+            builder.append("{id:'");
+            builder.append(item.getId().toString());
+            builder.append("', value:'");
+            builder.append(item.getValue());
+            builder.append("'},");
+        }
+        builder.deleteCharAt(builder.length() - 1);
+        builder.append("]");
+
+        return builder.toString();
     }
 
     private String getProjectTaskListJson(List<Project> projects) {
@@ -353,6 +365,25 @@ public class TimeSheetController {
         return sb.toString();
     }
 
+    private String getSelectedWorkplaceJson(TimeSheetForm tsForm) {
+        StringBuilder sb = new StringBuilder();
+        List<TimeSheetTableRowForm> tablePart = tsForm.getTimeSheetTablePart();
+        if (tablePart != null) {
+            sb.append("[");
+            for (int i = 0; i < tablePart.size(); i++) {
+                sb.append("{row:'").append(i).append("', ");
+                sb.append("workplace:'").append(tablePart.get(i).getWorkplaceId()).append("'}");
+                if (i < (tablePart.size() - 1)) {
+                    sb.append(", ");
+                }
+            }
+            sb.append("]");
+        } else {
+            sb.append("[{row:'0', workplace:''}]");
+        }
+        return sb.toString();
+    }
+
     private String getSelectedActCategoriesJson(TimeSheetForm tsForm) {
         StringBuilder sb = new StringBuilder();
         List<TimeSheetTableRowForm> tablePart = tsForm.getTimeSheetTablePart();
@@ -429,7 +460,7 @@ public class TimeSheetController {
 
     @RequestMapping(value = "/timesheet/dates", headers = "Accept=application/json")
     public @ResponseBody String reportDates(@RequestParam("queryYear") Integer queryYear, @RequestParam("queryMonth") Integer queryMonth, @RequestParam("employeeId") Integer employeeId) {
-            return viewReportHelper.getDateReportsListJson(queryYear, queryMonth, employeeId);
+        return viewReportHelper.getDateReportsListJson(queryYear, queryMonth, employeeId);
     }
     /**
      * Возвращает планы предыдущего дня и на следующего дня

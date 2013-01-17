@@ -12,6 +12,7 @@ public class TimeSheetTableRowForm {
 	private Integer activityTypeId;
 	private Integer activityCategoryId;
 	private Integer projectRoleId;
+    private Integer workplaceId;
 
 	public Integer getProjectRoleId() {
 		return projectRoleId;
@@ -93,5 +94,13 @@ public class TimeSheetTableRowForm {
     public String getProblemEscaped()
     {
         return StringEscapeUtils.escapeHtml4(this.problem);
+    }
+
+    public Integer getWorkplaceId() {
+        return workplaceId;
+    }
+
+    public void setWorkplaceId(Integer workplaceId) {
+        this.workplaceId = workplaceId;
     }
 }

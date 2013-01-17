@@ -1,5 +1,6 @@
 package com.aplana.timesheet.service;
 
+import com.aplana.timesheet.dao.DictionaryDAO;
 import com.aplana.timesheet.dao.DictionaryItemDAO;
 import com.aplana.timesheet.dao.entity.DictionaryItem;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,14 +15,18 @@ public class DictionaryItemService {
 	private DictionaryItemDAO dictionaryItemDAO;
 
 	public List<DictionaryItem> getCategoryOfActivity() {
-		return dictionaryItemDAO.getCategoryOfActivity();
+		return dictionaryItemDAO.getItemsByDictionaryId(DictionaryDAO.CATEGORY_OF_ACTIVITY_ID);
 	}
 
 	public List<DictionaryItem> getTypesOfActivity() {
-		return dictionaryItemDAO.getTypesOfActivity();
+		return dictionaryItemDAO.getItemsByDictionaryId(DictionaryDAO.TYPES_OF_ACTIVITY_ID);
 	}
 
 	public DictionaryItem find(Integer id) {
 		return dictionaryItemDAO.find(id);
 	}
+
+    public List<DictionaryItem> getWorkplaces() {
+        return dictionaryItemDAO.getItemsByDictionaryId(DictionaryDAO.WORKPLACE_ID);
+    }
 }

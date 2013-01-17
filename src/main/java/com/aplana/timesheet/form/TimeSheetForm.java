@@ -113,5 +113,4 @@ public class TimeSheetForm
     {
         return StringEscapeUtils.escapeHtml4(this.plan);
     }
-
 }

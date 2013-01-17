@@ -73,6 +73,7 @@ public class TimeSheetService {
             TimeSheetDetail timeSheetDetail = new TimeSheetDetail();
             timeSheetDetail.setTimeSheet(timeSheet);
             timeSheetDetail.setActType(dictionaryItemService.find(formRow.getActivityTypeId()));
+            timeSheetDetail.setWorkplace(dictionaryItemService.find(formRow.getWorkplaceId()));
             if (formRow.getActivityCategoryId() != null) {
                 timeSheetDetail.setActCat(dictionaryItemService.find(formRow.getActivityCategoryId()));
             } else {

@@ -13,6 +13,7 @@
     <script type="text/javascript">
         dojo.require("dijit.form.DateTextBox");
         dojo.require("dijit.Calendar");
+        var workplaceList = ${workplaceJson};
         var actTypeList = ${actTypeJson};
         var projectList = ${projectListJson};
         var actCategoryList = ${actCategoryListJson};
@@ -24,6 +25,7 @@
         var selectedProjectTasks = ${selectedProjectTasksJson};
         var selectedProjectRoles = ${selectedProjectRolesJson};
         var selectedActCategories = ${selectedActCategoriesJson};
+        var selectedWorkplace = ${selectedWorkplaceJson};
         var selectedLongVacationIllness = ${selectedLongVacationIllnessJson};
         var selectedCalDate = ${selectedCalDateJson};
         var root = window.addEventListener || window.attachEvent ? window : document.addEventListener ? document : null;
@@ -396,6 +398,7 @@
                     </a>
                 </th>
                 <th width="20px">№</th>
+                <th width="100px">Место работы</th>
                 <th width="120px">Тип активности</th>
                 <th width="200px">Название проекта/пресейла</th>
                 <th width="130px">Проектная роль</th>
@@ -419,6 +422,15 @@
 
                         </td>
                         <td class="text_center_align row_number"><c:out value="${row.index + 1}"/></td>
+                        <td class="top_align"> <!-- Место работы -->
+                            <form:select path="timeSheetTablePart[${row.index}].workplaceId"
+                                         id="workplace_id_${row.index}" onchange="workplaceChange(this)"
+                                         cssClass="workplaceType" onmouseover="tooltip.show(getTitle(this));"
+                                         onmouseout="tooltip.hide();">
+                                <form:option label="" value="0"/>
+                                <form:options items="${workplaceList}" itemLabel="value" itemValue="id"/>
+                            </form:select>
+                        </td>
                         <td class="top_align"> <!-- Тип активности -->
                             <form:select path="timeSheetTablePart[${row.index}].activityTypeId"
                                          id="activity_type_id_${row.index}" onchange="typeActivityChange(this)"

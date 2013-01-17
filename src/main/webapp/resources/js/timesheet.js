@@ -74,13 +74,35 @@ function addNewRow() {
     var rowNumCell = newTsRow.insertCell(1);
     dojo.addClass(rowNumCell, "text_center_align row_number");
     rowNumCell.innerHTML = tsRowCount + 1;
+    // Ячейка с местом работы
+    var workplaceCell = newTsRow.insertCell(2);
+    dojo.addClass(workplaceCell, "top_align");
+    var workplaceSelect = dojo.doc.createElement("select");
+    dojo.attr(workplaceSelect, {
+        id:"workplace_id_" + newRowIndex,
+        name:"timeSheetTablePart[" + newRowIndex + "].workplaceId"
+    });
+    dojo.addClass(workplaceSelect, "workplace");
+    insertEmptyOption(workplaceSelect);
+    for (var i = 0; i < workplaceList.length; i++) {
+        var workplaceOption = dojo.doc.createElement("option");
+        dojo.attr(workplaceOption, {
+            value:workplaceList[i].id
+        });
+        workplaceOption.title = workplaceList[i].value;
+
+        workplaceOption.innerHTML = workplaceList[i].value;
+        workplaceSelect.appendChild(workplaceOption);
+    }
+    workplaceCell.appendChild(workplaceSelect);
     // Ячейка с типами активности
-    var actTypeCell = newTsRow.insertCell(2);
+    var actTypeCell = newTsRow.insertCell(3);
     dojo.addClass(actTypeCell, "top_align");
     var actTypeSelect = dojo.doc.createElement("select");
     dojo.attr(actTypeSelect, {
         id:"activity_type_id_" + newRowIndex,
-        name:"timeSheetTablePart[" + newRowIndex + "].activityTypeId"
+        name:"timeSheetTablePart[" + newRowIndex + "].activityTypeId",
+        disabled:true  //todo может нужно, чтобы кнопка выключалась в другом месте?
     });
     dojo.addClass(actTypeSelect, "activityType");
     insertEmptyOption(actTypeSelect);
@@ -96,7 +118,7 @@ function addNewRow() {
     }
     actTypeCell.appendChild(actTypeSelect);
     // Ячейка с названиями проектов/пресейлов
-    var projectNameCell = newTsRow.insertCell(3);
+    var projectNameCell = newTsRow.insertCell(4);
     dojo.addClass(projectNameCell, "top_align");
     var projectSelect = dojo.doc.createElement("select");
     dojo.attr(projectSelect, {
@@ -106,7 +128,7 @@ function addNewRow() {
     insertEmptyOption(projectSelect);
     projectNameCell.appendChild(projectSelect);
     // Ячейка с проектной ролью
-    var projectRoleCell = newTsRow.insertCell(4);
+    var projectRoleCell = newTsRow.insertCell(5);
     dojo.addClass(projectRoleCell, "top_align");
     var projectRoleSelect = dojo.doc.createElement("select");
     dojo.attr(projectRoleSelect, {
@@ -127,7 +149,7 @@ function addNewRow() {
     sortSelectOptions(projectRoleSelect);
     projectRoleCell.appendChild(projectRoleSelect);
     // Ячейка с категорией активности
-    var actCatCell = newTsRow.insertCell(5);
+    var actCatCell = newTsRow.insertCell(6);
     dojo.addClass(actCatCell, "top_align");
     var actCatSelect = dojo.doc.createElement("select");
     dojo.attr(actCatSelect, {
@@ -137,7 +159,7 @@ function addNewRow() {
     insertEmptyOption(actCatSelect);
     actCatCell.appendChild(actCatSelect);
     // Ячейка с проектными задачами
-    var projectTasksCell = newTsRow.insertCell(6);
+    var projectTasksCell = newTsRow.insertCell(7);
     dojo.addClass(projectTasksCell, "top_align");
     var projectTasksSelect = dojo.doc.createElement("select");
     dojo.attr(projectTasksSelect, {
@@ -147,7 +169,7 @@ function addNewRow() {
     insertEmptyOption(projectTasksSelect);
     projectTasksCell.appendChild(projectTasksSelect);
     // Ячейка с часами
-    var durationCell = newTsRow.insertCell(7);
+    var durationCell = newTsRow.insertCell(8);
     dojo.addClass(durationCell, "top_align");
     var durationInput = dojo.doc.createElement("input");
     dojo.attr(durationInput, {
@@ -159,7 +181,7 @@ function addNewRow() {
     dojo.addClass(durationInput, "text_right_align duration");
     durationCell.appendChild(durationInput);
     // Ячейка с комментариями
-    var descriptionCell = newTsRow.insertCell(8);
+    var descriptionCell = newTsRow.insertCell(9);
     dojo.addClass(descriptionCell, "top_align");
     var descriptionTextarea = dojo.doc.createElement("textarea");
     dojo.attr(descriptionTextarea, {
@@ -171,7 +193,7 @@ function addNewRow() {
     });
     descriptionCell.appendChild(descriptionTextarea);
     // Ячейка с проблемами
-    var problemCell = newTsRow.insertCell(9);
+    var problemCell = newTsRow.insertCell(10);
     dojo.addClass(problemCell, "top_align");
     var problemTextarea = dojo.doc.createElement("textarea");
     dojo.attr(problemTextarea, {
@@ -201,6 +223,7 @@ function addNewRow() {
     //для задачи
     dojo.connect(projectTasksSelect, "onmouseover", projectTasksSelect, showTooltip);
     dojo.connect(projectTasksSelect, "onmouseout", projectTasksSelect, hideTooltip);
+    dojo.connect(workplaceSelect, "onchange", workplaceSelect, workplaceChange);
     dojo.connect(actTypeSelect, "onchange", actTypeSelect, typeActivityChange);
     dojo.connect(projectSelect, "onchange", projectSelect, projectChange);
     dojo.connect(projectRoleSelect, "onchange", projectRoleSelect, projectRoleChange);
@@ -481,6 +504,29 @@ function divisionChange(obj) {
     }
 }
 
+function workplaceChange(obj) {
+    if (obj.target == null) {
+        select = obj;
+    }
+    else {
+        select = obj.target;
+    }
+    var selectId = dojo.attr(select, "id");
+    var rowIndex = selectId.substring(selectId.lastIndexOf("_") + 1, selectId.length);
+    if ((select.value == "-1") || (select.value == "0")) {
+        dojo.attr("activity_type_id_" + rowIndex, {
+            disabled:"disabled",
+            value:"0"
+        });
+        resetRowState(rowIndex, true);
+    }
+    else {
+        dojo.attr("activity_type_id_" + rowIndex, {
+            disabled:false
+        });
+    }
+}
+
 /*
  * Срабатывает при смене значения в списке "Тип активности".
  * Управляет доступностью компонентов соответсвующей строки
@@ -739,6 +785,15 @@ function reloadRowsState() {
         var actTypeSelect = dojo.byId("activity_type_id_" + i);
         typeActivityChange(actTypeSelect);
         var projectSelect = dojo.byId("project_id_" + i);
+
+        var workplaceSelect = dojo.byId("workplace_id_" + i);
+        for (var l = 0; l < selectedWorkplace.length; l++) {
+            if (selectedWorkplace[l].row == i) {
+                dojo.attr(projectSelect, { value:selectedProjects[l].project });
+            }
+        }
+        workplaceChange(workplaceSelect);
+
         if (dojo.attr(projectSelect, "disabled") != "disabled") {
             for (var k = 0; k < selectedProjects.length; k++) {
                 if (selectedProjects[k].row == i) {

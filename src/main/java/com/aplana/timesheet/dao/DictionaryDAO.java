@@ -13,6 +13,7 @@ import java.util.List;
 public class DictionaryDAO {
 	public static final Integer CATEGORY_OF_ACTIVITY_ID = 1;
 	public static final Integer TYPES_OF_ACTIVITY_ID = 2;
+    public static final Integer WORKPLACE_ID = 5;
 
 	@PersistenceContext
 	private EntityManager entityManager;

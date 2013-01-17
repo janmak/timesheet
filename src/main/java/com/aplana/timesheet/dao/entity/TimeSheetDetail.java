@@ -19,6 +19,11 @@ public class TimeSheetDetail {
 	@ForeignKey(name = "FK_TIME_SHEET")
 	private TimeSheet timeSheet;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "workplace_id")
+    @ForeignKey(name = "FK_TIME_SHEET_WORKPLACE")
+    private DictionaryItem workplace;
+
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "act_type")
 	@ForeignKey(name = "FK_TIME_SHEET_TYPE")
@@ -172,6 +177,14 @@ public class TimeSheetDetail {
 
     public void setProjectTask(ProjectTask projectTask) {
         this.projectTask = projectTask;
+    }
+
+    public DictionaryItem getWorkplace() {
+        return workplace;
+    }
+
+    public void setWorkplace(DictionaryItem workplace) {
+        this.workplace = workplace;
     }
 
     @Override
