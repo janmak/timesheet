@@ -14,6 +14,16 @@
 <script type="text/javascript">
     dojo.ready(function () {
         dojo.require("dijit.form.DateTextBox");
+
+        var filter = dojo.byId("allRegions");
+        var target = "regionIds";
+        dojo.connect(filter, "onchange", function () {
+            if (filter.checked) {
+                dojo.attr(target, {disabled:"disabled"});
+            } else {
+                dojo.removeAttr(target, "disabled");
+            }
+        })
     });
 </script>
 

@@ -24,6 +24,16 @@
 				fillEmployeeListByDivision(reportForm.emplDivisionId);
 				reportForm.employeeId.value = selectedEmployee;
 				reportForm.projectId.value = "${reportForm.projectId}";
+
+                var filter = dojo.byId("allRegions");
+                var target = "regionIds";
+                dojo.connect(filter, "onchange", function () {
+                    if (filter.checked) {
+                        dojo.attr(target, {disabled:"disabled"});
+                    } else {
+                        dojo.removeAttr(target, "disabled");
+                    }
+                })
 			});
 		
 			var projectList = ${projectListJson};

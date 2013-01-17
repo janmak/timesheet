@@ -19,6 +19,16 @@
         reportForm.divisionId.value = <sec:authentication property="principal.employee.division.id"/>;
 
         divisionChange(reportForm.divisionId);
+
+        var filter = dojo.byId("allRegions");
+        var target = "regionIds";
+        dojo.connect(filter, "onchange", function () {
+            if (filter.checked) {
+                dojo.attr(target, {disabled:"disabled"});
+            } else {
+                dojo.removeAttr(target, "disabled");
+            }
+        })
     });
 	var employeeList = ${employeeListJson};
 </script>

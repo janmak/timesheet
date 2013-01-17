@@ -17,6 +17,16 @@
         dojo.require("dijit.form.DateTextBox");
 
         reportForm.divisionId.value = <sec:authentication property="principal.employee.division.id"/>;
+
+        var filter = dojo.byId("allRegions");
+        var target = "regionIds";
+        dojo.connect(filter, "onchange", function () {
+            if (filter.checked) {
+                dojo.attr(target, {disabled:"disabled"});
+            } else {
+                dojo.removeAttr(target, "disabled");
+            }
+        })
     });
 </script>
 
@@ -88,7 +98,7 @@
                     Все регионы
             </span>
             </div>
-        <span class="without_dojo">
+        <span>
             <form:select id="regionIds" name="regionIds"
                          onmouseover="tooltip.show(getTitle(this));"
                          onmouseout="tooltip.hide();" path="regionIds" multiple="true"
