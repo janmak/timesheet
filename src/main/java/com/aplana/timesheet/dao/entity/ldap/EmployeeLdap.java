@@ -9,7 +9,6 @@ public class EmployeeLdap {
 	private String whenCreated;
 	private String city;
 	private String ldapCn;
-	private String objectSid;
 	
 	public String getDepartment() { return department; }
 	public void setDepartment(String department) { this.department = department; }
@@ -45,13 +44,5 @@ public class EmployeeLdap {
 				.append(" whenCreated=").append(whenCreated)
 				.append(" city=").append(city)
 			.toString();
-	}
-
-	public String getObjectSid() {
-		return objectSid;
-	}
-
-	public void setObjectSid(String objectSid) {
-		this.objectSid = objectSid;
 	}
 }

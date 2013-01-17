@@ -1,7 +1,6 @@
 package com.aplana.timesheet.dao;
 
 import com.aplana.timesheet.dao.entity.ldap.EmployeeLdap;
-import com.aplana.timesheet.dao.entity.ldap.LdapAplanaUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ldap.NameNotFoundException;
@@ -103,10 +102,6 @@ public class EmployeeLdapDAO {
 			if(ldapCn != null)
 				employee.setLdapCn(ldapCn.get().toString());
 			
-			Attribute objectSid = attributes.get("objectSid");
-            if (objectSid != null)
-			    employee.setObjectSid(LdapAplanaUtils.getSidAttribute(objectSid));
-
 			return employee;
 		}
 
