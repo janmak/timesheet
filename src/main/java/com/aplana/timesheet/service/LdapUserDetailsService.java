@@ -3,6 +3,7 @@ package com.aplana.timesheet.service;
 import com.aplana.timesheet.controller.TimeSheetController;
 import com.aplana.timesheet.dao.EmployeeDAO;
 import com.aplana.timesheet.dao.entity.Employee;
+import com.aplana.timesheet.enums.SystemRole;
 import com.aplana.timesheet.util.TimeSheetUser;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -33,19 +34,19 @@ public class LdapUserDetailsService implements UserDetailsContextMapper {
     private EmployeeLdapService employeeLdapService;
 
     public void fillAuthority(Employee employee, List<GrantedAuthority> list) {
-        switch (employee.getRole()) {
-            case Employee.EMPLOYEE_ROLE_MANAGER: {
-                list.add(new SimpleGrantedAuthority("ROLE_MANAGER"));
-                list.add(new SimpleGrantedAuthority("ROLE_USER"));
+        switch ( SystemRole.getById( employee.getRole() ) ) {
+            case MANAGER: {
+                list.add( new SimpleGrantedAuthority( "ROLE_MANAGER" ) );
+                list.add( new SimpleGrantedAuthority( "ROLE_USER" ) );
                 break;
             }
-            case Employee.EMPLOYEE_ROLE_ADMIN: {
-                list.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
-                list.add(new SimpleGrantedAuthority("ROLE_USER"));
+            case SYSTEM_ENGINEER: {
+                list.add( new SimpleGrantedAuthority( "ROLE_ADMIN" ) );
+                list.add( new SimpleGrantedAuthority( "ROLE_USER" ) );
                 break;
             }
             default:
-                list.add(new SimpleGrantedAuthority("ROLE_USER"));
+                list.add( new SimpleGrantedAuthority( "ROLE_USER" ) );
         }
 
     }

@@ -5,7 +5,7 @@ package com.aplana.timesheet.enums;
  * @version 1.0
  */
 public enum SystemRole {
-    LEADER(1), SYSTEM_ENGINEER(2), OTHER(0);
+    MANAGER(1), SYSTEM_ENGINEER(2), OTHER(0);
 
     private int id;
 
@@ -15,5 +15,14 @@ public enum SystemRole {
 
     public int getId() {
         return id;
+    }
+
+    public static SystemRole getById( int id ) {
+        for ( SystemRole systemRole : SystemRole.values() ) {
+            if ( systemRole.getId() == id ) {
+                return systemRole;
+            }
+        }
+        return null;
     }
 }

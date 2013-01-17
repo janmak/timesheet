@@ -14,10 +14,6 @@ import java.util.Calendar;
 @Table(name = "employee", uniqueConstraints = @UniqueConstraint(columnNames = {"name", "job", "division"}))
 public class Employee {
 
-    public static final int EMPLOYEE_ROLE_USER = 0;
-    public static final int EMPLOYEE_ROLE_MANAGER = 1;
-    public static final int EMPLOYEE_ROLE_ADMIN = 2;
-
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "emp_seq")
     @SequenceGenerator(name = "emp_seq", sequenceName = "emp_seq", allocationSize = 10)
