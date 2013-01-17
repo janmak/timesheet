@@ -270,9 +270,11 @@ public class TimeSheetController {
             builder.append(item.getValue());
             builder.append("'},");
         }
-        builder.deleteCharAt(builder.length() - 1);
-        builder.append("]");
+        if (builder.length() > 1) {
+            builder.deleteCharAt(builder.length() - 1);
+        }
 
+        builder.append("]");
         return builder.toString();
     }
 
