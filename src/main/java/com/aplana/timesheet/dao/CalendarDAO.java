@@ -3,7 +3,6 @@ package com.aplana.timesheet.dao;
 import com.aplana.timesheet.dao.entity.Calendar;
 import com.aplana.timesheet.dao.entity.Region;
 import com.aplana.timesheet.util.DateTimeUtil;
-import org.hibernate.Hibernate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
@@ -14,8 +13,6 @@ import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -41,11 +38,17 @@ public class CalendarDAO {
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<Calendar> getMinMaxDateList() {		
+	public Calendar getMinDateList() {
+        Calendar min = ( Calendar ) entityManager.createQuery("SELECT min(c) as min FROM Calendar as c").getResultList().get( 0 );
+        logger.info( "getMinMaxYearsList MIN {}", min.toString() );
+        return min;
+    }
+
+	@SuppressWarnings("unchecked")
+	public Calendar getMaxDateList() {
 		Calendar max = ( Calendar ) entityManager.createQuery("SELECT max(c) as max FROM Calendar as c").getResultList().get( 0 );
-		Calendar min = ( Calendar ) entityManager.createQuery("SELECT min(c) as min FROM Calendar as c").getResultList().get( 0 );
-		logger.info( "getMinMaxYearsList MIN {} MAX {}", min.toString(), max.toString() );
-		return Arrays.asList( min, max );
+        logger.info( "getMinMaxYearsList MAX {}", max.toString() );
+		return max;
 	}
 
 	public String getMonthTxt (Integer month){

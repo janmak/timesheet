@@ -8,7 +8,7 @@ public enum TypeOfActivity {
 
     TIME_OFF_FOR_OVERTIME( 24, "Отгул за переработки" ),
     VACATION( 16, "Отпуск" ),
-    DISEASE( 17, "Болезнь" ),
+    ILLNESS( 17, "Болезнь" ),
     HOLIDAY( 18, "Нерабочий день" ),
     PROJECT( 12, "Проект" ),
     PRESALE( 13, "Пресейл" ),

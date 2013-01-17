@@ -93,7 +93,7 @@ public abstract class BaseReport implements TSJasperReport {
 	 * @return Возвращает список регионов упакованных в строку.
 	 */
 	//TODO переделать на использование библиотек (ApacheCommons или Guava)
-	public static String wellFormedRegionList(List<String> regionNames) {
+	public String wellFormedRegionList() {
 		StringBuilder sb = new StringBuilder();
 		boolean first = true;
 		for(String rName : regionNames) {

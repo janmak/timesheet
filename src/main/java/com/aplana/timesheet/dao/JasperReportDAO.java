@@ -354,7 +354,7 @@ public class JasperReportDAO {
             query.setParameter("regionIds", report.getRegionIds());
         if (withEmployeeClasue)
             query.setParameter("emplId", report.getEmployeeId());
-        if (withRegionClause)
+        if (withDivisionClause)
             query.setParameter("emplDivisionId", report.getEmplDivisionId());
 
         query.setParameter("beginDate", DateTimeUtil.stringToTimestamp( report.getBeginDate() ));
@@ -363,7 +363,7 @@ public class JasperReportDAO {
         return query.getResultList();
     }
 
-    private List gerResultList( Report04 report ) {
+    private List getResultList( Report04 report ) {
         boolean withRegionClause   = report.hasRegions()                && !report.isAllRegions();
         boolean withDivisionClause = report.getDivisionId() != null && report.getDivisionId() != 0;
 
@@ -374,36 +374,36 @@ public class JasperReportDAO {
                         "empl.region.name " +
                 "from " +
                         "Calendar c, " +
-                        "Employee empl," +
+                        "Employee empl " +
                         "join empl.division d "  +
                 "where " +
                         "c.calDate between :beginDate and " +
                         "(CASE  WHEN empl.endDate IS NOT NULL THEN " +
-                        "   CASE  WHEN empl.endDate < :endDate THEN " +
+                        "   (CASE  WHEN empl.endDate < :endDate THEN " +
                         "       empl.endDate " +
-                        "   ELSE :endDate END " +
+                        "   ELSE :endDate END) " +
                         "ELSE :endDate END) AND " +
                         ( withDivisionClause ? DIVISION_CLAUSE : WITHOUT_CLAUSE ) +
                         ( withRegionClause   ? REGION_CLAUSE   : WITHOUT_CLAUSE ) +
                         "(empl.notToSync = false) AND " +
-                        "emp.manager.id is not null AND " +
+                        "empl.manager.id is not null AND " +
                         "c.calDate not in " +
                             "(select ts.calDate.calDate " + //note: date don't have report
                             "from TimeSheet ts " +
-                            "where ts.employee.id = emp.id) AND " +
+                            "where ts.employee.id = empl.id) AND " +
                         "c.calDate not in " +
                             "(select h.calDate.calDate " +  //note: date is not holiday in employee's region
                             "from Holiday h " +
                             "where h.region.id is null " +
-                                "or  h.region.id = emp.region.id ) AND " +
-                        "(emp.startDate <= c.calDate) " +
-                "order by emp.name, c.calDate");
+                                "or  h.region.id = empl.region.id ) AND " +
+                        "(empl.startDate <= c.calDate) " +
+                "order by empl.name, c.calDate");
 
         if (withRegionClause) {
             query.setParameter("regionIds", report.getRegionIds());
 		}
         if (withDivisionClause) {
-            query.setParameter("divisionId", report.getDivisionId());
+            query.setParameter("emplDivisionId", report.getDivisionId());
         }
         query.setParameter("beginDate", DateTimeUtil.stringToTimestamp( report.getBeginDate() ));
         query.setParameter("endDate", DateTimeUtil.stringToTimestamp(report.getEndDate()));

@@ -7,8 +7,6 @@ import com.aplana.timesheet.form.ViewReportsForm;
 import com.aplana.timesheet.form.validator.ViewReportsFormValidator;
 import com.aplana.timesheet.service.*;
 import com.aplana.timesheet.util.EmployeeHelper;
-import java.text.SimpleDateFormat;
-import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +17,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
+
+import java.util.List;
 
 @Controller
 public class ViewReportsController {
@@ -52,7 +52,8 @@ public class ViewReportsController {
             @PathVariable("year") Integer year, 
             @PathVariable("month") Integer month, 
             @ModelAttribute("viewReportsForm") ViewReportsForm tsForm, 
-            BindingResult result) {
+            BindingResult result
+    ) {
         logger.info("year {}, month {}", year, month);
         tsFormValidator.validate(tsForm, result);
 
