@@ -18,11 +18,9 @@ import java.io.File;
 import java.io.FileOutputStream;
 
 /**
- * Created with IntelliJ IDEA.
  * User: eyaroslavtsev
  * Date: 03.08.12
  * Time: 14:13
- * To change this template use File | Settings | File Templates.
  */
 public class LoginProblemSender extends MailSender {
 

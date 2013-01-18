@@ -68,7 +68,7 @@ public class LdapUserDetailsService implements UserDetailsContextMapper {
                 logger.warn("Employee add in DB {}", email);
                 String errors = employeeLdapService.synchronizeOneEmployee(email);
                 if (errors != null) {
-                    if (errors != "") {
+                    if ( ! errors.equals( "" ) ) {
                         String errorsSub = errors.substring(0, errors.lastIndexOf(','));
 
                         throw new BadCredentialsException("Авторизация выполнена успешно, но не удалось определить следующие параметры: <br>" + errorsSub);
@@ -79,9 +79,7 @@ public class LdapUserDetailsService implements UserDetailsContextMapper {
                     throw new BadCredentialsException("В LDAP что-то изменилось. попробуйте еще раз");
             }
 
-            TimeSheetUser user = new TimeSheetUser(employee, list);
-
-            return user;
+            return new TimeSheetUser(employee, list);
         } catch (RuntimeException e) {
             if (!(e instanceof AuthenticationException)) {
                 logger.error("Неопознанная ошибка при авторизации", e);

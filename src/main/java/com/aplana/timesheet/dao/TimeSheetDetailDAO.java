@@ -18,7 +18,7 @@ public class TimeSheetDetailDAO {
 
 	@Transactional
 	public void storeTimeSheetDetail(TimeSheetDetail timeSheetDetail) {
-		TimeSheetDetail tsdMerged = (TimeSheetDetail) entityManager.merge(timeSheetDetail);
+		TimeSheetDetail tsdMerged = entityManager.merge(timeSheetDetail);
 		logger.info("timeSheetDetail merged.");
 		entityManager.flush();
 		logger.info("Persistence context synchronized to the underlying database.");

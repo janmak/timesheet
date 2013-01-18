@@ -256,15 +256,15 @@ public class JasperReportController {
 		if(regionIds != null && regionIds.size() != 0) {
 			
 			ArrayList<String> regionNames = new ArrayList<String>(regionIds.size());
-			for(int index = 0; index < regionIds.size(); index++) {
-				Region region = regionService.find(regionIds.get(index));
-				String rName = "";
-				if(region != null) {
-					rName = region.getName();
-				}
-				
-				regionNames.add(rName);
-			}
+            for ( Integer regionId : regionIds ) {
+                Region region = regionService.find( regionId );
+                String rName = "";
+                if ( region != null ) {
+                    rName = region.getName();
+                }
+
+                regionNames.add( rName );
+            }
 			
 			report.setRegionNames(regionNames);
 		}

@@ -1,11 +1,9 @@
 package com.aplana.timesheet.form.validator;
 
 /**
- * Created with IntelliJ IDEA.
  * User: eyaroslavtsev
  * Date: 03.08.12
  * Time: 11:33
- * To change this template use File | Settings | File Templates.
  */
 import com.aplana.timesheet.form.AdminMessageForm;
 import org.springframework.stereotype.Service;
@@ -37,13 +35,11 @@ public class AdminMessageFormValidator implements Validator {
         }
     }
     private boolean isDescriptionValid(String description) {
-        if(description==null || description=="")
-            return false;
-        else return true;
+        return ! ( description == null || description.equals( "" ) );
     }
 
     private boolean isEmailValid(String email) {
-        Pattern pattern = Pattern.compile("[a-zA-Z]{1}[a-zA-Z\\d\\u002E\\u005F]+@([a-zA-Z]+\\u002E){1,2}((net)|(com)|(org)|(ru))");
+        Pattern pattern = Pattern.compile("[a-zA-Z][a-zA-Z\\d\\u002E\\u005F]+@([a-zA-Z]+\\u002E){1,2}((net)|(com)|(org)|(ru))");
         Matcher matcher = pattern.matcher(email);
         return matcher.matches();
     }

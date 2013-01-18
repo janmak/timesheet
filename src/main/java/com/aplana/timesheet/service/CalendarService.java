@@ -60,9 +60,9 @@ public class CalendarService
 		List<Calendar> yearList = new ArrayList<Calendar>();
 		yearList.add(0, minYear);
 		int i;
-		if (minYear != maxYear) {
+		if ( ! minYear.equals( maxYear ) ) {
 		for (i=minYear.getYear()+1; i <= maxYear.getYear(); i++){
-			yearList.add(new Calendar(Integer.valueOf(i),1, calendarDAO.getMonthTxt(1)));
+			yearList.add(new Calendar( i, 1, calendarDAO.getMonthTxt(1)));
 		}
 		}
 		return yearList;
@@ -74,11 +74,10 @@ public class CalendarService
 	 */
 		public List<Calendar> getMonthList(Integer year){
 		List<Calendar> monthList = new ArrayList<Calendar>();
-		List<Integer> tempList = new ArrayList<Integer>();
-			tempList = calendarDAO.getMonth(year);
-			for (int j=0; j<tempList.size(); j++ ){
-				monthList.add(new Calendar(year, tempList.get(j),calendarDAO.getMonthTxt(tempList.get(j))));
-			}
+        List<Integer> tempList = calendarDAO.getMonth( year );
+        for ( Integer aTempList : tempList ) {
+            monthList.add( new Calendar( year, aTempList, calendarDAO.getMonthTxt( aTempList ) ) );
+        }
 		return monthList;
 	}
 	

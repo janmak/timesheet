@@ -38,7 +38,7 @@ public class JasperReportService {
     private final HashMap<String, JasperReport> compiledReports = new HashMap<String, JasperReport>();
 
     private String toUTF8String(String s) throws UnsupportedEncodingException {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         for (int i = 0; i < s.length(); i++) {
             char c = s.charAt(i);
             if (c >= 0 && c <= 255 && !Character.isWhitespace(c)) {
@@ -46,10 +46,10 @@ public class JasperReportService {
             } else {
                 byte[] b;
                 b = Character.toString(c).getBytes("utf-8");
-                for (int j = 0; j < b.length; j++) {
-                    int k = b[j];
-                    if (k < 0) k += 256;
-                    sb.append("%" + Integer.toHexString(k).toUpperCase());
+                for ( byte aB : b ) {
+                    int k = aB;
+                    if ( k < 0 ) k += 256;
+                    sb.append( "%" ).append( Integer.toHexString( k ).toUpperCase() );
                 }
             }
         }
@@ -100,16 +100,18 @@ public class JasperReportService {
             {
                 String agent = httpServletRequest.getHeader("user-agent");
                 String contentDisposition = "attachment; filename=\"" + toUTF8String(reportNameFile+suffix) + "\"";
-                if (agent.indexOf("Firefox") != -1)
-                    contentDisposition = "attachment; filename=\"" + MimeUtility.encodeText(reportNameFile+suffix, "UTF8", "B") + "\"";
+                if ( agent.contains( "Firefox" ) ) {
+                    contentDisposition = "attachment; filename=\"" + MimeUtility.encodeText( reportNameFile + suffix, "UTF8", "B" ) + "\"";
+                }
 
                 response.setHeader("Content-Disposition",contentDisposition);
             }
             else {
                 String agent = httpServletRequest.getHeader("user-agent");
                 String contentDisposition = "filename=\"" + toUTF8String(reportNameFile+suffix) + "\"";
-                if (agent.indexOf("Firefox") != -1)
-                    contentDisposition = "filename=\"" + MimeUtility.encodeText(reportNameFile+suffix, "UTF8", "B") + "\"";
+                if ( agent.contains( "Firefox" ) ) {
+                    contentDisposition = "filename=\"" + MimeUtility.encodeText( reportNameFile + suffix, "UTF8", "B" ) + "\"";
+                }
 
                 response.setHeader("Content-Disposition",contentDisposition);
             }

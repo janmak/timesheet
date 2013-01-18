@@ -82,7 +82,7 @@ public class FeedbackController {
 			return mavWithErrors;
 		}
 		//Если ошибок нет
-		fbForm.setFeedbackTypeName(messageSource.getMessage(FEEDBACK_TYPE_NAME_KEYS[fbForm.getFeedbackType().intValue()], null, locale));
+		fbForm.setFeedbackTypeName(messageSource.getMessage(FEEDBACK_TYPE_NAME_KEYS[ fbForm.getFeedbackType() ], null, locale));
 		sendMailService.performFeedbackMailing(fbForm);
 		ModelAndView mav = new ModelAndView("feedbackSent");
 		//сохраняем ID подразделения и сотрудника для будущей формы

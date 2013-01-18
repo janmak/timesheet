@@ -38,8 +38,8 @@ public class ReportCheckDAO{
 		query.setParameter("emp", employee);
 		List<ReportCheck> result = query.getResultList();
 		logger.debug("getDayEmpReportCheck List<ReportCheck> result size = {}", result.size());
-		if (result.size() == 0)  return null; 
-			return result.get(0);
+
+        return result.isEmpty() ? null : result.get(0);
 	}
 /**
  * Заносит в базу запись по пропущенным отчетам
@@ -47,18 +47,17 @@ public class ReportCheckDAO{
  */
 	@Transactional
 	public void setReportCheck(ReportCheck reportCheck) {
-		ReportCheck existedReportCheck = new ReportCheck();
-		existedReportCheck = getDayEmpReportCheck(reportCheck.getCheckDate(),reportCheck.getEmployee());
-		logger.info("reportcheck {} found in base",existedReportCheck);
+        ReportCheck existedReportCheck = getDayEmpReportCheck( reportCheck.getCheckDate(), reportCheck.getEmployee() );
+        logger.info("reportcheck {} found in base",existedReportCheck);
 		if ( existedReportCheck == null){
-			ReportCheck rcheckMerged = (ReportCheck) entityManager.merge(reportCheck);
+			ReportCheck rcheckMerged = entityManager.merge(reportCheck);
 			logger.info("reportcheck merged.");
 			entityManager.flush();
 			logger.info("Persistence context synchronized to the underlying database.");
 			logger.debug("Flushed ReportCheck object id = {}", rcheckMerged.getId());
-			}
-		else  
-			logger.warn("Record already exist in database!");
+        } else {
+            logger.warn( "Record already exist in database!" );
+        }
 	}
 /**
  * Заносит в базу записи по пропущенным отчетам в виде списка

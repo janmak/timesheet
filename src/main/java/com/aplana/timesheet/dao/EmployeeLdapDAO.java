@@ -1,10 +1,8 @@
 package com.aplana.timesheet.dao;
 
 import com.aplana.timesheet.dao.entity.ldap.EmployeeLdap;
-import com.aplana.timesheet.dao.entity.ldap.LdapAplanaUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ldap.NameNotFoundException;
 import org.springframework.ldap.core.AttributesMapper;
 import org.springframework.ldap.core.DistinguishedName;
@@ -91,43 +89,26 @@ public class EmployeeLdapDAO {
     private class EmployeeAttributeMapper implements AttributesMapper {
 		public Object mapFromAttributes(Attributes attributes) throws NamingException {
 			EmployeeLdap employee = new EmployeeLdap();
-			Attribute department = attributes.get("department");
-			if (department != null) {
-				employee.setDepartment(((String) department.get()));
-			}			
-			Attribute displayName = attributes.get("displayName");
-			if (displayName != null) {
-				employee.setDisplayName(((String) displayName.get()));
-			}
-			Attribute mail = attributes.get("mail");
-			if (mail != null) {
-				employee.setMail(((String) mail.get()));
-			}
-			Attribute manager  = attributes.get("manager");
-			if (manager != null) {
-				employee.setManager(((String) manager.get()));
-			}
-			Attribute title = attributes.get("title");
-			if (title != null) {
-				employee.setTitle(((String) title.get()));
-			}
-			Attribute whenCreated = attributes.get("whenCreated");
-			if (whenCreated != null) {
-				employee.setWhenCreated((String) whenCreated.get());
-			}
-			Attribute city = attributes.get("l");
-			if (city != null) {
-				employee.setCity((String) city.get());
-			}
-			Attribute ldapCn = attributes.get("distinguishedname");
+
+            employee.setDepartment  ( getAttributeByName( attributes, "department" ) );
+            employee.setDisplayName ( getAttributeByName( attributes, "displayName" ));
+            employee.setMail        ( getAttributeByName( attributes, "mail" ));
+		    employee.setManager     ( getAttributeByName( attributes, "manager" ) );
+            employee.setTitle       ( getAttributeByName( attributes, "title" ) );
+            employee.setWhenCreated ( getAttributeByName( attributes, "whenCreated" ) );
+            employee.setCity        ( getAttributeByName( attributes, "l" ) );
+
+            Attribute ldapCn = attributes.get("distinguishedname");
 			if(ldapCn != null)
 				employee.setLdapCn(ldapCn.get().toString());
 			
-			Attribute objectSid = attributes.get("objectSid");
-            if (objectSid != null)
-			    employee.setObjectSid(LdapAplanaUtils.getSidAttribute(objectSid));
-
 			return employee;
 		}
-	}
+
+        private String getAttributeByName( Attributes attributes, String attributeName ) throws NamingException {
+            Attribute department = attributes.get( attributeName );
+
+            return department != null ? ( String ) department.get() : null;
+        }
+    }
 }

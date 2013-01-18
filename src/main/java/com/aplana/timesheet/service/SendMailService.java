@@ -2,7 +2,6 @@ package com.aplana.timesheet.service;
 
 import com.aplana.timesheet.dao.DictionaryItemDAO;
 import com.aplana.timesheet.dao.entity.*;
-import com.aplana.timesheet.dao.entity.ldap.DivisionLdap;
 import com.aplana.timesheet.form.*;
 import com.aplana.timesheet.service.MailSenders.*;
 import com.aplana.timesheet.util.DateTimeUtil;
@@ -95,7 +94,7 @@ public class SendMailService{
         } //Нет проектов\пресейлов, нет и менеджеров.
         for (TimeSheetTableRowForm tsRow : tsRows) {
             Integer actTypeId = tsRow.getActivityTypeId();
-            if (actTypeId == DictionaryItemDAO.PROJECTS_ID || actTypeId == DictionaryItemDAO.PRESALES_ID) {
+            if ( actTypeId.equals( DictionaryItemDAO.PROJECTS_ID ) || actTypeId.equals( DictionaryItemDAO.PRESALES_ID ) ) {
                 Integer projectId = tsRow.getProjectId();
                 Integer projectManagerId = projectService.find(projectId).getManager().getId();
                 String projEmail = employeeService.find(projectManagerId).getEmail();
@@ -117,7 +116,7 @@ public class SendMailService{
         Set<TimeSheetDetail> details = timeSheet.getTimeSheetDetails();
         for (TimeSheetDetail detail : details) {
             Integer actTypeId = detail.getActType().getId();
-            if (actTypeId == DictionaryItemDAO.PROJECTS_ID || actTypeId == DictionaryItemDAO.PRESALES_ID) {
+            if ( actTypeId.equals( DictionaryItemDAO.PROJECTS_ID ) || actTypeId.equals( DictionaryItemDAO.PRESALES_ID ) ) {
                 Integer projectId = detail.getProject().getId();
                 Integer projectManagerId = projectService.find(projectId).getManager().getId();
                 String projEmail = employeeService.find(projectManagerId).getEmail();
@@ -147,7 +146,7 @@ public class SendMailService{
         }
         for (TimeSheetTableRowForm tsRow : tsRows) {
             Integer actTypeId = tsRow.getActivityTypeId();
-            if (actTypeId == DictionaryItemDAO.PROJECTS_ID || actTypeId == DictionaryItemDAO.PRESALES_ID) {
+            if ( actTypeId.equals( DictionaryItemDAO.PROJECTS_ID ) || actTypeId.equals( DictionaryItemDAO.PRESALES_ID ) ) {
                 Integer projectId = tsRow.getProjectId();
                 logger.debug("project id: {} ", projectId);
                 logger.debug("projectRole id: {} ", tsRow.getProjectRoleId());
@@ -158,9 +157,9 @@ public class SendMailService{
                     Integer participantRole = participant.getProjectRole().getId();
                     Integer participantId = participant.getEmployee().getId();
                     logger.debug("Project participant {} has role: {} ", participantId, participantRole);
-                    if (participantRole == ProjectRoleService.PROJECT_MANAGER) {
+                    if ( participantRole.equals( ProjectRoleService.PROJECT_MANAGER ) ) {
                         emails.append(participant.getEmployee().getEmail()).append(",");
-                    } else if (participantRole == ProjectRoleService.PROJECT_LEADER) {
+                    } else if ( participantRole.equals( ProjectRoleService.PROJECT_LEADER ) ) {
                         if (Arrays.asList(
                                 ProjectRoleService.PROJECT_DESIGNER
                                 , ProjectRoleService.PROJECT_DEVELOPER
@@ -169,7 +168,7 @@ public class SendMailService{
                                 .contains(tsRow.getProjectRoleId())) {
                             emails.append(participant.getEmployee().getEmail()).append(",");
                         }
-                    } else if (participantRole == ProjectRoleService.PROJECT_ANALYST) {
+                    } else if ( participantRole.equals( ProjectRoleService.PROJECT_ANALYST ) ) {
                         if (Arrays.asList(
                                 ProjectRoleService.PROJECT_ANALYST
                                 , ProjectRoleService.PROJECT_TECH_WRITER)
@@ -196,15 +195,15 @@ public class SendMailService{
         Integer actTypeId, projectId;
         for (TimeSheetDetail detail : details) {
             actTypeId = detail.getActType().getId();
-            if (actTypeId == DictionaryItemDAO.PROJECTS_ID || actTypeId == DictionaryItemDAO.PRESALES_ID) {
+            if ( actTypeId.equals( DictionaryItemDAO.PROJECTS_ID ) || actTypeId.equals( DictionaryItemDAO.PRESALES_ID ) ) {
                 projectId = detail.getProject().getId();
                 List<ProjectParticipant> participants = projectService.getParticipants(projectService.find(projectId));
                 for (ProjectParticipant participant : participants) {
                     Integer participantRole = participant.getProjectRole().getId();
                     Integer participantId = participant.getEmployee().getId();
-                    if (participantRole == ProjectRoleService.PROJECT_MANAGER) {
+                    if ( participantRole.equals( ProjectRoleService.PROJECT_MANAGER ) ) {
                         emails.append(participant.getEmployee().getEmail()).append(",");
-                    } else if (participantRole == ProjectRoleService.PROJECT_LEADER) {
+                    } else if ( participantRole.equals( ProjectRoleService.PROJECT_LEADER ) ) {
                         if (Arrays.asList(
                                 ProjectRoleService.PROJECT_DESIGNER
                                 , ProjectRoleService.PROJECT_DEVELOPER
@@ -213,7 +212,7 @@ public class SendMailService{
                                 .contains(detail.getProjectRole().getId())) {
                             emails.append(participant.getEmployee().getEmail()).append(",");
                         }
-                    } else if (participantRole == ProjectRoleService.PROJECT_ANALYST) {
+                    } else if ( participantRole.equals( ProjectRoleService.PROJECT_ANALYST ) ) {
                         if (Arrays.asList(
                                 ProjectRoleService.PROJECT_ANALYST
                                 , ProjectRoleService.PROJECT_TECH_WRITER)
@@ -300,14 +299,4 @@ public class SendMailService{
         return VelocityEngineUtils.mergeTemplateIntoString(
                 velocityEngine, "report.vm", model);
     }
-	
-	public void sendAdminAlert(List<DivisionLdap> divisions){
-		MailUtils.loadMailConfig(mailConfig);
-
-        AdminAlerSender adminAlerSender = new AdminAlerSender(this);
-
-		adminAlerSender.sendAlert(divisions);
-	}
-	
-
 }

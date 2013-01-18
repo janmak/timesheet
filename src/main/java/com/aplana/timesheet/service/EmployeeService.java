@@ -120,11 +120,4 @@ public class EmployeeService {
     public List<Employee> getRegionManager(Integer employeeId) {
         return this.employeeDAO.getRegionManager(employeeId);
     }
-	
-	/**
-	 * Ищет сотрудника по objectSid
-	 */
-	public Employee findByObjectSid(String ObjectSid) {
-		return employeeDAO.findByObjectSid(ObjectSid);
-	}
 }

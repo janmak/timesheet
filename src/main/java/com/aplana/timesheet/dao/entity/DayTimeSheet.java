@@ -135,10 +135,7 @@ public class DayTimeSheet implements Comparable<DayTimeSheet> {
      * @return
      */
     public Boolean getStatusNotStart() {
-        if (this.getWorkDay() && this.getEmp().getStartDate().after(this.getCalDate())) {
-            return true;
-        }
-        return false;
+        return this.getWorkDay() && this.getEmp().getStartDate().after( this.getCalDate() );
     }
 
     /**
@@ -146,10 +143,7 @@ public class DayTimeSheet implements Comparable<DayTimeSheet> {
      * @return
      */
     public Boolean getStatusNotCome() {
-        if (!this.getStatusHoliday() && this.getCurrent().before(this.getCalDate())) {
-            return true;
-        }
-        return false;
+        return ! this.getStatusHoliday() && this.getCurrent().before( this.getCalDate() );
     }
 
     /**
@@ -158,10 +152,7 @@ public class DayTimeSheet implements Comparable<DayTimeSheet> {
      * @return
      */
     public Boolean getStatusNormalDay() {
-        if (this.getWorkDay() && this.getTimeSheet() != null) {
-            return true;
-        }
-        return false;
+        return this.getWorkDay() && this.getTimeSheet() != null;
     }
 
     /**
@@ -169,10 +160,7 @@ public class DayTimeSheet implements Comparable<DayTimeSheet> {
      * @return 
      */
     public Boolean getStatusNoReport() {
-        if (!this.getStatusNotCome() && this.getWorkDay() && this.getTimeSheet() == null && !this.getStatusNotStart()) {
-            return true;
-        }
-        return false;
+        return ! this.getStatusNotCome() && this.getWorkDay() && this.getTimeSheet() == null && ! this.getStatusNotStart();
     }
 
     /**
@@ -180,10 +168,7 @@ public class DayTimeSheet implements Comparable<DayTimeSheet> {
      * @return 
      */
     public Boolean getStatusWorkOnHoliday() {
-        if (!this.getWorkDay() && this.getTimeSheet() != null) {
-            return true;
-        }
-        return false;
+        return ! this.getWorkDay() && this.getTimeSheet() != null;
     }
 
     /**
@@ -191,9 +176,44 @@ public class DayTimeSheet implements Comparable<DayTimeSheet> {
      * @return 
      */
     public Boolean getStatusHoliday() {
-        if (!this.getWorkDay() && this.getTimeSheet() == null) {
-            return true;
-        }
-        return false;
+        return ! this.getWorkDay() && this.getTimeSheet() == null;
+    }
+
+    @Override
+    public boolean equals( Object o ) {
+        if ( this == o ) return true;
+        if ( ! ( o instanceof DayTimeSheet ) ) return false;
+
+        DayTimeSheet that = ( DayTimeSheet ) o;
+
+        if ( ! act_type.equals( that.act_type ) ) return false;
+        if ( ! calDate.equals( that.calDate ) ) return false;
+        if ( ! current.equals( that.current ) ) return false;
+        if ( ! duration.equals( that.duration ) ) return false;
+        if ( ! emp.equals( that.emp ) ) return false;
+        if ( ! id.equals( that.id ) ) return false;
+        if ( ! isLoadDuration.equals( that.isLoadDuration ) ) return false;
+        if ( ! isLoadTimeSheet.equals( that.isLoadTimeSheet ) ) return false;
+        if ( ! timeSheet.equals( that.timeSheet ) ) return false;
+        if ( ! timeSheetDAO.equals( that.timeSheetDAO ) ) return false;
+        if ( ! workDay.equals( that.workDay ) ) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = timeSheetDAO.hashCode();
+        result = 31 * result + emp.hashCode();
+        result = 31 * result + calDate.hashCode();
+        result = 31 * result + current.hashCode();
+        result = 31 * result + workDay.hashCode();
+        result = 31 * result + id.hashCode();
+        result = 31 * result + act_type.hashCode();
+        result = 31 * result + isLoadDuration.hashCode();
+        result = 31 * result + duration.hashCode();
+        result = 31 * result + isLoadTimeSheet.hashCode();
+        result = 31 * result + timeSheet.hashCode();
+        return result;
     }
 }

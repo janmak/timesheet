@@ -115,7 +115,7 @@ public class MailSender {
             sysProperties.put("mail.smtp.port", "25");
         }
         Authenticator auth = new SMTPAuthenticator();
-        Session session = null;
+        Session session;
         if (Boolean.parseBoolean(sendMailService.mailConfig.getProperty("mail.smtp.auth"))) {
             session = Session.getInstance(sysProperties, auth);
         } else {

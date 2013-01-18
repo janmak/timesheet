@@ -30,9 +30,7 @@ public class FeedbackSender extends MailSender {
         if (tsForm.getEmail() != null && (!tsForm.getEmail().isEmpty())) {
             try {
                 ccAddress = new InternetAddress(tsForm.getEmail());
-                if (ccAddress != null)
-                    message.setRecipients(MimeMessage.RecipientType.CC, new InternetAddress[]{ccAddress});
-                else message.setRecipients(MimeMessage.RecipientType.CC, new InternetAddress[]{fromAddr});
+                message.setRecipients(MimeMessage.RecipientType.CC, new InternetAddress[]{ccAddress});
             } catch (MessagingException e) {
                 logger.error("Employee email address has wrong format.", e);
             }
@@ -52,9 +50,7 @@ public class FeedbackSender extends MailSender {
         try {
             fromAddr = new InternetAddress(employeeEmail);
 
-            if (fromAddr != null) {
-                message.setFrom(fromAddr);
-            }
+            message.setFrom(fromAddr);
             message.setRecipients(MimeMessage.RecipientType.TO, toAddr);
 
         } catch (MessagingException e) {
@@ -100,19 +96,19 @@ public class FeedbackSender extends MailSender {
         try {
             messageText.setText(bodyTxt.toString(), "UTF-8", "html");
             multiPart.addBodyPart(messageText);
-            for (int i = 0; i < paths.length; i++) {
-                if ((paths[i] != null) && (!paths[i].isEmpty())) {
+            for ( MultipartFile path : paths ) {
+                if ( ( path != null ) && ( ! path.isEmpty() ) ) {
                     MimeBodyPart attach = new MimeBodyPart();
-                    File f = File.createTempFile("tmp_", paths[i].getOriginalFilename());
-                    FileOutputStream fw = new FileOutputStream(f);
-                    fw.write(paths[i].getBytes());
+                    File f = File.createTempFile( "tmp_", path.getOriginalFilename() );
+                    FileOutputStream fw = new FileOutputStream( f );
+                    fw.write( path.getBytes() );
                     fw.close();
 
-                    DataSource file = new FileDataSource(f);
+                    DataSource file = new FileDataSource( f );
 
-                    attach.setDataHandler(new DataHandler(file));
-                    attach.setFileName(paths[i].getOriginalFilename());
-                    multiPart.addBodyPart(attach);
+                    attach.setDataHandler( new DataHandler( file ) );
+                    attach.setFileName( path.getOriginalFilename() );
+                    multiPart.addBodyPart( attach );
                 }
             }
             message.setContent(multiPart);

@@ -297,22 +297,19 @@ public class DateTimeUtil {
     }
     
     public static Boolean isDateValid(String date) {
-        boolean result = false;
-
         SimpleDateFormat sdf = new SimpleDateFormat(DATE_PATTERN);
 
         try {
             sdf.parse(date);
-            result = true;
+            return true;
         } catch (ParseException e) {
-            result = false;
+            return false;
         }
-        return result;                
     }
 
 
     public static Boolean isPeriodValid(String strDateBegin, String strDateEnd) {
-        boolean result = false;
+        boolean result;
 
         SimpleDateFormat sdf = new SimpleDateFormat(DATE_PATTERN);
 

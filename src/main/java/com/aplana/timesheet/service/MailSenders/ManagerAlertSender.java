@@ -70,16 +70,14 @@ public class ManagerAlertSender extends MailSender {
 
         String text = "";
 
-        for (Iterator<ReportCheck> reportIterator = currentReportCheckList.iterator(); reportIterator.hasNext(); ) {
-            ReportCheck report = reportIterator.next();
-
+        for ( ReportCheck report : currentReportCheckList ) {
             passedDays = report.getPassedDays();
 
-            for (Iterator<String> iterator = passedDays.iterator(); iterator.hasNext(); ) {
-                String next = iterator.next();
-                monthName = DateTimeUtil.getMonthTxt(next);
-                if (!monthList.contains(monthName))
-                    monthList.add(monthName);
+            for ( String next : passedDays ) {
+                monthName = DateTimeUtil.getMonthTxt( next );
+                if ( ! monthList.contains( monthName ) ) {
+                    monthList.add( monthName );
+                }
             }
         }
 
@@ -123,14 +121,11 @@ public class ManagerAlertSender extends MailSender {
         }
     }
 
-    ;
 
     public void buildManagerCheckLists(List<ReportCheck> reportCheckList) {
 
-        for (Iterator<ReportCheck> iterator = reportCheckList.iterator(); iterator.hasNext(); ) {
-            ReportCheck reportCheck = iterator.next();
-
-            addReportToManagerLists(reportCheck.getEmployee(), reportCheck);
+        for ( ReportCheck reportCheck : reportCheckList ) {
+            addReportToManagerLists( reportCheck.getEmployee(), reportCheck );
         }
     }
 

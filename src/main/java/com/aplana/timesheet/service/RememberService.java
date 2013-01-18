@@ -25,7 +25,7 @@ public class RememberService implements RememberMeServices, InitializingBean, Lo
     @Override
     @SuppressWarnings("empty-statement")
     public void afterPropertiesSet() throws Exception {
-        ;
+
     }
 
     @Override
@@ -43,8 +43,8 @@ public class RememberService implements RememberMeServices, InitializingBean, Lo
         List<GrantedAuthority> list = new ArrayList<GrantedAuthority>();
         this.getLdapUserDetailsService().fillAuthority(token.getEmployee(), list);
         TimeSheetUser ts = new TimeSheetUser(token.getEmployee(), list);
-        RememberToken auth = new RememberToken(ts, null, list);
-        return auth;
+
+        return new RememberToken(ts, null, list);
     }
 
     @Override
@@ -76,7 +76,7 @@ public class RememberService implements RememberMeServices, InitializingBean, Lo
     @Override
     @SuppressWarnings("empty-statement")
     public final void loginFail(HttpServletRequest request, HttpServletResponse response) {
-        ;
+
     }
 
     public EmployeeTokenDAO getEmployeeTokenDAO() {

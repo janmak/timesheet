@@ -1,11 +1,9 @@
 package com.aplana.timesheet.form;
 
 /**
- * Created with IntelliJ IDEA.
  * User: eyaroslavtsev
  * Date: 03.08.12
  * Time: 11:02
- * To change this template use File | Settings | File Templates.
  */
 public class AdminMessageForm {
     String email;

@@ -44,7 +44,7 @@ public class Calendar
         this.timeSheets = timeSheets;
     }
 
-	public Calendar(){};
+	public Calendar(){}
 	
 	public Calendar(Integer year, Integer month, String monthTxt){
 		this.year = year;

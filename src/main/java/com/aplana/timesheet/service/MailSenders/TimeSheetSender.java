@@ -52,7 +52,7 @@ public class TimeSheetSender extends MailSender {
         logger.debug(" + ProjectParticipantsEmails: {}", toAddresses.toString());
         List<Employee> managers = sendMailService.employeeService.getRegionManager(tsForm.getEmployeeId());
         for(Employee manager:managers) {
-            toAddresses.append("," + manager.getEmail());
+            toAddresses.append( "," ).append( manager.getEmail() );
         }
         logger.debug(" + To Addresses: {}", toAddresses.toString());
         String uniqueSendingEmails = MailUtils.deleteEmailDublicates(toAddresses.toString());

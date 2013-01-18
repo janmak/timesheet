@@ -76,13 +76,7 @@ public abstract class BaseReport implements TSJasperReport {
 	 * @return true - когда есть выбран хоть один регион
 	 */
 	public boolean hasRegions() {
-		boolean val;
-		if(regionIds != null && !regionIds.isEmpty()) {
-			val = true;
-		} else {
-			val = false;
-		}
-		return val;
+        return regionIds != null && ! regionIds.isEmpty();
 	}
 	
 	public boolean isAllRegions() {

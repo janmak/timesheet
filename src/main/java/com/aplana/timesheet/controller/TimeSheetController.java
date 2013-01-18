@@ -393,26 +393,25 @@ public class TimeSheetController {
         List<ProjectRole> projectRoles = projectRoleService.getProjectRoles();
         sb.append("[");
         for (int i = 0; i < actTypes.size(); i++) {
-            for (int j = 0; j < projectRoles.size(); j++) {
-                sb.append("{actType:'").append(actTypes.get(i).getId()).append("', ");
-                sb.append("projRole:'").append(projectRoles.get(j).getId()).append("', ");
+            for ( ProjectRole projectRole : projectRoles ) {
+                sb.append( "{actType:'" ).append( actTypes.get( i ).getId() ).append( "', " );
+                sb.append( "projRole:'" ).append( projectRole.getId() ).append( "', " );
                 List<AvailableActivityCategory> avActCats = availableActivityCategoryService
-                        .getAvailableActivityCategories(actTypes.get(i), projectRoles.get(j));
-                sb.append("avActCats:[");
-                for (int k = 0; k < avActCats.size(); k++) {
-                    sb.append("'").append(avActCats.get(k).getActCat().getId()).append("'");
-                    if (k < (avActCats.size() - 1)) {
-                        sb.append(", ");
+                        .getAvailableActivityCategories( actTypes.get( i ), projectRole );
+                sb.append( "avActCats:[" );
+                for ( int k = 0; k < avActCats.size(); k++ ) {
+                    sb.append( "'" ).append( avActCats.get( k ).getActCat().getId() ).append( "'" );
+                    if ( k < ( avActCats.size() - 1 ) ) {
+                        sb.append( ", " );
                     }
                 }
-                sb.append("]}");
-                if (i < (actTypes.size())) {
-                    sb.append(", ");
+                sb.append( "]}" );
+                if ( i < ( actTypes.size() ) ) {
+                    sb.append( ", " );
                 }
             }
         }
-        String result = sb.toString().substring(0, (sb.toString().length() - 2)) + "]";
-        return result;
+        return sb.toString().substring(0, (sb.toString().length() - 2)) + "]";
     }
 
     private String getSelectedCalDateJson(TimeSheetForm tsForm) {

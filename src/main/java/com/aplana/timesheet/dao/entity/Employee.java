@@ -64,9 +64,6 @@ public class Employee {
 
     @Column(name = "role", columnDefinition = "decimal(10,0) not null default 0")
     private int role;
-	
-	@Column
-	private String objectSid;
 
     public int getRole() {
         return role;
@@ -148,28 +145,19 @@ public class Employee {
         this.region = region;
     }
 
-	public String getObjectSid() {
-		return objectSid;
-	}
-
-	public void setObjectSid(String objectSid) {
-		this.objectSid = objectSid;
-	}
-
-    @Override
+	@Override
     public String toString() {
 		StringBuilder sb = new StringBuilder()
-                .append(" id=").append(id)
-                .append(" name=").append(name)
-                .append(" email=").append(email)
-                .append(" startDate=").append(startDate)
-                .append(" endDate=").append(endDate)
-                .append(" manager [").append(manager).append("]")
-                .append(" division [").append(division).append("]")
-                .append(" job [").append(job).append("]")
-                .append(" region [").append(region.getLdapCity() + ", " + region.getName()).append("]")
-                .append(" ldap=").append(ldap)
-				.append(" objectSid=").append(objectSid);
+                .append( " id=" ).append( id )
+                .append( " name=" ).append( name )
+                .append( " email=" ).append( email )
+                .append( " startDate=" ).append( startDate )
+                .append( " endDate=" ).append( endDate )
+                .append( " manager [" ).append( manager ).append( "]" )
+                .append( " division [" ).append( division ).append( "]" )
+                .append( " job [" ).append( job ).append( "]" )
+                .append( " region [" ).append( region.getLdapCity() ).append( ", " ).append( region.getName() ).append( "]" )
+                .append(" ldap=").append(ldap);
         return sb.toString();
     }
 

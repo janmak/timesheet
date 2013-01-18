@@ -25,7 +25,7 @@ public class TimeSheetDAO {
 
     @Transactional
     public void storeTimeSheet(TimeSheet timeSheet) {
-        TimeSheet tsMerged = (TimeSheet) entityManager.merge(timeSheet);
+        TimeSheet tsMerged = entityManager.merge(timeSheet);
         logger.info("timeSheet merged.");
         entityManager.flush();
         logger.info("Persistence context synchronized to the underlying database.");
@@ -99,7 +99,7 @@ public class TimeSheetDAO {
                 //дата в месяце
                 calDate = new Timestamp(((Date) item[0]).getTime());
                 //если айдишник из таблицы календарь есть то это выходной
-                holiday = new Boolean(item[1] != null);
+                holiday = item[1] != null;
                 //айдишник в ts. нужен нам, чтобы отчет за один день суммировать
                 Integer tsId = item[2] != null ? ((BigDecimal) item[2]).intValue() : null;
                 //время за каждую деятельность(может быть несколько за один день)

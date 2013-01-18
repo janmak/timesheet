@@ -191,11 +191,12 @@ public class TimeSheetService {
         if (lastTimeSheet != null) {
             json.append("\"prev\":{");
             json.append("\"dateStr\":");
-            json.append("\"" + DateTimeUtil.formatDate(lastTimeSheet.getCalDate().getCalDate()) + "\",");   //преобразование к  yyyy-MM-dd
+            json.append( "\"" ).append( DateTimeUtil.formatDate( lastTimeSheet.getCalDate().getCalDate() ) )
+            .append( "\"," );   //преобразование к  yyyy-MM-dd
             json.append("\"plan\":\"");
             String lastPlan = lastTimeSheet.getPlanEscaped();
             if (lastPlan != null)
-                json.append("" + lastPlan.replace("\r\n","\\n"));
+                json.append( "" ).append( lastPlan.replace( "\r\n", "\\n" ) );
             json.append("\"}");
         }
 
@@ -203,10 +204,11 @@ public class TimeSheetService {
             json.append(",");
 
         if (nextTimeSheet != null) {
-            json.append("\"next\":{");
-            json.append("\"dateStr\":");
-            json.append("\"" + DateTimeUtil.formatDate(nextTimeSheet.getCalDate().getCalDate()) + "\",");   //преобразование к  yyyy-MM-dd
-            json.append("\"plan\":\"");
+            json.append("\"next\":{")
+                    .append( "\"dateStr\":" ).append( "\"" )
+                    .append( DateTimeUtil.formatDate( nextTimeSheet.getCalDate().getCalDate() ) )
+                    .append( "\"," )   //преобразование к  yyyy-MM-dd
+                    .append( "\"plan\":\"" );
             String nextPlan = getStringTimeSheetDetails(nextTimeSheet);
             if (nextPlan != null)
                 json.append(nextPlan.replace("\r\n","\\n"));
@@ -228,12 +230,12 @@ public class TimeSheetService {
         int i = 1;
         for(TimeSheetDetail detail: timeSheetDetails){
             sb = new StringBuilder();
-            sb.append(i + ". ");
-            sb.append(detail.getActType().getValue() + " - ");
+            sb.append( i ).append( ". " );
+            sb.append( detail.getActType().getValue() ).append( " - " );
             if (detail.getProject() != null)
-                sb.append(detail.getProject().getName() + " : ");
+                sb.append( detail.getProject().getName() ).append( " : " );
             sb.append(detail.getDescriptionEscaped());
-            rezult.append(sb.toString() + "\\n");
+            rezult.append( sb.toString() ).append( "\\n" );
             i++;
         }
         return rezult.toString();
