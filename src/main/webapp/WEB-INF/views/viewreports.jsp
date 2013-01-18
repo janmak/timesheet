@@ -146,7 +146,7 @@
 
             <span class="label">Отчет сотрудника</span>
             <form:select path="employeeId" id="employeeId" class="without_dojo" onmouseover="tooltip.show(getTitle(this));"
-                         onmouseout="tooltip.hide();" onchange="setDefaultEmployeeJob(-1);">
+                         onmouseout="tooltip.hide();" onchange="setDefaultEmployeeJob(-1);" cssStyle="width: autoAPLANATS-498">
                 <form:option items="${employeeList}" label="" value="0"/>
             </form:select>
             <br><br>
