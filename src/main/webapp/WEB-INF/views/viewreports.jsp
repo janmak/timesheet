@@ -196,7 +196,7 @@
                         <tr class="statusNormalDay toplan">
                             <td class="date"><fmt:formatDate value="${report.calDate}" pattern="yyyy.MM.dd"/></td>
                             <td>
-                                <a href="<%=request.getContextPath()%>/report/<fmt:formatDate value="${report.calDate}" pattern="/yyyy/MM/dd/"/>${report.timeSheet.employee.id}">Посмотреть отчёт</a>
+                                <a target="_blank" href="<%=request.getContextPath()%>/report/<fmt:formatDate value="${report.calDate}" pattern="/yyyy/MM/dd/"/>${report.timeSheet.employee.id}">Посмотреть отчёт</a>
                                 <sec:authorize access="hasRole('ROLE_ADMIN')">
                                     <a href="#" onclick="deleteTimeSheet(${report.timeSheet.id})"><img src="<c:url value="/resources/img/delete.png"/>" width="15px" title="Удалить"/></a>
                                     </sec:authorize>
@@ -208,7 +208,7 @@
                         <tr class="statusWorkOnHoliday">
                             <td class="date"><fmt:formatDate value="${report.calDate}" pattern="yyyy.MM.dd"/></td>
                             <td>
-                                Работа в выходной день <a href="<%=request.getContextPath()%>/report/<fmt:formatDate value="${report.calDate}" pattern="/yyyy/MM/dd/"/>${report.timeSheet.employee.id}">Посмотреть отчёт</a>
+                                Работа в выходной день <a target="_blank" href="<%=request.getContextPath()%>/report/<fmt:formatDate value="${report.calDate}" pattern="/yyyy/MM/dd/"/>${report.timeSheet.employee.id}">Посмотреть отчёт</a>
                                 <sec:authorize access="hasRole('ROLE_ADMIN')">
                                     <a href="#" onclick="deleteTimeSheet(${report.timeSheet.id})"><img src="<c:url value="/resources/img/delete.png"/>" width="15px" title="Удалить"/></a>
                                     </sec:authorize>
