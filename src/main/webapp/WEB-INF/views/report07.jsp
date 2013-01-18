@@ -93,8 +93,8 @@
             <li><input type=radio name="printtype" id="printtype2" value="2"/><label for="printtype2">MS
                 Excel</label>
             </li>
-            <li><input type=radio name="printtype" id="printtype3" value="3"/><label for="printtype3">PDF</label>
-            </li>
+            <!--li><input type=radio name="printtype" id="printtype3" value="3"/><label for="printtype3">PDF</label>
+            </li> --Ю
         </ul>
     </div>
     <button id="make_report_button" style="width:210px" type="submit">Сформировать отчет</button>
