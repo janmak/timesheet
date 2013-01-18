@@ -22,9 +22,9 @@
         target = "divisionOwner"
         dojo.connect(filter, "onchange", function () {
             if (filter.checked) {
-                console.log(dojo.removeAttr(target, "disabled");
+                dojo.removeAttr(target, "disabled");
             } else {
-                console.log(dojo.attr(target, {disabled:"disabled"});
+                dojo.attr(target, {disabled:"disabled"});
             }
         })
     })
