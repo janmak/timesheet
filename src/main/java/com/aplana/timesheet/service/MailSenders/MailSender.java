@@ -2,15 +2,21 @@ package com.aplana.timesheet.service.MailSenders;
 
 import com.aplana.timesheet.properties.TSPropertyProvider;
 import com.aplana.timesheet.service.SendMailService;
+import com.google.common.base.Function;
+import com.google.common.base.Joiner;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Sets;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import javax.mail.*;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
@@ -132,15 +138,11 @@ public class MailSender {
      * @param emails
      */
     public static String deleteEmailDublicates(String emails) {
-        Set<String> uniqueEmails = new HashSet<String>();
-        String[] splittedEmails = emails.split(",");
-        for (String splitEmail : splittedEmails) {
-            uniqueEmails.add(splitEmail.trim());
-        }
-
-        String join = org.apache.commons.lang.StringUtils.join(uniqueEmails, ",");
-        logger.debug("splitted emails: {} ", join);
-        return join;
+        return Joiner.on(",").join(Sets.newHashSet(
+                Iterables.transform(Arrays.asList(emails.split(",")), new Function<String, String>() {
+                    @Nullable @Override public String apply(@Nullable String s) {
+                        return s.trim();
+        } })));
     }
 
 }

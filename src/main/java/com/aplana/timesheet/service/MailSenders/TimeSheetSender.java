@@ -44,7 +44,7 @@ public class TimeSheetSender extends MailSender {
         logger.debug("EmployeesManagersEmails: {}", toAddresses.toString());
         toAddresses.append(sendMailService.getProjectsManagersEmails(tsForm));
         logger.debug(" + ProjectsManagersEmail: {}", toAddresses.toString());
-        toAddresses.append(sendMailService.getProjectParticipantsEmails(tsForm.getEmployeeId(), tsForm));
+        toAddresses.append(sendMailService.getProjectParticipantsEmails(tsForm));
         logger.debug(" + ProjectParticipantsEmails: {}", toAddresses.toString());
         List<Employee> managers = sendMailService.getRegionManagerList(tsForm.getEmployeeId());
         for(Employee manager:managers) {

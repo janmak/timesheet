@@ -1,14 +1,23 @@
 package com.aplana.timesheet.dao;
 
-import com.aplana.timesheet.dao.entity.*;
+import com.aplana.timesheet.dao.entity.DictionaryItem;
+import com.aplana.timesheet.dao.entity.Employee;
+import com.aplana.timesheet.dao.entity.Project;
+import com.aplana.timesheet.dao.entity.ProjectParticipant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.*;
+import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
+import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 import java.util.List;
+
+import static com.aplana.timesheet.enums.TypeOfActivity.PRESALE;
+import static com.aplana.timesheet.enums.TypeOfActivity.PROJECT;
 
 @Repository
 @SuppressWarnings("unchecked")
@@ -50,7 +59,7 @@ public class ProjectDAO {
     public List<Project> getProjects() {
         Query query = entityManager.createQuery(
                 "from Project as p where p.state=:state and p.active=:active"
-        ).setParameter( "state", dictionaryItemDAO.find( DictionaryItemDAO.PROJECTS_ID ) ).setParameter( "active", true );
+        ).setParameter( "state", dictionaryItemDAO.find( PROJECT.getId() ) ).setParameter( "active", true );
 
         return query.getResultList();
     }
@@ -63,7 +72,7 @@ public class ProjectDAO {
     public List<Project> getPresales() {
         Query query = entityManager.createQuery(
                 "from Project as p where p.state=:state and p.active=:active and p.id<>:anaccounted_presale" )
-                .setParameter( "state", dictionaryItemDAO.find( DictionaryItemDAO.PRESALES_ID ) )
+                .setParameter( "state", dictionaryItemDAO.find( PRESALE.getId() ) )
                 .setParameter( "active", true )
                 .setParameter( "anaccounted_presale", ANACCOUNTED_PRESALE_ID );
 
@@ -106,7 +115,7 @@ public class ProjectDAO {
     @Transactional(readOnly = true)
     public List<Project> getProjectsWithCq() {
         Query query = entityManager.createQuery(
-                "from Project as p where p.cqRequired='true' and p.active=:active"
+                "from Project as p where p.cqRequired=true and p.active=:active"
         ).setParameter( "active", true );
 
         return query.getResultList();
