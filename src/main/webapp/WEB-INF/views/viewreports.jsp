@@ -243,7 +243,7 @@
                 </tr>
                 <tr>
                     <td colspan="2">Норма (часов) в неделю:</td>
-                    <td><input type="text" id="normainweak"</td>
+                    <td><input type="text" id="normainweak"></td>
                 </tr>
             </thead>
         </table>
