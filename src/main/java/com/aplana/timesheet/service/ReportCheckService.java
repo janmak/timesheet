@@ -3,27 +3,26 @@ package com.aplana.timesheet.service;
 import com.aplana.timesheet.dao.HolidayDAO;
 import com.aplana.timesheet.dao.RegionDAO;
 import com.aplana.timesheet.dao.ReportCheckDAO;
-import com.aplana.timesheet.dao.entity.*;
 import com.aplana.timesheet.dao.entity.Calendar;
+import com.aplana.timesheet.dao.entity.Division;
+import com.aplana.timesheet.dao.entity.Employee;
+import com.aplana.timesheet.dao.entity.ReportCheck;
+import com.aplana.timesheet.properties.TSPropertyProvider;
 import com.aplana.timesheet.util.DateTimeUtil;
-import com.aplana.timesheet.util.TimeSheetConstans;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.sql.Timestamp;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @Transactional
 public class ReportCheckService {
     private static final Logger logger = LoggerFactory.getLogger(ReportCheckService.class);
-    Properties mailConfig = new Properties();
 
     private StringBuffer trace = new StringBuffer();
 
@@ -53,6 +52,9 @@ public class ReportCheckService {
     @Autowired
     private RegionDAO regionDAO;
 
+    @Autowired
+    private TSPropertyProvider propertyProvider;
+
     /**
      * Метод формирования оповещений используемый в таймере
      */
@@ -63,8 +65,6 @@ public class ReportCheckService {
         trace.append("Start send mails\n");
 
         String currentDay = DateTimeUtil.currentDay();
-
-        Calendar currentCalendar = calendarService.find(currentDay);
 
         // Выполняем проверки только по рабочим дням
         if (holidayDAO.isWorkDay(currentDay)) {
@@ -96,27 +96,22 @@ public class ReportCheckService {
      * @param lastDay
      * @param sundayCheck
      */
-    public void storeReportCheck(String firstDay, String lastDay, boolean sundayCheck) {
-        try {
-            FileInputStream propertiesFile = new FileInputStream( TimeSheetConstans.PROPERTY_PATH );
+    public void storeReportCheck(
+            String firstDay, String lastDay, boolean sundayCheck
+    ) {
+        String[] divisionsSendMail = getDivisionSendMail();
+        //logger.info("divisionlist is {}", mailConfig.getProperty("mail.divisions"));
 
-            mailConfig.load(propertiesFile);
-
-            String[] divisionsSendMail = mailConfig.getProperty("mail.divisions").split(" ");
-            logger.info("divisionlist is {}", mailConfig.getProperty("mail.divisions"));
-
-            for (String divisionId : divisionsSendMail) {
-                logger.info("division id is {}", Integer.parseInt(divisionId));
-                storeReportCheck(divisionService.find(Integer.parseInt(divisionId)), firstDay, lastDay, sundayCheck);
-            }
-        } catch (FileNotFoundException e1) {
-            logger.error("File timesheet.properties not found.");
-        } catch (InvalidPropertiesFormatException e) {
-            logger.error("Invalid timesheet.properties file format.");
-        } catch (IOException e) {
-            logger.error("Input-output error.");
+        for (String divisionId : divisionsSendMail) {
+            logger.info("division id is {}", Integer.parseInt(divisionId));
+            storeReportCheck(divisionService.find(Integer.parseInt(divisionId)), firstDay, lastDay, sundayCheck);
         }
+    }
 
+    private String[] getDivisionSendMail() {
+        String divisionSendMailPropety = propertyProvider.getMailDivisions();
+        String[] split = divisionSendMailPropety.split(" ");
+        return split;
     }
 
     /**

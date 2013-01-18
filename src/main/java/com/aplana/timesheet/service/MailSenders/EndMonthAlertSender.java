@@ -2,9 +2,9 @@ package com.aplana.timesheet.service.MailSenders;
 
 import com.aplana.timesheet.dao.entity.Employee;
 import com.aplana.timesheet.dao.entity.ReportCheck;
+import com.aplana.timesheet.properties.TSPropertyProvider;
 import com.aplana.timesheet.service.SendMailService;
 import com.aplana.timesheet.util.DateTimeUtil;
-import com.aplana.timesheet.util.MailUtils;
 import org.springframework.ui.velocity.VelocityEngineUtils;
 
 import javax.mail.MessagingException;
@@ -19,8 +19,8 @@ import java.util.Map;
 public class EndMonthAlertSender extends MailSender {
     private List<ReportCheck> reportCheckList;
 
-    public EndMonthAlertSender(SendMailService sendMailService) {
-        super(sendMailService);
+    public EndMonthAlertSender(SendMailService sendMailService, TSPropertyProvider propertyProvider) {
+        super(sendMailService, propertyProvider);
     }
 
     @Override
@@ -46,7 +46,7 @@ public class EndMonthAlertSender extends MailSender {
         }
 
         logger.debug("EmployeesEmails: {}", toAddresses.toString());
-        String uniqueSendingEmails = MailUtils.deleteEmailDublicates(toAddresses
+        String uniqueSendingEmails = deleteEmailDublicates(toAddresses
                 .toString());
         try {
             toAddr = InternetAddress.parse(uniqueSendingEmails);
@@ -98,8 +98,7 @@ public class EndMonthAlertSender extends MailSender {
             sendMessage();
 
         } catch (NoSuchProviderException e) {
-            logger.error("Provider for {} protocol not found.",
-                    sendMailService.mailConfig.getProperty("mail.transport.protocol"), e);
+            logger.error("Provider for {} protocol not found.", propertyProvider.getMailTransportProtocol(), e);
         } catch (MessagingException e) {
             logger.error("Error while sending email message.", e);
         } finally {

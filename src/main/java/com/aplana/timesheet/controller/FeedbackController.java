@@ -4,12 +4,13 @@ import com.aplana.timesheet.dao.entity.Division;
 import com.aplana.timesheet.dao.entity.Employee;
 import com.aplana.timesheet.form.FeedbackForm;
 import com.aplana.timesheet.form.validator.FeedbackFormValidator;
-import com.aplana.timesheet.service.*;
-import com.aplana.timesheet.util.TimeSheetConstans;
+import com.aplana.timesheet.properties.TSPropertyProvider;
+import com.aplana.timesheet.service.DivisionService;
+import com.aplana.timesheet.service.EmployeeService;
+import com.aplana.timesheet.service.SecurityService;
+import com.aplana.timesheet.service.SendMailService;
 import com.aplana.timesheet.util.TimeSheetUser;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +26,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Properties;
 
 @Controller
 public class FeedbackController {
@@ -43,6 +43,9 @@ public class FeedbackController {
 	private SecurityService securityService;
 	@Autowired
 	private MessageSource messageSource;
+    @Autowired
+    private TSPropertyProvider propertyProvider;
+
 
 	//IDs подразделения и сотрудника по умолчанию
 	private Integer divisionId = 0, employeeId = 0; //TODO зачем это нужно? контроллер — синглтон, они будут доступны всем
@@ -65,7 +68,12 @@ public class FeedbackController {
 	
 	//Пользователь нажал "Отправить" на странице feedback.jsp
 	@RequestMapping(value = "/feedback", method = RequestMethod.POST)
-	public ModelAndView sendFeedback(@ModelAttribute("feedbackForm")FeedbackForm fbForm, BindingResult result, Locale locale) {
+	public ModelAndView sendFeedback(
+            @ModelAttribute("feedbackForm")
+            FeedbackForm fbForm,
+            BindingResult result,
+            Locale locale
+    ) {
 		//Валидируем форму
 		logger.info("Processing FeedbackForm validation for employee {}", fbForm.getEmployeeId());
 		fbFormValidator.validate(fbForm, result);
@@ -103,34 +111,10 @@ public class FeedbackController {
 	//Основной метод GET
 	@RequestMapping(value = "/feedback", method = RequestMethod.GET)
 	public ModelAndView sendReportFeedback(@ModelAttribute("feedbackForm")FeedbackForm fbForm, BindingResult result) {
-			
-		Properties properties = new Properties();
-		FileInputStream fis = null;
-
-        String jiraIssueCreateUrl = null;
-
-        try {
-            fis = new FileInputStream(TimeSheetConstans.PROPERTY_PATH);
-
-            properties.load( fis );
-
-            jiraIssueCreateUrl = properties.getProperty( "jira.issue.create.url" );
-            if ( jiraIssueCreateUrl != null && jiraIssueCreateUrl.isEmpty() ) {
-                jiraIssueCreateUrl = null;
-                logger.warn( "In your properties not assign 'jira.issue.create.url', some functions will be disabled" );
-            }
-        } catch (FileNotFoundException ex) {
-            logger.error("Can not find propety file {}", TimeSheetConstans.PROPERTY_PATH);
-            logger.error("", ex);
-        } catch (IOException ex) {
-            logger.error("", ex);
-        } finally {
-            if ( fis != null )
-                try {
-                    fis.close();
-                } catch ( IOException e ) {
-                    logger.error( "Can't close FileInputStream", TimeSheetConstans.PROPERTY_PATH );
-                }
+        String jiraIssueCreateUrl = propertyProvider.getJiraIssueCreateUrl();
+        if (StringUtils.isBlank(jiraIssueCreateUrl)) {
+            jiraIssueCreateUrl = null;
+            logger.warn("In your properties not assign 'jira.issue.create.url', some functions will be disabled");
         }
 
 		ModelAndView mav = new ModelAndView("feedback");

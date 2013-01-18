@@ -2,11 +2,13 @@ package com.aplana.timesheet.service;
 
 import com.aplana.timesheet.dao.DictionaryItemDAO;
 import com.aplana.timesheet.dao.entity.*;
-import com.aplana.timesheet.form.*;
+import com.aplana.timesheet.form.AdminMessageForm;
+import com.aplana.timesheet.form.FeedbackForm;
+import com.aplana.timesheet.form.TimeSheetForm;
+import com.aplana.timesheet.form.TimeSheetTableRowForm;
+import com.aplana.timesheet.properties.TSPropertyProvider;
 import com.aplana.timesheet.service.MailSenders.*;
 import com.aplana.timesheet.util.DateTimeUtil;
-import com.aplana.timesheet.util.MailUtils;
-import com.aplana.timesheet.util.TimeSheetUser;
 import org.apache.velocity.app.VelocityEngine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,20 +22,22 @@ import java.util.*;
 public class SendMailService{
     private static final Logger logger = LoggerFactory.getLogger(SendMailService.class);
 
-    public Properties mailConfig = new Properties();
     @Autowired
     public VelocityEngine velocityEngine;
 
     @Autowired
-    public EmployeeService employeeService;
+    private EmployeeService employeeService;
     @Autowired
-    public ProjectService projectService;
+    private ProjectService projectService;
     @Autowired
-    public DictionaryItemService dictionaryItemService;
+    private DictionaryItemService dictionaryItemService;
     @Autowired
-    public SecurityService securityService;
+    private SecurityService securityService;
     @Autowired
-    public ProjectRoleService projectRoleService;
+    private ProjectRoleService projectRoleService;
+    @Autowired
+    private TSPropertyProvider propertyProvider;
+
 
     public void setVelocityEngine(VelocityEngine velocityEngine) {
         this.velocityEngine = velocityEngine;
@@ -79,8 +83,7 @@ public class SendMailService{
      * @return email сотрудника
      */
     public String getEmployeeEmail(Integer empId) {
-        Employee employee = employeeService.find(empId);
-        return employee.getEmail();
+        return employeeService.find(empId).getEmail();
     }
     /**
      * Возвращает строку с адресами менеджеров проектов/пресейлов
@@ -231,72 +234,67 @@ public class SendMailService{
     }
 
     public void performMailing(TimeSheetForm form) {
-        MailUtils.loadMailConfig(mailConfig);
 
-        TimeSheetSender timeSheetSender = new TimeSheetSender(this);
-
-        timeSheetSender.sendTimeSheetMessage(form);
+        new TimeSheetSender(this, propertyProvider).sendTimeSheetMessage(form);
     }
 
     public void performFeedbackMailing(FeedbackForm form) {
-        MailUtils.loadMailConfig(mailConfig);
 
-        FeedbackSender feedbackSender = new FeedbackSender(this);
-
-        feedbackSender.sendFeedbackMessage(form);
+        new FeedbackSender(this, propertyProvider).sendFeedbackMessage(form);
     }
 
     public void performLoginProblemMailing(AdminMessageForm form) {
-        MailUtils.loadMailConfig(mailConfig);
 
-        LoginProblemSender loginProblemSender=new LoginProblemSender(this);
-
-        loginProblemSender.SendLoginProblem(form);
+        new LoginProblemSender(this, propertyProvider).SendLoginProblem(form);
     }
 
     public void performPersonalAlertMailing(List<ReportCheck> rCheckList) {
-        MailUtils.loadMailConfig(mailConfig);
 
-        PersonalAlertSender personalAlertSender = new PersonalAlertSender(this);
-
-        personalAlertSender.sendAlert(rCheckList);
+        new PersonalAlertSender(this, propertyProvider).sendAlert(rCheckList);
     }
 
     public void performManagerMailing(List<ReportCheck> rCheckList) {
-        MailUtils.loadMailConfig(mailConfig);
 
-        ManagerAlertSender managerAlertSender = new ManagerAlertSender(this);
-
-        managerAlertSender.sendAlert(rCheckList);
+        new ManagerAlertSender(this, propertyProvider).sendAlert(rCheckList);
     }
 
     public void performEndMonthMailing(List<ReportCheck> rCheckList) {
-        MailUtils.loadMailConfig(mailConfig);
 
-        EndMonthAlertSender endMonthAlertSender = new EndMonthAlertSender(this);
-
-        endMonthAlertSender.sendAlert(rCheckList);
+        new EndMonthAlertSender(this, propertyProvider).sendAlert(rCheckList);
     }
 
     public void performTimeSheetDeletedMailing(TimeSheet timeSheet) {
-        MailUtils.loadMailConfig(mailConfig);
 
-        TimeSheetDeletedSender timeSheetDeletedSender = new TimeSheetDeletedSender(this);
-
-        timeSheetDeletedSender.sendMessage(timeSheet);
+        new TimeSheetDeletedSender(this, propertyProvider).sendMessage(timeSheet);
     }
 
-    @SuppressWarnings({"unchecked", "rawtypes"})
+
     public String initMessageBodyForReport(TimeSheet timeSheet) {
-        Map model = new HashMap();
-        TimeSheetUser securityPrincipal = securityService.getSecurityPrincipal();
+        Map<String, Object> model = getPreFilledModel(timeSheet);
+
         model.put("timeSheet", timeSheet);
+        logger.info("follows initialization output from velocity");
+        return VelocityEngineUtils.mergeTemplateIntoString(velocityEngine, "report.vm", model);
+    }
+
+    public Map getPreFilledModel() {
+        return getPreFilledModel(null);
+    }
+
+    public Map<String, Object> getPreFilledModel(TimeSheet timeSheet) {
+        Map<String, Object> model = new HashMap<String, Object>();
+
         model.put("dictionaryItemService", dictionaryItemService);
         model.put("projectService", projectService);
         model.put("DateTimeUtil", DateTimeUtil.class);
-        model.put("senderName", timeSheet.getEmployee().getName());
-        logger.info("follows initialization output from velocity");
-        return VelocityEngineUtils.mergeTemplateIntoString(
-                velocityEngine, "report.vm", model);
+        model.put("senderName",
+                timeSheet == null
+                        ? securityService.getSecurityPrincipal().getEmployee().getName()
+                        : timeSheet.getEmployee().getName());
+        return model;
+    }
+
+    public List<Employee> getRegionManagerList(Integer id) {
+        return employeeService.getRegionManager(id);
     }
 }

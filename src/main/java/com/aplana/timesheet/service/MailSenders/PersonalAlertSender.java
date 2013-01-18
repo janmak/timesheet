@@ -1,6 +1,7 @@
 package com.aplana.timesheet.service.MailSenders;
 
 import com.aplana.timesheet.dao.entity.ReportCheck;
+import com.aplana.timesheet.properties.TSPropertyProvider;
 import com.aplana.timesheet.service.SendMailService;
 import com.aplana.timesheet.util.DateTimeUtil;
 import org.springframework.ui.velocity.VelocityEngineUtils;
@@ -16,8 +17,8 @@ public class PersonalAlertSender extends MailSender {
     private List<ReportCheck> reportCheckList;
     private ReportCheck currentReportCheck;
 
-    public PersonalAlertSender(SendMailService sendMailService) {
-        super(sendMailService);
+    public PersonalAlertSender(SendMailService sendMailService, TSPropertyProvider propertyProvider) {
+        super(sendMailService, propertyProvider);
     }
 
     @Override
@@ -101,8 +102,7 @@ public class PersonalAlertSender extends MailSender {
                 sendMessage();
             }
         } catch (NoSuchProviderException e) {
-            logger.error("Provider for {} protocol not found.",
-                    sendMailService.mailConfig.getProperty("mail.transport.protocol"), e);
+            logger.error("Provider for {} protocol not found.", propertyProvider.getMailTransportProtocol(), e);
         } catch (MessagingException e) {
             logger.error("Error while sending email message.", e);
         } finally {
