@@ -57,7 +57,7 @@
                 <td><form:select id="divisionId" name="divisionId" cssClass="without_dojo"
                                  onmouseover="tooltip.show(getTitle(this));" onchange="divisionChange(this)"
                                  onmouseout="tooltip.hide();" path="divisionId">
-                    <form:option label="" value="0"/>
+                    <form:option label="Все центры" value="0"/>
                     <form:options items="${divisionList}" itemLabel="name" itemValue="id"/>
                 </form:select></td>
 			</tr>
@@ -66,7 +66,7 @@
                 <td><form:select path="employeeId" id="employeeId" class="without_dojo"
                                  onmouseover="tooltip.show(getTitle(this));"
                                  onmouseout="tooltip.hide();" onchange="setDefaultEmployeeJob(-1);">
-                    <form:option label="" value="0"/>
+                    <form:option label="Все сотрудники" value="0"/>
                 </form:select></td>
             </tr>
             <tr>

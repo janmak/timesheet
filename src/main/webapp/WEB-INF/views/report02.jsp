@@ -70,7 +70,7 @@
 									 onmouseout="tooltip.hide();" path="divisionId"
 									 onchange="fillProjectListByDivision(this)"
 									 oninit="">
-								<form:option label="" value="0"/>
+								<form:option label="Все центры" value="0"/>
 								<form:options items="${divisionList}" itemLabel="name" itemValue="id"/>
 							</form:select></td>
 						<td colspan="2" align="right"><form:checkbox path="filterProjects" name="filterProjects" id="filterProjects"
@@ -92,7 +92,7 @@
 									 onmouseover="tooltip.show(getTitle(this));"
 									 onmouseout="tooltip.hide();" path="emplDivisionId"
 									 onchange="fillEmployeeListByDivision(this)">
-								<form:option label="" value="0"/>
+								<form:option label="Все центры" value="0"/>
 								<form:options items="${divisionList}" itemLabel="name" itemValue="id"/>
 							</form:select></td>
 						<td><span class="label">Сотрудник</span></td>

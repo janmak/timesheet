@@ -51,7 +51,7 @@
                 <td><form:select id="projectId" name="projectId" cssClass="without_dojo"
                                  onmouseover="tooltip.show(getTitle(this));"
                                  onmouseout="tooltip.hide();" path="projectId">
-                    <form:option label="" value="0"/>
+                    <form:option label="Все проекты" value="0"/>
                     <form:options items="${projectList}" itemLabel="name" itemValue="id"/>
                 </form:select></td>
 			</tr>
