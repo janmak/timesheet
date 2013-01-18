@@ -131,7 +131,6 @@ public class DayTimeSheet implements Comparable<DayTimeSheet> {
     /**
      * Сообщает что работнег ещё не приступил к исполнению обязанностей и день учитывать не стоит
      *
-     * @param emp
      * @return
      */
     public Boolean getStatusNotStart() {
@@ -143,7 +142,7 @@ public class DayTimeSheet implements Comparable<DayTimeSheet> {
      * @return
      */
     public Boolean getStatusNotCome() {
-        return ! this.getStatusHoliday() && this.getCurrent().before( this.getCalDate() );
+        return ! this.getStatusHoliday() && this.getCurrent().before( this.getCalDate() ) && this.getTimeSheet() == null;
     }
 
     /**
