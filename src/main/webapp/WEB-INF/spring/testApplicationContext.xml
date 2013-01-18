@@ -43,4 +43,11 @@
     	<beans:property name="cacheSeconds" value="0" />
   	</beans:bean>
 
+
+    <bean id="HTTPrequest" class="com.aplana.timesheet.form.validator.FakeRequestAttributes"/>
+    <bean class="javax.servlet.http.HttpServletRequest"
+          factory-bean="HTTPrequest"
+          factory-method="getHttpRequest"
+    />
+
 </beans>
