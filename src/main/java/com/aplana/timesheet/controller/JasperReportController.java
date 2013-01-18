@@ -8,34 +8,22 @@ import com.aplana.timesheet.reports.*;
 import com.aplana.timesheet.service.*;
 import com.aplana.timesheet.util.EmployeeHelper;
 import com.aplana.timesheet.util.JReportBuildError;
-import com.aplana.timesheet.util.TimeSheetUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.beans.propertyeditors.CustomCollectionEditor;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
+import org.springframework.web.bind.ServletRequestDataBinder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.View;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.aplana.timesheet.util.ProjectHelper.getProjectListJson;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Set;
-import org.springframework.beans.propertyeditors.CustomCollectionEditor;
-import org.springframework.beans.propertyeditors.CustomDateEditor;
-import org.springframework.web.bind.ServletRequestDataBinder;
 
 @Controller
 public class JasperReportController {
@@ -96,6 +84,8 @@ public class JasperReportController {
                 case 3:
                     form = new Report03();
                     break;
+                case 7:
+                    form = new Report07();
             }
         }
 
@@ -155,6 +145,18 @@ public class JasperReportController {
                 mav.addObject("projectListJson", projectService.getProjectListJson(divisions));
                 mav.addObject("fullProjectListJson", projectService.getProjectListJson());
                 mav.addObject("employeeListJson", employeeHelper.getEmployeeListJson(divisions));
+
+                mav.addObject("filterProjects", "checked");
+                return mav;
+            case 7:
+                mav = new ModelAndView("report07");
+                mav.addObject("reportForm", form);
+                divisions = divisionService.getDivisions();
+                Integer defaultDivisionId = securityService.getSecurityPrincipal().getEmployee().getDivision().getId();
+                Division o = divisions.get(0);
+                divisions.set(0, divisions.get(defaultDivisionId));
+                divisions.set(defaultDivisionId, o);
+                mav.addObject("divisionList", divisions);
 
                 mav.addObject("filterProjects", "checked");
                 return mav;
@@ -240,6 +242,12 @@ public class JasperReportController {
                                      @RequestParam("printtype") Integer printtype, HttpServletResponse response, HttpServletRequest request) throws JReportBuildError {
         fillRegionName(report);
         return showReport(report, result, printtype, 6, response, request);
+    }
+
+    @RequestMapping(value = "/managertools/report/7", method = RequestMethod.POST)
+    public ModelAndView showReport06(@ModelAttribute("reportForm") Report07 report, BindingResult result,
+                                     @RequestParam("printtype") Integer printtype, HttpServletResponse response, HttpServletRequest request) throws JReportBuildError {
+        return showReport(report, result, printtype, 7, response, request);
     }
 
     // Нужно для отображения названия региона в сформированном отчете

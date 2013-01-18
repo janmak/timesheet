@@ -20,6 +20,7 @@
     <li><a target="_blank" href="<c:url value='/managertools/report/4'/>"><fmt:message key="title.report04"/></a></li>
     <li><a target="_blank" href="<c:url value='/managertools/report/5'/>"><fmt:message key="title.report05"/></a></li>
     <li><a target="_blank" href="<c:url value='/managertools/report/6'/>"><fmt:message key="title.report06"/></a></li>
+    <li><a target="_blank" href="<c:url value='/managertools/report/7'/>"><fmt:message key="title.report07"/></a></li>
 </ul>
 <br/>
 <br/>
