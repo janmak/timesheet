@@ -202,7 +202,7 @@
                                 dojo.byId("plan_textarea").innerHTML = text;
                             }
                             else
-                                dojo.byId("plan_textarea").innerHTML = "План последнего рабочего не был определен";
+                                dojo.byId("plan_textarea").innerHTML = "План предыдущего рабочего дня не был определен";
                         }
                         else{
                             dojo.byId("lbPrevPlan").innerHTML = "Ничего не запланировано.";
