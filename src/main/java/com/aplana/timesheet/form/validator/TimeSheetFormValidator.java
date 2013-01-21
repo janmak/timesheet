@@ -136,7 +136,7 @@ public class TimeSheetFormValidator extends AbstractValidator {
         if (description != null) {
             logger.debug("Employee Job: {}", emplJob.getName());
 
-            if ( StringUtils.isNotBlank( description ) && emplJob != PROJECT_MANAGER && emplJob != HEAD_OF_CENTER ) {
+            if ( StringUtils.isBlank( description ) && emplJob != PROJECT_MANAGER && emplJob != HEAD_OF_CENTER ) {
                 errors.rejectValue( "timeSheetTablePart[" + notNullRowNumber + "].description",
                         "error.tsform.description.required", getErrorMessageArgs( notNullRowNumber ),
                         "Необходимо указать комментарии в строке " + ( notNullRowNumber + 1 ) + "." );
