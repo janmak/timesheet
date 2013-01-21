@@ -204,7 +204,7 @@ public class SendMailService{
                     if ( participantRole.equals( ProjectRoleService.PROJECT_MANAGER ) ) {
                         emails.append(participant.getEmployee().getEmail()).append(",");
                     } else if ( participantRole.equals( ProjectRoleService.PROJECT_LEADER ) ) {
-                        if (Arrays.asList(
+                        if (detail.getProjectRole() != null  && Arrays.asList(
                                 ProjectRoleService.PROJECT_DESIGNER
                                 , ProjectRoleService.PROJECT_DEVELOPER
                                 , ProjectRoleService.PROJECT_SYSENGINEER
@@ -213,7 +213,7 @@ public class SendMailService{
                             emails.append(participant.getEmployee().getEmail()).append(",");
                         }
                     } else if ( participantRole.equals( ProjectRoleService.PROJECT_ANALYST ) ) {
-                        if (Arrays.asList(
+                        if (detail.getProjectRole() != null && Arrays.asList(
                                 ProjectRoleService.PROJECT_ANALYST
                                 , ProjectRoleService.PROJECT_TECH_WRITER)
                                 .contains(detail.getProjectRole().getId())) {
