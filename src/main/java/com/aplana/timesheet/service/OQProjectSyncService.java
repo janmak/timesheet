@@ -1,38 +1,38 @@
 package com.aplana.timesheet.service;
 
+import com.aplana.timesheet.controller.TimeSheetController;
+import com.aplana.timesheet.dao.DictionaryItemDAO;
 import com.aplana.timesheet.dao.EmployeeDAO;
 import com.aplana.timesheet.dao.EmployeeLdapDAO;
 import com.aplana.timesheet.dao.ProjectDAO;
 import com.aplana.timesheet.dao.entity.Division;
 import com.aplana.timesheet.dao.entity.Employee;
 import com.aplana.timesheet.dao.entity.Project;
-import com.aplana.timesheet.properties.TSPropertyProvider;
-import org.apache.commons.lang3.StringUtils;
+import com.aplana.timesheet.dao.entity.ldap.EmployeeLdap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Scope;
+import org.springframework.ldap.core.LdapTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.w3c.dom.Document;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.NodeList;
+
+import org.w3c.dom.*;
 
 import javax.annotation.PostConstruct;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpression;
-import javax.xml.xpath.XPathFactory;
-import java.net.MalformedURLException;
+import javax.persistence.EntityManagerFactory;
+import javax.xml.xpath.*;
+import javax.xml.parsers.*;
+import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import com.aplana.timesheet.util.TimeSheetConstans;
 
 @Service("oqProgectSyncService")
 public class OQProjectSyncService {
@@ -122,8 +122,12 @@ public class OQProjectSyncService {
                 for (int i = 0; i < nodes.getLength(); i++) {
                     nodeMap = nodes.item(i).getAttributes();
                     project = new Project();
+
                     project.setName(nodeMap.getNamedItem("name").getNodeValue().trim());
                     project.setProjectId(nodeMap.getNamedItem("id").getNodeValue());
+                    project.setStartDate(format.parse(nodeMap.getNamedItem("begining").getNodeValue()));
+                    project.setEndDate(format.parse(nodeMap.getNamedItem("ending").getNodeValue()));
+
                     String status = nodeMap.getNamedItem("status").getNodeValue();
                     Project byProjectId = projectDAO.findByProjectId(project.getProjectId());
                     if (byProjectId != null) {

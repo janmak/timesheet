@@ -44,6 +44,12 @@ public class Project {
 	@JoinTable(name = "division_project", joinColumns = { @JoinColumn(name = "project_id", nullable = false) }, inverseJoinColumns = { @JoinColumn(name = "division_id", nullable = false) })
 	private Set<Division> divisions;
 
+    @Column(name = "start_date", columnDefinition = "date")
+    private Date startDate;
+
+    @Column(name = "end_date", columnDefinition = "date")
+    private Date endDate;
+
 	public Set<Division> getDivisions() {
 		return divisions;
 	}
@@ -116,7 +122,23 @@ public class Project {
 		this.projectId = projectId;
 	}
 
-	@Override
+    public Date getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(Date startDate) {
+        this.startDate = startDate;
+    }
+
+    public Date getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(Date endDate) {
+        this.endDate = endDate;
+    }
+
+    @Override
 	public String toString() {
 		return new StringBuilder()
 			.append(" id=").append(id)
