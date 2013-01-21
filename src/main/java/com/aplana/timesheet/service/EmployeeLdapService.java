@@ -1,9 +1,15 @@
 package com.aplana.timesheet.service;
 
+import com.aplana.timesheet.dao.EmployeeDAO;
 import com.aplana.timesheet.dao.EmployeeLdapDAO;
+import com.aplana.timesheet.dao.EmployeePermissionsDAO;
+import com.aplana.timesheet.dao.ProjectRolePermissionsDAO;
 import com.aplana.timesheet.dao.entity.Division;
 import com.aplana.timesheet.dao.entity.Employee;
+import com.aplana.timesheet.dao.entity.EmployeePermissions;
+import com.aplana.timesheet.dao.entity.Permission;
 import com.aplana.timesheet.dao.entity.ProjectRole;
+import com.aplana.timesheet.dao.entity.ProjectRolePermissions;
 import com.aplana.timesheet.dao.entity.Region;
 import com.aplana.timesheet.dao.entity.ldap.EmployeeLdap;
 import com.aplana.timesheet.util.DateTimeUtil;
@@ -36,6 +42,11 @@ public class EmployeeLdapService {
 	@Autowired
 	private EmployeeLdapDAO employeeLdapDao;
 
+    @Autowired
+    private ProjectRolePermissionsDAO projectRolePermissionsDAO;
+
+    @Autowired
+    private EmployeePermissionsDAO employeePermissionsDAO;
 
     private enum EmployeeType {
         EMPLOYEE, MANAGER, NEW_EMPLOYEE
@@ -232,12 +243,8 @@ public class EmployeeLdapService {
         employee.setEmail( employeeLdap.getMail().trim() );
         employee.setLdap( employeeLdap.getLdapCn() );
 
-		ProjectRole role = employee.getJob();
-		if (role != null) {
-			ProjectRole sysRole = projectRoleService.getSysRole(employee.getJob().getId());
-			if (sysRole != null) {
-				employee.setRole(sysRole.getSysRoleId());
-			}
+		if (employee.getJob() != null) {
+            setEmployeePermission(employee);
 		}
 
         findAndFillJobField( employeeLdap, errors, employee );
@@ -296,6 +303,16 @@ public class EmployeeLdapService {
         }
 
         return employee;
+    }
+
+    public void setEmployeePermission(Employee employee){
+        Set <Permission> permissions = new TreeSet<Permission>();
+        permissions.add(
+                projectRolePermissionsDAO.getProjectRolePermission(
+                        employee.getJob().getId()
+                )
+        );
+        employee.setPermissions(permissions);
     }
 
     private void findAndFillRegionField( EmployeeLdap employeeLdap, StringBuffer errors, Employee employee ) {

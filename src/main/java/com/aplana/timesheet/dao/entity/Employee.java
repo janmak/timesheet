@@ -55,18 +55,23 @@ public class Employee {
     @ForeignKey(name = "FK_EMP_REGION")
     private Region region;
 
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinTable(name = "employee_permissions",
+               joinColumns = {
+                       @JoinColumn(name = "permission_id", nullable = false) },
+               inverseJoinColumns = {
+                       @JoinColumn(name = "employee_id", nullable = false) })
+    private Set<Permission> permissions;
+
     @Column(name = "not_to_sync", columnDefinition = "bool not null default false")
     private boolean notToSync;
 
-    @Column(name = "role", columnDefinition = "decimal(10,0) not null default 0")
-    private int role;
-
-    public int getRole() {
-        return role;
+    public Set<Permission> getPermissions() {
+        return permissions;
     }
 
-    public void setRole(int role) {
-        this.role = role;
+    public void setPermissions(Set<Permission> permissions) {
+        this.permissions = permissions;
     }
 
     public boolean isNotToSync() {
