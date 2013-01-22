@@ -5,52 +5,39 @@ import com.aplana.timesheet.dao.entity.TimeSheet;
 import com.aplana.timesheet.properties.TSPropertyProvider;
 import com.aplana.timesheet.service.SendMailService;
 import com.aplana.timesheet.util.DateTimeUtil;
+import com.google.common.base.Function;
+import com.google.common.base.Joiner;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Sets;
 import org.springframework.ui.velocity.VelocityEngineUtils;
 
+import javax.annotation.Nullable;
 import javax.mail.MessagingException;
-import javax.mail.NoSuchProviderException;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-public class TimeSheetDeletedSender extends MailSender {
-
-    private TimeSheet deletedTimeSheet;
+public class TimeSheetDeletedSender extends MailSender<TimeSheet> {
 
     public TimeSheetDeletedSender(SendMailService sendMailService, TSPropertyProvider propertyProvider) {
         super(sendMailService, propertyProvider);
     }
 
     @Override
-    protected void initToAddresses() {
-        Integer empId = deletedTimeSheet.getEmployee().getId();
-        StringBuilder email = new StringBuilder();
-        email.append(deletedTimeSheet.getEmployee().getEmail());
-        email.append(",").append(propertyProvider.getMailFromAddress()).append(",");
-        email.append(",").append(sendMailService.getEmployeesManagersEmails(empId)).append(",");
-        email.append(",").append(sendMailService.getProjectParticipantsEmails(deletedTimeSheet));
-        List<Employee> managers = sendMailService.getRegionManagerList(deletedTimeSheet.getEmployee().getId());
-        for(Employee manager:managers) {
-            email.append( "," ).append( manager.getEmail() );
-        }
-        String uniqueSendingEmails = deleteEmailDublicates(email.toString());
-        logger.debug("To address: {}", uniqueSendingEmails);
-        try {
-            toAddr = InternetAddress.parse(uniqueSendingEmails);
-        } catch (AddressException e) {
-            logger.error("Email address has wrong format.", e);
-        }
+    protected InternetAddress[] getToAddresses(Mail mail) throws AddressException {
+        return InternetAddress.parse(Joiner.on(",").join(mail.getToEmails()));
     }
 
     @Override
     @SuppressWarnings({"rawtypes", "unchecked"})
-    protected void initMessageBody() {
-        Map model = sendMailService.getPreFilledModel();
+    protected void initMessageBody(Mail mail, MimeMessage message) {
+        Map model = new HashMap();
 
-        model.put("deletedTimeSheet", deletedTimeSheet);
-        model.put("dateStr", DateTimeUtil.formatDate(deletedTimeSheet.getCalDate().getCalDate()));
+
+        model.put("managerName", sendMailService.getSecurityPrincipal().getEmployee().getName());
+        model.put("employee", Iterables.getFirst(mail.getEmployeeList(), null));
+        model.put("dateStr", mail.getDate());
 
         String messageBody = VelocityEngineUtils.mergeTemplateIntoString(
                 sendMailService.velocityEngine, "timesheetdeleted.vm", model);
@@ -63,9 +50,11 @@ public class TimeSheetDeletedSender extends MailSender {
     }
 
     @Override
-    protected void initMessageSubject() {
+    protected void initMessageSubject(Mail mail, MimeMessage message) {
         StringBuilder messageSubject = new StringBuilder();
-        messageSubject.append("Удален отчет сотрудника ").append(deletedTimeSheet.getEmployee().getName()).append(" за ").append(DateTimeUtil.formatDate(deletedTimeSheet.getCalDate().getCalDate()));
+        messageSubject.append("Удален отчет сотрудника ")
+                .append(Iterables.getFirst(mail.getEmployeeList(), null).getName())
+                .append(" за ").append(mail.getDate());
         logger.debug("Message subject: {}", messageSubject.toString());
         try {
             message.setSubject(messageSubject.toString(), "UTF-8");
@@ -76,25 +65,38 @@ public class TimeSheetDeletedSender extends MailSender {
 
     public void sendMessage(TimeSheet timeSheet) {
 
-        deletedTimeSheet = timeSheet;
+        sendMessage(timeSheet, new MailFunction<TimeSheet>() {
+            @Override
+            public List<Mail> performMailing(@Nullable TimeSheet input) throws MessagingException {
+                logger.info("Performing mailing about deleted timesheet.");
+                Mail mail = new Mail();
 
-        try {
-            initSender();
+                mail.getToEmails().addAll(getToEmails(input));
+                mail.setEmployeeList(Arrays.asList(input.getEmployee()));
+                mail.setDate(DateTimeUtil.formatDate(input.getCalDate().getCalDate()));
 
-            logger.info("Performing mailing about deleted timesheet.");
+                return Arrays.asList(mail);
+            }
+        });
+    }
 
-            message = new MimeMessage(session);
-            initMessageHead();
-            initMessageBody();
+    private Collection<? extends String> getToEmails(TimeSheet input) {
+        Integer empId = input.getEmployee().getId();
 
-            sendMessage();
+        Set<String> result = Sets.newHashSet(Iterables.transform(
+                sendMailService.getRegionManagerList(input.getEmployee().getId()),
+                new Function<Employee, String>() {
+                    @Nullable @Override
+                    public String apply(@Nullable Employee manager) {
+                        return manager.getEmail();
+                    }
+                }));
 
-        } catch (NoSuchProviderException e) {
-            logger.error("Provider for {} protocol not found.", propertyProvider.getMailTransportProtocol(), e);
-        } catch (MessagingException e) {
-            logger.error("Error while sending email message.", e);
-        } finally {
-            deInitSender();
-        }
+        result.add(input.getEmployee().getEmail());
+        result.add(propertyProvider.getMailFromAddress());
+        result.add(sendMailService.getEmployeesManagersEmails(empId));
+        result.add(sendMailService.getProjectParticipantsEmails(input));
+
+        return result;
     }
 }

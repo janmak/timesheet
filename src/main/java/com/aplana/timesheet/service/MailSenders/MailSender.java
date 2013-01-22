@@ -17,20 +17,12 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.HashSet;
+import java.util.List;
 import java.util.Properties;
-import java.util.Set;
 
-public class MailSender {
+public abstract class MailSender<T> {
 
     protected static final Logger logger = LoggerFactory.getLogger(MailSender.class);
-
-    protected MimeMessage message;
-    protected Transport transport;
-    protected InternetAddress[] toAddr;
-    protected InternetAddress fromAddr;
-    protected InternetAddress[] ccAddr;
-    protected Session session;
 
     protected SendMailService sendMailService;
     protected TSPropertyProvider propertyProvider;
@@ -40,78 +32,120 @@ public class MailSender {
         this.propertyProvider = propertyProvider;
     }
 
-    protected void initMessageHead() {
-        initFromAddresses();
-        initCcAddresses();
-        initToAddresses();
-        initMessageSubject();
+    private void initMessageHead(Mail mail, MimeMessage message) {
+        InternetAddress fromAddr = initFromAddresses(mail);
+        InternetAddress[] ccAddresses = initCcAddresses(mail);
+        InternetAddress[] toAddresses = initToAddresses(mail);
+        logger.debug("CC Addresses: {}", toAddresses.toString());
+
+        initMessageSubject(mail, message);
         try {
-            message.setRecipients(MimeMessage.RecipientType.CC, ccAddr);
-            message.setRecipients(MimeMessage.RecipientType.TO, toAddr);
+            message.setRecipients(MimeMessage.RecipientType.TO, toAddresses);
+            if (ccAddresses != null) {
+                message.setRecipients(MimeMessage.RecipientType.CC, ccAddresses);
+            }
             message.setFrom(fromAddr);
         } catch (MessagingException e) {
             logger.error("Error while init message recipients.", e);
          }
     }
 
-    protected void initFromAddresses() {
+    protected InternetAddress initFromAddresses(Mail mail) {
         String fromAddress = propertyProvider.getMailFromAddress();
         try {
-            fromAddr = InternetAddress.parse(fromAddress)[0];
-            logger.debug("From Address = {}", fromAddress);
+            return InternetAddress.parse(fromAddress)[0];
         } catch (AddressException e) {
-            logger.error("Email address {} has wrong format.", fromAddress, e);
+            throw new IllegalArgumentException(String.format("Email address %s has wrong format.", fromAddress), e);
         }
     }
 
-    protected void initCcAddresses() {
+    protected InternetAddress[] initCcAddresses(Mail mail) {
         logger.debug("MailSender.initCcAddresses");
+        return null;
     }
 
-    protected void initToAddresses() {
+    private InternetAddress[] initToAddresses(Mail mail) {
+        try {
+            InternetAddress[] toAddresses = getToAddresses(mail);
+            logger.debug("To Address = {}", toAddresses);
+            return toAddresses;
+        } catch (AddressException e) {
+            throw new IllegalArgumentException("Email address has wrong format.", e);
+        }
+    }
+
+    protected InternetAddress[] getToAddresses(Mail mail) throws AddressException{
         logger.debug("MailSender.initToAddresses");
+        return null;
     }
 
-    protected void initMessageSubject() {
+    protected void initMessageSubject(Mail mail, MimeMessage message) {
         logger.debug("MailSender.initMessageSubject");
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})
-    protected void initMessageBody() {
+    protected void initMessageBody(Mail mail, MimeMessage message) {
         logger.debug("MailSender.initMessageBody");
     }
 
-    public void initSender() throws MessagingException {
-        session = getMailSession();
 
-        transport = session.getTransport();
-        transport.connect();
-    }
+    protected void initAndSendMessage(List<Mail> mailList) throws MessagingException {
+        Transport transport = null;
+        try {
+            Session session = getMailSession();
 
-    public void sendMessage() throws MessagingException {
-        logger.info("Sending message.");
-        if (Boolean.parseBoolean(propertyProvider.getMailSendEnable())) {
-            transport.sendMessage(message, message.getAllRecipients());
-            logger.info("Message sended.");
-        } else {
+            transport = session.getTransport();
+            transport.connect();
+
+
+            for (Mail mail : mailList) {
+
+                MimeMessage message = new MimeMessage(session);
+
+                initMessageHead(mail, message);
+                initMessageBody(mail, message);
+
+
+                logger.info("Sending message.");
+                if (Boolean.parseBoolean(propertyProvider.getMailSendEnable())) {
+                    transport.sendMessage(message, message.getAllRecipients());
+                    logger.info("Message sended.");
+                } else {
+                    try {
+                        logger.info("Message is formed, but the sending off in the options. Message text: " + message.getContent().toString());
+                    } catch (IOException e) {
+                        logger.debug("Sending error", e);
+                    }
+                }
+            }
+        } finally {
             try {
-                logger.info("Message is formed, but the sending off in the options. Message text: " + message.getContent().toString());
-            } catch (IOException e) {
-                logger.debug("Sending error", e);
+                if (transport != null) {
+                    transport.close();
+                }
+            } catch (MessagingException e) {
+                logger.error("Error while closing transport.", e);
             }
         }
-
     }
 
-    public void deInitSender() {
+
+    public interface MailFunction<F> {
+        List<Mail> performMailing(@Nullable F input) throws MessagingException;
+    }
+
+    protected void sendMessage(T params, MailFunction<T> performFunction ) {
         try {
-            transport.close();
+            List<Mail> mails = performFunction.performMailing(params);
+            initAndSendMessage(mails);
+        } catch (NoSuchProviderException e) {
+            logger.error("Provider for {} protocol not found.", propertyProvider.getMailTransportProtocol(), e);
         } catch (MessagingException e) {
-            logger.error("Error while closing transport.", e);
+            logger.error("Error while sending email message.", e);
         }
     }
 
-    protected Session getMailSession() {
+    private Session getMailSession() {
         Properties sysProperties = TSPropertyProvider.getProperties();
         if (StringUtils.isBlank(propertyProvider.getMailSmtpPort())) {
             sysProperties.put("mail.smtp.port", "25");

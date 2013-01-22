@@ -10,6 +10,7 @@ import com.aplana.timesheet.form.TimeSheetTableRowForm;
 import com.aplana.timesheet.properties.TSPropertyProvider;
 import com.aplana.timesheet.service.MailSenders.*;
 import com.aplana.timesheet.util.DateTimeUtil;
+import com.aplana.timesheet.util.TimeSheetUser;
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Predicate;
@@ -115,7 +116,7 @@ public class SendMailService{
      * @return email сотрудника
      */
     public String getEmployeeEmail(Integer empId) {
-        return employeeService.find(empId).getEmail();
+        return empId == null ? null : employeeService.find(empId).getEmail();
     }
     /**
      * Возвращает строку с адресами менеджеров проектов/пресейлов
@@ -183,7 +184,7 @@ public class SendMailService{
     }
 
     public void performLoginProblemMailing(AdminMessageForm form) {
-        new LoginProblemSender(this, propertyProvider).SendLoginProblem(form);
+        new LoginProblemSender(this, propertyProvider).sendLoginProblem(form);
     }
 
     public void performPersonalAlertMailing(List<ReportCheck> rCheckList) {
@@ -230,6 +231,14 @@ public class SendMailService{
 
     public List<Employee> getRegionManagerList(Integer id) {
         return employeeService.getRegionManager(id);
+    }
+
+    public TimeSheetUser getSecurityPrincipal() {
+        return securityService.getSecurityPrincipal();
+    }
+
+    public String getProjectName(int projectId) {
+        return projectService.find(projectId).getName();
     }
 
     interface RenameMe {

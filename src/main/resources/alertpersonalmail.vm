@@ -7,16 +7,16 @@
         <td><b>Пропущенные дни</b></td>
       </tr>
       <tr>
-        <td><b>$currentReportCheck.employee.name </b></td>
-        <td><b>$currentReportCheck.employee.job.name </b></td>
+        <td><b>$employee.name </b></td>
+        <td><b>$employee.job.name </b></td>
         <td><b> 
-        	#if ($currentReportCheck.employee.manager != $null)
-			$currentReportCheck.employee.manager.name
+        	#if ($employee.manager != $null)
+			$employee.manager.name
 			#end 
 		</b></td>
         <td>
 		<ol>
-			#foreach($day in $currentReportCheck.passedDays)
+			#foreach($day in $passedDays)
 			<li><b> $day </b></li>		
 			#end
 		</ol>

@@ -5,68 +5,64 @@ import com.aplana.timesheet.properties.TSPropertyProvider;
 import com.aplana.timesheet.service.SendMailService;
 import org.apache.commons.lang3.StringEscapeUtils;
 
+import javax.annotation.Nullable;
 import javax.mail.MessagingException;
 import javax.mail.Multipart;
-import javax.mail.NoSuchProviderException;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * User: eyaroslavtsev
  * Date: 03.08.12
  * Time: 14:13
  */
-public class LoginProblemSender extends MailSender {
-
-    private AdminMessageForm adminMessageForm;
+public class LoginProblemSender extends MailSender<AdminMessageForm> {
 
     public LoginProblemSender(SendMailService sendMailService, TSPropertyProvider propertyProvider) {
         super(sendMailService, propertyProvider);
     }
 
     @Override
-    protected void initMessageBody() {
-        Multipart multiPart = new MimeMultipart();
-        MimeBodyPart messageText = new MimeBodyPart();
-        StringBuilder bodyTxt = new StringBuilder();
+    protected void initMessageBody(Mail mail, MimeMessage message) {
 
-        bodyTxt.append("Логин: ").append(adminMessageForm.getName()).append("\n");
-        bodyTxt.append("Указаный адрес: ").append(adminMessageForm.getEmail()).append("\n");
-        bodyTxt.append("Ошибка: ").append(adminMessageForm.getError()).append("\n");
-        bodyTxt.append("Время: ").append(adminMessageForm.getDate()).append("\n");
-        bodyTxt.append("Описание пользователя: ").append(adminMessageForm.getDescription()).append("\n");
-        bodyTxt.append(StringEscapeUtils.escapeHtml4(adminMessageForm.getDescription()));
-        logger.info(adminMessageForm.toString());
         try {
-            messageText.setText(bodyTxt.toString(), "UTF-8", "html");
+            MimeBodyPart messageText = new MimeBodyPart();
+            Multipart multiPart = new MimeMultipart();
+
+            messageText.setText(mail.getPreconstructedMessageBody(), "UTF-8", "html");
             multiPart.addBodyPart(messageText);
+
             message.setContent(multiPart);
         } catch (Exception e) {
             logger.error("Error while init message body.", e);
         }
     }
 
-    public void SendLoginProblem(AdminMessageForm form) {
-        adminMessageForm = form;
+    public void sendLoginProblem(AdminMessageForm form) {
+        sendMessage(form, new MailFunction<AdminMessageForm>() {
+            @Override
+            public List<Mail> performMailing(@Nullable AdminMessageForm input) throws MessagingException {
+                logger.info("Login problem mailing.");
+                Mail mail = new Mail();
 
-        try {
-            initSender();
+                StringBuilder bodyTxt = new StringBuilder();
 
-            logger.info("Login problem mailing.");
+                bodyTxt.append("Логин: ").append(input.getName()).append("\n");
+                bodyTxt.append("Указаный адрес: ").append(input.getEmail()).append("\n");
+                bodyTxt.append("Ошибка: ").append(input.getError()).append("\n");
+                bodyTxt.append("Время: ").append(input.getDate()).append("\n");
+                bodyTxt.append("Описание пользователя: ").append(input.getDescription()).append("\n");
+                bodyTxt.append(StringEscapeUtils.escapeHtml4(input.getDescription()));
 
-            message = new MimeMessage(session);
-            initMessageHead();
-            initMessageBody();
+                logger.info(input.toString());
 
-            sendMessage();
+                mail.setPreconstructedMessageBody(bodyTxt.toString());
 
-        } catch (NoSuchProviderException e) {
-            logger.error("Provider for {} protocol not found.", propertyProvider.getMailTransportProtocol(), e);
-        } catch (MessagingException e) {
-            logger.error("Error while sending email message.", e);
-        } finally {
-            deInitSender();
-        }
+                return Arrays.asList(mail);
+            }
+        });
     }
 }

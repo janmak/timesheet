@@ -1,84 +1,58 @@
 package com.aplana.timesheet.service.MailSenders;
 
 import com.aplana.timesheet.dao.entity.Employee;
+import com.aplana.timesheet.enums.CategoryOfActivity;
+import com.aplana.timesheet.enums.TypeOfActivity;
+import com.aplana.timesheet.enums.WorkPlace;
 import com.aplana.timesheet.form.TimeSheetForm;
+import com.aplana.timesheet.form.TimeSheetTableRowForm;
 import com.aplana.timesheet.properties.TSPropertyProvider;
+import com.aplana.timesheet.service.ProjectService;
 import com.aplana.timesheet.service.SendMailService;
 import com.aplana.timesheet.util.DateTimeUtil;
+import com.google.common.base.Function;
+import com.google.common.base.Joiner;
+import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Sets;
+import com.google.common.collect.Table;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.ui.velocity.VelocityEngineUtils;
 
+import javax.annotation.Nullable;
 import javax.mail.MessagingException;
-import javax.mail.NoSuchProviderException;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
-import java.text.SimpleDateFormat;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-public class TimeSheetSender extends MailSender {
-
-    private TimeSheetForm tsForm;
+public class TimeSheetSender extends MailSender<TimeSheetForm> {
 
     public TimeSheetSender(SendMailService sendMailService, TSPropertyProvider propertyProvider) {
         super(sendMailService, propertyProvider);
     }
 
     @Override
-    protected void initFromAddresses() {
-        String employeeEmail = sendMailService.getEmployeeEmail(tsForm.getEmployeeId());
+    protected InternetAddress initFromAddresses(Mail mail) {
         try {
+            String employeeEmail = mail.getFromEmail();
             logger.debug("From Address = {}", employeeEmail);
-            fromAddr = new InternetAddress(employeeEmail);
+            return new InternetAddress(employeeEmail);
         } catch (AddressException e) {
             logger.error("Employee email address has wrong format.", e);
+            throw new IllegalArgumentException(e);
         }
     }
 
     @Override
-    protected void initToAddresses() {
-        StringBuilder toAddresses = new StringBuilder();
-
-        toAddresses.append(sendMailService.getEmployeeEmail(tsForm.getEmployeeId())).append(",");
-        toAddresses.append(sendMailService.getEmployeesManagersEmails(tsForm.getEmployeeId()));
-        logger.debug("EmployeesManagersEmails: {}", toAddresses.toString());
-        toAddresses.append(sendMailService.getProjectsManagersEmails(tsForm));
-        logger.debug(" + ProjectsManagersEmail: {}", toAddresses.toString());
-        toAddresses.append(sendMailService.getProjectParticipantsEmails(tsForm));
-        logger.debug(" + ProjectParticipantsEmails: {}", toAddresses.toString());
-        List<Employee> managers = sendMailService.getRegionManagerList(tsForm.getEmployeeId());
-        for(Employee manager:managers) {
-            toAddresses.append( "," ).append( manager.getEmail() );
-        }
-        logger.debug(" + To Addresses: {}", toAddresses.toString());
-        String uniqueSendingEmails = deleteEmailDublicates(toAddresses.toString());
-        logger.debug(" + To Addresses: {}", uniqueSendingEmails);
-        try {
-            toAddr = InternetAddress.parse(uniqueSendingEmails);
-        } catch (AddressException e) {
-            logger.error("Email address has wrong format.", e);
-        }
+    protected InternetAddress[] getToAddresses(Mail mail) throws AddressException {
+        return InternetAddress.parse(Joiner.on(",").join(mail.getToEmails()));
     }
 
     @Override
-    protected void initMessageSubject() {
-        String calDate = tsForm.getCalDate();
-        String beginLongDate = tsForm.getBeginLongDate();
-        String date;
-        StringBuilder messageSubject = new StringBuilder();
-        messageSubject.append("Status report - ");
-
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd");
-
-        if (!tsForm.isLongIllness() && !tsForm.isLongVacation()) {
-            date = sdf.format(DateTimeUtil.stringToDate(calDate, "yyyy-MM-dd"));
-        } else {
-            date = sdf.format(DateTimeUtil.stringToDate(beginLongDate, "yyyy-MM-dd"));
-        }
-        messageSubject.append(date);
-        logger.debug("Message subject: {}", messageSubject.toString());
+    protected void initMessageSubject(Mail mail, MimeMessage message) {
         try {
-            message.setSubject(messageSubject.toString(), "UTF-8");
+            message.setSubject(mail.getSubject(), "UTF-8");
         } catch (MessagingException e) {
             logger.error("Error while init message subject.", e);
         }
@@ -86,14 +60,14 @@ public class TimeSheetSender extends MailSender {
 
     @Override
     @SuppressWarnings({"unchecked", "rawtypes"})
-    protected void initMessageBody() {
+    protected void initMessageBody(Mail mail, MimeMessage message) {
         Map model = sendMailService.getPreFilledModel();
 
-        model.put("tsForm", tsForm);
+        model.put("paramsForGenerateBody", mail.getParamsForGenerateBody());
 
         logger.info("follows initialization output from velocity");
-        String messageBody =
-                VelocityEngineUtils.mergeTemplateIntoString(sendMailService.velocityEngine, "sendmail.vm", model);
+        String messageBody = VelocityEngineUtils.mergeTemplateIntoString(
+                sendMailService.velocityEngine, "sendmail.vm", model);
         logger.debug("Message Body: {}", messageBody);
         try {
             message.setText(messageBody, "UTF-8", "html");
@@ -103,27 +77,97 @@ public class TimeSheetSender extends MailSender {
     }
 
     public void sendTimeSheetMessage(TimeSheetForm form) {
+        sendMessage(form, new MailFunction<TimeSheetForm>() {
+            @Override
+            public List<Mail> performMailing(@Nullable TimeSheetForm input) throws MessagingException {
+                logger.info("Performing timesheet mailing.");
+                Mail mail = new Mail();
 
-        tsForm = form;
+                mail.setFromEmail(sendMailService.getEmployeeEmail(input.getEmployeeId()));
+                mail.getToEmails().addAll(getToEmails(input));
+                mail.setSubject(getSubject(input));
+                mail.setParamsForGenerateBody(getBody(input));
 
-        try {
-            initSender();
+                return Arrays.asList(mail);
+            }
+        });
+    }
 
-            logger.info("Performing timesheet mailing.");
+    private String getSubject(TimeSheetForm input) {
+        return "Status report - " +
+                (!input.isLongIllness() && !input.isLongVacation()
+                    ? input.getCalDate() : input.getBeginLongDate());
+    }
 
-            message = new MimeMessage(session);
-            initMessageHead();
-            initMessageBody();
+    private Collection<? extends String> getToEmails(TimeSheetForm input) {
+        Set<String> toEmails = Sets.newHashSet(Iterables.transform(
+                sendMailService.getRegionManagerList(input.getEmployeeId()),
+                new Function<Employee, String>() {
+                    @Nullable
+                    @Override
+                    public String apply(@Nullable Employee input) {
+                        return input.getEmail();
+                    }
+                }));
 
-            sendMessage();
+        toEmails.add(sendMailService.getEmployeeEmail(input.getEmployeeId()));
+        toEmails.add(sendMailService.getEmployeesManagersEmails(input.getEmployeeId()));
+        toEmails.add(sendMailService.getProjectsManagersEmails(input));
+        toEmails.add(sendMailService.getProjectParticipantsEmails(input));
+        return toEmails;
+    }
 
-        } catch (NoSuchProviderException e) {
-            logger.error("Provider for {} protocol not found.", propertyProvider.getMailTransportProtocol(), e);
-        } catch (MessagingException e) {
-            logger.error("Error while sending email message.", e);
-        } finally {
-            deInitSender();
+    private Table<Integer, String, String> getBody(TimeSheetForm tsForm) {
+        Table<Integer, String, String> result = HashBasedTable.create();
+        ProjectService projectService = null;
+        int FIRST = 0;
+
+        List<TimeSheetTableRowForm> tsRows = tsForm.getTimeSheetTablePart();
+
+        if (tsRows != null) {
+            for (int i = 0; i < tsRows.size(); i++) {
+                TimeSheetTableRowForm tsRow = tsRows.get(i);
+
+                WorkPlace workPlace = WorkPlace.getById(tsRow.getWorkplaceId());
+                result.put(i, "workPlace", workPlace != null ? workPlace.getName() : "Неизвестно");
+
+                Integer actTypeId = tsRow.getActivityTypeId();
+                result.put(i, "actType", TypeOfActivity.getById(actTypeId).getName());
+
+                String projectName = null;
+                if (actTypeId <= 13) {
+                    Integer projectId = tsRow.getProjectId();
+                    if (projectId != null) {
+                        result.put(i, "projectName", (projectName = sendMailService.getProjectName(projectId)));
+                    }
+                }
+                Integer actCatId = tsRow.getActivityCategoryId();
+                if (actCatId != null && actCatId > 0) {
+                    result.put(i, "categoryOfActivity", CategoryOfActivity.getById(actCatId).getName());
+                }
+                putIfIsNotBlank(i, result, "cqId", tsRow.getCqId());
+                putIfIsNotBlank(i, result, "duration", tsRow.getDuration());
+                putIfIsNotBlank(i, result, "descriptionStrings", tsRow.getDescriptionEscaped());
+                putIfIsNotBlank(i, result, "problemStrings", tsRow.getProblemEscaped());
+
+            }
+            putIfIsNotBlank(FIRST, result, "planStrings", tsForm.getPlanEscaped());
+        } else if (tsForm.isLongIllness() || tsForm.isLongVacation()) {
+            if (tsForm.isLongIllness()) {
+                result.put(FIRST, "reason", "Болезнь с");
+            } else if (tsForm.isLongVacation()) {
+                result.put(FIRST, "reason", "Отпуск с");
+            }
+            result.put(FIRST, "beginLongDate", DateTimeUtil.formatDateString(tsForm.getBeginLongDate()));
+            result.put(FIRST, "endLongDate", DateTimeUtil.formatDateString(tsForm.getEndLongDate()));
         }
 
+        return result;
+    }
+
+    private void putIfIsNotBlank(int i, Table<Integer,String,String> result, String key, String value) {
+        if (StringUtils.isNotBlank(value)) {
+            result.put(i, key, value);
+        }
     }
 }

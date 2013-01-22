@@ -5,48 +5,41 @@ import com.aplana.timesheet.dao.entity.ReportCheck;
 import com.aplana.timesheet.properties.TSPropertyProvider;
 import com.aplana.timesheet.service.SendMailService;
 import com.aplana.timesheet.util.DateTimeUtil;
+import com.google.common.base.Function;
+import com.google.common.base.Joiner;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Sets;
 import org.springframework.ui.velocity.VelocityEngineUtils;
 
+import javax.annotation.Nullable;
 import javax.mail.MessagingException;
-import javax.mail.NoSuchProviderException;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import java.util.*;
 
-public class ManagerAlertSender extends MailSender {
-    private List<ReportCheck> currentReportCheckList;
-    
-    private Employee currentManager;
-
-    private final HashMap<Employee, List> managerMap = new HashMap<Employee, List>();
+public class ManagerAlertSender extends MailSender<List<ReportCheck>> {
 
     public ManagerAlertSender(SendMailService sendMailService, TSPropertyProvider propertyProvider) {
         super(sendMailService, propertyProvider);
     }
 
     @Override
-    protected void initToAddresses() {
-        String toAddresses = currentManager.getEmail();
-        try {
-            toAddr = InternetAddress.parse(toAddresses); 
-            logger.debug("CC Addresses: {}", toAddresses);
-        } catch (AddressException e) {
-            logger.error("Email address has wrong format.", e);
-        }
+    protected InternetAddress[] getToAddresses(Mail mail) throws AddressException {
+        String toAddresses = mail.getEmployeeList().iterator().next().getEmail();
+        return InternetAddress.parse(toAddresses);
     }
 
     @Override
     @SuppressWarnings({"rawtypes", "unchecked"})
-    protected void initMessageBody() {
+    protected void initMessageBody(Mail mail, MimeMessage message) {
         Map model = new HashMap();
-        model.put("division", currentReportCheckList.get(0).getDivision().getName());
-        model.put("reportCheckList", currentReportCheckList);
+        model.put("division", mail.getDivision().getName());
+        model.put("employeeList", mail.getEmployeeList());
+        model.put("passedDays", mail.getPassedDays());
         //если это центр заказной разработки
-        if(currentReportCheckList.get(0).getDivision().getId()==1)
-            model.put("region","show");
-        else
-            model.put("region","");
+        model.put("region", mail.getDivision().getId() == 1 ? "show" : "");
+
         String messageBody = VelocityEngineUtils.mergeTemplateIntoString(
                 sendMailService.velocityEngine, "alertmail.vm", model);
         logger.debug("Message Body: {}", messageBody);
@@ -58,45 +51,53 @@ public class ManagerAlertSender extends MailSender {
     }
 
     @Override
-    protected void initMessageSubject() {
-        StringBuilder messageSubject = new StringBuilder();
-        messageSubject.append("Отчет по списанию занятости за ");
-
-        List<String> monthList = new ArrayList<String>();
-
-        List<String> passedDays;
-
-        String monthName;
-
-        String text = "";
-
-        for ( ReportCheck report : currentReportCheckList ) {
-            passedDays = report.getPassedDays();
-
-            for ( String next : passedDays ) {
-                monthName = DateTimeUtil.getMonthTxt( next );
-                if ( ! monthList.contains( monthName ) ) {
-                    monthList.add( monthName );
-                }
-            }
-        }
-
-        for (Iterator<String> iterator = monthList.iterator(); iterator.hasNext(); ) {
-            String next = iterator.next();
-
-            text += next;
-            if (iterator.hasNext())
-                text += ", ";
-        }
-
-        messageSubject.append(text);
-
-        logger.debug("Message subject: {}", messageSubject.toString());
+    protected void initMessageSubject(Mail mail, MimeMessage message) {
+        String messageSubject = mail.getSubject();
+        logger.debug("Message subject: {}", messageSubject);
         try {
-            message.setSubject(messageSubject.toString(), "UTF-8");
+            message.setSubject(messageSubject, "UTF-8");
         } catch (MessagingException e) {
             logger.error("Error while init message subject.", e);
         }
+    }
+
+    public void sendAlert(List<ReportCheck> rCheckList) {
+        sendMessage(rCheckList, new MailFunction<List<ReportCheck>>() {
+            @Override
+            public List<Mail> performMailing(@Nullable List<ReportCheck> input) throws MessagingException {
+                logger.info("Performing manager mailing.");
+                // Формируем для каждого руководителя отдельный список отчетов его подчиненных
+                Map<Employee, List> managerMap = new HashMap<Employee, List>();
+
+                for ( ReportCheck reportCheck : input ) {
+                    addReportToManagerLists(reportCheck.getEmployee(), reportCheck, managerMap);
+                }
+
+                List<Mail> mails = new ArrayList<Mail>(input.size());
+
+                // Для каждого руководителя формируем отдельное письмо со списком отчетов по его подчиненным
+                for (Map.Entry<Employee, List> entry : managerMap.entrySet()) {
+                    Employee currentManager = entry.getKey();
+                    //если руководитель помечен как archived
+                    //не было реал. в storeReportCheck тк список руководителей формируется здесь(выше)
+                    if (currentManager.isDisabled(null))
+                        logger.info("Manager {} is disabled", currentManager.getName());
+                    else {
+                        Mail mail = new Mail();
+
+                        List<ReportCheck> currentReportCheckList = entry.getValue();
+
+                        mail.setSubject(getSubject(currentReportCheckList));
+                        mail.setDivision(currentReportCheckList.get(0).getDivision());
+                        mail.setEmployeeList(Arrays.asList(currentManager));
+                        mail.getPassedDays().putAll(getPassedDays(currentReportCheckList));
+
+                        mails.add(mail);
+                    }
+                }
+                return mails;
+            }
+        });
     }
 
     /**
@@ -106,7 +107,7 @@ public class ManagerAlertSender extends MailSender {
      * @param employee
      * @param reportCheck
      */
-    private void addReportToManagerLists(Employee employee, ReportCheck reportCheck) {
+    private Map<Employee, List> addReportToManagerLists(Employee employee, ReportCheck reportCheck, Map<Employee, List> managerMap) {
 
         Employee manager = employee.getManager();
 
@@ -117,54 +118,37 @@ public class ManagerAlertSender extends MailSender {
 
             managerMap.get(manager).add(reportCheck);
 
-            addReportToManagerLists(manager, reportCheck);
+            return addReportToManagerLists(manager, reportCheck, managerMap);
         }
+        return managerMap;
     }
 
+    private Map<Employee,List<String>> getPassedDays(List<ReportCheck> currentReportCheckList) {
+        Map<Employee,List<String>> result = new HashMap<Employee, List<String>>();
 
-    public void buildManagerCheckLists(List<ReportCheck> reportCheckList) {
-
-        for ( ReportCheck reportCheck : reportCheckList ) {
-            addReportToManagerLists( reportCheck.getEmployee(), reportCheck );
+        for (ReportCheck reportCheck : currentReportCheckList) {
+            result.put(reportCheck.getEmployee(), reportCheck.getPassedDays());
         }
+        return result;
     }
 
-    public void sendAlert(List<ReportCheck> rCheckList) {
-
-        try {
-            initSender();
-
-            logger.info("Performing manager mailing.");
-
-            // Формируем для каждого руководителя отдельный список отчетов его подчиненных
-            buildManagerCheckLists(rCheckList);
-
-            // Для каждого руководителя формируем отдельное письмо со списком отчетов по его подчиненным
-            for (Map.Entry<Employee, List> entry : managerMap.entrySet()) {
-                currentManager = entry.getKey();
-                //если руководитель помечен как archived
-                //не было реал. в storeReportCheck тк список руководителей формируется здесь(выше)
-                if(currentManager.isDisabled(null))
-                    logger.info("Manager {} is disabled",currentManager.getName());
-                else
-                {
-                    currentReportCheckList = entry.getValue();
-
-                    message = new MimeMessage(session);
-                    initMessageHead();
-                    initMessageBody();
-
-                    sendMessage();
-                }
+    private String getSubject(List<ReportCheck> currentReportCheckList) {
+        Iterable<String> concat = Iterables.concat(Iterables.transform(currentReportCheckList, new Function<ReportCheck, Iterable<String>>() {
+            @Nullable
+            @Override
+            public Iterable<String> apply(@Nullable ReportCheck input) {
+                return input.getPassedDays();
             }
+        }));
 
-        } catch (NoSuchProviderException e) {
-            logger.error("Provider for {} protocol not found.",
-                    propertyProvider.getMailTransportProtocol(), e);
-        } catch (MessagingException e) {
-            logger.error("Error while sending email message.", e);
-        } finally {
-            deInitSender();
-        }
+        return "Отчет по списанию занятости за " + Joiner.on(", ").join(
+                Sets.newHashSet(Iterables.transform(concat, new Function<String, String>() {
+                    @Nullable @Override
+                    public String apply(@Nullable String input) {
+                        return DateTimeUtil.getMonthTxt(input);
+                    }
+                }))
+        );
     }
+
 }

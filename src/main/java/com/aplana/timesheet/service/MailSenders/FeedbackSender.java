@@ -4,76 +4,56 @@ import com.aplana.timesheet.form.FeedbackForm;
 import com.aplana.timesheet.properties.TSPropertyProvider;
 import com.aplana.timesheet.service.SendMailService;
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.activation.DataHandler;
-import javax.activation.DataSource;
-import javax.activation.FileDataSource;
+import javax.annotation.Nullable;
 import javax.mail.MessagingException;
 import javax.mail.Multipart;
-import javax.mail.NoSuchProviderException;
 import javax.mail.internet.*;
-import java.io.File;
-import java.io.FileOutputStream;
+import javax.mail.util.ByteArrayDataSource;
+import java.util.Arrays;
+import java.util.List;
 
-public class FeedbackSender extends MailSender {
-
-    private FeedbackForm tsForm;
-
-
-    private InternetAddress ccAddress;
+public class FeedbackSender extends MailSender<FeedbackForm> {
 
     public FeedbackSender(SendMailService sendMailService, TSPropertyProvider propertyProvider) {
         super(sendMailService, propertyProvider);
     }
 
     @Override
-    protected void initCcAddresses() {
-        if (tsForm.getEmail() != null && (!tsForm.getEmail().isEmpty())) {
+    protected InternetAddress[] initCcAddresses(Mail mail) {
+        if (StringUtils.isNotBlank(mail.getCcEmail())) {
             try {
-                ccAddress = new InternetAddress(tsForm.getEmail());
-                message.setRecipients(MimeMessage.RecipientType.CC, new InternetAddress[]{ccAddress});
+                return new InternetAddress[]{new InternetAddress(mail.getCcEmail())};
             } catch (MessagingException e) {
                 logger.error("Employee email address has wrong format.", e);
             }
         }
+        return null;
     }
 
     @Override
-    protected void initFromAddresses() {
-        Integer employeeId = tsForm.getEmployeeId();
-        String employeeEmail;
-        if (employeeId != null) {
-			employeeEmail = sendMailService.getEmployeeEmail(employeeId);
-		} else {
-			return;
-		}
+    protected InternetAddress initFromAddresses(Mail mail) {
+        String employeeEmail = mail.getFromEmail();
         logger.debug("From Address = {}", employeeEmail);
         try {
-            fromAddr = new InternetAddress(employeeEmail);
-
-            message.setFrom(fromAddr);
-            message.setRecipients(MimeMessage.RecipientType.TO, toAddr);
-
+            return new InternetAddress(employeeEmail);
         } catch (MessagingException e) {
-            logger.error("Employee email address has wrong format.", e);
+            throw new IllegalArgumentException(String.format("Email address %s has wrong format.", employeeEmail), e);
         }
     }
 
     @Override
-    protected void initToAddresses() {
+    protected InternetAddress[] getToAddresses(Mail mail) throws AddressException{
         String toAddress = propertyProvider.getMailProblemsAndProposalsCoaddress();
-        try {
-            toAddr = InternetAddress.parse(toAddress);
-            logger.debug("To Address = {}", toAddress);
-        } catch (AddressException e) {
-            logger.error("Email address {} has wrong format.", toAddress, e);
-        }
+        return InternetAddress.parse(toAddress);
     }
 
     @Override
-    protected void initMessageSubject() {
-        String messageSubject = tsForm.getFeedbackTypeName();
+    protected void initMessageSubject(Mail mail, MimeMessage message) {
+        String messageSubject = mail.getSubject();
         try {
             message.setSubject(messageSubject, "UTF-8");
         } catch (MessagingException e) {
@@ -82,33 +62,18 @@ public class FeedbackSender extends MailSender {
     }
 
     @Override
-    protected void initMessageBody() {
-        Multipart multiPart = new MimeMultipart();
-        MimeBodyPart messageText = new MimeBodyPart();
-        MultipartFile[] paths = {tsForm.getFile1Path(), tsForm.getFile2Path()};
-        StringBuilder bodyTxt = new StringBuilder();
-
-        if (tsForm.getName() != null && !tsForm.getName().isEmpty()) {
-            bodyTxt.append("Сообщение пришло от: ").append(tsForm.getName()).append("\n");
-        }
-        if (tsForm.getEmail() != null && !tsForm.getEmail().isEmpty()) {
-            bodyTxt.append("С адреса: ").append(tsForm.getEmail()).append("\n");
-        }
-        bodyTxt.append(StringEscapeUtils.escapeHtml4(tsForm.getFeedbackDescription()));
+    protected void initMessageBody(Mail mail, MimeMessage message) {
         try {
-            messageText.setText(bodyTxt.toString(), "UTF-8", "html");
+            Multipart multiPart = new MimeMultipart();
+
+            MimeBodyPart messageText = new MimeBodyPart();
+            messageText.setText(mail.getPreconstructedMessageBody(), "UTF-8", "html");
             multiPart.addBodyPart(messageText);
-            for ( MultipartFile path : paths ) {
+
+            for ( MultipartFile path : mail.getFilePahts()) {
                 if ( ( path != null ) && ( ! path.isEmpty() ) ) {
                     MimeBodyPart attach = new MimeBodyPart();
-                    File f = File.createTempFile( "tmp_", path.getOriginalFilename() );
-                    FileOutputStream fw = new FileOutputStream( f );
-                    fw.write( path.getBytes() );
-                    fw.close();
-
-                    DataSource file = new FileDataSource( f );
-
-                    attach.setDataHandler( new DataHandler( file ) );
+                    attach.setDataHandler( new DataHandler(new ByteArrayDataSource(path.getBytes(), path.getContentType())) );
                     attach.setFileName( path.getOriginalFilename() );
                     multiPart.addBodyPart( attach );
                 }
@@ -120,24 +85,31 @@ public class FeedbackSender extends MailSender {
     }
 
     public void sendFeedbackMessage(FeedbackForm form) {
-        tsForm = form;
-
-        try {
-            initSender();
-
-            message = new MimeMessage(session);
-            initMessageHead();
-            initMessageBody();
-
-            sendMessage();
-
-        } catch (NoSuchProviderException e) {
-            logger.error("Provider for {} protocol not found.", propertyProvider.getMailTransportProtocol(), e);
-        } catch (MessagingException e) {
-            logger.error("Error while sending email message.", e);
-        } finally {
-            deInitSender();
-        }
+        sendMessage(form, new MailFunction<FeedbackForm>() {
+            @Override
+            public List<Mail> performMailing(@Nullable FeedbackForm input) throws MessagingException {
+                Mail mail = new Mail();
+                mail.setCcEmail(input.getEmail());
+                mail.setFromEmail(sendMailService.getEmployeeEmail(input.getEmployeeId()));
+                mail.setSubject(input.getFeedbackTypeName());
+                mail.setFilePahts(Arrays.asList(input.getFile1Path(), input.getFile2Path()));
+                mail.setPreconstructedMessageBody(getMessageBody(input));
+                return Arrays.asList(mail);
+            }
+        });
     }
 
+    private String getMessageBody(FeedbackForm input) {
+        StringBuilder bodyTxt = new StringBuilder();
+
+        if (StringUtils.isNotBlank(input.getName())) {
+            bodyTxt.append("Сообщение пришло от: ").append(input.getName()).append("\n");
+        }
+        if (StringUtils.isNotBlank(input.getEmail())) {
+            bodyTxt.append("С адреса: ").append(input.getEmail()).append("\n");
+        }
+        bodyTxt.append(StringEscapeUtils.escapeHtml4(input.getFeedbackDescription()));
+
+        return bodyTxt.toString();
+    }
 }

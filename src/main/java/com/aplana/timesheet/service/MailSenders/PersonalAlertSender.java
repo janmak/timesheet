@@ -4,39 +4,37 @@ import com.aplana.timesheet.dao.entity.ReportCheck;
 import com.aplana.timesheet.properties.TSPropertyProvider;
 import com.aplana.timesheet.service.SendMailService;
 import com.aplana.timesheet.util.DateTimeUtil;
+import com.google.common.base.Function;
+import com.google.common.base.Joiner;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Sets;
 import org.springframework.ui.velocity.VelocityEngineUtils;
 
+import javax.annotation.Nullable;
 import javax.mail.MessagingException;
-import javax.mail.NoSuchProviderException;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import java.util.*;
 
-public class PersonalAlertSender extends MailSender {
-    private List<ReportCheck> reportCheckList;
-    private ReportCheck currentReportCheck;
+public class PersonalAlertSender extends MailSender<List<ReportCheck>> {
 
     public PersonalAlertSender(SendMailService sendMailService, TSPropertyProvider propertyProvider) {
         super(sendMailService, propertyProvider);
     }
 
     @Override
-    protected void initToAddresses() {
-        String email = currentReportCheck.getEmployee().getEmail();
-        logger.debug("To Address: {}", email);
-        try {
-            toAddr = InternetAddress.parse(email);
-        } catch (AddressException e) {
-            logger.error("Email address has wrong format.", e);
-        }
+    protected InternetAddress[] getToAddresses(Mail mail) throws AddressException {
+        String email = Iterables.getFirst(mail.getToEmails(), null);
+        return InternetAddress.parse(email);
     }
 
     @Override
     @SuppressWarnings({"rawtypes", "unchecked"})
-    protected void initMessageBody() {
+    protected void initMessageBody(Mail mail, MimeMessage message) {
         Map model = new HashMap();
-        model.put("currentReportCheck", currentReportCheck);
+        model.put("passedDays", mail.getPassedDays().get(null));
+        model.put("employee", Iterables.getFirst(mail.getEmployeeList(), null));
         String messageBody = VelocityEngineUtils.mergeTemplateIntoString(
                 sendMailService.velocityEngine, "alertpersonalmail.vm", model);
         logger.debug("Message Body: {}", messageBody);
@@ -47,66 +45,47 @@ public class PersonalAlertSender extends MailSender {
         }
     }
 
+
     @Override
-    protected void initMessageSubject() {
-        StringBuilder messageSubject = new StringBuilder();
-        messageSubject.append("Cрочно списать занятость за ");
-
-        List<String> monthList = new ArrayList<String>();
-        
-        List<String> passedDays = currentReportCheck.getPassedDays();
-
-        String monthName;
-
-        for ( String next : passedDays ) {
-            monthName = DateTimeUtil.getMonthTxt( next );
-            if ( ! monthList.contains( monthName ) ) {
-                monthList.add( monthName );
-            }
-        }
-
-        String text = "";
-
-        for (Iterator<String> iterator = monthList.iterator(); iterator.hasNext(); ) {
-            String next = iterator.next();
-
-            text += next;
-            if (iterator.hasNext())
-                text += ", ";
-        }
-
-        messageSubject.append(text);
-
-        logger.debug("Message subject: {}", messageSubject.toString());
+    protected void initMessageSubject(Mail mail, MimeMessage message) {
         try {
-            message.setSubject(messageSubject.toString(), "UTF-8");
+            message.setSubject(mail.getSubject(), "UTF-8");
         } catch (MessagingException e) {
             logger.error("Error while init message subject.", e);
         }
     }
 
     public void sendAlert(List<ReportCheck> rCheckList) {
-        reportCheckList = rCheckList;
+        sendMessage(rCheckList, new MailFunction<List<ReportCheck>>() {
+            @Override
+            public List<Mail> performMailing(@Nullable List<ReportCheck> input) throws MessagingException {
+                logger.info("Performing personal mailing.");
 
-        try {
-            initSender();
+                List<Mail> mails = new ArrayList<Mail>();
 
-            logger.info("Performing personal mailing.");
+                for ( ReportCheck currentReportCheck : input ) {
+                    Mail mail = new Mail();
 
-            for ( ReportCheck aReportCheckList : reportCheckList ) {
-                currentReportCheck = aReportCheckList;
-                message = new MimeMessage( session );
-                initMessageHead();
-                initMessageBody();
+                    mail.getToEmails().add(currentReportCheck.getEmployee().getEmail());
+                    mail.setSubject(getSubject(currentReportCheck));
+                    mail.setEmployeeList(Arrays.asList(currentReportCheck.getEmployee()));
 
-                sendMessage();
+                    mail.getPassedDays().put(null, currentReportCheck.getPassedDays());
+                    mails.add(mail);
+                }
+                return mails;
             }
-        } catch (NoSuchProviderException e) {
-            logger.error("Provider for {} protocol not found.", propertyProvider.getMailTransportProtocol(), e);
-        } catch (MessagingException e) {
-            logger.error("Error while sending email message.", e);
-        } finally {
-            deInitSender();
-        }
+        });
+    }
+
+    private String getSubject(ReportCheck currentReportCheck) {
+        return "Cрочно списать занятость за " + Joiner.on(", ").join(
+                Sets.newHashSet(Iterables.transform(currentReportCheck.getPassedDays(), new Function<String, String>() {
+                    @Nullable @Override
+                    public String apply(@Nullable String input) {
+                        return DateTimeUtil.getMonthTxt(input);
+                    }
+                }))
+        );
     }
 }
