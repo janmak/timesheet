@@ -28,6 +28,7 @@ public class ProjectParticipant {
 	
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "project", nullable = false)
+    @ForeignKey(name = "fk_project")
 	private Project project;
 
 	public Integer getId() {

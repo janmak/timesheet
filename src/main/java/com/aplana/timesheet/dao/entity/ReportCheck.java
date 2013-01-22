@@ -12,7 +12,8 @@ import java.util.List;
 public class ReportCheck{
 
     @Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "reportcheck_seq")
+    @SequenceGenerator(name = "reportcheck_seq", sequenceName = "reportcheck_seq", allocationSize = 10)
 	@Column(nullable = false)
 	private Integer id;
 	
@@ -34,7 +35,7 @@ public class ReportCheck{
 	
 	@Column(name = "sundaycheck", columnDefinition = "bool not null default true")
 	private boolean sundayCheck;
-	
+
 	@Transient
 	List<String> passedDays = new ArrayList<String>();
 

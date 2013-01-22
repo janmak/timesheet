@@ -26,7 +26,11 @@ public class Division {
 	private Set<Employee> employees;
 
 	@ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-	@JoinTable(name = "division_project", joinColumns = { @JoinColumn(name = "division_id", nullable = false) }, inverseJoinColumns = { @JoinColumn(name = "project_id", nullable = false) })
+	@JoinTable(name = "division_project",
+            joinColumns = {
+                    @JoinColumn(name = "division_id", nullable = false) },
+            inverseJoinColumns = {
+                    @JoinColumn(name = "project_id", nullable = false) })
 	private Set<Project> projects;
 
 	public Division() {	}

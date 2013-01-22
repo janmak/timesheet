@@ -18,12 +18,12 @@ public class Holiday implements Serializable {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "caldate")
-    @ForeignKey(name = "fk_hday_caldate")
+    @ForeignKey(name = "fk_calendar")
     private Calendar calDate;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "region")
-    @ForeignKey(name = "holidayfk")
+    @ForeignKey(name = "fk_region")
     private Region region;
 
     public Calendar getCalDate() {
