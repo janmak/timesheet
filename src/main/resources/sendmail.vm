@@ -1,113 +1,66 @@
-#set ($tsRows = $tsForm.getTimeSheetTablePart())
-#set ($isProblems = $false) 
-#set ($projectName = $"")
-#set ($plan = $tsForm.getPlanEscaped())
-#if ($tsRows != $null)
-	<ul>			
-	<li><h2><b>Что было сделано:</b></h2></li>
-	<ol>
-	#foreach($tsRow in $tsRows)
-		#set ($cqId = $"")
-		#set ($duration = $"")
-		#set ($description = $"")
-        #set ($workplaceId = $"")
-		#set ($actTypeId = $"")
-		#set ($actCatId = $"")
-		#set ($projectId = $"")
-		#set ($problem = $"")
-		#set ($cqId = $tsRow.getCqId())
-		#set ($duration = $tsRow.getDuration())
-		#set ($description = $tsRow.getDescriptionEscaped())
-        #set ($workplaceId = $tsDetail.getWorkplace().getId())
-		#set ($actTypeId = $tsRow.getActivityTypeId())
-		#set ($actCatId = $tsRow.getActivityCategoryId())
-		#set ($projectId = $tsRow.getProjectId())
-		#set ($problem = $tsRow.getProblemEscaped())
-		#if ($projectId != $null)
-			#set ($projectName = $projectService.find($projectId).getName())
-		#end
-		#if ($problem != $null && $problem.equals($"") != $true)
-			#set ($isProblems = $true)
-		#end 
-	<li>
-        <b> Место работы:
-            #if ($workplaceId != $null && !$workplaceId.equals($""))
-                $dictionaryItemService.find($workplaceId).getValue()
-            #else
-                Неизвестно
-            #end
-            </br>
-        </b>
-		<b> $dictionaryItemService.find($actTypeId).getValue() </b>
-		#if ($actTypeId <= 13) 
-		<b> $projectName </b>
-		#end
-		#if ($actCatId != $null && $actCatId > 0) 
-		<b> - $dictionaryItemService.find($actCatId).getValue() </b>
-		#end
-		#if ($cqId != $null && $cqId.equals($"") != $true) 
-		<b> - $cqId </b>
-		#end
-		#if ($duration != $null && $duration.equals($"") != $true) 
-		<b> ( $duration ч.)</b>
-		#end
-		#if ($description.equals($"") != $true) 
-		<b>: </b><br>
-			#set ($descriptionStrings = $description.split("\n"))
-			#foreach ($descriptionString in $descriptionStrings)
-		<span>$descriptionString</span><br>
-			#end
-		#end
-	</li>
+#set($first = 0)
+#if ($paramsForGenerateBody.column("workPlace").isEmpty())
+	#if ($paramsForGenerateBody.get($first, "reason")!=$null)
+        <p>$paramsForGenerateBody.get($first, "reason")
+ 	    $paramsForGenerateBody.get($first,"beginLongDate") по  $paramsForGenerateBody.get($first,"endLongDate")</p>
 	#end
-	</ol>
-	#if ($isProblems == $true)
-	<li><h2><b>Какие проблемы возникли:</b></h2></li>
-	<ol>
-		#foreach($tsRow in $tsRows)
-			#set ($problem = $"")
-			#set ($actTypeId = $"")
-			#set ($actCatId = $"")
-			#set ($projectId = $"")
-			#set ($problem = $tsRow.getProblemEscaped())
-			#set ($actTypeId = $tsRow.getActivityTypeId())
-			#set ($actCatId = $tsRow.getActivityCategoryId())
-			#set ($projectId = $tsRow.getProjectId())
-			#if ($projectId != $null)
-				#set ($projectName = $projectService.find($projectId).getName())
-			#end
-			#if ($problem != $null && $problem.equals($"") != $true) 
-	<li>
-		<b> $dictionaryItemService.find($actTypeId).getValue() </b>
-				#if ($actTypeId <= 13) 
-		<b>	$projectName </b>
-				#end
-		<b>: </b><br> 
-				#set ($problemStrings = $problem.split("\n"))
-				#foreach ($problemString in $problemStrings)
-		<span>$problemString</span><br>
-				#end
-	</li>
-			#end
-		#end 
-	</ol>
-	#end
-	#if ($plan != $null && $plan.equals($"") != $true)
-	<li><h2><b>Что планируется сделать на следующий день:</b></h2></li>
-		#set ($planStrings = $plan.split("\n"))
-		#foreach ($planString in $planStrings)
-	<span>$planString</span><br>
-		#end
-	#end
-	</ul>
 #else
-	#if ($tsRows == $null && ($tsForm.isLongIllness() || $tsForm.isLongVacation()))
-		#if ($tsForm.isLongIllness()) 
-	<p>Болезнь с 
-		#elseif ($tsForm.isLongVacation())  
-	<p>Отпуск с 
-		#end
- 	$DateTimeUtil.formatDateString($tsForm.getBeginLongDate()) по  $DateTimeUtil.formatDateString($tsForm.getEndLongDate())</p>
-	#end
+	<ul>
+        <li><h2><b>Что было сделано:</b></h2></li>
+        <ol>
+            #foreach($key in $paramsForGenerateBody.rowKeySet())
+                <li>
+                    <b> Место работы:$paramsForGenerateBody.get($key, "workPlace") <br/> </b>
+                    <b> $paramsForGenerateBody.get($key, "actType") </b>
+                    #if ($paramsForGenerateBody.get($key, "projectName") != $null)
+                        <b> $paramsForGenerateBody.get($key, "projectName") </b>
+                    #end
+                    #if ($paramsForGenerateBody.get($key, "categoryOfActivity") != $null)
+                        <b> - $paramsForGenerateBody.get($key, "categoryOfActivity") </b>
+                    #end
+                    #if ($paramsForGenerateBody.get($key, "cqId")!=$null)
+                        <b> - $paramsForGenerateBody.get($key, "cqId") </b>
+                    #end
+                    #if ($paramsForGenerateBody.get($key, "duration")!=$null)
+                        <b> ( $paramsForGenerateBody.get($key, "duration") ч.)</b>
+                    #end
+                    #if ($paramsForGenerateBody.get($key, "descriptionStrings")!=$null)
+                        <b>: </b><br>
+                        #set ($descriptionStrings = $paramsForGenerateBody.get($key, "descriptionStrings").split("\n"))
+                        #foreach ($descriptionString in $descriptionStrings)
+                            <span>$descriptionString</span><br>
+                        #end
+                    #end
+                </li>
+            #end
+        </ol>
+        #if ($paramsForGenerateBody.column("problemStrings").isEmpty() != $true)
+            <li><h2><b>Какие проблемы возникли:</b></h2></li>
+            <ol>
+                #foreach($key in $paramsForGenerateBody.rowKeySet())
+                    #if ($paramsForGenerateBody.get($key, "problemStrings")!=$null)
+                        <li>
+                        <b> $paramsForGenerateBody.get($key, "actType") </b>
+                        #if ($paramsForGenerateBody.get($key, "projectName") != $null)
+                            <b> $paramsForGenerateBody.get($key, "projectName") </b>
+                        #end
+                        <b>: </b><br>
+                        #set ($problemStrings = $paramsForGenerateBody.get($key, "problemStrings").split("\n"))
+                        #foreach ($problemString in $problemStrings)
+                            <span>$problemString</span><br>
+                        #end
+                        </li>
+                    #end
+                #end
+            </ol>
+        #end
+        #if ($paramsForGenerateBody.get($first, "planStrings") != $null)
+            <li><h2><b>Что планируется сделать на следующий день:</b></h2></li>
+            #set ($planStrings = $paramsForGenerateBody.get($first, "planStrings").split("\n"))
+            #foreach ($planString in $planStrings)
+                <span>$planString</span><br>
+            #end
+        #end
+	</ul>
 #end
-<h4>Отправил пользователь $senderName</h4>
+<h4>Отправил пользователь $paramsForGenerateBody.get($first,"senderName")</h4>

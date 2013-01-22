@@ -1,14 +1,11 @@
 package com.aplana.timesheet.dao.entity;
 
-import com.aplana.timesheet.util.DateTimeUtil;
 import org.hibernate.annotations.ForeignKey;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.*;
 import java.util.Calendar;
+import java.util.Set;
 
 @Entity
 @Table(name = "employee", uniqueConstraints = @UniqueConstraint(columnNames = {"name", "job", "division"}))
@@ -58,9 +55,9 @@ public class Employee {
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinTable(name = "employee_permissions",
                joinColumns = {
-                       @JoinColumn(name = "permission_id", nullable = false) },
+                       @JoinColumn(name = "employee_id", nullable = false) },
                inverseJoinColumns = {
-                       @JoinColumn(name = "employee_id", nullable = false) })
+                       @JoinColumn(name = "permission_id", nullable = false) })
     private Set<Permission> permissions;
 
     @Column(name = "not_to_sync", columnDefinition = "bool not null default false")
@@ -146,22 +143,6 @@ public class Employee {
         this.region = region;
     }
 
-	@Override
-    public String toString() {
-		StringBuilder sb = new StringBuilder()
-                .append( " id=" ).append( id )
-                .append( " name=" ).append( name )
-                .append( " email=" ).append( email )
-                .append( " startDate=" ).append( startDate )
-                .append( " endDate=" ).append( endDate )
-                .append( " manager [" ).append( manager ).append( "]" )
-                .append( " division [" ).append( division ).append( "]" )
-                .append( " job [" ).append( job ).append( "]" )
-                .append( " region [" ).append( region.getLdapCity() ).append( ", " ).append( region.getName() ).append( "]" )
-                .append(" ldap=").append(ldap);
-        return sb.toString();
-    }
-
 	public String getLdap() {
 		return ldap;
 	}
@@ -177,11 +158,11 @@ public class Employee {
     public void setEndDate(Timestamp endDate) {
         this.endDate = endDate;
     }
+
     //проверяем уволенный ли сотрудник
     //ts==null сравниваем с текущей датой
     public boolean isDisabled(Timestamp ts) {
-        if(endDate!=null)
-        {
+        if(endDate!=null) {
             if(ts==null) {
                 Calendar c = Calendar.getInstance();
                 c.add(Calendar.DATE, -1);
@@ -191,7 +172,8 @@ public class Employee {
         }
         else return false;
     }
-	@Override
+
+    @Override
     public boolean equals(Object obj) {
         if (this == obj) {
             return true;
@@ -212,4 +194,26 @@ public class Employee {
         }
         return true;
     }
+
+    @Override
+    public int hashCode() {
+        return email.hashCode();
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder()
+                .append( " id=" ).append( id )
+                .append( " name=" ).append( name )
+                .append( " email=" ).append( email )
+                .append( " startDate=" ).append( startDate )
+                .append( " endDate=" ).append( endDate )
+                .append( " manager [" ).append( manager ).append( "]" )
+                .append( " division [" ).append( division ).append( "]" )
+                .append( " job [" ).append( job ).append( "]" )
+                .append( " region [" ).append( region.getLdapCity() ).append( ", " ).append( region.getName() ).append( "]" )
+                .append(" ldap=").append(ldap);
+        return sb.toString();
+    }
+
 }

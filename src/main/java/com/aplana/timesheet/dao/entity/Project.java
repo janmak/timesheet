@@ -41,7 +41,11 @@ public class Project {
 	private Set<ProjectTask> projectTasks;
 
 	@ManyToMany(fetch = FetchType.LAZY)
-	@JoinTable(name = "division_project", joinColumns = { @JoinColumn(name = "project_id", nullable = false) }, inverseJoinColumns = { @JoinColumn(name = "division_id", nullable = false) })
+	@JoinTable(name = "division_project",
+            joinColumns = {
+                    @JoinColumn(name = "project_id", nullable = false) },
+            inverseJoinColumns = {
+                    @JoinColumn(name = "division_id", nullable = false) })
 	private Set<Division> divisions;
 
     @Column(name = "start_date", columnDefinition = "date")

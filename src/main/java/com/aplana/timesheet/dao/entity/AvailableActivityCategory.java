@@ -11,7 +11,10 @@ import javax.persistence.*;
 @Entity
 @Table(name = "available_activity_category", uniqueConstraints = @UniqueConstraint(columnNames = {"act_type", "project_role", "act_cat"}))
 public class AvailableActivityCategory {
+
 	@Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "avail_act_cat_seq")
+    @SequenceGenerator(name = "avail_act_cat_seq", sequenceName = "avail_act_cat_seq", allocationSize = 10)
 	@Column(nullable = false)
 	private Integer id;
 	
