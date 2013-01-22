@@ -53,6 +53,13 @@ public class JasperReportDAO {
             regionClause2 = "";
             hasRegion = false;
         }
+        String divisionWhere;
+        // Самый лучший билдер запросов(тут так принято)
+        if (report.getDivisionId().equals(0)) {
+            divisionWhere = "";
+        } else {
+            divisionWhere = "em.division.id = :divisionId and ";
+        }
         Query query = entityManager.createQuery(
                 "select em.id, em.name, ts.calDate.calDate, cast('' as string), " +
                         "sum(td.duration)-8, sum(td.duration), h.id, h.region.id, " +
@@ -65,7 +72,8 @@ public class JasperReportDAO {
                         "inner join em.region as region " +
                         "left outer join ts.calDate.holidays h " +
                         "left outer join td.project project " +
-                        "where em.division.id = :divisionId and " +
+                        "where " +
+                        divisionWhere +
                         // В этом отчете учитываются только следующие виды деятельности "Проектная", "Пресейловая", "Внепроектная" (соответсвенно)
                         "td.actType.id in (12, 13, 14) and " +
                         regionClause2 +
@@ -79,7 +87,9 @@ public class JasperReportDAO {
         if (hasRegion) {
             query.setParameter("regionIds", report.getRegionIds());
         }
-        query.setParameter("divisionId", report.getDivisionId());
+        if (!report.getDivisionId().equals(0)) {
+            query.setParameter("divisionId", report.getDivisionId());
+        }
         query.setParameter("beginDate", DateTimeUtil.stringToTimestamp(report.getBeginDate()));
         query.setParameter("endDate", DateTimeUtil.stringToTimestamp(report.getEndDate()));
 
@@ -90,13 +100,15 @@ public class JasperReportDAO {
                 "from TimeSheetDetail td " +
                 "inner join td.timeSheet ts " +
                 "inner join ts.employee em " +
-                "where em.division.id = :divisionId and " +
+                "where " + divisionWhere +
                 regionClause +
                 "ts.calDate.calDate between :beginDate and :endDate ");
 
         if (hasRegion)
             projQuery.setParameter("regionIds", report.getRegionIds());
-        projQuery.setParameter("divisionId", report.getDivisionId());
+        if (!report.getDivisionId().equals(0)) {
+            projQuery.setParameter("divisionId", report.getDivisionId());
+        }
         projQuery.setParameter("beginDate", DateTimeUtil.stringToTimestamp(report.getBeginDate()));
         projQuery.setParameter("endDate", DateTimeUtil.stringToTimestamp(report.getEndDate()));
 
