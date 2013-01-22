@@ -1,16 +1,9 @@
 package com.aplana.timesheet.service;
 
-import com.aplana.timesheet.dao.EmployeeDAO;
 import com.aplana.timesheet.dao.EmployeeLdapDAO;
 import com.aplana.timesheet.dao.EmployeePermissionsDAO;
 import com.aplana.timesheet.dao.ProjectRolePermissionsDAO;
-import com.aplana.timesheet.dao.entity.Division;
-import com.aplana.timesheet.dao.entity.Employee;
-import com.aplana.timesheet.dao.entity.EmployeePermissions;
-import com.aplana.timesheet.dao.entity.Permission;
-import com.aplana.timesheet.dao.entity.ProjectRole;
-import com.aplana.timesheet.dao.entity.ProjectRolePermissions;
-import com.aplana.timesheet.dao.entity.Region;
+import com.aplana.timesheet.dao.entity.*;
 import com.aplana.timesheet.dao.entity.ldap.EmployeeLdap;
 import com.aplana.timesheet.util.DateTimeUtil;
 import org.slf4j.Logger;
@@ -20,9 +13,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Service("employeeLdapService")
 public class EmployeeLdapService {
@@ -222,7 +213,7 @@ public class EmployeeLdapService {
     ) {
         Employee employee=new Employee();
 
-        employee.setName( employeeLdap.getDisplayName() );
+        employee.setName(employeeLdap.getDisplayName());
         employee.setEmail( employeeLdap.getMail().trim() );
         employee.setLdap( employeeLdap.getLdapCn() );
 
@@ -307,12 +298,12 @@ public class EmployeeLdapService {
         if (manager != null) {
             employee.setManager(manager);
         } else {
-            errors.append( "manager, " );
+            errors.append("manager, ");
         }
     }
 
     public void setEmployeePermission(Employee employee){
-        Set <Permission> permissions = new TreeSet<Permission>();
+        Set<Permission> permissions = new TreeSet<Permission>();
         permissions.add(
                 projectRolePermissionsDAO.getProjectRolePermission(
                         employee.getJob().getId()
