@@ -2,11 +2,9 @@ package com.aplana.timesheet.service.MailSenders;
 
 import com.aplana.timesheet.dao.entity.Employee;
 import com.aplana.timesheet.form.TimeSheetForm;
+import com.aplana.timesheet.properties.TSPropertyProvider;
 import com.aplana.timesheet.service.SendMailService;
 import com.aplana.timesheet.util.DateTimeUtil;
-import com.aplana.timesheet.util.MailUtils;
-import com.aplana.timesheet.util.TimeSheetUser;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.velocity.VelocityEngineUtils;
 
 import javax.mail.MessagingException;
@@ -15,7 +13,6 @@ import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import java.text.SimpleDateFormat;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -23,16 +20,15 @@ public class TimeSheetSender extends MailSender {
 
     private TimeSheetForm tsForm;
 
-    public TimeSheetSender(SendMailService sendMailService) {
-        super(sendMailService);
+    public TimeSheetSender(SendMailService sendMailService, TSPropertyProvider propertyProvider) {
+        super(sendMailService, propertyProvider);
     }
 
-    @Autowired
+    @Override
     protected void initFromAddresses() {
-        Integer employeeId = tsForm.getEmployeeId();
-        String employeeEmail = sendMailService.employeeService.find(employeeId).getEmail();
-        logger.debug("From Address = {}", employeeEmail);
+        String employeeEmail = sendMailService.getEmployeeEmail(tsForm.getEmployeeId());
         try {
+            logger.debug("From Address = {}", employeeEmail);
             fromAddr = new InternetAddress(employeeEmail);
         } catch (AddressException e) {
             logger.error("Employee email address has wrong format.", e);
@@ -48,14 +44,14 @@ public class TimeSheetSender extends MailSender {
         logger.debug("EmployeesManagersEmails: {}", toAddresses.toString());
         toAddresses.append(sendMailService.getProjectsManagersEmails(tsForm));
         logger.debug(" + ProjectsManagersEmail: {}", toAddresses.toString());
-        toAddresses.append(sendMailService.getProjectParticipantsEmails(tsForm.getEmployeeId(), tsForm));
+        toAddresses.append(sendMailService.getProjectParticipantsEmails(tsForm));
         logger.debug(" + ProjectParticipantsEmails: {}", toAddresses.toString());
-        List<Employee> managers = sendMailService.employeeService.getRegionManager(tsForm.getEmployeeId());
+        List<Employee> managers = sendMailService.getRegionManagerList(tsForm.getEmployeeId());
         for(Employee manager:managers) {
             toAddresses.append( "," ).append( manager.getEmail() );
         }
         logger.debug(" + To Addresses: {}", toAddresses.toString());
-        String uniqueSendingEmails = MailUtils.deleteEmailDublicates(toAddresses.toString());
+        String uniqueSendingEmails = deleteEmailDublicates(toAddresses.toString());
         logger.debug(" + To Addresses: {}", uniqueSendingEmails);
         try {
             toAddr = InternetAddress.parse(uniqueSendingEmails);
@@ -91,17 +87,13 @@ public class TimeSheetSender extends MailSender {
     @Override
     @SuppressWarnings({"unchecked", "rawtypes"})
     protected void initMessageBody() {
-        Map model = new HashMap();
-        TimeSheetUser securityPrincipal = sendMailService.securityService.getSecurityPrincipal();
+        Map model = sendMailService.getPreFilledModel();
 
         model.put("tsForm", tsForm);
-        model.put("dictionaryItemService", sendMailService.dictionaryItemService);
-        model.put("projectService", sendMailService.projectService);
-        model.put("DateTimeUtil", DateTimeUtil.class);
-        model.put("senderName", securityPrincipal.getEmployee().getName());
+
         logger.info("follows initialization output from velocity");
-        String messageBody = VelocityEngineUtils.mergeTemplateIntoString(
-                sendMailService.velocityEngine, "sendmail.vm", model);
+        String messageBody =
+                VelocityEngineUtils.mergeTemplateIntoString(sendMailService.velocityEngine, "sendmail.vm", model);
         logger.debug("Message Body: {}", messageBody);
         try {
             message.setText(messageBody, "UTF-8", "html");
@@ -126,8 +118,7 @@ public class TimeSheetSender extends MailSender {
             sendMessage();
 
         } catch (NoSuchProviderException e) {
-            logger.error("Provider for {} protocol not found.",
-                    sendMailService.mailConfig.getProperty("mail.transport.protocol"), e);
+            logger.error("Provider for {} protocol not found.", propertyProvider.getMailTransportProtocol(), e);
         } catch (MessagingException e) {
             logger.error("Error while sending email message.", e);
         } finally {

@@ -1,6 +1,7 @@
 package com.aplana.timesheet.service.MailSenders;
 
 import com.aplana.timesheet.form.FeedbackForm;
+import com.aplana.timesheet.properties.TSPropertyProvider;
 import com.aplana.timesheet.service.SendMailService;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -19,10 +20,11 @@ public class FeedbackSender extends MailSender {
 
     private FeedbackForm tsForm;
 
+
     private InternetAddress ccAddress;
 
-    public FeedbackSender(SendMailService sendMailService) {
-        super(sendMailService);
+    public FeedbackSender(SendMailService sendMailService, TSPropertyProvider propertyProvider) {
+        super(sendMailService, propertyProvider);
     }
 
     @Override
@@ -42,7 +44,7 @@ public class FeedbackSender extends MailSender {
         Integer employeeId = tsForm.getEmployeeId();
         String employeeEmail;
         if (employeeId != null) {
-			employeeEmail = sendMailService.employeeService.find(employeeId).getEmail();
+			employeeEmail = sendMailService.getEmployeeEmail(employeeId);
 		} else {
 			return;
 		}
@@ -60,7 +62,7 @@ public class FeedbackSender extends MailSender {
 
     @Override
     protected void initToAddresses() {
-        String toAddress = sendMailService.mailConfig.getProperty("mail.ProblemsAndProposals.toaddress");
+        String toAddress = propertyProvider.getMailProblemsAndProposalsCoaddress();
         try {
             toAddr = InternetAddress.parse(toAddress);
             logger.debug("To Address = {}", toAddress);
@@ -118,7 +120,6 @@ public class FeedbackSender extends MailSender {
     }
 
     public void sendFeedbackMessage(FeedbackForm form) {
-
         tsForm = form;
 
         try {
@@ -131,8 +132,7 @@ public class FeedbackSender extends MailSender {
             sendMessage();
 
         } catch (NoSuchProviderException e) {
-            logger.error("Provider for {} protocol not found.",
-                    sendMailService.mailConfig.getProperty("mail.transport.protocol"), e);
+            logger.error("Provider for {} protocol not found.", propertyProvider.getMailTransportProtocol(), e);
         } catch (MessagingException e) {
             logger.error("Error while sending email message.", e);
         } finally {

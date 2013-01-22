@@ -85,4 +85,13 @@ public enum ProjectRole {
         }
         return null;
     }
+
+    public static ProjectRole getById(int id) {
+        for (ProjectRole projectRole : ProjectRole.values()) {
+            if (projectRole.getId() == id) {
+                return projectRole;
+            }
+        }
+        return null;
+    }
 }

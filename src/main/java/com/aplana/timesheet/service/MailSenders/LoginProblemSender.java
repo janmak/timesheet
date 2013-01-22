@@ -1,21 +1,16 @@
 package com.aplana.timesheet.service.MailSenders;
 
 import com.aplana.timesheet.form.AdminMessageForm;
+import com.aplana.timesheet.properties.TSPropertyProvider;
 import com.aplana.timesheet.service.SendMailService;
 import org.apache.commons.lang3.StringEscapeUtils;
-import org.springframework.web.multipart.MultipartFile;
 
-import javax.activation.DataHandler;
-import javax.activation.DataSource;
-import javax.activation.FileDataSource;
 import javax.mail.MessagingException;
 import javax.mail.Multipart;
 import javax.mail.NoSuchProviderException;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
-import java.io.File;
-import java.io.FileOutputStream;
 
 /**
  * User: eyaroslavtsev
@@ -26,8 +21,8 @@ public class LoginProblemSender extends MailSender {
 
     private AdminMessageForm adminMessageForm;
 
-    public LoginProblemSender(SendMailService sendMailService) {
-        super(sendMailService);
+    public LoginProblemSender(SendMailService sendMailService, TSPropertyProvider propertyProvider) {
+        super(sendMailService, propertyProvider);
     }
 
     @Override
@@ -67,8 +62,7 @@ public class LoginProblemSender extends MailSender {
             sendMessage();
 
         } catch (NoSuchProviderException e) {
-            logger.error("Provider for {} protocol not found.",
-                    sendMailService.mailConfig.getProperty("mail.transport.protocol"), e);
+            logger.error("Provider for {} protocol not found.", propertyProvider.getMailTransportProtocol(), e);
         } catch (MessagingException e) {
             logger.error("Error while sending email message.", e);
         } finally {

@@ -1,36 +1,41 @@
 package com.aplana.timesheet.service;
 
+import com.aplana.timesheet.controller.TimeSheetController;
+import com.aplana.timesheet.dao.DictionaryItemDAO;
 import com.aplana.timesheet.dao.EmployeeDAO;
 import com.aplana.timesheet.dao.EmployeeLdapDAO;
 import com.aplana.timesheet.dao.ProjectDAO;
 import com.aplana.timesheet.dao.entity.Division;
 import com.aplana.timesheet.dao.entity.Employee;
 import com.aplana.timesheet.dao.entity.Project;
-import com.aplana.timesheet.util.TimeSheetConstans;
+import com.aplana.timesheet.dao.entity.ldap.EmployeeLdap;
+import com.aplana.timesheet.properties.TSPropertyProvider;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Scope;
+import org.springframework.ldap.core.LdapTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.w3c.dom.Document;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.NodeList;
+
+import org.w3c.dom.*;
 
 import javax.annotation.PostConstruct;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpression;
-import javax.xml.xpath.XPathFactory;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import javax.persistence.EntityManagerFactory;
+import javax.xml.xpath.*;
+import javax.xml.parsers.*;
+import java.io.*;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import com.aplana.timesheet.util.TimeSheetConstans;
 
 @Service("oqProgectSyncService")
 public class OQProjectSyncService {
@@ -38,8 +43,6 @@ public class OQProjectSyncService {
     private static final Logger logger = LoggerFactory.getLogger(OQProjectSyncService.class);
     private static final SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy");
     private final StringBuffer trace = new StringBuffer();
-
-    public URL oqUrl;
 
     private static final List<String> deactivatedStatus = new ArrayList<String>() {
         {
@@ -66,27 +69,24 @@ public class OQProjectSyncService {
     private EmployeeLdapDAO employeeLdapDAO;
 
     @Autowired
-    EmployeeLdapService employeeLdapService;
+    private EmployeeLdapService employeeLdapService;
+
+    @Autowired
+    private TSPropertyProvider propertyProvider;
+
+    private URL oqUrl;
 
     @PostConstruct
     private void Init() {
-        try {
-            FileInputStream propertiesFile = new FileInputStream(TimeSheetConstans.PROPERTY_PATH);
-
-            Properties syncConfig = new Properties();
-            syncConfig.load(propertiesFile);
-			String oqUrlLocal = syncConfig.getProperty("OQ.url");
-            if (oqUrlLocal != null && !oqUrlLocal.isEmpty())
+        String oqUrlLocal = propertyProvider.getOqUrl();
+        if (StringUtils.isBlank(oqUrlLocal)) {
+            logger.warn("OQ.url parameter not found in timesheet.properties");
+        } else {
+            try {
                 oqUrl = new URL(oqUrlLocal);
-            else {
-                logger.warn("OQ.url parameter not found in timesheet.properties");
+            } catch (MalformedURLException e) {
+                logger.warn("OQ.url parameter has incorrect format");
             }
-        } catch (FileNotFoundException e1) {
-            logger.error("File timesheet.properties not found.");
-        } catch (InvalidPropertiesFormatException e) {
-            logger.error("Invalid timesheet.properties file format.");
-        } catch (IOException e) {
-            logger.error("Input-output error.");
         }
     }
 

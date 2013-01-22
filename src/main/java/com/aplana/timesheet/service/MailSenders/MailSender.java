@@ -1,20 +1,29 @@
 package com.aplana.timesheet.service.MailSenders;
 
+import com.aplana.timesheet.properties.TSPropertyProvider;
 import com.aplana.timesheet.service.SendMailService;
+import com.google.common.base.Function;
+import com.google.common.base.Joiner;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Sets;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import javax.mail.*;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Properties;
+import java.util.Set;
 
 public class MailSender {
 
-    protected static final Logger logger = LoggerFactory
-            .getLogger(MailSender.class);
+    protected static final Logger logger = LoggerFactory.getLogger(MailSender.class);
 
     protected MimeMessage message;
     protected Transport transport;
@@ -24,9 +33,11 @@ public class MailSender {
     protected Session session;
 
     protected SendMailService sendMailService;
+    protected TSPropertyProvider propertyProvider;
 
-    public MailSender(SendMailService sendMailService) {
+    public MailSender(SendMailService sendMailService, TSPropertyProvider propertyProvider) { //TODO костыль
         this.sendMailService = sendMailService;
+        this.propertyProvider = propertyProvider;
     }
 
     protected void initMessageHead() {
@@ -44,7 +55,7 @@ public class MailSender {
     }
 
     protected void initFromAddresses() {
-        String fromAddress = sendMailService.mailConfig.getProperty("mail.fromaddress");
+        String fromAddress = propertyProvider.getMailFromAddress();
         try {
             fromAddr = InternetAddress.parse(fromAddress)[0];
             logger.debug("From Address = {}", fromAddress);
@@ -79,7 +90,7 @@ public class MailSender {
 
     public void sendMessage() throws MessagingException {
         logger.info("Sending message.");
-        if (Boolean.parseBoolean(sendMailService.mailConfig.getProperty("mail.send.enable"))) {
+        if (Boolean.parseBoolean(propertyProvider.getMailSendEnable())) {
             transport.sendMessage(message, message.getAllRecipients());
             logger.info("Message sended.");
         } else {
@@ -101,23 +112,13 @@ public class MailSender {
     }
 
     protected Session getMailSession() {
-        Properties sysProperties = System.getProperties();
-        sysProperties.put("mail.transport.protocol",
-                sendMailService.mailConfig.getProperty("mail.transport.protocol"));
-        sysProperties.put("mail.smtp.host",
-                sendMailService.mailConfig.getProperty("mail.smtp.host"));
-        sysProperties.put("mail.smtp.auth",
-                sendMailService.mailConfig.getProperty("mail.smtp.auth"));
-        if (!"".equals(sendMailService.mailConfig.getProperty("mail.smtp.port"))) {
-            sysProperties.put("mail.smtp.port",
-                    sendMailService.mailConfig.getProperty("mail.smtp.port"));
-        } else {
+        Properties sysProperties = TSPropertyProvider.getProperties();
+        if (StringUtils.isBlank(propertyProvider.getMailSmtpPort())) {
             sysProperties.put("mail.smtp.port", "25");
         }
-        Authenticator auth = new SMTPAuthenticator();
         Session session;
-        if (Boolean.parseBoolean(sendMailService.mailConfig.getProperty("mail.smtp.auth"))) {
-            session = Session.getInstance(sysProperties, auth);
+        if (Boolean.parseBoolean(propertyProvider.getMailSmtpAuth())) {
+            session = Session.getInstance(sysProperties, new SMTPAuthenticator());
         } else {
             session = Session.getInstance(sysProperties);
         }
@@ -127,10 +128,21 @@ public class MailSender {
 
     private class SMTPAuthenticator extends Authenticator {
         public PasswordAuthentication getPasswordAuthentication() {
-            String username = sendMailService.mailConfig.getProperty("mail.username");
-            String password = sendMailService.mailConfig.getProperty("mail.password");
-            return new PasswordAuthentication(username, password);
+            return new PasswordAuthentication(propertyProvider.getMailUsername(), propertyProvider.getMailPassword());
         }
+    }
+
+    /**
+     * Возвращает адреса имеил без дубликатов
+     *
+     * @param emails
+     */
+    public static String deleteEmailDublicates(String emails) {
+        return Joiner.on(",").join(Sets.newHashSet(
+                Iterables.transform(Arrays.asList(emails.split(",")), new Function<String, String>() {
+                    @Nullable @Override public String apply(@Nullable String s) {
+                        return s.trim();
+        } })));
     }
 
 }
