@@ -10,6 +10,7 @@ import com.aplana.timesheet.form.TimeSheetTableRowForm;
 import com.aplana.timesheet.properties.TSPropertyProvider;
 import com.aplana.timesheet.service.MailSenders.*;
 import com.aplana.timesheet.util.DateTimeUtil;
+import com.aplana.timesheet.util.TimeSheetUser;
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Predicate;
@@ -88,8 +89,6 @@ public class SendMailService{
     @Autowired
     private SecurityService securityService;
     @Autowired
-    private ProjectRoleService projectRoleService;
-    @Autowired
     private TSPropertyProvider propertyProvider;
 
 
@@ -115,7 +114,7 @@ public class SendMailService{
      * @return email сотрудника
      */
     public String getEmployeeEmail(Integer empId) {
-        return employeeService.find(empId).getEmail();
+        return empId == null ? null : employeeService.find(empId).getEmail();
     }
     /**
      * Возвращает строку с адресами менеджеров проектов/пресейлов
@@ -175,61 +174,60 @@ public class SendMailService{
     }
 
     public void performMailing(TimeSheetForm form) {
-        new TimeSheetSender(this, propertyProvider).sendTimeSheetMessage(form);
+        new TimeSheetSender(this, propertyProvider).sendMessage(form);
     }
 
     public void performFeedbackMailing(FeedbackForm form) {
-        new FeedbackSender(this, propertyProvider).sendFeedbackMessage(form);
+        new FeedbackSender(this, propertyProvider).sendMessage(form);
     }
 
     public void performLoginProblemMailing(AdminMessageForm form) {
-        new LoginProblemSender(this, propertyProvider).SendLoginProblem(form);
+        new LoginProblemSender(this, propertyProvider).sendMessage(form);
     }
 
     public void performPersonalAlertMailing(List<ReportCheck> rCheckList) {
-        new PersonalAlertSender(this, propertyProvider).sendAlert(rCheckList);
+        new PersonalAlertSender(this, propertyProvider).sendMessage(rCheckList);
     }
 
     public void performManagerMailing(List<ReportCheck> rCheckList) {
-        new ManagerAlertSender(this, propertyProvider).sendAlert(rCheckList);
+        new ManagerAlertSender(this, propertyProvider).sendMessage(rCheckList);
     }
 
     public void performEndMonthMailing(List<ReportCheck> rCheckList) {
-        new EndMonthAlertSender(this, propertyProvider).sendAlert(rCheckList);
+        new EndMonthAlertSender(this, propertyProvider).sendMessage(rCheckList);
     }
 
     public void performTimeSheetDeletedMailing(TimeSheet timeSheet) {
         new TimeSheetDeletedSender(this, propertyProvider).sendMessage(timeSheet);
     }
 
-
     public String initMessageBodyForReport(TimeSheet timeSheet) {
-        Map<String, Object> model = getPreFilledModel(timeSheet);
+        Map<String, Object> model1 = new HashMap<String, Object>();
+
+        model1.put("dictionaryItemService", dictionaryItemService);
+        model1.put("projectService", projectService);
+        model1.put("DateTimeUtil", DateTimeUtil.class);
+        model1.put("senderName",
+                timeSheet == null
+                        ? securityService.getSecurityPrincipal().getEmployee().getName()
+                        : timeSheet.getEmployee().getName());
+        Map<String, Object> model = model1;
 
         model.put("timeSheet", timeSheet);
         logger.info("follows initialization output from velocity");
         return VelocityEngineUtils.mergeTemplateIntoString(velocityEngine, "report.vm", model);
     }
 
-    public Map getPreFilledModel() {
-        return getPreFilledModel(null);
-    }
-
-    public Map<String, Object> getPreFilledModel(TimeSheet timeSheet) {
-        Map<String, Object> model = new HashMap<String, Object>();
-
-        model.put("dictionaryItemService", dictionaryItemService);
-        model.put("projectService", projectService);
-        model.put("DateTimeUtil", DateTimeUtil.class);
-        model.put("senderName",
-                timeSheet == null
-                        ? securityService.getSecurityPrincipal().getEmployee().getName()
-                        : timeSheet.getEmployee().getName());
-        return model;
-    }
-
     public List<Employee> getRegionManagerList(Integer id) {
         return employeeService.getRegionManager(id);
+    }
+
+    public TimeSheetUser getSecurityPrincipal() {
+        return securityService.getSecurityPrincipal();
+    }
+
+    public String getProjectName(int projectId) {
+        return projectService.find(projectId).getName();
     }
 
     interface RenameMe {

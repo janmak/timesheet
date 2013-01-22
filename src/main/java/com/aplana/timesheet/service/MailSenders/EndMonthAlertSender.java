@@ -1,68 +1,38 @@
 package com.aplana.timesheet.service.MailSenders;
 
+import com.aplana.timesheet.dao.entity.Division;
 import com.aplana.timesheet.dao.entity.Employee;
 import com.aplana.timesheet.dao.entity.ReportCheck;
 import com.aplana.timesheet.properties.TSPropertyProvider;
 import com.aplana.timesheet.service.SendMailService;
-import com.aplana.timesheet.util.DateTimeUtil;
+import com.google.common.base.Function;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import org.springframework.ui.velocity.VelocityEngineUtils;
 
+import javax.annotation.Nullable;
 import javax.mail.MessagingException;
-import javax.mail.NoSuchProviderException;
-import javax.mail.internet.AddressException;
-import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-public class EndMonthAlertSender extends MailSender {
-    private List<ReportCheck> reportCheckList;
+import static com.aplana.timesheet.util.DateTimeUtil.currentDay;
+import static com.aplana.timesheet.util.DateTimeUtil.getMonthTxt;
+
+public class EndMonthAlertSender extends MailSender<List<ReportCheck>> {
 
     public EndMonthAlertSender(SendMailService sendMailService, TSPropertyProvider propertyProvider) {
         super(sendMailService, propertyProvider);
     }
 
     @Override
-    protected void initToAddresses() {
-        StringBuilder toAddresses = new StringBuilder();
-
-        // Формируем список сотрудников, у которых нет долгов по отчетности
-        List<Employee> employeeList = sendMailService.getEmployeesList(reportCheckList.get(0).getDivision());
-
-        for (ReportCheck reportCheck : reportCheckList) {
-
-            for (Employee employee : employeeList) {
-                if (reportCheck.getEmployee().getId().equals(employee.getId())) {
-                    employeeList.remove(employee);
-                    break;
-                }
-            }
-        }
-
-        for (Employee employee : employeeList) {
-            toAddresses.append(employee.getEmail());
-            toAddresses.append(",");
-        }
-
-        logger.debug("EmployeesEmails: {}", toAddresses.toString());
-        String uniqueSendingEmails = deleteEmailDublicates(toAddresses
-                .toString());
-        try {
-            toAddr = InternetAddress.parse(uniqueSendingEmails);
-            logger.debug("CC Addresses: {}", toAddresses.toString());
-        } catch (AddressException e) {
-            logger.error("Email address has wrong format.", e);
-        }
-    }
-
-    @Override
     @SuppressWarnings({"rawtypes", "unchecked"})
-    protected void initMessageBody() {
-        Map model = new HashMap();
+    protected void initMessageBody(Mail mail, MimeMessage message) {
         String messageBody = VelocityEngineUtils.mergeTemplateIntoString(
-                sendMailService.velocityEngine, "alertendmonthmail.vm", model);
+                sendMailService.velocityEngine, "alertendmonthmail.vm", new HashMap());
         logger.debug("Message Body: {}", messageBody);
+
         try {
             message.setText(messageBody, "UTF-8", "html");
         } catch (MessagingException e) {
@@ -71,38 +41,38 @@ public class EndMonthAlertSender extends MailSender {
     }
 
     @Override
-    protected void initMessageSubject() {
-        StringBuilder messageSubject = new StringBuilder();
-        messageSubject.append("Не забудьте списать занятость за ");
-        messageSubject.append(DateTimeUtil.getMonthTxt(DateTimeUtil.currentDay()));
-        logger.debug("Message subject: {}", messageSubject.toString());
-        try {
-            message.setSubject(messageSubject.toString(), "UTF-8");
-        } catch (MessagingException e) {
-            logger.error("Error while init message subject.", e);
-        }
+    protected List<Mail> getMailList(List<ReportCheck> params) {
+        Mail mail = new Mail();
+        
+        mail.setEmployeeList(getEmployees(params));
+        mail.setSubject(String.format("Не забудьте списать занятость за %s", getMonthTxt(currentDay())));
+        mail.setDivision(Iterables.getFirst(params, null).getDivision());
+        mail.setToEmails(getToEmails(mail.getEmployeeList(), mail.getDivision()));
+        
+        return Lists.newArrayList(mail);
     }
 
-    public void sendAlert(List<ReportCheck> rCheckList) {
-        reportCheckList = rCheckList;
+    private Iterable<Employee> getEmployees(List<ReportCheck> params) {
+        return Iterables.transform(params, new Function<ReportCheck, Employee>() {
+            @Nullable @Override
+            public Employee apply(ReportCheck params) {
+                return params.getEmployee();
+            }
+        });
+    }
 
-        try {
-            initSender();
-
-            logger.info("Performing last day of month mailing.");
-
-            message = new MimeMessage(session);
-            initMessageHead();
-            initMessageBody();
-
-            sendMessage();
-
-        } catch (NoSuchProviderException e) {
-            logger.error("Provider for {} protocol not found.", propertyProvider.getMailTransportProtocol(), e);
-        } catch (MessagingException e) {
-            logger.error("Error while sending email message.", e);
-        } finally {
-            deInitSender();
-        }
+    private Iterable<String> getToEmails(Iterable<Employee> employeeList, Division division) {
+        return Iterables.transform(
+                Sets.difference(
+                        // Формируем список сотрудников, у которых нет долгов по отчетности
+                        Sets.newHashSet(sendMailService.getEmployeesList(division)),
+                        Sets.newHashSet(employeeList)
+                ),
+                new Function<Employee, String>() {
+                    @Nullable @Override
+                    public String apply(Employee params) {
+                        return params.getEmail();
+                    }
+                });
     }
 }
