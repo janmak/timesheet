@@ -12,7 +12,7 @@ import static com.aplana.timesheet.enums.SystemRole.*;
  * @author eshangareev
  * @version 1.0
  */
-public enum ProjectRole {
+public enum ProjectRole implements TSEnum {
     ADMINISTRATOR(12, "GM", "Генеральный директор,Заместитель генерального директора", "Администрация", SystemRole.MANAGER),
     DESIGN_ENGINEER(4, "KO", "Ведущий инженер-конструктор,Инженер-конструктор,Старший инженер-конструктор",
             "Конструктор", OTHER),

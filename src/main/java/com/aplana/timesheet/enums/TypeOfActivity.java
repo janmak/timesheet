@@ -10,7 +10,7 @@ import java.util.Arrays;
  * @author eshangareev
  * @version 1.0
  */
-public enum TypeOfActivity {
+public enum TypeOfActivity implements TSEnum {
 
     TIME_OFF_FOR_OVERTIME( 24, "Отгул за переработки" ),
     VACATION( 16, "Отпуск" ),
