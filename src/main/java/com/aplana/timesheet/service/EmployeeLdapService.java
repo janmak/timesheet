@@ -1,14 +1,11 @@
 package com.aplana.timesheet.service;
 
 import com.aplana.timesheet.dao.EmployeeLdapDAO;
-import com.aplana.timesheet.dao.entity.Division;
-import com.aplana.timesheet.dao.entity.Employee;
-import com.aplana.timesheet.dao.entity.ProjectRole;
-import com.aplana.timesheet.dao.entity.Region;
+import com.aplana.timesheet.dao.EmployeePermissionsDAO;
+import com.aplana.timesheet.dao.ProjectRolePermissionsDAO;
+import com.aplana.timesheet.dao.entity.*;
 import com.aplana.timesheet.dao.entity.ldap.EmployeeLdap;
 import com.aplana.timesheet.util.DateTimeUtil;
-
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +33,11 @@ public class EmployeeLdapService {
 	@Autowired
 	private EmployeeLdapDAO employeeLdapDao;
 
+    @Autowired
+    private ProjectRolePermissionsDAO projectRolePermissionsDAO;
+
+    @Autowired
+    private EmployeePermissionsDAO employeePermissionsDAO;
 
     private enum EmployeeType {
         EMPLOYEE, MANAGER, NEW_EMPLOYEE
@@ -133,7 +135,7 @@ public class EmployeeLdapService {
 
             EmployeeLdap managerLdap = divLeader.get(0);
 
-            Employee manager = createAndFillEmployee( managerLdap, division, EmployeeType.MANAGER, errors );
+            Employee manager = createAndFillEmployee(managerLdap, errors, EmployeeType.MANAGER);
 
             managersToSync.add(manager);
 		}
@@ -159,7 +161,7 @@ public class EmployeeLdapService {
         //проверка не нужна, но нАдо
         if(employeeLdap!=null) {
             //создаем нового сотрудника
-            Employee employee = createAndFillEmployee( employeeLdap, errors );
+            Employee employee = createAndFillEmployee(employeeLdap, errors, EmployeeType.NEW_EMPLOYEE);
             //добавляем в БД сотрудника
             if( errors.length() == 0 ) employeeService.setEmployee(employee);
 
@@ -187,7 +189,7 @@ public class EmployeeLdapService {
             logger.debug("Ldap division {} has {} employees", division.getLdapName(), employeesLdap.size());
 
             for(EmployeeLdap employeeLdap:employeesLdap) {
-                Employee employee = createAndFillEmployee( employeeLdap, division, EmployeeType.EMPLOYEE, errors );
+                Employee employee = createAndFillEmployee( employeeLdap, errors, EmployeeType.EMPLOYEE );
 
                 if (employee.getManager() != null) {
 					empsToSync.add(employee);
@@ -206,96 +208,108 @@ public class EmployeeLdapService {
 
     private Employee createAndFillEmployee(
             EmployeeLdap employeeLdap,
-            Division division,
-            EmployeeType employeeType,
-            StringBuffer errors
-    ) {
-        return createAndFillEmployee( employeeLdap, division, errors, employeeType );
-    }
-
-    private Employee createAndFillEmployee(
-        EmployeeLdap employeeLdap,
-        StringBuffer errors
-    ) {
-        return createAndFillEmployee( employeeLdap, null, errors, EmployeeType.NEW_EMPLOYEE );
-    }
-
-    private Employee createAndFillEmployee(
-        EmployeeLdap employeeLdap,
-            Division division,
             StringBuffer errors,
             EmployeeType employeeType
     ) {
         Employee employee=new Employee();
 
-        employee.setName( employeeLdap.getDisplayName() );
+        employee.setName(employeeLdap.getDisplayName());
         employee.setEmail( employeeLdap.getMail().trim() );
         employee.setLdap( employeeLdap.getLdapCn() );
 
-		ProjectRole role = employee.getJob();
-		if (role != null) {
-			ProjectRole sysRole = projectRoleService.getSysRole(employee.getJob().getId());
-			if (sysRole != null) {
-				employee.setRole(sysRole.getSysRoleId());
-			}
+		if (employee.getJob() != null) {
+            setEmployeePermission(employee);
 		}
 
         findAndFillJobField( employeeLdap, errors, employee );
+        // важно установить Region и Division до установки Manager
         findAndFillRegionField( employeeLdap, errors, employee );
+        findAndFillDivisionField(employeeLdap, employee, errors);
 
         switch ( employeeType ){
             case NEW_EMPLOYEE:
                 employee.setStartDate(DateTimeUtil.stringToTimestamp(DateTimeUtil.increaseDay(DateTimeUtil.currentDay())));
+                break;
 
-                // Устанавливаем подразделение для сотрудника
-                employee.setDivision( divisionService.find( employeeLdap.getDepartment() ) );
-
-                //берем подразделение и менеджера по подразделению
-                String department=employeeLdap.getDepartment();
-                if( StringUtils.isNotBlank(department) ) {
-                    //если не найдет внутри find стоит
-                    Division findedDivision=divisionService.find(department);
-                    if(findedDivision==null){
-                        errors.append( "division(department), " );
-                    } else {
-                        Employee manager = employeeService.find(findedDivision.getLeader());
-                        if ( manager == null ) {
-                            errors.append( "manager, " );
-                        } else {
-                            employee.setManager(manager);
-                        }
-                    }
+            case EMPLOYEE:
+            case  MANAGER:
+                //Employee empInDbByObjectSid = employeeService.findByObjectSid( employeeLdap.getObjectSid() );
+                Employee empInDbByMail = employeeService.findByEmail( employeeLdap.getMail() );
+                if (empInDbByMail != null) {
+                    employee.setId(empInDbByMail.getId());
+                    employee.setStartDate(empInDbByMail.getStartDate());
+                //есть сотрудник в БД
+                //Миша: для существующих поле манагер не обновлялось, при этом остальные поля должны обновляться
+                //сперва должно сравниваться по полю LDAP, если нет то по полю EMAIL, если нет то считать что сотрудник новый и добавлять
                 } else {
-                    errors.append( "division(department), manager," );
+                    logger.error(employeeLdap.getMail() + "no in db"); //TODO оповещение админа?
+                    employee.setStartDate(DateTimeUtil.ldapDateToTimestamp(employeeLdap.getWhenCreated()));
                 }
                 break;
-        case EMPLOYEE:
-        case  MANAGER:
-            employee.setDivision( divisionService.find( employeeLdap.getDepartment() ) );
+        }
 
-            //Employee empInDbByObjectSid = employeeService.findByObjectSid( employeeLdap.getObjectSid() );
-			Employee empInDbByMail = employeeService.findByEmail( employeeLdap.getMail() );
-            if (empInDbByMail != null) {
-                employee.setId(empInDbByMail.getId());
-                employee.setStartDate(empInDbByMail.getStartDate());
-                employee.setManager(empInDbByMail.getManager());
-            //есть сотрудник в БД
-            //Миша: для существующих поле манагер не обновлялось, при этом остальные поля должны обновляться
-            //сперва должно сравниваться по полю LDAP, если нет то по полю EMAIL, если нет то считать что сотрудник новый и добавлять
-            } else {
-                logger.error(employeeLdap.getMail()+"no in db"); //TODO оповещение админа?
-                Employee manager = employeeService.find(division.getLeader());
-                employee.setStartDate( DateTimeUtil.ldapDateToTimestamp( employeeLdap.getWhenCreated() ) );
-                employee.setManager(manager);
-            }
-
-            if ( employeeType == EmployeeType.MANAGER ){
-                employee.setManager( null );
-            }
-            break;
+        if (employeeType != EmployeeType.MANAGER) {
+            findAndFillManagerField(employee, errors);
         }
 
         return employee;
+    }
+
+    private void findAndFillDivisionField(EmployeeLdap employeeLdap, Employee employee, StringBuffer errors) {
+        final Division division = divisionService.find(employeeLdap.getDepartment());
+
+        if(division == null) {
+            errors.append( "division(department), " );
+        } else {
+            employee.setDivision(division);
+        }
+    }
+
+    private void findAndFillManagerField(Employee employee, StringBuffer errors) {
+        final Region region = employee.getRegion();
+        final Division division = employee.getDivision();
+
+        Employee manager = null;
+
+        if (division != null) {
+            if (region != null) {
+                final List<Employee> regionManagers =
+                        employeeService.getRegionManager(region.getId(), division.getId());
+
+                if (!regionManagers.isEmpty()) {
+                    logger.debug(
+                            String.format(
+                                    "Division %s of region %s has %d managers",
+                                    division.getName(),
+                                    region.getName(),
+                                    regionManagers.size()
+                            )
+                    );
+
+                    manager = regionManagers.get(0);
+                }
+            }
+
+            if (manager == null) {
+                manager = employeeService.find(division.getLeader());
+            }
+        }
+
+        if (manager != null) {
+            employee.setManager(manager);
+        } else {
+            errors.append("manager, ");
+        }
+    }
+
+    public void setEmployeePermission(Employee employee){
+        Set<Permission> permissions = new TreeSet<Permission>();
+        permissions.add(
+                projectRolePermissionsDAO.getProjectRolePermission(
+                        employee.getJob().getId()
+                )
+        );
+        employee.setPermissions(permissions);
     }
 
     private void findAndFillRegionField( EmployeeLdap employeeLdap, StringBuffer errors, Employee employee ) {

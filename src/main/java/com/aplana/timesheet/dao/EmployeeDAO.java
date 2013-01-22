@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.*;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -153,6 +152,22 @@ public class EmployeeDAO {
                     "AND m.division.id = e.division.id " +
                     "AND m.region.id = e.region.id"
         ).setParameter( "emp_id", employeeId );
+
+        return query.getResultList();
+    }
+
+    /**
+     * Возвращает список менеджеров для конкретного региона и подразделения
+     * @param regionId
+     * @param divisionId
+     * @return
+     */
+    public List<Employee> getRegionManager(Integer regionId, Integer divisionId) {
+        Query query = this.entityManager.createQuery(
+                "select m.employee from  Manager m " +
+                        "WHERE m.division.id = :div_id " +
+                        "AND m.region.id = :region_id"
+        ).setParameter("region_id", regionId ).setParameter("div_id", divisionId);
 
         return query.getResultList();
     }

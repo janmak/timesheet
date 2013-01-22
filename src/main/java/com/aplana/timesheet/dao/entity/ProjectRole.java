@@ -1,6 +1,7 @@
 package com.aplana.timesheet.dao.entity;
 
 import javax.persistence.*;
+import java.util.Set;
 
 @Entity
 @Table(name = "project_role", uniqueConstraints = @UniqueConstraint(columnNames = {"name", "code"}))
@@ -21,17 +22,14 @@ public class ProjectRole {
 	@Column(name = "ldap_title", length = 100, nullable = false)
 	public String ldapTitle;
 
-    public Integer getSysRoleId() {
-        return sysRoleId;
-    }
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinTable(name = "project_role_permissions",
+            joinColumns = {
+                    @JoinColumn(name = "permission_id", nullable = false) },
+            inverseJoinColumns = {
+                    @JoinColumn(name = "project_role_id", nullable = false) })
+    private Set<Permission> permissions;
 
-    public void setSysRoleId(Integer sysRoleId) {
-        this.sysRoleId = sysRoleId;
-    }
-
-    @Column(name = "sysroleid")
-    public Integer sysRoleId;
-	
 	/** Конструктор по умолчанию */
 	public ProjectRole() {}
 
