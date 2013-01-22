@@ -48,7 +48,7 @@ public class ProjectDAO {
     @SuppressWarnings("unchecked")
     public List<Project> getProjects() {
         Query query = entityManager
-                .createQuery("from Project as p where p.state=:state and p.active=:active");
+                .createQuery("from Project as p where p.state=:state and p.active=:active ORDER BY name");
         query.setParameter("state", dictionaryItemDAO.find(DictionaryItemDAO.PROJECTS_ID));
         query.setParameter("active", true);
         return query.getResultList();

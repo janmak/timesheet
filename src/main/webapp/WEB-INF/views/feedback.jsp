@@ -69,6 +69,9 @@
 		 * проверяет чтобы суммарный размер файлов не превышал 8 Mb
 		 */
 		function checkFileSize() {
+            if( window.FormData === undefined ){
+                return false;   // Такой возврат не я придумал, функция так странно возвращала до меня.
+            }
 			var file1 = feedbackForm.file1Path.files[0];
 			var file2 = feedbackForm.file2Path.files[0];
 			var size1;
@@ -146,11 +149,11 @@
 		 * Отображает второй набор контролов и кнопку удаления первого файла
 		 */
 		function showControls() {
-			if(feedbackForm.file2Path.files[0] == null) {
+			//if(feedbackForm.file2Path.files[0] == null) {
 				showAdditionalInput('file2PathContainer');
 				showAdditionalInput('fileDelete2');
 				disableInput('fileDelete2');
-			}
+			//}
 			enableInput('fileDelete1');
 		}
 		
@@ -160,10 +163,6 @@
 		function hideControlsAndDeleteFile() {
 			deleteFile('file1PathContainer');
 			disableInput('fileDelete1')
-			if(feedbackForm.file2Path.files[0] == null) {
-				hideInput('file2PathContainer');
-				hideInput('fileDelete2');
-			}
 		}
 		
 		/**
@@ -199,6 +198,14 @@
 
 </head>
 <body>
+<c:if test="${fn:length(errors) > 0}">
+    <div class="errors_box">
+        <c:forEach items="${errors}" var="error">
+            <fmt:message key="${error.code}"/>
+        </c:forEach>
+    </div>
+</c:if>
+
 	<c:if test="${jiraIssueCreateUrl != null}">
 		<h2><a target="_blank" href=${jiraIssueCreateUrl}>Перейти к созданию запроса в Jira</a></h2>
 	</c:if>
@@ -207,16 +214,6 @@
 
 <form:form method="post" commandName="feedbackForm" name="mainForm" enctype="multipart/form-data" cssClass="noborder">
 
-
-    <c:if test="${fn:length(errors) > 0}">
-        <div class="errors_box">
-            <c:forEach items="${errors}" var="error">
-                <fmt:message key="${error.code}">
-                    <fmt:param value="${error.arguments[0]}"/>
-                </fmt:message><br/>
-            </c:forEach>
-        </div>
-    </c:if>
 
     <div id="form_table">
         <table id="time_sheet_table">

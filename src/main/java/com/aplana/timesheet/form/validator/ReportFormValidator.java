@@ -3,13 +3,15 @@ package com.aplana.timesheet.form.validator;
 
 import com.aplana.timesheet.reports.*;
 import com.aplana.timesheet.util.DateTimeUtil;
-import java.util.List;
+import com.aplana.timesheet.util.report.Report7Period;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
 import org.springframework.validation.Validator;
+
+import java.util.List;
 
 @Service
 public class ReportFormValidator implements Validator {
@@ -35,8 +37,40 @@ public class ReportFormValidator implements Validator {
             validateReport01(o, errors);
         } else if (o.getClass().isAssignableFrom(Report03.class)) {
             validateReport03(o, errors);
+        } else if (o.getClass().isAssignableFrom(Report07.class)) {
+            validateReport07(o, errors);
         }
 
+    }
+
+    private void validateReport07(Object o, Errors errors) {
+        Report07 report = (Report07) o;
+        if ("".equals(report.getBeginDate()) || !DateTimeUtil.isDateValid(report.getBeginDate())) {
+            errors.rejectValue("beginDate", "error.reportform.wrongbegindate");
+        }
+
+        if ("".equals(report.getEndDate()) || !DateTimeUtil.isDateValid(report.getEndDate())) {
+            errors.rejectValue("endDate", "error.reportform.wrongenddate");
+        }
+
+        if (!DateTimeUtil.isPeriodValid(report.getBeginDate(), report.getEndDate())) {
+            errors.rejectValue("beginDate", "error.reportform.wrongperiod");
+        }
+
+        if (report.getFilterDivisionOwner() && report.getDivisionOwner() == null) {
+            errors.rejectValue("filterDivisionOwner", "error.reportform.noprojectdivision");
+        }
+
+        if (report.getDivisionEmployee() == null) {
+            errors.rejectValue("divisionEmployee", "error.reportform.noemplyeedivision");
+        }
+
+        if (report.getPeriodType() != Report7Period.PERIOD_TYPE_MONTH
+                && report.getPeriodType() != Report7Period.PERIOD_TYPE_HALF_YEAR
+                && report.getPeriodType() != Report7Period.PERIOD_TYPE_KVARTAL
+                && report.getPeriodType() != Report7Period.PERIOD_TYPE_YEAR) {
+            errors.rejectValue("periodType", "error.reportform.wrongperiodtype");
+        }
     }
 
     private void validateReport03(Object o, Errors errors) {
@@ -60,12 +94,12 @@ public class ReportFormValidator implements Validator {
     private void validateReport01(Object o, Errors errors) {
         Report01 form = (Report01) o;
 
-		List<Integer> regionIds = form.getRegionIds();		
-		// ничего не выбрано и не поставлена галка "Все регионы"
-		if ((regionIds == null || regionIds.isEmpty()) && !form.isAllRegions()) {
-			errors.rejectValue("regionIds", "error.reportform.noregion");
-		}
-		
+        List<Integer> regionIds = form.getRegionIds();
+        // ничего не выбрано и не поставлена галка "Все регионы"
+        if ((regionIds == null || regionIds.isEmpty()) && !form.isAllRegions()) {
+            errors.rejectValue("regionIds", "error.reportform.noregion");
+        }
+
         String beginDate = form.getBeginDate();
         if ("".equals(beginDate) || !DateTimeUtil.isDateValid(beginDate)) {
             errors.rejectValue("beginDate", "error.reportform.wrongbegindate");
