@@ -262,12 +262,12 @@ public class TimeSheetFormValidator implements Validator {
                     "Необходимо указать планы на следующий рабочий день.");
             return;
         }
-        // <APLANATS-441> не менее 4х слов
-        String regexp = "([^-\\p{LD}]+)?([-\\p{LD}]++([^-\\p{LD}]+)?+){4,}";
+        // <APLANATS-441> не менее 2х слов
+        String regexp = "([^-\\p{LD}]+)?([-\\p{LD}]++([^-\\p{LD}]+)?+){2,}";
         if (!plan.matches(regexp)){
             errors.rejectValue("plan",
                     "error.tsform.plan.invalid",
-                    "Планы на следующий день не могут быть менее 4х слов.");
+                    "Планы на следующий день не могут быть менее 2х слов.");
         }
     }
 
