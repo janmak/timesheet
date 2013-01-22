@@ -1,23 +1,16 @@
 package com.aplana.timesheet.service;
 
 import com.aplana.timesheet.dao.EmployeeDAO;
-import com.aplana.timesheet.dao.entity.DayTimeSheet;
 import com.aplana.timesheet.dao.entity.Division;
 import com.aplana.timesheet.dao.entity.Employee;
 import com.aplana.timesheet.util.TimeSheetConstans;
-import java.net.CookieStore;
-import java.text.SimpleDateFormat;
-import java.util.HashMap;
+import org.apache.velocity.app.VelocityEngine;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Map;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.Cookie;
-import org.apache.velocity.app.VelocityEngine;
-import org.springframework.ui.velocity.VelocityEngineUtils;
-import org.springframework.web.servlet.ModelAndView;
+import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 @Service
 public class EmployeeService {
@@ -126,5 +119,9 @@ public class EmployeeService {
     
     public List<Employee> getRegionManager(Integer employeeId) {
         return this.employeeDAO.getRegionManager(employeeId);
+    }
+
+    public List<Employee> getRegionManager(Integer regionId, Integer divisionId) {
+        return employeeDAO.getRegionManager(regionId, divisionId);
     }
 }
