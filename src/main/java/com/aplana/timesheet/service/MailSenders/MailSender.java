@@ -2,25 +2,21 @@ package com.aplana.timesheet.service.MailSenders;
 
 import com.aplana.timesheet.properties.TSPropertyProvider;
 import com.aplana.timesheet.service.SendMailService;
-import com.google.common.base.Function;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Sets;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nullable;
 import javax.mail.*;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
-public abstract class MailSender<T> {
+public class MailSender<T> {
 
     protected static final Logger logger = LoggerFactory.getLogger(MailSender.class);
 
@@ -32,79 +28,29 @@ public abstract class MailSender<T> {
         this.propertyProvider = propertyProvider;
     }
 
-    private void initMessageHead(Mail mail, MimeMessage message) {
-        InternetAddress fromAddr = initFromAddresses(mail);
-        InternetAddress[] ccAddresses = initCcAddresses(mail);
-        InternetAddress[] toAddresses = initToAddresses(mail);
-        logger.debug("CC Addresses: {}", toAddresses.toString());
-
-        initMessageSubject(mail, message);
+    public final void sendMessage(T params) {
         try {
-            message.setRecipients(MimeMessage.RecipientType.TO, toAddresses);
-            if (ccAddresses != null) {
-                message.setRecipients(MimeMessage.RecipientType.CC, ccAddresses);
-            }
-            message.setFrom(fromAddr);
+            initAndSendMessage(getMailList(params));
+        } catch (NoSuchProviderException e) {
+            logger.error("Provider for {} protocol not found.", propertyProvider.getMailTransportProtocol(), e);
         } catch (MessagingException e) {
-            logger.error("Error while init message recipients.", e);
-         }
-    }
-
-    protected InternetAddress initFromAddresses(Mail mail) {
-        String fromAddress = propertyProvider.getMailFromAddress();
-        try {
-            return InternetAddress.parse(fromAddress)[0];
-        } catch (AddressException e) {
-            throw new IllegalArgumentException(String.format("Email address %s has wrong format.", fromAddress), e);
+            logger.error("Error while sending email message.", e);
         }
     }
-
-    protected InternetAddress[] initCcAddresses(Mail mail) {
-        logger.debug("MailSender.initCcAddresses");
-        return null;
-    }
-
-    private InternetAddress[] initToAddresses(Mail mail) {
-        try {
-            InternetAddress[] toAddresses = getToAddresses(mail);
-            logger.debug("To Address = {}", toAddresses);
-            return toAddresses;
-        } catch (AddressException e) {
-            throw new IllegalArgumentException("Email address has wrong format.", e);
-        }
-    }
-
-    protected InternetAddress[] getToAddresses(Mail mail) throws AddressException{
-        logger.debug("MailSender.initToAddresses");
-        return null;
-    }
-
-    protected void initMessageSubject(Mail mail, MimeMessage message) {
-        logger.debug("MailSender.initMessageSubject");
-    }
-
-    @SuppressWarnings({"rawtypes", "unchecked"})
-    protected void initMessageBody(Mail mail, MimeMessage message) {
-        logger.debug("MailSender.initMessageBody");
-    }
-
 
     protected void initAndSendMessage(List<Mail> mailList) throws MessagingException {
         Transport transport = null;
         try {
-            Session session = getMailSession();
+            Session session = getMailSession(propertyProvider);
 
             transport = session.getTransport();
             transport.connect();
 
-
             for (Mail mail : mailList) {
-
                 MimeMessage message = new MimeMessage(session);
 
                 initMessageHead(mail, message);
                 initMessageBody(mail, message);
-
 
                 logger.info("Sending message.");
                 if (Boolean.parseBoolean(propertyProvider.getMailSendEnable())) {
@@ -129,23 +75,74 @@ public abstract class MailSender<T> {
         }
     }
 
+    private void initMessageHead(Mail mail, MimeMessage message) {
+        InternetAddress fromAddr = initFromAddresses(mail);
+        InternetAddress[] ccAddresses = initCcAddresses(mail);
+        InternetAddress[] toAddresses = initToAddresses(mail);
+        logger.debug("CC Addresses: {}", toAddresses.toString());
 
-    public interface MailFunction<F> {
-        List<Mail> performMailing(@Nullable F input) throws MessagingException;
+        try {
+            initMessageSubject(mail, message);
+
+            message.setRecipients(MimeMessage.RecipientType.TO, toAddresses);
+            if (ccAddresses != null) {
+                message.setRecipients(MimeMessage.RecipientType.CC, ccAddresses);
+            }
+            message.setFrom(fromAddr);
+        } catch (MessagingException e) {
+            logger.error("Error while init message recipients.", e);
+         }
     }
 
-    protected void sendMessage(T params, MailFunction<T> performFunction ) {
+    @VisibleForTesting
+    InternetAddress initFromAddresses(Mail mail) {
+        String employeeEmail = mail.getFromEmail();
+        logger.debug("From Address = {}", employeeEmail);
         try {
-            List<Mail> mails = performFunction.performMailing(params);
-            initAndSendMessage(mails);
-        } catch (NoSuchProviderException e) {
-            logger.error("Provider for {} protocol not found.", propertyProvider.getMailTransportProtocol(), e);
+            return new InternetAddress(employeeEmail);
         } catch (MessagingException e) {
-            logger.error("Error while sending email message.", e);
+            throw new IllegalArgumentException(String.format("Email address %s has wrong format.", employeeEmail), e);
         }
     }
+    @VisibleForTesting
+    InternetAddress[] initCcAddresses(Mail mail) {
+        if (StringUtils.isNotBlank(mail.getCcEmail())) {
+            try {
+                return InternetAddress.parse(mail.getCcEmail());
+            } catch (MessagingException e) {
+                logger.error("Employee email address has wrong format.", e);
+            }
+        }
+        return null;
+    }
+    @VisibleForTesting
+    InternetAddress[] initToAddresses(Mail mail) {
+        try {
+            InternetAddress[] toAddresses = InternetAddress.parse(Joiner.on(",").join(mail.getToEmails()));
+            logger.debug("To Address = {}", toAddresses);
+            return toAddresses;
+        } catch (AddressException e) {
+            throw new IllegalArgumentException("Email address has wrong format.", e);
+        }
+    }
+    @VisibleForTesting
+    void initMessageSubject(Mail mail, MimeMessage message) throws MessagingException {
+        String messageSubject = mail.getSubject();
+        logger.debug("Message subject: {}", messageSubject);
+        message.setSubject(messageSubject, "UTF-8");
+    }
 
-    private Session getMailSession() {
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    protected void initMessageBody(Mail mail, MimeMessage message) throws MessagingException {
+        message.setText(mail.getPreconstructedMessageBody(), "UTF-8", "html");
+    }
+
+    protected List<Mail> getMailList(T params) {
+        throw new IllegalAccessError("You must to ovverid getMailList method!");
+    }
+
+    @VisibleForTesting
+    Session getMailSession(TSPropertyProvider propertyProvider) {
         Properties sysProperties = TSPropertyProvider.getProperties();
         if (StringUtils.isBlank(propertyProvider.getMailSmtpPort())) {
             sysProperties.put("mail.smtp.port", "25");
@@ -165,18 +162,4 @@ public abstract class MailSender<T> {
             return new PasswordAuthentication(propertyProvider.getMailUsername(), propertyProvider.getMailPassword());
         }
     }
-
-    /**
-     * Возвращает адреса имеил без дубликатов
-     *
-     * @param emails
-     */
-    public static String deleteEmailDublicates(String emails) {
-        return Joiner.on(",").join(Sets.newHashSet(
-                Iterables.transform(Arrays.asList(emails.split(",")), new Function<String, String>() {
-                    @Nullable @Override public String apply(@Nullable String s) {
-                        return s.trim();
-        } })));
-    }
-
 }

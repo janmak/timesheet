@@ -19,9 +19,9 @@
                         <b> - $paramsForGenerateBody.get($key, "categoryOfActivity") </b>
                     #end
                     #if ($paramsForGenerateBody.get($key, "cqId")!=$null)
-                        <b> - $paramsForGenerateBody.get($key, "cqId) </b>
+                        <b> - $paramsForGenerateBody.get($key, "cqId") </b>
                     #end
-                    #if ($paramsForGenerateBody.get($key, "duration") != $null)
+                    #if ($paramsForGenerateBody.get($key, "duration")!=$null)
                         <b> ( $paramsForGenerateBody.get($key, "duration") ч.)</b>
                     #end
                     #if ($paramsForGenerateBody.get($key, "descriptionStrings")!=$null)
@@ -63,4 +63,4 @@
         #end
 	</ul>
 #end
-<h4>Отправил пользователь $senderName</h4>
+<h4>Отправил пользователь $paramsForGenerateBody.get($first,"senderName")</h4>

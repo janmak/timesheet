@@ -2,6 +2,7 @@ package com.aplana.timesheet.service.MailSenders;
 
 import com.aplana.timesheet.dao.entity.Division;
 import com.aplana.timesheet.dao.entity.Employee;
+import com.google.common.collect.Sets;
 import com.google.common.collect.Table;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -19,7 +20,7 @@ public class Mail {
     private String ccEmail;
     private String fromEmail;
     private String subject;
-    private List<String> toEmails = new ArrayList<String>();
+    private Iterable<String> toEmails = new ArrayList<String>();
 
     private Iterable<Employee> employeeList;
 
@@ -89,8 +90,12 @@ public class Mail {
         this.preconstructedMessageBody = preconstructedMessageBody;
     }
 
-    public List<String> getToEmails() {
+    public Iterable<String> getToEmails() {
         return toEmails;
+    }
+
+    public void setToEmails(Iterable<String> toEmails) {
+        this.toEmails = Sets.newHashSet(toEmails); //удаляем дупликаты
     }
 
     public String getDate() {

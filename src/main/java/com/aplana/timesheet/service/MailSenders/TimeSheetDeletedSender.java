@@ -6,15 +6,12 @@ import com.aplana.timesheet.properties.TSPropertyProvider;
 import com.aplana.timesheet.service.SendMailService;
 import com.aplana.timesheet.util.DateTimeUtil;
 import com.google.common.base.Function;
-import com.google.common.base.Joiner;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import org.springframework.ui.velocity.VelocityEngineUtils;
 
 import javax.annotation.Nullable;
 import javax.mail.MessagingException;
-import javax.mail.internet.AddressException;
-import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import java.util.*;
 
@@ -22,11 +19,6 @@ public class TimeSheetDeletedSender extends MailSender<TimeSheet> {
 
     public TimeSheetDeletedSender(SendMailService sendMailService, TSPropertyProvider propertyProvider) {
         super(sendMailService, propertyProvider);
-    }
-
-    @Override
-    protected InternetAddress[] getToAddresses(Mail mail) throws AddressException {
-        return InternetAddress.parse(Joiner.on(",").join(mail.getToEmails()));
     }
 
     @Override
@@ -50,37 +42,23 @@ public class TimeSheetDeletedSender extends MailSender<TimeSheet> {
     }
 
     @Override
-    protected void initMessageSubject(Mail mail, MimeMessage message) {
-        StringBuilder messageSubject = new StringBuilder();
-        messageSubject.append("Удален отчет сотрудника ")
-                .append(Iterables.getFirst(mail.getEmployeeList(), null).getName())
-                .append(" за ").append(mail.getDate());
-        logger.debug("Message subject: {}", messageSubject.toString());
-        try {
-            message.setSubject(messageSubject.toString(), "UTF-8");
-        } catch (MessagingException e) {
-            logger.error("Error while init message subject.", e);
-        }
+    protected List<Mail> getMailList(TimeSheet params) {
+        logger.info("Performing mailing about deleted timesheet.");
+        Mail mail = new Mail();
+
+        mail.setToEmails(getToEmails(params));
+        mail.setEmployeeList(Arrays.asList(params.getEmployee()));
+        String date = DateTimeUtil.formatDate(params.getCalDate().getCalDate());
+        mail.setDate(date);
+        mail.setSubject(getSubject(params.getEmployee(), date ));
+        return Arrays.asList(mail);
     }
 
-    public void sendMessage(TimeSheet timeSheet) {
-
-        sendMessage(timeSheet, new MailFunction<TimeSheet>() {
-            @Override
-            public List<Mail> performMailing(@Nullable TimeSheet input) throws MessagingException {
-                logger.info("Performing mailing about deleted timesheet.");
-                Mail mail = new Mail();
-
-                mail.getToEmails().addAll(getToEmails(input));
-                mail.setEmployeeList(Arrays.asList(input.getEmployee()));
-                mail.setDate(DateTimeUtil.formatDate(input.getCalDate().getCalDate()));
-
-                return Arrays.asList(mail);
-            }
-        });
+    private String getSubject(Employee employee, String date) {
+        return String.format("Удален отчет сотрудника %s за %s", employee.getName(), date);
     }
 
-    private Collection<? extends String> getToEmails(TimeSheet input) {
+    private Collection<String> getToEmails(TimeSheet input) {
         Integer empId = input.getEmployee().getId();
 
         Set<String> result = Sets.newHashSet(Iterables.transform(

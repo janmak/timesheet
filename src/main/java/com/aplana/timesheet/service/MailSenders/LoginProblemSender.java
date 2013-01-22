@@ -5,8 +5,6 @@ import com.aplana.timesheet.properties.TSPropertyProvider;
 import com.aplana.timesheet.service.SendMailService;
 import org.apache.commons.lang3.StringEscapeUtils;
 
-import javax.annotation.Nullable;
-import javax.mail.MessagingException;
 import javax.mail.Multipart;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
@@ -27,7 +25,6 @@ public class LoginProblemSender extends MailSender<AdminMessageForm> {
 
     @Override
     protected void initMessageBody(Mail mail, MimeMessage message) {
-
         try {
             MimeBodyPart messageText = new MimeBodyPart();
             Multipart multiPart = new MimeMultipart();
@@ -41,28 +38,24 @@ public class LoginProblemSender extends MailSender<AdminMessageForm> {
         }
     }
 
-    public void sendLoginProblem(AdminMessageForm form) {
-        sendMessage(form, new MailFunction<AdminMessageForm>() {
-            @Override
-            public List<Mail> performMailing(@Nullable AdminMessageForm input) throws MessagingException {
-                logger.info("Login problem mailing.");
-                Mail mail = new Mail();
+    @Override
+    protected List<Mail> getMailList(AdminMessageForm params) {
+        logger.info("Login problem mailing.");
+        Mail mail = new Mail();
 
-                StringBuilder bodyTxt = new StringBuilder();
+        StringBuilder bodyTxt = new StringBuilder();
 
-                bodyTxt.append("Логин: ").append(input.getName()).append("\n");
-                bodyTxt.append("Указаный адрес: ").append(input.getEmail()).append("\n");
-                bodyTxt.append("Ошибка: ").append(input.getError()).append("\n");
-                bodyTxt.append("Время: ").append(input.getDate()).append("\n");
-                bodyTxt.append("Описание пользователя: ").append(input.getDescription()).append("\n");
-                bodyTxt.append(StringEscapeUtils.escapeHtml4(input.getDescription()));
+        bodyTxt.append("Логин: ").append(params.getName()).append("\n");
+        bodyTxt.append("Указаный адрес: ").append(params.getEmail()).append("\n");
+        bodyTxt.append("Ошибка: ").append(params.getError()).append("\n");
+        bodyTxt.append("Время: ").append(params.getDate()).append("\n");
+        bodyTxt.append("Описание пользователя: ").append(params.getDescription()).append("\n");
+        bodyTxt.append(StringEscapeUtils.escapeHtml4(params.getDescription()));
 
-                logger.info(input.toString());
+        logger.info(params.toString());
 
-                mail.setPreconstructedMessageBody(bodyTxt.toString());
+        mail.setPreconstructedMessageBody(bodyTxt.toString());
 
-                return Arrays.asList(mail);
-            }
-        });
+        return Arrays.asList(mail);
     }
 }

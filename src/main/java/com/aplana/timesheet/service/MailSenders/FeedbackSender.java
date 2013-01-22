@@ -8,10 +8,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.activation.DataHandler;
-import javax.annotation.Nullable;
-import javax.mail.MessagingException;
 import javax.mail.Multipart;
-import javax.mail.internet.*;
+import javax.mail.internet.MimeBodyPart;
+import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
 import javax.mail.util.ByteArrayDataSource;
 import java.util.Arrays;
 import java.util.List;
@@ -20,45 +20,6 @@ public class FeedbackSender extends MailSender<FeedbackForm> {
 
     public FeedbackSender(SendMailService sendMailService, TSPropertyProvider propertyProvider) {
         super(sendMailService, propertyProvider);
-    }
-
-    @Override
-    protected InternetAddress[] initCcAddresses(Mail mail) {
-        if (StringUtils.isNotBlank(mail.getCcEmail())) {
-            try {
-                return new InternetAddress[]{new InternetAddress(mail.getCcEmail())};
-            } catch (MessagingException e) {
-                logger.error("Employee email address has wrong format.", e);
-            }
-        }
-        return null;
-    }
-
-    @Override
-    protected InternetAddress initFromAddresses(Mail mail) {
-        String employeeEmail = mail.getFromEmail();
-        logger.debug("From Address = {}", employeeEmail);
-        try {
-            return new InternetAddress(employeeEmail);
-        } catch (MessagingException e) {
-            throw new IllegalArgumentException(String.format("Email address %s has wrong format.", employeeEmail), e);
-        }
-    }
-
-    @Override
-    protected InternetAddress[] getToAddresses(Mail mail) throws AddressException{
-        String toAddress = propertyProvider.getMailProblemsAndProposalsCoaddress();
-        return InternetAddress.parse(toAddress);
-    }
-
-    @Override
-    protected void initMessageSubject(Mail mail, MimeMessage message) {
-        String messageSubject = mail.getSubject();
-        try {
-            message.setSubject(messageSubject, "UTF-8");
-        } catch (MessagingException e) {
-            logger.error("Error while init message subject.", e);
-        }
     }
 
     @Override
@@ -84,19 +45,18 @@ public class FeedbackSender extends MailSender<FeedbackForm> {
         }
     }
 
-    public void sendFeedbackMessage(FeedbackForm form) {
-        sendMessage(form, new MailFunction<FeedbackForm>() {
-            @Override
-            public List<Mail> performMailing(@Nullable FeedbackForm input) throws MessagingException {
-                Mail mail = new Mail();
-                mail.setCcEmail(input.getEmail());
-                mail.setFromEmail(sendMailService.getEmployeeEmail(input.getEmployeeId()));
-                mail.setSubject(input.getFeedbackTypeName());
-                mail.setFilePahts(Arrays.asList(input.getFile1Path(), input.getFile2Path()));
-                mail.setPreconstructedMessageBody(getMessageBody(input));
-                return Arrays.asList(mail);
-            }
-        });
+    @Override
+    protected List<Mail> getMailList(FeedbackForm params) {
+        Mail mail = new Mail();
+
+        mail.setCcEmail(params.getEmail());
+        mail.setFromEmail(sendMailService.getEmployeeEmail(params.getEmployeeId()));
+        mail.setSubject(params.getFeedbackTypeName());
+        mail.setFilePahts(Arrays.asList(params.getFile1Path(), params.getFile2Path()));
+        mail.setPreconstructedMessageBody(getMessageBody(params));
+        mail.setToEmails(Arrays.asList(propertyProvider.getMailProblemsAndProposalsCoaddress()));
+
+        return Arrays.asList(mail);
     }
 
     private String getMessageBody(FeedbackForm input) {

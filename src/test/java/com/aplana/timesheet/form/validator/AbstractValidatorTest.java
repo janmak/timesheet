@@ -15,6 +15,7 @@ public class AbstractValidatorTest {
         Assert.assertTrue( AbstractValidator.validateEmail( "eshangareev.some@aplana.com" ) );
         Assert.assertTrue( AbstractValidator.validateEmail( "eshangareev@aplana.some.com" ) );
         Assert.assertTrue( AbstractValidator.validateEmail( "eshangareev.some@aplana.some.com" ) );
+        Assert.assertFalse( AbstractValidator.validateEmail("esh..@aplana.com"));
 
     }
 }

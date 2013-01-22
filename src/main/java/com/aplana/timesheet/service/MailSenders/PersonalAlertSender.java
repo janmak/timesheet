@@ -12,8 +12,6 @@ import org.springframework.ui.velocity.VelocityEngineUtils;
 
 import javax.annotation.Nullable;
 import javax.mail.MessagingException;
-import javax.mail.internet.AddressException;
-import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import java.util.*;
 
@@ -21,12 +19,6 @@ public class PersonalAlertSender extends MailSender<List<ReportCheck>> {
 
     public PersonalAlertSender(SendMailService sendMailService, TSPropertyProvider propertyProvider) {
         super(sendMailService, propertyProvider);
-    }
-
-    @Override
-    protected InternetAddress[] getToAddresses(Mail mail) throws AddressException {
-        String email = Iterables.getFirst(mail.getToEmails(), null);
-        return InternetAddress.parse(email);
     }
 
     @Override
@@ -45,37 +37,23 @@ public class PersonalAlertSender extends MailSender<List<ReportCheck>> {
         }
     }
 
-
     @Override
-    protected void initMessageSubject(Mail mail, MimeMessage message) {
-        try {
-            message.setSubject(mail.getSubject(), "UTF-8");
-        } catch (MessagingException e) {
-            logger.error("Error while init message subject.", e);
+    protected List<Mail> getMailList(List<ReportCheck> params) {
+        logger.info("Performing personal mailing.");
+
+        List<Mail> mails = new ArrayList<Mail>();
+
+        for ( ReportCheck currentReportCheck : params ) {
+            Mail mail = new Mail();
+
+            mail.setToEmails(Arrays.asList(currentReportCheck.getEmployee().getEmail()));
+            mail.setSubject(getSubject(currentReportCheck));
+            mail.setEmployeeList(Arrays.asList(currentReportCheck.getEmployee()));
+
+            mail.getPassedDays().put(null, currentReportCheck.getPassedDays());
+            mails.add(mail);
         }
-    }
-
-    public void sendAlert(List<ReportCheck> rCheckList) {
-        sendMessage(rCheckList, new MailFunction<List<ReportCheck>>() {
-            @Override
-            public List<Mail> performMailing(@Nullable List<ReportCheck> input) throws MessagingException {
-                logger.info("Performing personal mailing.");
-
-                List<Mail> mails = new ArrayList<Mail>();
-
-                for ( ReportCheck currentReportCheck : input ) {
-                    Mail mail = new Mail();
-
-                    mail.getToEmails().add(currentReportCheck.getEmployee().getEmail());
-                    mail.setSubject(getSubject(currentReportCheck));
-                    mail.setEmployeeList(Arrays.asList(currentReportCheck.getEmployee()));
-
-                    mail.getPassedDays().put(null, currentReportCheck.getPassedDays());
-                    mails.add(mail);
-                }
-                return mails;
-            }
-        });
+        return mails;
     }
 
     private String getSubject(ReportCheck currentReportCheck) {
