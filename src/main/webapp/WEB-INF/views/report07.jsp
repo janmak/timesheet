@@ -94,7 +94,7 @@
                 Excel</label>
             </li>
             <!--li><input type=radio name="printtype" id="printtype3" value="3"/><label for="printtype3">PDF</label>
-            </li> --Ю
+            </li> -->
         </ul>
     </div>
     <button id="make_report_button" style="width:210px" type="submit">Сформировать отчет</button>
