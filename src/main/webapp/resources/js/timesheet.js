@@ -1339,11 +1339,11 @@ function fillProjectListByDivision(division) {
 		}
 		else {
 
-			division.value = 0;
+            /*division.value = 0;
 
 			dojo.attr("divisionId", {
 				disabled:"disabled"
-			});
+			});  */
 
 			insertEmptyOption(projectSelect);
 			for (var i = 0; i < fullProjectList.length; i++) {
