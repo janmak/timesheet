@@ -1,5 +1,11 @@
 package com.aplana.timesheet.enums;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
+
+import javax.annotation.Nullable;
+import java.util.Arrays;
+
 import static com.aplana.timesheet.enums.SystemRole.*;
 
 /**
@@ -77,21 +83,21 @@ public enum ProjectRole {
         return sysRole;
     }
 
-    public static ProjectRole getByCode( String code ) {
-        for ( ProjectRole projectRole : ProjectRole.values() ) {
-            if ( projectRole.getCode().equals( code ) ) {
-                return projectRole;
+    public static ProjectRole getByCode( final String code ) {
+        return Iterables.tryFind(Arrays.asList(ProjectRole.values()), new Predicate<ProjectRole>() {
+            @Override
+            public boolean apply(ProjectRole input) {
+                return input.getCode().equals(code);
             }
-        }
-        return null;
+        }).orNull();
     }
 
-    public static ProjectRole getById(int id) {
-        for (ProjectRole projectRole : ProjectRole.values()) {
-            if (projectRole.getId() == id) {
-                return projectRole;
+    public static ProjectRole getById(final int id) {
+        return Iterables.tryFind(Arrays.asList(ProjectRole.values()), new Predicate<ProjectRole>() {
+            @Override
+            public boolean apply(ProjectRole input) {
+                return input.getId() == id;
             }
-        }
-        return null;
+        }).orNull();
     }
 }

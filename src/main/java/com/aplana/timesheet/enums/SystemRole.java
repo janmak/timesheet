@@ -1,5 +1,11 @@
 package com.aplana.timesheet.enums;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
+
+import javax.annotation.Nullable;
+import java.util.Arrays;
+
 /**
  * @author eshangareev
  * @version 1.0
@@ -17,12 +23,12 @@ public enum SystemRole {
         return id;
     }
 
-    public static SystemRole getById( int id ) {
-        for ( SystemRole systemRole : SystemRole.values() ) {
-            if ( systemRole.getId() == id ) {
-                return systemRole;
+    public static SystemRole getById( final int id ) {
+        return Iterables.tryFind(Arrays.asList(SystemRole.values()), new Predicate<SystemRole>() {
+            @Override
+            public boolean apply(SystemRole input) {
+                return input.getId() == id;
             }
-        }
-        return null;
+        }).orNull();
     }
 }

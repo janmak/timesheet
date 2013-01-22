@@ -1,5 +1,11 @@
 package com.aplana.timesheet.enums;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
+
+import javax.annotation.Nullable;
+import java.util.Arrays;
+
 /**
  * @author eshangareev
  * @version 1.0
@@ -68,12 +74,12 @@ public enum TypeOfActivity {
         return ! isEfficientActivity( typeOfActivity );
     }
 
-    public static TypeOfActivity getById( int id ) {
-        for ( TypeOfActivity typeOfActivity : TypeOfActivity.values() ) {
-            if ( typeOfActivity.getId() == id ) {
-                return typeOfActivity;
+    public static TypeOfActivity getById( final int id ) {
+        return Iterables.tryFind(Arrays.asList(TypeOfActivity.values()), new Predicate<TypeOfActivity>() {
+            @Override
+            public boolean apply(@Nullable TypeOfActivity input) {
+                return input.getId() == id;
             }
-        }
-        return null;
+        }).orNull();
     }
 }
