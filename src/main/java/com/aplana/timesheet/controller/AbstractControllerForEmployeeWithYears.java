@@ -7,6 +7,7 @@ import com.aplana.timesheet.service.CalendarService;
 import com.aplana.timesheet.service.DivisionService;
 import com.aplana.timesheet.service.EmployeeService;
 import com.aplana.timesheet.service.SecurityService;
+import com.aplana.timesheet.util.DateTimeUtil;
 import com.aplana.timesheet.util.EmployeeHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,7 +47,7 @@ public abstract class AbstractControllerForEmployeeWithYears {
 
         Employee employee = employeeService.find(employeeId);
 
-        List<Calendar> years = getYearsList();
+        List<Calendar> years = DateTimeUtil.getYearsList(calendarService);
         List<Division> divisionList = divisionService.getDivisions();
 
         modelAndView.addObject("divisionId", divisionId);
@@ -57,18 +58,6 @@ public abstract class AbstractControllerForEmployeeWithYears {
         modelAndView.addObject("employeeListJson", employeeHelper.getEmployeeListJson(divisionList));
 
         return modelAndView;
-    }
-
-    /**
-     * Возвращает List годов, существующих в системе
-     * @return List<Calendar>
-     */
-    private List<Calendar> getYearsList() {
-        final List<Calendar> yearsList = calendarService.getYearsList();
-
-        logger.info(yearsList.toString());
-
-        return yearsList;
     }
 
 }

@@ -182,7 +182,7 @@ public class BusinessTripsAndIllnessController {
     private YearPeriod getYearPeriodForEmployyesRegion(Employee employee) {
         YearPeriod yearPeriod = new YearPeriod();
 
-        Region regionEnum = EnumsUtils.getEnumById(Region.values(), employee.getRegion().getId());
+        Region regionEnum = EnumsUtils.getEnumById(employee.getRegion().getId(), Region.class);
 
         switch (regionEnum) {
             case MOSCOW: {

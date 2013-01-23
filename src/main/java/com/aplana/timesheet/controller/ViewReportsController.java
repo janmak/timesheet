@@ -5,6 +5,7 @@ import com.aplana.timesheet.dao.entity.Employee;
 import com.aplana.timesheet.form.ViewReportsForm;
 import com.aplana.timesheet.form.validator.ViewReportsFormValidator;
 import com.aplana.timesheet.service.TimeSheetService;
+import com.aplana.timesheet.util.DateTimeUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -48,47 +49,10 @@ public class ViewReportsController extends AbstractControllerForEmployeeWithYear
 
         mav.addObject("year", year);
         mav.addObject("month", month);
-        mav.addObject("monthList", getMonthListJson((List<Calendar>) mav.getModel().get(YEARS_LIST)));
+        mav.addObject("monthList", DateTimeUtil.getMonthListJson((List<Calendar>) mav.getModel().get(YEARS_LIST), calendarService));
         mav.addObject("reports", timeSheetService.findDatesAndReportsForEmployee(employee, year, month));
 
         return mav;
     }
 
-    /**
-     * Возвращает List месяцев, существующих в системе
-     *
-     * @param years
-     * @return String
-     */
-    private String getMonthListJson(List<Calendar> years) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("[");
-        for (int i = 0; i < years.size(); i++) {
-            List<Calendar> months = calendarService.getMonthList(years.get(i).getYear());
-            sb.append("{year:'");
-            sb.append(years.get(i).getYear());
-            sb.append("', months:[");
-            if (months.size() > 0) {
-                for (int j = 0; j < months.size(); j++) {
-                    sb.append("{number:'");
-                    sb.append(months.get(j).getMonth());
-                    sb.append("', name:'");
-                    sb.append(months.get(j).getMonthTxt());
-                    sb.append("'}");
-                    if (j < (months.size() - 1)) {
-                        sb.append(", ");
-                    }
-                }
-                sb.append("]}");
-            } else {
-                sb.append("{year:'0', value:''}]}");
-            }
-
-            if (i < (years.size() - 1)) {
-                sb.append(", ");
-            }
-        }
-        sb.append("]");
-        return sb.toString();
-    }
 }

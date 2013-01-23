@@ -1,5 +1,3 @@
-<%@page import="com.aplana.timesheet.dao.entity.DayTimeSheet"%>
-<%@page import="java.text.SimpleDateFormat"%>
 <%@page contentType="text/html" pageEncoding="UTF-8" %>
 
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form" %>
