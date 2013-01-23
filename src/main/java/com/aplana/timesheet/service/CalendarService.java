@@ -4,12 +4,14 @@ import com.aplana.timesheet.dao.CalendarDAO;
 import com.aplana.timesheet.dao.entity.Calendar;
 import com.aplana.timesheet.dao.entity.Region;
 import com.aplana.timesheet.util.DateTimeUtil;
+import org.apache.commons.lang.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -116,5 +118,24 @@ public class CalendarService
 
     public Calendar getNextWorkDay(Calendar day, Region region) {
         return calendarDAO.getNextWorkDay(day, region);
+    }
+
+    /**
+     * Возвращает количество выходных дней за выбранный период для конкретного региона
+     */
+    public Integer getHolidaysCounForRegion(Date beginDate, Date endDate, Region region) {
+        return calendarDAO.getHolidaysCountForRegion(beginDate, endDate, region);
+    }
+
+    /**
+     * Возвращает количетсов дней за период (даты должны быть из одного года. иначе может не работать, но
+     * для выполнения поставленной задачи такая проверка не требуется)
+     */
+    public Long getAllDaysCount(Date beginDate, Date endDate){
+        //при подсчете к каждой дате добавляем по одному дню, потому что ищется промужуток "до даты" - сама дата в него не входит
+        Long daysToLastDate = DateUtils.getFragmentInDays(DateUtils.addDays(endDate, 1), java.util.Calendar.YEAR);
+        Long daysToFirstDate = DateUtils.getFragmentInDays(DateUtils.addDays(beginDate, 1), java.util.Calendar.YEAR);
+
+        return daysToLastDate - daysToFirstDate + 1;
     }
 }

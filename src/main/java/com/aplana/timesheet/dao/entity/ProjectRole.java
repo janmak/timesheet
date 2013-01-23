@@ -25,9 +25,9 @@ public class ProjectRole {
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinTable(name = "project_role_permissions",
             joinColumns = {
-                    @JoinColumn(name = "permission_id", nullable = false) },
+                    @JoinColumn(name = "project_role_id", nullable = false) },
             inverseJoinColumns = {
-                    @JoinColumn(name = "project_role_id", nullable = false) })
+                    @JoinColumn(name = "permission_id", nullable = false) })
     private Set<Permission> permissions;
 
 	/** Конструктор по умолчанию */

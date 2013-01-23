@@ -22,17 +22,17 @@ public class Permission {
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinTable(name = "employee_permissions",
             joinColumns = {
-                    @JoinColumn(name = "employee_id", nullable = false) },
+                    @JoinColumn(name = "permission_id", nullable = false) },
             inverseJoinColumns = {
-                    @JoinColumn(name = "permission_id", nullable = false) })
+                    @JoinColumn(name = "employee_id", nullable = false) })
     private Set<Employee> employees;
 
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinTable(name = "project_role_permissions",
             joinColumns = {
-                    @JoinColumn(name = "project_role_id", nullable = false) },
+                    @JoinColumn(name = "permission_id", nullable = false) },
             inverseJoinColumns = {
-                    @JoinColumn(name = "permission_id", nullable = false) })
+                    @JoinColumn(name = "project_role_id", nullable = false) })
     private Set<ProjectRole> projectRoles;
 
     public Set<ProjectRole> getProjectRoles() {

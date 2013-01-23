@@ -55,9 +55,9 @@ public class Employee {
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinTable(name = "employee_permissions",
                joinColumns = {
-                       @JoinColumn(name = "permission_id", nullable = false) },
+                       @JoinColumn(name = "employee_id", nullable = false) },
                inverseJoinColumns = {
-                       @JoinColumn(name = "employee_id", nullable = false) })
+                       @JoinColumn(name = "permission_id", nullable = false) })
     private Set<Permission> permissions;
 
     @Column(name = "not_to_sync", columnDefinition = "bool not null default false")
