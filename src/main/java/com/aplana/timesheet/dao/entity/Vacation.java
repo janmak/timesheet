@@ -43,6 +43,11 @@ public class Vacation {
     @Column(name = "comment", columnDefinition = "character(400)")
     private String comment;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "author_id", nullable = false)
+    @ForeignKey(name = "fk_author")
+    private Employee author;
+
     public Integer getId() {
         return id;
     }
@@ -99,6 +104,14 @@ public class Vacation {
         this.comment = comment;
     }
 
+    public Employee getAuthor() {
+        return author;
+    }
+
+    public void setAuthor(Employee author) {
+        this.author = author;
+    }
+
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder();
@@ -110,6 +123,7 @@ public class Vacation {
         sb.append(", type=").append(type);
         sb.append(", status=").append(status);
         sb.append(", comment='").append(comment).append('\'');
+        sb.append(", author=").append(author);
         sb.append('}');
         return sb.toString();
     }

@@ -111,7 +111,13 @@
             <td class="date"><fmt:formatDate value="${vacation.endDate}" pattern="dd.MM.yyyy"/></td>
             <td class="centered">${calDays[lp.index]}</td>
             <td class="centered">${workDays[lp.index]}</td>
-            <td>${vacation.comment}</td>
+            <td>
+                ${vacation.comment}
+                <c:if test="${vacation.author.id ne vacation.employee.id}">
+                    <c:if test="${fn:length(vacation.comment) != 0}"><br/></br></c:if>
+                    Заявка создана сотрудником ${vacation.author.name}
+                </c:if>
+            </td>
         </tr>
     </c:forEach>
     </tbody>
