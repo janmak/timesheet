@@ -107,4 +107,24 @@ public class TSPropertyProvider {
         }
         throw new IllegalStateException("File with system properties not founded!");
     }
+
+    public String getProjectRoleDeveloper() {
+        return getProperties().getProperty("project.role.developer");
+    }
+
+    public String getProjectRoleRp() {
+        return getProperties().getProperty("project.role.rp");
+    }
+
+    public String getProjectRoleTest() {
+        return getProperties().getProperty("project.role.test");
+    }
+
+    public String getProjectRoleAnalyst() {
+        return getProperties().getProperty("project.role.analyst");
+    }
+
+    public String getProjectRoleSystem() {
+        return getProperties().getProperty("project.role.system");
+    }
 }

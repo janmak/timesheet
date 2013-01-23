@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="report7" pageWidth="595" pageHeight="842" orientation="Landscape" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="51364e79-e492-4b8c-9b6b-329a2072524e">
+	<property name="net.sf.jasperreports.print.keep.full.text" value="true"/>
+	<property name="ireport.zoom" value="1.5"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<import value="com.aplana.timesheet.util.DateTimeUtil"/>
+	<style name="Normal" isDefault="true" pdfFontName="arial.ttf" pdfEncoding="Cp1251"/>
+	<style name="Title" style="Normal" fontName="Arial" fontSize="26" pdfFontName="arial.ttf"/>
+	<style name="SubTitle" style="Normal" forecolor="#666666" fontName="Arial" fontSize="18" pdfFontName="arial.ttf"/>
+	<style name="Column header" style="Normal" forecolor="#666666" fontName="Arial" fontSize="12" isBold="true" pdfFontName="arial.ttf"/>
+	<style name="Detail" style="Normal" backcolor="#FF0000" fontName="Arial" fontSize="12" pdfFontName="arial.ttf"/>
+	<style name="Crosstab Data Text" hAlign="Center" pdfFontName="arial.ttf"/>
+	<parameter name="reportParams" class="com.aplana.timesheet.reports.Report07" isForPrompting="false"/>
+	<field name="group" class="java.lang.String"/>
+	<field name="type" class="java.lang.String"/>
+	<field name="name" class="java.lang.String"/>
+	<field name="value" class="java.lang.String"/>
+	<field name="period" class="com.aplana.timesheet.util.report.Report7Period"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="125" splitType="Stretch">
+			<staticText>
+				<reportElement uuid="c660b5b5-62e4-4fd5-8473-9bee52a9692b" style="Title" x="0" y="0" width="555" height="77"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<text><![CDATA[Отчет №7. Относительная активность по проектам]]></text>
+			</staticText>
+			<textField>
+				<reportElement uuid="a33c5efc-0b20-430c-93d6-d154661c0f53" style="SubTitle" x="0" y="77" width="555" height="24"/>
+				<textElement textAlignment="Center"/>
+				<textFieldExpression><![CDATA["с " + DateTimeUtil.formatDateString($P{reportParams}.getBeginDate()) +
+" по " + DateTimeUtil.formatDateString($P{reportParams}.getEndDate())]]></textFieldExpression>
+			</textField>
+		</band>
+	</title>
+	<summary>
+		<band height="218">
+			<crosstab>
+				<reportElement uuid="3af5ee87-5486-4b73-908e-91218f3f72e5" x="0" y="0" width="12555" height="166"/>
+				<rowGroup name="name" width="162" totalPosition="End" headerPosition="Middle">
+					<bucket class="java.lang.String">
+						<bucketExpression><![CDATA[$F{name}]]></bucketExpression>
+					</bucket>
+					<crosstabRowHeader>
+						<cellContents backcolor="#F0F8FF" mode="Opaque">
+							<box>
+								<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+							</box>
+							<textField>
+								<reportElement uuid="46c3234d-18da-4977-a6d0-873a828abd33" style="Crosstab Data Text" x="0" y="1" width="162" height="25"/>
+								<textElement verticalAlignment="Middle">
+									<font pdfEncoding="Cp1251"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$V{name}]]></textFieldExpression>
+							</textField>
+						</cellContents>
+					</crosstabRowHeader>
+					<crosstabTotalRowHeader>
+						<cellContents backcolor="#005FB3" mode="Opaque">
+							<box>
+								<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+							</box>
+						</cellContents>
+					</crosstabTotalRowHeader>
+				</rowGroup>
+				<rowGroup name="group" width="146" totalPosition="End" headerPosition="Middle">
+					<bucket class="java.lang.String">
+						<bucketExpression><![CDATA[$F{group}]]></bucketExpression>
+					</bucket>
+					<crosstabRowHeader>
+						<cellContents backcolor="#F0F8FF" mode="Opaque">
+							<box>
+								<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+							</box>
+							<textField>
+								<reportElement uuid="6953a68a-e98a-496b-a474-33e3e60da316" style="Crosstab Data Text" x="0" y="0" width="143" height="25"/>
+								<textElement verticalAlignment="Middle">
+									<font pdfEncoding="Cp1251"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$V{group}]]></textFieldExpression>
+							</textField>
+						</cellContents>
+					</crosstabRowHeader>
+					<crosstabTotalRowHeader>
+						<cellContents backcolor="#BFE1FF" mode="Opaque">
+							<box>
+								<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+							</box>
+						</cellContents>
+					</crosstabTotalRowHeader>
+				</rowGroup>
+				<rowGroup name="type" width="187" headerPosition="Middle">
+					<bucket class="java.lang.String">
+						<bucketExpression><![CDATA[$F{type}]]></bucketExpression>
+					</bucket>
+					<crosstabRowHeader>
+						<cellContents>
+							<box>
+								<pen lineWidth="0.5"/>
+								<topPen lineWidth="0.5"/>
+								<leftPen lineWidth="0.5"/>
+								<bottomPen lineWidth="0.5"/>
+								<rightPen lineWidth="0.5"/>
+							</box>
+							<textField>
+								<reportElement uuid="6c05e300-ae39-4aa2-8a06-a2cdae652bb0" style="Crosstab Data Text" mode="Opaque" x="0" y="0" width="186" height="25" backcolor="#F0F8FF"/>
+								<textElement verticalAlignment="Middle">
+									<font pdfEncoding="Cp1251"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$V{type}]]></textFieldExpression>
+							</textField>
+						</cellContents>
+					</crosstabRowHeader>
+					<crosstabTotalRowHeader>
+						<cellContents>
+							<box>
+								<pen lineWidth="0.5"/>
+								<topPen lineWidth="0.5"/>
+								<leftPen lineWidth="0.5"/>
+								<bottomPen lineWidth="0.5"/>
+								<rightPen lineWidth="0.5"/>
+							</box>
+						</cellContents>
+					</crosstabTotalRowHeader>
+				</rowGroup>
+				<columnGroup name="period" height="26" totalPosition="End">
+					<bucket order="Descending" class="com.aplana.timesheet.util.report.Report7Period">
+						<bucketExpression><![CDATA[$F{period}]]></bucketExpression>
+					</bucket>
+					<crosstabColumnHeader>
+						<cellContents backcolor="#F0F8FF" mode="Opaque">
+							<box>
+								<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+							</box>
+							<textField>
+								<reportElement uuid="7f595889-89ec-4a71-bc11-e049c69c8776" style="Crosstab Data Text" x="0" y="0" width="91" height="25"/>
+								<textElement verticalAlignment="Middle">
+									<font pdfEncoding="Cp1251"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$V{period}]]></textFieldExpression>
+							</textField>
+						</cellContents>
+					</crosstabColumnHeader>
+					<crosstabTotalColumnHeader>
+						<cellContents backcolor="#BFE1FF" mode="Opaque">
+							<box>
+								<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+							</box>
+						</cellContents>
+					</crosstabTotalColumnHeader>
+				</columnGroup>
+				<measure name="valueMeasure" class="java.lang.String" calculation="Sum">
+					<measureExpression><![CDATA[$F{value}]]></measureExpression>
+				</measure>
+				<crosstabCell width="91" height="26">
+					<cellContents mode="Transparent">
+						<box>
+							<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						</box>
+						<textField isBlankWhenNull="true">
+							<reportElement uuid="567e7a78-f51d-47be-8ac7-bfbb7264e906" style="Crosstab Data Text" x="0" y="0" width="91" height="25"/>
+							<textElement verticalAlignment="Middle">
+								<font pdfEncoding="Cp1251"/>
+							</textElement>
+							<textFieldExpression><![CDATA[($V{valueMeasure} != null) ? $V{valueMeasure} : "-"]]></textFieldExpression>
+						</textField>
+					</cellContents>
+				</crosstabCell>
+				<crosstabCell width="91" height="0" rowTotalGroup="name">
+					<cellContents backcolor="#005FB3" mode="Opaque">
+						<box>
+							<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						</box>
+					</cellContents>
+				</crosstabCell>
+				<crosstabCell width="0" height="26" columnTotalGroup="period">
+					<cellContents backcolor="#BFE1FF" mode="Opaque">
+						<box>
+							<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						</box>
+					</cellContents>
+				</crosstabCell>
+				<crosstabCell width="0" height="0" rowTotalGroup="name" columnTotalGroup="period">
+					<cellContents backcolor="#005FB3" mode="Opaque">
+						<box>
+							<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						</box>
+					</cellContents>
+				</crosstabCell>
+				<crosstabCell width="91" height="0" rowTotalGroup="group">
+					<cellContents backcolor="#BFE1FF" mode="Opaque">
+						<box>
+							<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						</box>
+					</cellContents>
+				</crosstabCell>
+				<crosstabCell width="0" height="0" rowTotalGroup="group" columnTotalGroup="period">
+					<cellContents backcolor="#BFE1FF" mode="Opaque">
+						<box>
+							<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						</box>
+					</cellContents>
+				</crosstabCell>
+				<crosstabCell rowTotalGroup="type">
+					<cellContents/>
+				</crosstabCell>
+				<crosstabCell rowTotalGroup="type" columnTotalGroup="period">
+					<cellContents/>
+				</crosstabCell>
+			</crosstab>
+		</band>
+	</summary>
+</jasperReport>

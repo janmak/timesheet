@@ -177,6 +177,16 @@ public class JasperReportController {
     ) throws JReportBuildError {
         return showReport(report, result, printtype, 6, response, request);
     }
+    @RequestMapping(value = "/managertools/report/7", method = RequestMethod.POST)
+    public ModelAndView showReport07(
+            @ModelAttribute("reportForm") Report07 report,
+            BindingResult result,
+            @RequestParam("printtype") Integer printtype,
+            HttpServletResponse response,
+            HttpServletRequest request
+    ) throws JReportBuildError {
+        return showReport(report, result, printtype, 7, response, request);
+    }
 
     // Нужно для отображения названия региона в сформированном отчете
     private void fillRegionName(BaseReport report) {
