@@ -123,8 +123,8 @@ public class CalendarService
     /**
      * Возвращает количество выходных дней за выбранный период для конкретного региона
      */
-    public Integer getHolydaysCounForRegion(Date beginDate, Date endDate, Region region) {
-        return calendarDAO.getHolydaysCountForRegion(beginDate, endDate, region);
+    public Integer getHolidaysCounForRegion(Date beginDate, Date endDate, Region region) {
+        return calendarDAO.getHolidaysCountForRegion(beginDate, endDate, region);
     }
 
     /**

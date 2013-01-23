@@ -371,13 +371,10 @@ function showOrHideDatePickers() {
 /* Устанавливает компоненту calDate текущую дату в качестве значения по умолчанию. */
 function setDuringDate() {
     var d = new Date();
-    var day = d.getDate();
+    /*var day = d.getDate();
     var month = d.getMonth(); // 0-11
-    var year = d.getFullYear();
-    var during_date = day + "." + (month + 1) + "." + year;
-    var lang = navigator.userLanguage || navigator.language || navigator.browserLanguage;
-    if (/en/.exec(lang) != null)
-        during_date = (month + 1) + "/" + day + "/" + year;
+    var year = d.getFullYear();*/
+    var during_date = d.format("dd.mm.yyyy");
     var date_picker = dijit.byId("calDate");
     date_picker.set("displayedValue", during_date);
 }
@@ -1257,6 +1254,15 @@ function openViewReportsWindow() {
 }
 ;
 
+function openBusinessTripsAndIllnessWindow() {
+    var employeeId = dojo.byId("employeeId").value;
+    var divisionId = dojo.byId("divisionId").value;
+    if (employeeId != 0) {
+        window.open('businesstripsandillness/');
+    }
+}
+;
+
 function maskBody() {
     dojo.query('#maskDiv').addClass("masked");
 
@@ -1394,11 +1400,11 @@ function fillProjectListByDivision(division) {
 		}
 		else {
 
-			division.value = 0;
+            /*division.value = 0;
 
 			dojo.attr("divisionId", {
 				disabled:"disabled"
-			});
+			});  */
 
 			insertEmptyOption(projectSelect);
 			for (var i = 0; i < fullProjectList.length; i++) {

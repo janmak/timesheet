@@ -110,14 +110,21 @@ public class FeedbackController {
 	
 	//Основной метод GET
 	@RequestMapping(value = "/feedback", method = RequestMethod.GET)
-	public ModelAndView sendReportFeedback(@ModelAttribute("feedbackForm")FeedbackForm fbForm, BindingResult result) {
+    public ModelAndView sendReportFeedback(@ModelAttribute("feedbackForm") FeedbackForm fbForm, BindingResult result, String messageText, String exceptionText) {
         String jiraIssueCreateUrl = propertyProvider.getJiraIssueCreateUrl();
         if (StringUtils.isBlank(jiraIssueCreateUrl)) {
             jiraIssueCreateUrl = null;
             logger.warn("In your properties not assign 'jira.issue.create.url', some functions will be disabled");
         }
 
+        fbForm.setFeedbackDescription(messageText);
+
 		ModelAndView mav = new ModelAndView("feedback");
+        if (StringUtils.isNotBlank(exceptionText)) {
+            String message =  messageSource.getMessage(exceptionText, new Object[]{}, null);
+            result.rejectValue("feedbackDescription", message, "Слишком большой фаил");
+        }
+        mav.addObject("errors", result.getAllErrors());
 		mav.addObject("feedbackForm", fbForm);
 		mav.addObject("jiraIssueCreateUrl", jiraIssueCreateUrl);
 

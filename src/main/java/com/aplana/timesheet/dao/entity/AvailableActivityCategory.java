@@ -22,12 +22,7 @@ public class AvailableActivityCategory {
 	@JoinColumn(name = "act_type", nullable = false)
     @ForeignKey(name = "FK_ACTIVITY_TYPE")
     private DictionaryItem actType;
-	
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "project")
-	@ForeignKey(name = "FK_PROJECT")
-	private Project project;
-	
+
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "project_role", nullable = false)
 	@ForeignKey(name = "FK_PROJECT_ROLE")
@@ -44,14 +39,6 @@ public class AvailableActivityCategory {
 
 	public void setId(Integer id) {
 		this.id = id;
-	}
-
-	public Project getProject() {
-		return project;
-	}
-
-	public void setProject(Project project) {
-		this.project = project;
 	}
 
 	public ProjectRole getProjectRole() {

@@ -5,6 +5,7 @@ import com.aplana.timesheet.reports.*;
 import com.aplana.timesheet.util.DateTimeUtil;
 import java.util.List;
 
+import com.aplana.timesheet.util.report.Report7Period;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +30,8 @@ public class ReportFormValidator implements Validator {
             validateReport06(o, errors);
         } else if (o.getClass().isAssignableFrom(Report01.class)) {
             validateReport01( o, errors );
+        } else if (o.getClass().isAssignableFrom(Report07.class)) {
+            validateReport07(o, errors);
         }
 
         validateReport( ( BaseReport ) o, errors );
@@ -53,6 +56,27 @@ public class ReportFormValidator implements Validator {
             errors.rejectValue("projectId", "error.reportform.noproject");
         }
     }
+
+    private void validateReport07(Object o, Errors errors) {
+        Report07 report = (Report07) o;
+
+        if (report.getFilterDivisionOwner() && report.getDivisionOwner() == null) {
+            errors.rejectValue("filterDivisionOwner", "error.reportform.noprojectdivision");
+        }
+
+        if (report.getDivisionEmployee() == null) {
+            errors.rejectValue("divisionEmployee", "error.reportform.noemplyeedivision");
+        }
+
+        if (!report.getPeriodType().equals(Report7Period.PERIOD_TYPE_MONTH)
+                && !report.getPeriodType().equals(Report7Period.PERIOD_TYPE_HALF_YEAR)
+                && !report.getPeriodType().equals(Report7Period.PERIOD_TYPE_KVARTAL)
+                && !report.getPeriodType().equals(Report7Period.PERIOD_TYPE_YEAR)
+        ) {
+            errors.rejectValue("periodType", "error.reportform.wrongperiodtype");
+        }
+    }
+
 
     private void validateReport( BaseReport form, Errors errors ) {
         String beginDate = form.getBeginDate();

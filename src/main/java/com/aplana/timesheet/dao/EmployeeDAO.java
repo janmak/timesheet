@@ -1,7 +1,9 @@
 package com.aplana.timesheet.dao;
 
+import com.aplana.timesheet.dao.entity.BusinessTrip;
 import com.aplana.timesheet.dao.entity.Division;
 import com.aplana.timesheet.dao.entity.Employee;
+import com.aplana.timesheet.dao.entity.Illness;
 import org.hibernate.Hibernate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -90,7 +92,7 @@ public class EmployeeDAO {
 	public Employee findByLdapName(String ldap) {
 		Query query = this.entityManager.createQuery(
                 "select e from Employee e where e.ldap like :ldap"
-        ).setMaxResults( 1 ).setParameter( "ldap", "%" + ldap + "%" );
+        ).setMaxResults( 1 ).setParameter("ldap", "%" + ldap + "%");
 
 		List employees = query.getResultList();
 
@@ -130,9 +132,9 @@ public class EmployeeDAO {
     public List<Employee> getAllEmployeesDivision(Division division) {
         Query query;
         if (division == null) {
-            query = entityManager.createQuery( "FROM Employee" );
+            query = entityManager.createQuery("FROM Employee");
         } else {
-            query = entityManager.createQuery( "FROM Employee AS e WHERE e.division=:division" );
+            query = entityManager.createQuery("FROM Employee AS e WHERE e.division=:division");
             query.setParameter("division", division);
         }
 
@@ -151,7 +153,7 @@ public class EmployeeDAO {
                 "where e.id = :emp_id " +
                     "AND m.division.id = e.division.id " +
                     "AND m.region.id = e.region.id"
-        ).setParameter( "emp_id", employeeId );
+        ).setParameter("emp_id", employeeId);
 
         return query.getResultList();
     }
@@ -167,7 +169,7 @@ public class EmployeeDAO {
                 "select m.employee from  Manager m " +
                         "WHERE m.division.id = :div_id " +
                         "AND m.region.id = :region_id"
-        ).setParameter("region_id", regionId ).setParameter("div_id", divisionId);
+        ).setParameter("region_id", regionId).setParameter("div_id", divisionId);
 
         return query.getResultList();
     }
@@ -249,12 +251,45 @@ public class EmployeeDAO {
 
                 setEmployee( emp );
             } else {
-                trace.append( String.format(
+                trace.append(String.format(
                         "\nUser: %s %s marked not_to_sync.(Need update)\n%s\n\n",
-                        emp.getEmail(), emp.getName(), emp.toString() ));
+                        emp.getEmail(), emp.getName(), emp.toString()));
             }
         }
         trace.append("\n\n");
         return trace;
 	}
+
+    public List<Illness> getEnployeeIllnessList(Employee employee) {
+        Query query = entityManager.createQuery("from Illness as i where i.employee = :employee order by i.beginDate");
+        query.setParameter("employee", employee);
+
+        return (List<Illness>) query.getResultList();
+    }
+
+    public Double getWorkDaysOnIllnessWorked(Employee employee, Date beginDate, Date endDate) {
+        Query query = entityManager.createQuery(
+                "select sum(tsd.duration) from TimeSheetDetail tsd " +
+                        "inner join tsd.timeSheet ts " +
+                        "where (tsd.actType.id = 14 or tsd.actType.id = 12 or tsd.actType.id = 13 or tsd.actType.id = 42) " +
+                        "and (ts.calDate.calDate between :beginDate and :endDate) " +
+                        "and (ts.employee = :employee)");
+        query.setParameter("beginDate", beginDate);
+        query.setParameter("endDate", endDate);
+        query.setParameter("employee", employee);
+
+        if (query.getResultList().get(0) != null){
+            return ((Double) query.getResultList().get(0));
+        } else {
+            return 0d;
+        }
+
+    }
+
+    public List<BusinessTrip> getEmployeeBusinessTrips(Employee employee) {
+        Query query = entityManager.createQuery("from BusinessTrip as bt where bt.employee = :employee order by bt.beginDate");
+        query.setParameter("employee", employee);
+
+        return (List<BusinessTrip>) query.getResultList();
+    }
 }
