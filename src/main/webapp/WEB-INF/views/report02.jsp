@@ -29,6 +29,7 @@
 			var projectList = ${projectListJson};
 			var fullProjectList = ${fullProjectListJson};
 			var defaultDivision = "${reportForm.divisionId}";
+            var projectListWithOwnerDivision = ${projectListWithOwnerDivisionJson};
 			if(defaultDivision == "") {
 				defaultDivision = <sec:authentication property="principal.employee.division.id"/>;
 			}
@@ -61,7 +62,7 @@
 									 onchange="fillProjectListByDivision(this)"
 									 oninit="">
 								<form:option label="" value="0"/>
-								<form:options items="${divisionList}" itemLabel="name" itemValue="id"/>
+								<form:options items="${divisionList}" itemLabel="name" itemValue="id" title=""/>
 							</form:select></td>
 						<td colspan="2" align="right"><form:checkbox path="filterProjects" name="filterProjects" id="filterProjects"
 									   cssClass="checkbox_without_dojo"
