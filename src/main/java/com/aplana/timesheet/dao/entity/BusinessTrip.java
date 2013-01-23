@@ -16,8 +16,8 @@ public class BusinessTrip implements Cloneable, Periodical {
 
     @Id
     @Column(name = "id")
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "business_trip")
-    @SequenceGenerator(name = "business_trip", sequenceName = "business_trip", allocationSize = 10)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "business_trip_seq")
+    @SequenceGenerator(name = "business_trip_seq", sequenceName = "business_trip_seq", allocationSize = 10)
     private Integer id;
 
     @ManyToOne(fetch = FetchType.LAZY)
