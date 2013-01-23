@@ -14,12 +14,12 @@ import java.util.Arrays;
 public class EnumsUtils {
 
     public static <T extends TSEnum> T getEnumById (T[] values, final Integer value){
-        return Iterables.find(Arrays.asList(values), new Predicate<T>() {
+        return Iterables.tryFind(Arrays.asList(values), new Predicate<T>() {
             @Override
             public boolean apply(@Nullable T t) {
                 return value.equals(t.getId());
             }
-        });
+        }).orNull();
     }
 
 }

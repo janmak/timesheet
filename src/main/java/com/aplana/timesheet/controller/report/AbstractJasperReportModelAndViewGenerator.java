@@ -7,7 +7,7 @@ import com.aplana.timesheet.service.DivisionService;
 import com.aplana.timesheet.service.ProjectService;
 import com.aplana.timesheet.service.RegionService;
 import com.aplana.timesheet.util.EmployeeHelper;
-import com.aplana.timesheet.util.JReportBuildError;
+import com.aplana.timesheet.exception.JReportBuildError;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.servlet.ModelAndView;
 

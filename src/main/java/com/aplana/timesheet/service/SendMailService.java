@@ -1,6 +1,5 @@
 package com.aplana.timesheet.service;
 
-import com.aplana.timesheet.dao.DictionaryItemDAO;
 import com.aplana.timesheet.dao.entity.*;
 import com.aplana.timesheet.enums.ProjectRole;
 import com.aplana.timesheet.enums.TypeOfActivity;
@@ -27,7 +26,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.ui.velocity.VelocityEngineUtils;
 
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static com.aplana.timesheet.enums.ProjectRole.*;
 
@@ -64,6 +66,7 @@ public class SendMailService{
                             new Predicate<ProjectParticipant>() {
                                 @Override
                                 public boolean apply(@Nullable ProjectParticipant participant) {
+                                    if(participant == null || participant.getProjectRole()==null) return false;
                                     ProjectRole projectPaticipantRole = getById(participant.getProjectRole().getId());
                                     return rolesOfEmploeeysForRole.get(projectPaticipantRole).contains(roleInCurrentProject);
                                 } }),
@@ -153,46 +156,14 @@ public class SendMailService{
         return getProjectParticipantsEmails(transformTimeSheetTableRowForm(tsForm.getTimeSheetTablePart()));
     }
 
+
     /**
      * Получает email адреса из всех проектов
      * @param ts
      * @return string строка содержащая email's которым относится данный timesheet
      */
     public String getProjectParticipantsEmails(TimeSheet ts) {
-        StringBuilder emails = new StringBuilder(",");
-        Set<TimeSheetDetail> details = ts.getTimeSheetDetails();
-        Integer actTypeId, projectId;
-        for (TimeSheetDetail detail : details) {
-            actTypeId = detail.getActType().getId();
-            if ( actTypeId.equals( DictionaryItemDAO.PROJECTS_ID ) || actTypeId.equals( DictionaryItemDAO.PRESALES_ID ) ) {
-                projectId = detail.getProject().getId();
-                List<ProjectParticipant> participants = projectService.getParticipants(projectService.find(projectId));
-                for (ProjectParticipant participant : participants) {
-                    Integer participantRole = participant.getProjectRole().getId();
-                    Integer participantId = participant.getEmployee().getId();
-                    if ( participantRole.equals( ProjectRoleService.PROJECT_MANAGER ) ) {
-                        emails.append(participant.getEmployee().getEmail()).append(",");
-                    } else if ( participantRole.equals( ProjectRoleService.PROJECT_LEADER ) ) {
-                        if (detail.getProjectRole()!=null && Arrays.asList(
-                                ProjectRoleService.PROJECT_DESIGNER
-                                , ProjectRoleService.PROJECT_DEVELOPER
-                                , ProjectRoleService.PROJECT_SYSENGINEER
-                                , ProjectRoleService.PROJECT_TESTER)
-                                .contains(detail.getProjectRole().getId())) {
-                            emails.append(participant.getEmployee().getEmail()).append(",");
-                        }
-                    } else if ( participantRole.equals( ProjectRoleService.PROJECT_ANALYST ) ) {
-                        if (detail.getProjectRole()!=null && Arrays.asList(
-                                ProjectRoleService.PROJECT_ANALYST
-                                , ProjectRoleService.PROJECT_TECH_WRITER)
-                                .contains(detail.getProjectRole().getId())) {
-                            emails.append(participant.getEmployee().getEmail()).append(",");
-                        }
-                    }
-                }
-            }
-        }
-        return emails.toString();
+        return getProjectParticipantsEmails(transformTimeSheetDetail(ts.getTimeSheetDetails()));
     }
 
     private String getProjectParticipantsEmails(Iterable<RenameMe> details) {

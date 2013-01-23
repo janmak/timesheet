@@ -1,4 +1,4 @@
-package com.aplana.timesheet.util;
+package com.aplana.timesheet.exception;
 
 public class JReportBuildError extends Exception {
     public JReportBuildError(String message, Throwable cause) {
