@@ -6,6 +6,7 @@ import com.aplana.timesheet.dao.entity.Employee;
 import com.aplana.timesheet.form.ViewReportsForm;
 import com.aplana.timesheet.form.validator.ViewReportsFormValidator;
 import com.aplana.timesheet.service.*;
+import com.aplana.timesheet.util.DateTimeUtil;
 import com.aplana.timesheet.util.EmployeeHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,11 +34,11 @@ public class ViewReportsController {
     @Autowired
     EmployeeService employeeService;
     @Autowired
-    CalendarService calendarService;
-    @Autowired
     TimeSheetService timeSheetService;
     @Autowired
     SecurityService securityService;
+    @Autowired
+    CalendarService calendarService;
 
     @RequestMapping(value = "/viewreports", method = RequestMethod.GET)
     public String sendViewReports() {
@@ -59,7 +60,7 @@ public class ViewReportsController {
 
         Employee employee = employeeService.find(employeeId);
         ModelAndView mav = new ModelAndView("viewreports");
-        List<Calendar> years = calendarService.getYearsList();
+        List<Calendar> years = DateTimeUtil.getYearsList(calendarService);
         List<Division> divisionList = divisionService.getDivisions();
         mav.addObject("year", year);
         mav.addObject("month", month);
@@ -67,58 +68,11 @@ public class ViewReportsController {
         mav.addObject("employeeId", employeeId);
         mav.addObject("yearsList", years);
         mav.addObject("employee", employee);
-        mav.addObject("monthList", getMonthListJson(years));
+        mav.addObject("monthList", DateTimeUtil.getMonthListJson(years, calendarService));
         mav.addObject("divisionList", divisionList);
         mav.addObject("employeeListJson", employeeHelper.getEmployeeListJson(divisionList));
         mav.addObject("reports", timeSheetService.findDatesAndReportsForEmployee(employee, year, month));
         return mav;
     }
 
-    /**
-     * Возвращает List годов, существующих в системе
-     * @return List<Calendar>
-     */
-    private List<Calendar> getYearsList() {
-        List<Calendar> yearsList = calendarService.getYearsList();
-        logger.info(yearsList.toString());
-        return yearsList;
-    }
-
-    /**
-     * Возвращает List месяцев, существующих в системе
-     *
-     * @param years
-     * @return String
-     */
-    private String getMonthListJson(List<Calendar> years) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("[");
-        for (int i = 0; i < years.size(); i++) {
-            List<Calendar> months = calendarService.getMonthList(years.get(i).getYear());
-            sb.append("{year:'");
-            sb.append(years.get(i).getYear());
-            sb.append("', months:[");
-            if (months.size() > 0) {
-                for (int j = 0; j < months.size(); j++) {
-                    sb.append("{number:'");
-                    sb.append(months.get(j).getMonth());
-                    sb.append("', name:'");
-                    sb.append(months.get(j).getMonthTxt());
-                    sb.append("'}");
-                    if (j < (months.size() - 1)) {
-                        sb.append(", ");
-                    }
-                }
-                sb.append("]}");
-            } else {
-                sb.append("{year:'0', value:''}]}");
-            }
-
-            if (i < (years.size() - 1)) {
-                sb.append(", ");
-            }
-        }
-        sb.append("]");
-        return sb.toString();
-    }
 }

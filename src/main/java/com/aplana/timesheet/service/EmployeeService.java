@@ -1,8 +1,10 @@
 package com.aplana.timesheet.service;
 
 import com.aplana.timesheet.dao.EmployeeDAO;
+import com.aplana.timesheet.dao.entity.BusinessTrip;
 import com.aplana.timesheet.dao.entity.Division;
 import com.aplana.timesheet.dao.entity.Employee;
+import com.aplana.timesheet.dao.entity.Illness;
 import com.aplana.timesheet.util.TimeSheetConstans;
 import org.apache.velocity.app.VelocityEngine;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -123,5 +126,17 @@ public class EmployeeService {
 
     public List<Employee> getRegionManager(Integer regionId, Integer divisionId) {
         return employeeDAO.getRegionManager(regionId, divisionId);
+    }
+
+    public List<Illness> getEnployeeIllness(Employee employee) {
+        return employeeDAO.getEnployeeIllnessList(employee);
+    }
+
+    public Double getWorkDaysOnIllnessWorked(Employee employee, Date beginDate, Date endDate){
+        return employeeDAO.getWorkDaysOnIllnessWorked(employee, beginDate, endDate);
+    }
+
+    public List<BusinessTrip> getEmployeeBusinessTrips(Employee employee) {
+        return employeeDAO.getEmployeeBusinessTrips(employee);
     }
 }

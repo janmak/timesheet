@@ -1,5 +1,6 @@
 package com.aplana.timesheet.util;
 
+import com.aplana.timesheet.service.CalendarService;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -321,6 +322,54 @@ public class DateTimeUtil {
             result = false;
         }
         return result;
+    }
+
+    /**
+     * Возвращает List годов, существующих в системе
+     * @return List<Calendar>
+     */
+    public static List<com.aplana.timesheet.dao.entity.Calendar> getYearsList(CalendarService calendarService) {
+        List<com.aplana.timesheet.dao.entity.Calendar> yearsList = calendarService.getYearsList();
+        logger.info(yearsList.toString());
+        return yearsList;
+    }
+
+    /**
+     * Возвращает List месяцев, существующих в системе
+     *
+     * @param years
+     * @return String
+     */
+    public static String getMonthListJson(List<com.aplana.timesheet.dao.entity.Calendar> years, CalendarService calendarService) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("[");
+        for (int i = 0; i < years.size(); i++) {
+            List<com.aplana.timesheet.dao.entity.Calendar> months = calendarService.getMonthList(years.get(i).getYear());
+            sb.append("{year:'");
+            sb.append(years.get(i).getYear());
+            sb.append("', months:[");
+            if (months.size() > 0) {
+                for (int j = 0; j < months.size(); j++) {
+                    sb.append("{number:'");
+                    sb.append(months.get(j).getMonth());
+                    sb.append("', name:'");
+                    sb.append(months.get(j).getMonthTxt());
+                    sb.append("'}");
+                    if (j < (months.size() - 1)) {
+                        sb.append(", ");
+                    }
+                }
+                sb.append("]}");
+            } else {
+                sb.append("{year:'0', value:''}]}");
+            }
+
+            if (i < (years.size() - 1)) {
+                sb.append(", ");
+            }
+        }
+        sb.append("]");
+        return sb.toString();
     }
 
 }

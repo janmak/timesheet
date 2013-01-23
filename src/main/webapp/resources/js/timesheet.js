@@ -1257,6 +1257,15 @@ function openViewReportsWindow() {
 }
 ;
 
+function openBusinessTripsAndIllnessWindow() {
+    var employeeId = dojo.byId("employeeId").value;
+    var divisionId = dojo.byId("divisionId").value;
+    if (employeeId != 0) {
+        window.open('businesstripsandillness/');
+    }
+}
+;
+
 function maskBody() {
     dojo.query('#maskDiv').addClass("masked");
 

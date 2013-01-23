@@ -67,6 +67,21 @@ public class TSPropertyProvider {
         return getProperties().getProperty("mail.password");
     }
 
+    public Integer getQuickreportMoskowBegindate() {
+        return Integer.parseInt(getProperties().getProperty("quickreport.moskow.begindate"));
+    }
+
+    public Integer getQuickreportMoskowBeginmounth() {
+        return Integer.parseInt(getProperties().getProperty("quickreport.moskow.beginmounth"));
+    }
+
+    public Integer getQuickreportRegionsBegindate() {
+        return Integer.parseInt(getProperties().getProperty("quickreport.regions.begindate"));
+    }
+
+    public Integer getQuickreportRegionsBeginmounth() {
+        return Integer.parseInt(getProperties().getProperty("quickreport.regions.beginmounth"));
+    }
 
     /**
      * Единый метод для загрузки почтовых настроек
