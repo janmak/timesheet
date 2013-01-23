@@ -149,11 +149,8 @@
 		 * Отображает второй набор контролов и кнопку удаления первого файла
 		 */
 		function showControls() {
-			//if(feedbackForm.file2Path.files[0] == null) {
-				showAdditionalInput('file2PathContainer');
-				showAdditionalInput('fileDelete2');
-				disableInput('fileDelete2');
-			//}
+            showAdditionalInput('file2PathContainer');
+            showAdditionalInput('fileDelete2');
 			enableInput('fileDelete1');
 		}
 		
@@ -260,7 +257,7 @@
 						</tr>
 						<tr>
 							<td style="border-style:none">
-								<button style="display:none" id="fileDelete2" name="fileDelete1" type="button" onclick="deleteFileIn2Position()">
+								<button style="display:none" id="fileDelete2" name="fileDelete2" type="button" onclick="deleteFileIn2Position()" disabled="true">
 									Удалить
 								</button>
 							</td>
@@ -270,7 +267,7 @@
 								</div>
 							</td>
 					</table>
-                    <span>Суммарный размер вложений - не более 8МБ</span>
+                    <span>Суммарный размер вложений - не более 8МБ, не более 2 файлов.</span>
                 </td>
 					
             </tr>
