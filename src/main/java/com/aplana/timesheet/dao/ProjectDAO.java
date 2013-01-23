@@ -17,7 +17,6 @@ import javax.persistence.Query;
 import java.util.List;
 
 import static com.aplana.timesheet.enums.TypeOfActivity.PRESALE;
-import static com.aplana.timesheet.enums.TypeOfActivity.PROJECT;
 
 @Repository
 @SuppressWarnings("unchecked")
@@ -58,8 +57,8 @@ public class ProjectDAO {
     @SuppressWarnings("unchecked")
     public List<Project> getProjects() {
         Query query = entityManager.createQuery(
-                "from Project as p where p.state=:state and p.active=:active"
-        ).setParameter( "state", dictionaryItemDAO.find( PROJECT.getId() ) ).setParameter( "active", true );
+                "from Project as p where p.state=:state and p.active=:active ORDER BY name"
+        ).setParameter("state", dictionaryItemDAO.find(DictionaryItemDAO.PROJECTS_ID)).setParameter("active", true);
 
         return query.getResultList();
     }

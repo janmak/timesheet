@@ -19,6 +19,16 @@
         reportForm.divisionId.value = defaultDivision;
         fillProjectListByDivision(reportForm.divisionId);
 
+        var filter = dojo.byId("allRegions");
+        var target = "regionIds";
+        dojo.connect(filter, "onchange", function () {
+            if (filter.checked) {
+                dojo.attr(target, {disabled:"disabled"});
+            } else {
+                dojo.removeAttr(target, "disabled");
+            }
+        })
+
     });
 
     var projectList = ${projectListJson};
@@ -53,7 +63,7 @@
                                  onmouseover="tooltip.show(getTitle(this));"
                                  onmouseout="tooltip.hide();" path="divisionId"
                                  onchange="fillProjectListByDivision(this)">
-                    <form:option label="" value="0"/>
+                    <form:option label="Все центры" value="0"/>
                     <form:options items="${divisionList}" itemLabel="name" itemValue="id"/>
                 </form:select></td>
                 <td colspan="2" align="right"><form:checkbox path="filterProjects" name="filterProjects"
@@ -68,14 +78,14 @@
                                  onmouseover="tooltip.show(getTitle(this));"
                                  onmouseout="tooltip.hide();" path="emplDivisionId"
                                  onchange="fillEmployeeListByDivision(this)">
-                    <form:option label="" value="0"/>
+                    <form:option label="Все центры" value="0"/>
                     <form:options items="${divisionList}" itemLabel="name" itemValue="id"/>
                 </form:select></td>
                 <td><span class="label">Сотрудник</span></td>
                 <td><form:select path="employeeId" id="employeeId" class="without_dojo"
                                  onmouseover="tooltip.show(getTitle(this));"
                                  onmouseout="tooltip.hide();">
-                    <form:option label="" value="0"/>
+                    <form:option label="Все сотрудники" value="0"/>
                 </form:select></td>
             </tr>
             <tr>

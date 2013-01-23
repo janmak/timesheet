@@ -1,11 +1,15 @@
 package com.aplana.timesheet.dao;
 
+import com.aplana.timesheet.properties.TSPropertyProvider;
 import com.aplana.timesheet.reports.*;
 import com.aplana.timesheet.util.DateTimeUtil;
 import com.aplana.timesheet.util.HibernateQueryResultDataSource;
+import com.aplana.timesheet.util.report.Report7Period;
+import org.apache.commons.lang.time.DateUtils;
 import org.intellij.lang.annotations.Language;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,10 +17,15 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import java.sql.Timestamp;
+import java.text.DecimalFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Repository
 public class JasperReportDAO {
+
+    private DecimalFormat doubleFormat = new DecimalFormat("#.##");
 
     private static Map<Class, String[]> fieldsMap = new HashMap<Class, String[]>( 6 );
 
@@ -43,6 +52,9 @@ public class JasperReportDAO {
 
     @PersistenceContext
     private EntityManager entityManager;
+    @Autowired
+    private TSPropertyProvider propertyProvider;
+
 
     @Transactional(readOnly = true)
     public HibernateQueryResultDataSource getReportData(BaseReport report) {
@@ -485,5 +497,400 @@ public class JasperReportDAO {
         query.setParameter("endDate", DateTimeUtil.stringToTimestamp(report.getEndDate()));
 
         return query.getResultList();
+    }
+
+
+    @Transactional(readOnly = true)
+    public HibernateQueryResultDataSource getReport07Data(Report07 report) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        try {
+            ArrayList rolesDev = this.readRolesFromString(propertyProvider.getProjectRoleDeveloper());
+            ArrayList rolesRp = this.readRolesFromString(propertyProvider.getProjectRoleRp());
+            ArrayList rolesTest = this.readRolesFromString(propertyProvider.getProjectRoleTest());
+            ArrayList rolesAnalyst = this.readRolesFromString(propertyProvider.getProjectRoleAnalyst());
+            ArrayList rolesSystem = this.readRolesFromString(propertyProvider.getProjectRoleSystem());
+            Date start = sdf.parse(report.getBeginDate());
+            Date end = sdf.parse(report.getEndDate());
+            HashMap<String, Object> itogo = new HashMap<String, Object>();
+            Query query1;
+            if (report.getFilterDivisionOwner()) {
+                query1 = this.getReport07Query1(start, end, report.getDivisionEmployee(), report.getDivisionOwner());
+            } else {
+                query1 = this.getReport07Query1(start, end, report.getDivisionEmployee());
+            }
+            List dataSource = new ArrayList();
+            Double temp = null;
+            HashMap<String, HashMap<String, Double>> periodsDuration = new HashMap();
+            HashMap<String, Double> durations = new HashMap();
+            Report7Period itogoPeriod = new Report7Period("Итого");
+            for (Iterator i = query1.getResultList().iterator(); i.hasNext(); ) {
+                Object[] projects = (Object[]) i.next();
+                Integer projectId = (Integer) projects[0];
+                Integer projectDivision = (Integer) projects[2];
+                Date periodStart = start;
+                String projectName = null;
+                Integer periodNumber = null;
+                Date periodEnd = periodStart;
+                Double periodByRP = Double.valueOf(0);
+                Double periodByAnalyst = Double.valueOf(0);
+                Double periodByDev = Double.valueOf(0);
+                Double periodBySystem = Double.valueOf(0);
+                Double periodByTest = Double.valueOf(0);
+                Double periodByCenterOwner = Double.valueOf(0);
+                Double periodByCenterEtc = Double.valueOf(0);
+                HashMap<String, Double> periodRegions = new HashMap<String, Double>();
+                for (periodNumber = 1; periodEnd.before(end); periodNumber = periodNumber + 1) {
+                    periodEnd = DateUtils.addMonths(periodStart, report.getPeriodType());
+                    if (periodEnd.after(end)) {
+                        periodEnd = end;
+                    }
+                    Report7Period period = new Report7Period(periodNumber, periodStart, end, report.getPeriodType());
+                    Query query2 = this.getReport07Query2(periodStart, periodEnd, projectId, report.getDivisionEmployee());
+                    Double durationByRP = 0D;
+                    Double durationByAnalyst = 0D;
+                    Double durationByDev = 0D;
+                    Double durationBySystem = 0D;
+                    Double durationByTest = 0D;
+                    HashMap<String, Double> regions = new HashMap<String, Double>();
+                    Double durationByCenterOwner = 0D;
+                    Double durationByCenterEtc = 0D;
+                    Double durationPeriod = 0D;
+                    for (Iterator j = query2.getResultList().iterator(); j.hasNext(); ) {
+                        Object[] values = (Object[]) j.next();
+                        String projectRegion = (String) values[5];
+                        Double pDuration = (Double) values[3];
+                        Integer job = (Integer) values[2];
+                        projectName = String.valueOf(values[4]);
+                        Integer projectEmpDivision = (Integer) values[1];
+
+                        if (rolesRp.indexOf(job) != -1) {
+                            durationByRP = durationByRP + pDuration;
+                        }
+                        if (rolesAnalyst.indexOf(job) != -1) {
+                            durationByAnalyst = durationByAnalyst + pDuration;
+                        }
+                        if (rolesDev.indexOf(job) != -1) {
+                            durationByDev = durationByDev + pDuration;
+                        }
+                        if (rolesSystem.indexOf(job) != -1) {
+                            durationBySystem = durationBySystem + pDuration;
+                        }
+                        if (rolesTest.indexOf(job) != -1) {
+                            durationByTest = durationByTest + pDuration;
+                        }
+                        durationPeriod += pDuration;
+
+                        if (regions.get(projectRegion) == null) {
+                            regions.put(projectRegion, pDuration);
+                        } else {
+                            regions.put(projectRegion, regions.get(projectRegion) + pDuration);
+                        }
+                        if (durations.get(projectName) == null) {
+                            durations.put(projectName, pDuration);
+                        } else {
+                            durations.put(projectName, pDuration + durations.get(projectName));
+                        }
+
+                        // Подсчёт относительных затрат
+                        if (projectDivision.equals(projectEmpDivision)) {
+                            durationByCenterOwner = durationByCenterOwner + pDuration;
+                        } else {
+                            durationByCenterEtc = durationByCenterEtc + pDuration;
+                        }
+                    }
+
+                    if (projectName != null) {
+                        // по должностям
+                        dataSource.add(this.report7DataSourceRow(period, projectName, "По Должностям", "Руководитель проекта ч. (%)",
+                                this.report7GenerateValue(durationByRP, durationPeriod)));
+                        dataSource.add(this.report7DataSourceRow(period, projectName, "По Должностям", "Аналитик ч. (%)",
+                                this.report7GenerateValue(durationByAnalyst, durationPeriod)));
+                        dataSource.add(this.report7DataSourceRow(period, projectName, "По Должностям", "Разработчик ч. (%)",
+                                this.report7GenerateValue(durationByDev, durationPeriod)));
+                        dataSource.add(this.report7DataSourceRow(period, projectName, "По Должностям", "Системный инженер ч. (%)",
+                                this.report7GenerateValue(durationBySystem, durationPeriod)));
+                        dataSource.add(this.report7DataSourceRow(period, projectName, "По Должностям", "Тестирование ч. (%)",
+                                this.report7GenerateValue(durationByTest, durationPeriod)));
+
+                        // Подсчитаем к итоговому периоду
+                        periodByAnalyst += durationByAnalyst;
+                        periodByRP += durationByRP;
+                        periodByDev += durationByDev;
+                        periodBySystem += durationBySystem;
+                        periodByTest += durationByTest;
+
+                        // Подсчёт по регионам
+                        for (Map.Entry<String, Double> region : regions.entrySet()) {
+                            dataSource.add(this.report7DataSourceRow(period, projectName, "По Регионам", (String) region.getKey().concat(" ч. (%)"),
+                                    this.report7GenerateValue(region.getValue(), durationPeriod)));
+                            // Посчитаем для итого
+                            if (periodRegions.get(region.getKey().concat(" ч. (%)")) == null) {
+                                periodRegions.put(region.getKey().concat(" ч. (%)"), region.getValue());
+                            } else {
+                                periodRegions.put(region.getKey().concat(" ч. (%)"), region.getValue() + periodRegions.get(region.getKey().concat(" ч. (%)")));
+                            }
+                        }
+                        if (durationPeriod > 0) {
+                            dataSource.add(this.report7DataSourceRow(period, projectName, "Трудозатраты", "Общие (ч.)", doubleFormat.format(durationPeriod)));
+                        }
+
+                        if (periodsDuration.get(period.getNumber().toString()) == null) {
+                            HashMap<String, Double> value = new HashMap<String, Double>();
+                            value.put(projectName, durationPeriod);
+                            periodsDuration.put(period.getNumber().toString(), value);
+                        } else {
+                            periodsDuration.get(period.getNumber().toString()).put(projectName, durationPeriod);
+                        }
+
+                        // Относительные затраты по центрам
+                        dataSource.add(this.report7DataSourceRow(period, projectName, "По Центрам", "Центр владельца проекта ч. (%)",
+                                this.report7GenerateValue(durationByCenterOwner, durationPeriod)));
+                        dataSource.add(this.report7DataSourceRow(period, projectName, "По Центрам", "Другие центры ч. (%)",
+                                this.report7GenerateValue(durationByCenterEtc, durationPeriod)));
+                        periodByCenterEtc += durationByCenterEtc;
+                        periodByCenterOwner += durationByCenterOwner;
+                        regions.clear();
+                    }
+
+                    //durations.put(projectName, Double.valueOf(0));
+                    periodStart = periodEnd;    // Обязательно
+                }
+                // Вывод итого в dataSource
+                if (projectName != null) {
+                    dataSource.add(this.report7DataSourceRow(itogoPeriod, projectName, "По Должностям", "Руководитель проекта ч. (%)",
+                            this.report7GenerateValue(periodByRP, durations.get(projectName))));
+                    dataSource.add(this.report7DataSourceRow(itogoPeriod, projectName, "По Должностям", "Аналитик ч. (%)",
+                            this.report7GenerateValue(periodByAnalyst, durations.get(projectName))));
+                    dataSource.add(this.report7DataSourceRow(itogoPeriod, projectName, "По Должностям", "Разработчик ч. (%)",
+                            this.report7GenerateValue(periodByDev, durations.get(projectName))));
+                    dataSource.add(this.report7DataSourceRow(itogoPeriod, projectName, "По Должностям", "Системный инженер ч. (%)",
+                            this.report7GenerateValue(periodBySystem, durations.get(projectName))));
+                    dataSource.add(this.report7DataSourceRow(itogoPeriod, projectName, "По Должностям", "Тестирование ч. (%)",
+                            this.report7GenerateValue(periodByTest, durations.get(projectName))));
+
+                    // Относительные затраты по центрам
+                    dataSource.add(this.report7DataSourceRow(itogoPeriod, projectName, "По Центрам", "Центр владельца проекта ч. (%)",
+                            this.report7GenerateValue(periodByCenterOwner, durations.get(projectName))));
+                    dataSource.add(this.report7DataSourceRow(itogoPeriod, projectName, "По Центрам", "Другие центры ч. (%)",
+                            this.report7GenerateValue(periodByCenterEtc, durations.get(projectName))));
+
+                    // Трудозатраты
+                    dataSource.add(this.report7DataSourceRow(itogoPeriod, projectName, "Трудозатраты", "Общие (ч.)", doubleFormat.format(durations.get(projectName))));
+
+                    // По регионам
+                    for (Map.Entry<String, Double> region : periodRegions.entrySet()) {
+                        dataSource.add(this.report7DataSourceRow(itogoPeriod, projectName, "По Регионам", (String) region.getKey(),
+                                this.report7GenerateValue(region.getValue(), durations.get(projectName))));
+                    }
+                }
+            }
+            for (Map.Entry<String, HashMap<String, Double>> period : periodsDuration.entrySet()) {
+                Double sum = Double.valueOf(0);
+                for (Map.Entry<String, Double> project : period.getValue().entrySet()) {
+                    sum = sum + project.getValue();
+                }
+                for (Map.Entry<String, Double> project : period.getValue().entrySet()) {
+                    if (sum > 0 && project.getValue() > 0) {
+                        temp = project.getValue() / sum * 100;
+                        dataSource.add(this.report7DataSourceRow(itogoPeriod, project.getKey(), "Трудозатраты", "Относительные (%)",
+                                doubleFormat.format(temp).concat("%")));
+                    }
+                }
+            }
+
+            Double sum = Double.valueOf(0);
+            for (Map.Entry<String, Double> period : durations.entrySet()) {
+                sum += period.getValue();
+            }
+
+            for (Map.Entry<String, Double> period : durations.entrySet()) {
+                temp = period.getValue() / sum * 100;
+                dataSource.add(this.report7DataSourceRow(itogoPeriod, period.getKey(), "Трудозатраты", "Относительные (%)",
+                        doubleFormat.format(temp).concat("%")));
+            }
+            String[] fields = {"period", "name", "group", "type", "value"};
+            return new HibernateQueryResultDataSource(dataSource, fields);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private String Report7PeriodName(Integer type, Date d) throws Exception {
+        if (type == 1) {
+            SimpleDateFormat sdf = new SimpleDateFormat("MM.YYYY");
+            return sdf.format(d);
+        } else if (type == 3) {
+            SimpleDateFormat sdf = new SimpleDateFormat("MM");
+            Integer number = new Integer(sdf.format(d));
+            SimpleDateFormat sdf2 = new SimpleDateFormat("YYYY");
+            if (number > 0 && number < 4) {
+                return "1-ый квартал " + sdf2.format(d);
+            } else if (number > 2 && number < 7) {
+                return "2-ой квартал " + sdf2.format(d);
+            } else if (number > 5 && number < 8) {
+                return "3-ий квартал " + sdf2.format(d);
+            } else if (number > 7) {
+                return "4-ый квартал " + sdf2.format(d);
+            }
+        } else if (type == 6) {
+            SimpleDateFormat sdf = new SimpleDateFormat("MM");
+            SimpleDateFormat sdf2 = new SimpleDateFormat("YYYY");
+            Integer number = new Integer(sdf.format(d));
+            if (number > 0 && number < 7) {
+                return "1-ый квартал " + sdf2.format(d);
+            } else {
+                return "2-ой квартал" + sdf2.format(d);
+            }
+        } else if (type == 12) {
+            SimpleDateFormat sdf = new SimpleDateFormat("YYYY");
+            return sdf.format(d) + " г.";
+        }
+        throw new Exception();
+    }
+
+    private String report7GenerateValue(Double projectDuration, Double periodDuration) {
+        if (projectDuration.isNaN() || projectDuration == null)
+            projectDuration = Double.valueOf(0);
+        if (projectDuration.isNaN() || projectDuration == null)
+            periodDuration = Double.valueOf(0);
+        Double result;
+        if (periodDuration > 0) {
+            result = projectDuration / periodDuration * 100;
+        } else {
+            result = Double.valueOf(0);
+        }
+        return doubleFormat.format(projectDuration) + " (" + doubleFormat.format(result) + "%)";
+    }
+
+    private Object[] report7DataSourceRow(Report7Period period, String name, String group, String type, String value) {
+        ArrayList list = new ArrayList();
+        list.add(period);
+        list.add(name);
+        list.add(group);
+        list.add(type);
+        if (value.equals("0 (0%)")) {
+            list.add("-");
+        } else {
+            list.add(value);
+        }
+        return list.toArray();
+    }
+
+    private ArrayList readRolesFromString(String s) {
+        String[] roles = s.split(",");
+        ArrayList role = new ArrayList();
+        for (Integer i = 0; i < roles.length; i = i + 1) {
+            role.add(Integer.parseInt(roles[i]));
+        }
+        return role;
+    }
+
+    private Query getReport07Query1(Date periodStart, Date periodEnd, Integer divisionEmployeeId) {
+        Query query;
+        if (divisionEmployeeId != 0) {
+            query = entityManager.createQuery("SELECT project.id as id, SUM (tsd.duration) as allduration, md.id FROM Project project " +
+                    "LEFT JOIN project.timeSheetDetail tsd " +
+                    "JOIN tsd.timeSheet ts " +
+                    "JOIN ts.employee emp " +
+                    "JOIN project.manager as manager " +
+                    "JOIN manager.division as md " +
+                    "WHERE emp.division.id = :divisionEmployeeId " +
+                    "AND ts.calDate.calDate between :beginDate AND :endDate " +
+                    "GROUP BY 1, 3 " +
+                    "ORDER BY 2 DESC ");
+            query.setParameter("beginDate", new Timestamp(periodStart.getTime()));
+            query.setParameter("endDate", new Timestamp(periodEnd.getTime()));
+            query.setParameter("divisionEmployeeId", divisionEmployeeId);
+        } else {
+            query = entityManager.createQuery("SELECT project.id as id, SUM (tsd.duration) as allduration, md.id FROM Project project " +
+                    "LEFT JOIN project.timeSheetDetail tsd " +
+                    "JOIN  tsd.timeSheet ts " +
+                    "JOIN ts.employee emp " +
+                    "JOIN project.manager as manager " +
+                    "JOIN manager.division as md " +
+                    "WHERE ts.calDate.calDate between :beginDate AND :endDate " +
+                    "GROUP BY 1, 3 " +
+                    "ORDER BY 2 DESC ");
+            query.setParameter("beginDate", new Timestamp(periodStart.getTime()));
+            query.setParameter("endDate", new Timestamp(periodEnd.getTime()));
+        }
+        return query;
+    }
+
+    private Query getReport07Query1(Date periodStart, Date periodEnd, Integer divisionEmployeeId, Integer divisionOwnerId) {
+        Query query;
+        if (divisionEmployeeId != 0) {
+            query = entityManager.createQuery(
+                    "SELECT project.id as id, SUM (tsd.duration) as allduration, md.id FROM Project project " +
+                            "LEFT JOIN project.timeSheetDetail tsd " +
+                            "JOIN project.divisions division " +
+                            "JOIN tsd.timeSheet ts " +
+                            "JOIN ts.employee emp " +
+                            "JOIN project.manager as manager " +
+                            "JOIN manager.division as md " +
+                            "WHERE emp.division.id = :divisionEmployeeId AND division.id = :divisionOwnerId " +
+                            "AND ts.calDate.calDate between :beginDate AND :endDate " +
+                            "GROUP BY 1, 3 " +
+                            "ORDER BY 2 DESC");
+            query.setParameter("beginDate", new Timestamp(periodStart.getTime()));
+            query.setParameter("endDate", new Timestamp(periodEnd.getTime()));
+            query.setParameter("divisionEmployeeId", divisionEmployeeId);
+            query.setParameter("divisionOwnerId", divisionOwnerId);
+        } else {
+            query = entityManager.createQuery(
+                    "SELECT project.id as id, SUM (tsd.duration) as allduration, md.id FROM Project project " +
+                            "LEFT JOIN project.timeSheetDetail tsd " +
+                            "JOIN project.divisions division " +
+                            "JOIN tsd.timeSheet ts " +
+                            "JOIN ts.employee emp " +
+                            "JOIN project.manager as manager " +
+                            "JOIN manager.division as md " +
+                            "WHERE division.id = :divisionOwnerId " +
+                            "AND ts.calDate.calDate between :beginDate AND :endDate " +
+                            "GROUP BY 1, 3 " +
+                            "ORDER BY 2 DESC");
+            query.setParameter("beginDate", new Timestamp(periodStart.getTime()));
+            query.setParameter("endDate", new Timestamp(periodEnd.getTime()));
+            query.setParameter("divisionOwnerId", divisionOwnerId);
+        }
+        return query;
+    }
+
+    private Query getReport07Query2(Date periodStart, Date periodEnd, Integer projectId, Integer divisionEmployeeId) {
+        Query query;
+        if (divisionEmployeeId == 0) {
+            query = entityManager.createQuery(
+                    "SELECT emp.region.id as region, emp.division.id as division, emp.job.id as job, SUM(tsd.duration) as duration, p.name, emp.region.name " +
+                            "FROM Project p " +
+                            "LEFT JOIN p.timeSheetDetail tsd " +
+                            "JOIN tsd.timeSheet ts " +
+                            "JOIN ts.employee as emp " +
+                            "WHERE p.id = :projectId " +
+                            "AND ts.calDate.calDate between :beginDate AND :endDate " +
+                            "GROUP BY 1, 3, 2, 5, 6"
+            );
+            query.setParameter("projectId", projectId);
+            query.setParameter("beginDate", new Timestamp(periodStart.getTime()));
+            query.setParameter("endDate", new Timestamp(periodEnd.getTime()));
+        } else {
+            query = entityManager.createQuery(
+                    "SELECT emp.region.id as region, emp.division.id as division, emp.job.id as job, SUM(tsd.duration) as duration, p.name, emp.region.name " +
+                            "FROM Project p " +
+                            "LEFT JOIN p.timeSheetDetail tsd " +
+                            "JOIN tsd.timeSheet ts " +
+                            "JOIN ts.employee as emp " +
+                            "WHERE p.id = :projectId AND emp.division.id = :divisionEmployeeId " +
+                            "AND ts.calDate.calDate between :beginDate AND :endDate " +
+                            "GROUP BY 1, 3, 2, 5, 6"
+            );
+            query.setParameter("projectId", projectId);
+            query.setParameter("divisionEmployeeId", divisionEmployeeId);
+            query.setParameter("beginDate", new Timestamp(periodStart.getTime()));
+            query.setParameter("endDate", new Timestamp(periodEnd.getTime()));
+        }
+        return query;
     }
 }

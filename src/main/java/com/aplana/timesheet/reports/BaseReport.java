@@ -96,6 +96,9 @@ public abstract class BaseReport implements TSJasperReport {
 	public String wellFormedRegionList() {
 		StringBuilder sb = new StringBuilder();
 		boolean first = true;
+        if (regionNames == null) {
+            return "Все";
+        }
 		for(String rName : regionNames) {
 			if(first) {
 				first = false;

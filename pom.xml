@@ -326,8 +326,13 @@
 			<version>4.8.2</version>
 			<scope>test</scope>
 		</dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-all</artifactId>
+            <version>1.9.0-rc1</version>
+        </dependency>
 
-		<!-- logging -->
+        <!-- logging -->
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
@@ -437,22 +442,12 @@
             <artifactId>poi</artifactId>
             <version>3.9</version>
         </dependency>
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-all</artifactId>
-            <version>1.9.0-rc1</version>
-        </dependency>
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-all</artifactId>
-            <version>1.9.0-rc1</version>
-        </dependency>
 
         <!--   SPNEGO. Не реализовано
-                <dependency>
-                    <groupId>org.springframework.security.extensions</groupId>
-                    <artifactId>spring-security-kerberos-core</artifactId>
-                    <version>1.0.0.CI-SNAPSHOT-van</version>
-                </dependency>-->
+        <dependency>
+            <groupId>org.springframework.security.extensions</groupId>
+            <artifactId>spring-security-kerberos-core</artifactId>
+            <version>1.0.0.CI-SNAPSHOT-van</version>
+        </dependency>-->
 	</dependencies>
 </project>

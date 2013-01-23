@@ -30,7 +30,7 @@
         <div class="errorblock">
             <form action="adminMessage" method="GET">
                 Попытка входа  была неудачна. Попробуйте еще раз.<br/>
-                Причина :<label id="error">${sessionScope["SPRING_SECURITY_LAST_EXCEPTION"].message}</label><br>
+                Причина: <label id="error">${sessionScope["SPRING_SECURITY_LAST_EXCEPTION"].message}</label>.<br>
                 <button type="submit"> Отправить сообщение администратору</button>
             </form>
         </div>
@@ -58,7 +58,7 @@
                     <input id="inputPass" type="password" name="j_password" value=""/>
                     <br/>
                     <br/>
-                    <input type='checkbox' name='remember' value="value" style="width: inherit"/> Запомнить меня 
+                    <input type='checkbox' name='remember' value="value" style="width: auto"/> Запомнить меня
                     <br/>
                     <input class="btnSend" type="submit" value="Войти"/>
                 </form>  <br>

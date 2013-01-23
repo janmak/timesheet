@@ -117,16 +117,24 @@ public class TimeSheetFormValidator extends AbstractValidator {
         validatePlan( tsForm, emplJob, planNecessary, errors );
     }
 
+    // <APLANATS-441> не менее 2х слов
+    private final String regexp = "([^-\\p{LD}]+)?([-\\p{LD}]++([^-\\p{LD}]+)?+){2,}";
     private void validatePlan( TimeSheetForm tsForm, ProjectRole emplJob, boolean planNecessary, Errors errors ) {
+
         String plan = tsForm.getPlan();
         // Планы на следующий рабочий день.
-        if (planNecessary && (StringUtils.isBlank( plan ))
-                && emplJob != PROJECT_MANAGER
-                && emplJob != HEAD_OF_CENTER
-        ) {
-            errors.rejectValue("plan",
-                    "error.tsform.plan.required",
-                    "Необходимо указать планы на следующий рабочий день.");
+        if (planNecessary && emplJob != PROJECT_MANAGER && emplJob != HEAD_OF_CENTER) {
+            if (StringUtils.isBlank(plan)) {
+                errors.rejectValue("plan",
+                        "error.tsform.plan.required",
+                        "Необходимо указать планы на следующий рабочий день.");
+                return;
+            }
+            if (!plan.matches(regexp)){
+                errors.rejectValue("plan",
+                        "error.tsform.plan.invalid",
+                        "Планы на следующий день не могут быть менее 2х слов.");
+            }
         }
     }
 
