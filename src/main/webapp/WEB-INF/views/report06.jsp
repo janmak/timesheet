@@ -17,6 +17,11 @@
 
         var filter = dojo.byId("allRegions");
         var target = "regionIds";
+        var region = dojo.byId(target);
+        if (region.value == "") {
+            filter.checked = true;
+            region.disabled = true;
+        }
         dojo.connect(filter, "onchange", function () {
             if (filter.checked) {
                 dojo.attr(target, {disabled:"disabled"});
