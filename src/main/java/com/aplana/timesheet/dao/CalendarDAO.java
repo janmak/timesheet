@@ -1,6 +1,7 @@
 package com.aplana.timesheet.dao;
 
 import com.aplana.timesheet.dao.entity.Calendar;
+import com.aplana.timesheet.dao.entity.Holiday;
 import com.aplana.timesheet.dao.entity.Region;
 import com.aplana.timesheet.util.DateTimeUtil;
 import org.slf4j.Logger;
@@ -19,8 +20,19 @@ import java.util.List;
 @Repository
 public class CalendarDAO {
 	private static final Logger logger = LoggerFactory.getLogger(CalendarDAO.class);
-	
-	@PersistenceContext
+
+    private static final String BEGIN_DATE = "beginDate";
+    private static final String END_DATE = "endDate";
+    private static final String REGION = "region";
+
+    private static final String HOLIDAYS_FOR_REGION_BETWEEN_DATES = String.format(
+            "from Holiday as h where ((h.calDate.calDate between :%s and :%s) and (h.region is null or h.region = :%s))",
+            BEGIN_DATE,
+            END_DATE,
+            REGION
+    );
+
+    @PersistenceContext
 	private EntityManager entityManager;
 
 	@Transactional
@@ -145,12 +157,25 @@ public class CalendarDAO {
      * Возвращает количество выходных дней за выбранный период для конкретного региона
      */
     public Integer getHolydaysCountForRegion(Date beginDate, Date endDate, Region region){
-        Query query = entityManager.createQuery("select count (*) from Holiday as h where ((h.calDate.calDate between :beginDate and :endDate) and (h.region is null or h.region = :region))");
-        query.setParameter("beginDate", beginDate);
-        query.setParameter("endDate", endDate);
-        query.setParameter("region", region);
+        Query query = entityManager.createQuery("select count (*) " + HOLIDAYS_FOR_REGION_BETWEEN_DATES);
+
+        setParametersForHolidaysQuery(beginDate, endDate, region, query);
 
         return ((Long) query.getResultList().get(0)).intValue();
+    }
+
+    public List<Holiday> getHolidaysForRegion(Date beginDate, Date endDate, Region region) {
+        final Query query = entityManager.createQuery(HOLIDAYS_FOR_REGION_BETWEEN_DATES);
+
+        setParametersForHolidaysQuery(beginDate, endDate, region, query);
+
+        return query.getResultList();
+    }
+
+    private void setParametersForHolidaysQuery(Date beginDate, Date endDate, Region region, Query query) {
+        query.setParameter(BEGIN_DATE, beginDate);
+        query.setParameter(END_DATE, endDate);
+        query.setParameter(REGION, region);
     }
 
 }

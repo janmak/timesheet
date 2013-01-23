@@ -1,11 +1,8 @@
 package com.aplana.timesheet.util;
 
 import com.aplana.timesheet.enums.TSEnum;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
 
-import javax.annotation.Nullable;
-import java.util.Arrays;
+import java.util.NoSuchElementException;
 
 /**
  * User: vsergeev
@@ -13,13 +10,14 @@ import java.util.Arrays;
  */
 public class EnumsUtils {
 
-    public static <T extends TSEnum> T getEnumById (T[] values, final Integer value){
-        return Iterables.find(Arrays.asList(values), new Predicate<T>() {
-            @Override
-            public boolean apply(@Nullable T t) {
-                return value.equals(t.getId());
+    public static <T extends TSEnum> T getEnumById(int id, Class<T> aClass) {
+        for (T enumValue : aClass.getEnumConstants()) {
+            if (enumValue.getId() == id) {
+                return enumValue;
             }
-        });
+        }
+
+        throw new NoSuchElementException();
     }
 
 }

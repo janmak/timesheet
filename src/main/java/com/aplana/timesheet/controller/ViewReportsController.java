@@ -1,14 +1,10 @@
 package com.aplana.timesheet.controller;
 
 import com.aplana.timesheet.dao.entity.Calendar;
-import com.aplana.timesheet.dao.entity.Division;
 import com.aplana.timesheet.dao.entity.Employee;
 import com.aplana.timesheet.form.ViewReportsForm;
 import com.aplana.timesheet.form.validator.ViewReportsFormValidator;
-import com.aplana.timesheet.service.*;
-import com.aplana.timesheet.util.EmployeeHelper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.aplana.timesheet.service.TimeSheetService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -21,23 +17,12 @@ import org.springframework.web.servlet.ModelAndView;
 import java.util.List;
 
 @Controller
-public class ViewReportsController {
-    private static final Logger logger = LoggerFactory.getLogger(ViewReportsController.class);
+public class ViewReportsController extends AbstractControllerForEmployeeWithYears {
 
-    @Autowired
-    EmployeeHelper employeeHelper;
-    @Autowired
-    DivisionService divisionService;
     @Autowired
     ViewReportsFormValidator tsFormValidator;
     @Autowired
-    EmployeeService employeeService;
-    @Autowired
-    CalendarService calendarService;
-    @Autowired
     TimeSheetService timeSheetService;
-    @Autowired
-    SecurityService securityService;
 
     @RequestMapping(value = "/viewreports", method = RequestMethod.GET)
     public String sendViewReports() {
@@ -57,31 +42,16 @@ public class ViewReportsController {
         logger.info("year {}, month {}", year, month);
         tsFormValidator.validate(tsForm, result);
 
-        Employee employee = employeeService.find(employeeId);
-        ModelAndView mav = new ModelAndView("viewreports");
-        List<Calendar> years = calendarService.getYearsList();
-        List<Division> divisionList = divisionService.getDivisions();
+        ModelAndView mav = createModelAndViewForEmployee("viewreports", employeeId, divisionId);
+
+        Employee employee = (Employee) mav.getModel().get(EMPLOYEE);
+
         mav.addObject("year", year);
         mav.addObject("month", month);
-        mav.addObject("divisionId", divisionId);
-        mav.addObject("employeeId", employeeId);
-        mav.addObject("yearsList", years);
-        mav.addObject("employee", employee);
-        mav.addObject("monthList", getMonthListJson(years));
-        mav.addObject("divisionList", divisionList);
-        mav.addObject("employeeListJson", employeeHelper.getEmployeeListJson(divisionList));
+        mav.addObject("monthList", getMonthListJson((List<Calendar>) mav.getModel().get(YEARS_LIST)));
         mav.addObject("reports", timeSheetService.findDatesAndReportsForEmployee(employee, year, month));
-        return mav;
-    }
 
-    /**
-     * Возвращает List годов, существующих в системе
-     * @return List<Calendar>
-     */
-    private List<Calendar> getYearsList() {
-        List<Calendar> yearsList = calendarService.getYearsList();
-        logger.info(yearsList.toString());
-        return yearsList;
+        return mav;
     }
 
     /**
