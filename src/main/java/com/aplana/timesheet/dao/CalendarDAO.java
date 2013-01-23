@@ -144,7 +144,7 @@ public class CalendarDAO {
     /**
      * Возвращает количество выходных дней за выбранный период для конкретного региона
      */
-    public Integer getHolydaysCountForRegion(Date beginDate, Date endDate, Region region){
+    public Integer getHolidaysCountForRegion(Date beginDate, Date endDate, Region region){
         Query query = entityManager.createQuery("select count (*) from Holiday as h where ((h.calDate.calDate between :beginDate and :endDate) and (h.region is null or h.region = :region))");
         query.setParameter("beginDate", beginDate);
         query.setParameter("endDate", endDate);
