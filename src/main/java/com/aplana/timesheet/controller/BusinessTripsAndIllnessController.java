@@ -103,6 +103,7 @@ public class BusinessTripsAndIllnessController {
         try {
             report = getReport(printtype, employee, month, year);
         } catch (BusinessTripsAndIllnessControllerException e) {
+            logger.error(e.getMessage(), e);
             printtype = PRINT_TYPE_ERROR;
             exceptionMessage = e.getMessage();
         }
