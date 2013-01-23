@@ -344,7 +344,7 @@
         </form:select>
 
         <span class="label">Отчет сотрудника</span>
-        <form:select path="employeeId" id="employeeId" class="without_dojo" onmouseover="tooltip.show(getTitle(this));"
+        <form:select path="employeeId" id="employeeId" class="without_dojo" onmouseover="tooltip.show(getTitle(this));" cssStyle="width: auto"
                      onmouseout="tooltip.hide();" onchange="setDefaultEmployeeJob(-1);
                      colorDayWithReportFromThreeMonth(dateInfoHolder, new Date().getFullYear(), correctLength(new Date().getMonth() + 1), this.value);
                      refreshPlans(dijit.byId('calDate').value, this.value);">
