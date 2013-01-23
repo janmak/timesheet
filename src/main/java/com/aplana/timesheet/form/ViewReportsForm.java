@@ -1,23 +1,12 @@
 package com.aplana.timesheet.form;
 
-public class ViewReportsForm
-{
-	private Integer employeeId;
-    private Integer divisionId;
+public class ViewReportsForm extends AbstractFormForEmployee {
 
-	private Integer year;
+    private Integer year;
 	private Integer month;
 	private String monthTxt;
 
-    public Integer getDivisionId() {
-        return divisionId;
-    }
-
-    public void setDivisionId(Integer divisionId) {
-        this.divisionId = divisionId;
-    }
-
-	public Integer getYear()
+    public Integer getYear()
 	{
 		return year;
 	}
@@ -46,15 +35,6 @@ public class ViewReportsForm
 	{
 		this.monthTxt = monthTxt;
 	}
-		
-	public Integer getEmployeeId()
-	{
-		return employeeId;
-	}
 
-	public void setEmployeeId(Integer employeeId)
-	{
-		this.employeeId = employeeId;
-	}
 }
 	

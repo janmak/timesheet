@@ -40,6 +40,9 @@ public class Project {
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "project", cascade = CascadeType.ALL)
 	private Set<ProjectTask> projectTasks;
 
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "project", cascade = CascadeType.ALL)
+    private Set<TimeSheetDetail> timeSheetDetail;
+
 	@ManyToMany(fetch = FetchType.LAZY)
 	@JoinTable(name = "division_project",
             joinColumns = {
@@ -151,4 +154,12 @@ public class Project {
             .append(" projectid=").append(projectId)
 		.toString();
 	}
+
+    public Set<TimeSheetDetail> getTimeSheetDetail() {
+        return timeSheetDetail;
+    }
+
+    public void setTimeSheetDetail(Set<TimeSheetDetail> timeSheetDetail) {
+        this.timeSheetDetail = timeSheetDetail;
+    }
 }

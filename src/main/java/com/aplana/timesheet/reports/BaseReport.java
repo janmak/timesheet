@@ -1,8 +1,8 @@
 package com.aplana.timesheet.reports;
 
-
 import com.aplana.timesheet.dao.JasperReportDAO;
 import com.aplana.timesheet.util.DateTimeUtil;
+
 import java.util.List;
 
 public abstract class BaseReport implements TSJasperReport {
@@ -96,6 +96,9 @@ public abstract class BaseReport implements TSJasperReport {
 	public String wellFormedRegionList() {
 		StringBuilder sb = new StringBuilder();
 		boolean first = true;
+        if (regionNames == null) {
+            return "Все";
+        }
 		for(String rName : regionNames) {
 			if(first) {
 				first = false;

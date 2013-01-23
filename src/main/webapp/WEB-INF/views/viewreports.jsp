@@ -1,5 +1,3 @@
-<%@page import="com.aplana.timesheet.dao.entity.DayTimeSheet"%>
-<%@page import="java.text.SimpleDateFormat"%>
 <%@page contentType="text/html" pageEncoding="UTF-8" %>
 
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form" %>
@@ -57,7 +55,7 @@
                         error += ("Необходимо выбрать год и месяц\n");
                     }
                     else if (month == 0 || month == null) {
-                        error += ("Необходимо увыбрать месяц!\n");
+                        error += ("Необходимо выбрать месяц!\n");
                     }
                     if (divisionId == 0 || divisionId == null) {
                         error += ("Необходимо выбрать подразделение и сотрудника!\n");
@@ -146,7 +144,7 @@
 
             <span class="label">Отчет сотрудника</span>
             <form:select path="employeeId" id="employeeId" class="without_dojo" onmouseover="tooltip.show(getTitle(this));"
-                         onmouseout="tooltip.hide();" onchange="setDefaultEmployeeJob(-1);">
+                         onmouseout="tooltip.hide();" onchange="setDefaultEmployeeJob(-1);" cssStyle="width: autoAPLANATS-498">
                 <form:option items="${employeeList}" label="" value="0"/>
             </form:select>
             <br><br>
@@ -196,7 +194,7 @@
                         <tr class="statusNormalDay toplan">
                             <td class="date"><fmt:formatDate value="${report.calDate}" pattern="yyyy.MM.dd"/></td>
                             <td>
-                                <a href="<%=request.getContextPath()%>/report/<fmt:formatDate value="${report.calDate}" pattern="/yyyy/MM/dd/"/>${report.timeSheet.employee.id}">Посмотреть отчёт</a>
+                                <a target="_blank" href="<%=request.getContextPath()%>/report/<fmt:formatDate value="${report.calDate}" pattern="/yyyy/MM/dd/"/>${report.timeSheet.employee.id}">Посмотреть отчёт</a>
                                 <sec:authorize access="hasRole('ROLE_ADMIN')">
                                     <a href="#" onclick="deleteTimeSheet(${report.timeSheet.id})"><img src="<c:url value="/resources/img/delete.png"/>" width="15px" title="Удалить"/></a>
                                     </sec:authorize>
@@ -208,7 +206,7 @@
                         <tr class="statusWorkOnHoliday">
                             <td class="date"><fmt:formatDate value="${report.calDate}" pattern="yyyy.MM.dd"/></td>
                             <td>
-                                Работа в выходной день <a href="<%=request.getContextPath()%>/report/<fmt:formatDate value="${report.calDate}" pattern="/yyyy/MM/dd/"/>${report.timeSheet.employee.id}">Посмотреть отчёт</a>
+                                Работа в выходной день <a target="_blank" href="<%=request.getContextPath()%>/report/<fmt:formatDate value="${report.calDate}" pattern="/yyyy/MM/dd/"/>${report.timeSheet.employee.id}">Посмотреть отчёт</a>
                                 <sec:authorize access="hasRole('ROLE_ADMIN')">
                                     <a href="#" onclick="deleteTimeSheet(${report.timeSheet.id})"><img src="<c:url value="/resources/img/delete.png"/>" width="15px" title="Удалить"/></a>
                                     </sec:authorize>
@@ -243,7 +241,7 @@
                 </tr>
                 <tr>
                     <td colspan="2">Норма (часов) в неделю:</td>
-                    <td><input type="text" id="normainweak"</td>
+                    <td><input type="text" id="normainweak"></td>
                 </tr>
             </thead>
         </table>

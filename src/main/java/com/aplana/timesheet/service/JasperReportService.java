@@ -76,8 +76,7 @@ public class JasperReportService {
             if (jrDataSource == null) {
             	return false;
             }
-			JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport,
-                    params, jrDataSource);
+			JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport, params, jrDataSource);
 
             String suffix = "";
             String contentType = "application/octet-stream";
@@ -178,7 +177,7 @@ public class JasperReportService {
             report = JasperCompileManager.compileReport(context.getRealPath("/resources/reports/" + reportName + ".jrxml"));
 
             // кэширование бинарника отчета
-            compiledReports.put(reportName, report);
+            //compiledReports.put(reportName, report);
         } else {
             logger.info("Loading jasper project " + reportName + " from repository");
             report = compiledReports.get(reportName);

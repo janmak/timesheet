@@ -16,6 +16,7 @@
     <form:hidden path="divisionId" id="divisionId"></form:hidden>
     <button id="submit_button" type="submit">Отправить новый отчёт</button>
     <button id="view_reports_button" type="button" onclick="openViewReportsWindow()">Просмотр отчетов</button>
+    <button id="business_trips_and_illness_button" type="button" onclick="openBusinessTripsAndIllnessWindow()">Командировки/Болезни</button>
 </form:form>
 
 </body>
