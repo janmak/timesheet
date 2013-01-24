@@ -44,7 +44,7 @@
 
     <table class="report_params" cellspacing="3">
         <tr>
-            <td>Название центра владельца проекта <span style="color:red">*</span> </td>
+            <td style="width: 225px">Название центра владельца проекта <span style="color:red">*</span> </td>
             <td>
                 <form:select path="divisionOwner">
                     <form:options items="${divisionList}" itemLabel="name" itemValue="id"/>
@@ -54,8 +54,10 @@
                 <form:checkbox path="filterDivisionOwner" cssStyle="margin: 5px"/> Показывать только проекты/присейлы центра
             </td>
         </tr>
+    </table>
+    <table  class="report_params" cellspacing="3">
         <tr>
-            <td>Центр сотрудников <span style="color:red">*</span> </td>
+            <td style="width: 225px">Центр сотрудников <span style="color:red">*</span> </td>
             <td colspan="2">
                 <form:select path="divisionEmployee">
                     <form:option value="0">Все центры</form:option>
@@ -74,12 +76,14 @@
                 </form:select>
             </td>
         </tr>
+        </table>
+    <table class="report_params" cellspacing="3">
         <tr>
-            <td colspan="2">Начало периода <span style="color:red">*</span> <form:input path="beginDate" id="beginDate" name="beginDate" class="date_picker"
+            <td style="width: 225px">Начало периода <span style="color:red">*</span> </td><td><form:input path="beginDate" id="beginDate" name="beginDate" class="date_picker"
                             data-dojo-id="fromDate"
                             dojoType="dijit.form.DateTextBox"
                             required="false"/></td>
-            <td>Окончание периода <span style="color:red">*</span> <form:input path="endDate" id="endDate" name="endDate" class="date_picker"
+            <td style="width: 225px; padding-left: 10px">Окончание периода <span style="color:red">*</span> </td><td><form:input path="endDate" id="endDate" name="endDate" class="date_picker"
                             data-dojo-id="toDate"
                             dojoType="dijit.form.DateTextBox"
                             required="false"/></td>

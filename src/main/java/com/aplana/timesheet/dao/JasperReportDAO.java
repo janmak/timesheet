@@ -859,7 +859,7 @@ public class JasperReportDAO {
         } else if (type == 3) {
             SimpleDateFormat sdf = new SimpleDateFormat("MM");
             Integer number = new Integer(sdf.format(d));
-            SimpleDateFormat sdf2 = new SimpleDateFormat("YYYY");
+            SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy");
             if (number > 0 && number < 4) {
                 return "1-ый квартал " + sdf2.format(d);
             } else if (number > 2 && number < 7) {
@@ -871,7 +871,7 @@ public class JasperReportDAO {
             }
         } else if (type == 6) {
             SimpleDateFormat sdf = new SimpleDateFormat("MM");
-            SimpleDateFormat sdf2 = new SimpleDateFormat("YYYY");
+            SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy");
             Integer number = new Integer(sdf.format(d));
             if (number > 0 && number < 7) {
                 return "1-ый квартал " + sdf2.format(d);
@@ -879,7 +879,7 @@ public class JasperReportDAO {
                 return "2-ой квартал" + sdf2.format(d);
             }
         } else if (type == 12) {
-            SimpleDateFormat sdf = new SimpleDateFormat("YYYY");
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy");
             return sdf.format(d) + " г.";
         }
         throw new Exception();

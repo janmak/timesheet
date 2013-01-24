@@ -55,7 +55,7 @@ public class Report7Period implements Comparable {
         } else if (type == PERIOD_TYPE_KVARTAL) {
             SimpleDateFormat sdf = new SimpleDateFormat("MM");
             Integer number = new Integer(sdf.format(this.start));
-            SimpleDateFormat sdf2 = new SimpleDateFormat("YYYY");
+            SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy");
             if (number > 0 && number < 4) {
                 return "1-ый квартал " + sdf2.format(this.start);
             } else if (number > 2 && number < 7) {
@@ -67,7 +67,7 @@ public class Report7Period implements Comparable {
             }
         } else if (type == PERIOD_TYPE_HALF_YEAR) {
             SimpleDateFormat sdf = new SimpleDateFormat("MM");
-            SimpleDateFormat sdf2 = new SimpleDateFormat("YYYY");
+            SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy");
             Integer number = new Integer(sdf.format(this.start));
             if (number > 0 && number < 7) {
                 return "1-ый квартал " + sdf2.format(this.start);
@@ -75,7 +75,7 @@ public class Report7Period implements Comparable {
                 return "2-ой квартал" + sdf2.format(this.start);
             }
         } else if (type == PERIOD_TYPE_YEAR) {
-            SimpleDateFormat sdf = new SimpleDateFormat("YYYY");
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy");
             return sdf.format(this.start) + "г.";
         }
         throw new Exception("Can't get period name not valid type");
