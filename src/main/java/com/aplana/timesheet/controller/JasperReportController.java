@@ -104,6 +104,7 @@ public class JasperReportController {
                 mav.addObject("divisionList", divisions);
                 mav.addObject("regionList", regionService.getRegions());
                 mav.addObject("employeeListJson", employeeHelper.getEmployeeListJson(divisions));
+                mav.addObject("defaultDivisionId", securityService.getSecurityPrincipal().getEmployee().getDivision().getId());
                 return mav;
             case 2:
 				mav = new ModelAndView("report02");
@@ -123,6 +124,7 @@ public class JasperReportController {
                 mav.addObject("reportForm", form);
                 mav.addObject("divisionList", divisionService.getDivisions());
                 mav.addObject("regionList", regionService.getRegions());
+                mav.addObject("defaultDivisionId", securityService.getSecurityPrincipal().getEmployee().getDivision().getId());
                 return mav;
             case 1:
                 mav = new ModelAndView("report01");
@@ -145,6 +147,7 @@ public class JasperReportController {
                 mav.addObject("projectListJson", projectService.getProjectListJson(divisions));
                 mav.addObject("fullProjectListJson", projectService.getProjectListJson());
                 mav.addObject("employeeListJson", employeeHelper.getEmployeeListJson(divisions));
+                mav.addObject("defaultDivisionId", securityService.getSecurityPrincipal().getEmployee().getDivision().getId());
 
                 mav.addObject("filterProjects", "checked");
                 return mav;

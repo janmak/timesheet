@@ -15,7 +15,14 @@
     dojo.ready(function () {
         dojo.require("dijit.form.DateTextBox");
 
-        reportForm.divisionId.value = <sec:authentication property="principal.employee.division.id"/>;
+        var defaultDivision = ${defaultDivisionId};
+        var prevDivision = ${reportForm.divisionId} + 1 - 2;// особая уличная магия операция поможет если divisionId не инициализирован
+        if (prevDivision != -1)  {
+            prevDivision += 1;// чтобы отпустила уличная магия
+            defaultDivision = prevDivision;
+        }
+
+        reportForm.divisionId.value = defaultDivision;
 
         var filter = dojo.byId("allRegions");
         var target = "regionIds";
