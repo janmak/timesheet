@@ -2,7 +2,7 @@
     color: brown;
 }
 #viewreports .duration{
-    text-align: center;
+    text-align: right;
 }
 #viewreports .date{
     text-align: center;
@@ -18,4 +18,8 @@
 }
 #normainweak{
     width: 100%;
+}
+
+#durationall, #durationplan {
+    text-align: right;
 }
