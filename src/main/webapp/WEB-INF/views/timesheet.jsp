@@ -358,7 +358,7 @@
     </div>
 
     <div style="width: 500px;">
-        <span id="lbPrevPlan">Планы предущего рабочего дня:</span>
+        <span id="lbPrevPlan">Планы предыдущего рабочего дня:</span>
         <div id="plan_textarea" style="margin: 2px 0px 2px 0px; padding:2px 2px 2px 2px;border: solid 1px silver;"></div>
         <button id="add_in_comments" type="button" style="width:300px" onclick="CopyPlan()">Скопировать в первый
             комментарий
