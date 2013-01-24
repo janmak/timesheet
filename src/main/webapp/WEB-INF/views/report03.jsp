@@ -126,6 +126,7 @@
             <tr>
                 <td style="width: 225px">
                     <span class="label" style="float:left">Регион</span>
+                    <span style="color:red">*</span>
 							<span style="float: right">
 								<span>
 									<form:checkbox  id="allRegions" name="allRegions"  path="allRegions"/>
