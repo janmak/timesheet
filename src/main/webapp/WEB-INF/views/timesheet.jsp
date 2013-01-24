@@ -194,7 +194,7 @@
                             var prev = data.prev;
                             var dateString = prev.dateStr;
 
-                            dojo.byId("lbPrevPlan").innerHTML = "Планы предущего рабочего дня (" + timestampStrToDisplayStr(dateString.toString()) + "):";
+                            dojo.byId("lbPrevPlan").innerHTML = "Планы предыдущего рабочего дня (" + timestampStrToDisplayStr(dateString.toString()) + "):";
                             var planText = prev.plan;
                             if (planText.length != 0 ){
                                 var text = prev.plan;
