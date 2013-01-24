@@ -596,18 +596,27 @@ public class JasperReportDAO {
             regionClause = "";
         }
 
+        String projectClause;
+        if (!report.getProjectId().equals(0)) {
+            projectClause = "tsd.project.id=:projectId AND ";
+        } else {
+            projectClause = "";
+        }
         Query query = entityManager.createQuery(
                 "SELECT sum(tsd.duration), act.projectRole.name, tsd.timeSheet.employee.name, tsd.actCat.value " +
                         "FROM TimeSheetDetail tsd, AvailableActivityCategory act " +
-                        "WHERE tsd.project.id=:projectId AND tsd.actType=act.actType AND tsd.actCat=act.actCat AND " +
+                        "WHERE tsd.actType=act.actType AND tsd.actCat=act.actCat AND " +
                         regionClause +
+                        projectClause +
                         "tsd.timeSheet.calDate.calDate between :beginDate AND :endDate AND act.projectRole=tsd.timeSheet.employee.job " +
                         "GROUP BY act.projectRole.name, tsd.timeSheet.employee.name, tsd.actCat.value " +
                         "ORDER BY tsd.timeSheet.employee.name asc");
 
         if (hasParameter(regionClause))
             query.setParameter("regionIds", report.getRegionIds());
-        query.setParameter("projectId", report.getProjectId());
+        if (!report.getProjectId().equals(0)) {
+            query.setParameter("projectId", report.getProjectId());
+        }
         query.setParameter("beginDate", DateTimeUtil.stringToTimestamp(report.getBeginDate()));
         query.setParameter("endDate", DateTimeUtil.stringToTimestamp(report.getEndDate()));
 

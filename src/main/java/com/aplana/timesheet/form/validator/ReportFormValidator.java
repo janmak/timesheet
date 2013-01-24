@@ -137,9 +137,9 @@ public class ReportFormValidator implements Validator {
 
         ValidationUtils.rejectIfEmptyOrWhitespace(errors, "projectId", "error.reportform.noproject");
 
-        if (form.getProjectId() == 0) {
+        /*if (form.getProjectId() == 0) {
             errors.rejectValue("projectId", "error.reportform.noproject");
-        }
+        }*/
 
         String beginDate = form.getBeginDate();
         if (!"".equals(beginDate) && !DateTimeUtil.isDateValid(beginDate)) {
