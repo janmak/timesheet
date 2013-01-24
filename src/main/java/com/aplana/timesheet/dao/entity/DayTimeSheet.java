@@ -1,6 +1,7 @@
 package com.aplana.timesheet.dao.entity;
 
 import com.aplana.timesheet.dao.TimeSheetDAO;
+
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.Date;

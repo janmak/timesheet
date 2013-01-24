@@ -1,21 +1,9 @@
 package com.aplana.timesheet.form.validator;
 
-import com.aplana.timesheet.dao.entity.ProjectRole;
 import junit.framework.TestCase;
-import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.validation.Errors;
-
-import java.util.Date;
-
-import static com.aplana.timesheet.util.TimeSheetConstans.*;
-
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
 
 /**
  *

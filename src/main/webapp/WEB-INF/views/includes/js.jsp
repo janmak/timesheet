@@ -1,4 +1,3 @@
-<%@ page import="java.security.MessageDigest" %>
 <%@ page import="java.io.File" %>
 <!-- load Dojo -->
 <% long modified = new File(application.getRealPath("/resources/js/timesheet.js")).lastModified();%>

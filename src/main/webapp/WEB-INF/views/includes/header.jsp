@@ -18,6 +18,7 @@
             <li><a href="<c:url value='/'/>"><fmt:message key="menu.main"/></a></li>
             <li><a href="<c:url value='/viewreports'/>"><fmt:message key="title.viewreports"/></a></li>
             <li><a href="<c:url value='/businesstripsandillness'/>"><fmt:message key="title.businesstripsandillness"/></a></li>
+            <li><a href="<c:url value='/vacations'/>"><fmt:message key="title.vacations"/></a></li>
             <sec:authorize access="hasAnyRole('ROLE_ADMIN', 'ROLE_MANAGER')">
                 <li><a href="<c:url value='/managertools'/>"><fmt:message key="title.manager"/></a></li>
             </sec:authorize>

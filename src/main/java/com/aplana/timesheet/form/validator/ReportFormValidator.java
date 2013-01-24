@@ -1,10 +1,7 @@
 package com.aplana.timesheet.form.validator;
 
-
 import com.aplana.timesheet.reports.*;
 import com.aplana.timesheet.util.DateTimeUtil;
-import java.util.List;
-
 import com.aplana.timesheet.util.report.Report7Period;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -13,6 +10,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
 import org.springframework.validation.Validator;
+
+import java.util.List;
 
 @Service
 public class ReportFormValidator implements Validator {

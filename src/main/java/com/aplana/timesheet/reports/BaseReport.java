@@ -1,8 +1,8 @@
 package com.aplana.timesheet.reports;
 
-
 import com.aplana.timesheet.dao.JasperReportDAO;
 import com.aplana.timesheet.util.DateTimeUtil;
+
 import java.util.List;
 
 public abstract class BaseReport implements TSJasperReport {
