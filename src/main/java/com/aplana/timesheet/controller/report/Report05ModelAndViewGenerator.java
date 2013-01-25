@@ -14,7 +14,7 @@ public class Report05ModelAndViewGenerator extends AbstractJasperReportModelAndV
 
     @Override
     protected void fillSpecificProperties( ModelAndView mav ) {
-        fillDivisionList( mav, false, true );
+        fillDivisionList( mav, false, true , false);
     }
 
     @Override

@@ -74,7 +74,8 @@ public enum TypeOfActivity implements TSEnum {
         return ! isEfficientActivity( typeOfActivity );
     }
 
-    public static TypeOfActivity getById( final int id ) {
+    public static TypeOfActivity getById( final Integer id ) {
+        if (id == null) {return null;}
         return Iterables.tryFind(Arrays.asList(TypeOfActivity.values()), new Predicate<TypeOfActivity>() {
             @Override
             public boolean apply(@Nullable TypeOfActivity input) {

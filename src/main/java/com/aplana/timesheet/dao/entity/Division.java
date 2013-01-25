@@ -1,5 +1,7 @@
 package com.aplana.timesheet.dao.entity;
 
+import org.hibernate.annotations.ForeignKey;
+
 import javax.persistence.*;
 import java.util.Set;
 
@@ -33,7 +35,20 @@ public class Division {
                     @JoinColumn(name = "project_id", nullable = false) })
 	private Set<Project> projects;
 
-	public Division() {	}
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "leader_id", nullable = false)
+    @ForeignKey(name = "fk_employee")
+    private Employee leaderId;
+
+    public Division() {	}
+
+    public Employee getLeaderId() {
+        return leaderId;
+    }
+
+    public void setLeaderId(Employee leaderId) {
+        this.leaderId = leaderId;
+    }
 
     public String getLdapName() {
         return ldapName;
