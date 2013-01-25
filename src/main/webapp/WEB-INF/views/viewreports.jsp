@@ -70,6 +70,7 @@
             function yearChange(obj) {
                 var year = null;
                 var monthSelect = dojo.byId("month");
+                var monthValue = monthSelect.value;
                 var monthOption = null;
                 if (obj.target == null) {
                     year = obj.value;
@@ -93,6 +94,7 @@
                         }
                     }
                 }
+                monthSelect.value = monthValue;
                 if (year == 0) {
                     insertEmptyOption(monthSelect);
                 }
