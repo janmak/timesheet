@@ -28,8 +28,7 @@
         var selectedWorkplace = ${selectedWorkplaceJson};
         var selectedLongVacationIllness = ${selectedLongVacationIllnessJson};
         var selectedCalDate = ${selectedCalDateJson};
-        var dateByDefault = getDateByDefault};
-        var lastWorkDate = ${getLastWorkday};
+        var dateByDefault = ${getDateByDefault};
         var root = window.addEventListener || window.attachEvent ? window : document.addEventListener ? document : null;
         var dateInfoHolder = [];
         var month = correctLength(new Date().getMonth() + 1);
@@ -55,9 +54,7 @@
 
                 switch (dateInfo) {
                     case "1":// в этот день имеется отчет
-                        if (date <= new Date())
-                            return 'classDateGreen';
-                        else return '';
+                        return 'classDateGreen';
                         break;
                     case "2":   //выходной или праздничный день
                         return 'classDateRedText';
