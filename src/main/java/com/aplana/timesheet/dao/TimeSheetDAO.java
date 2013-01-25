@@ -179,18 +179,6 @@ public class TimeSheetDAO {
         return ((Long) query.getResultList().get(0)).equals(1L);
     }
 
-    public Date getLastDateWithTimeSheet(Integer employeeId){
-        Query query = entityManager.createQuery(
-                "SELECT MAX(ts.calDate.calDate) FROM TimeSheet as ts WHERE ts.employee.id = :employeeId"
-        ).setParameter("employeeId", employeeId);
-
-        return new Date(
-                (
-                        (Timestamp)query.getResultList().get(0)
-                ).getTime()
-        );
-    }
-
     @Transactional
     public void delete(TimeSheet timeSheet) {
         entityManager.remove(timeSheet);

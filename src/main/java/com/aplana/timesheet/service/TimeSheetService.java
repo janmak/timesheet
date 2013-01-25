@@ -261,8 +261,4 @@ public class TimeSheetService {
         } while (!holidayDAO.isWorkDay(DateTimeUtil.dateToString(result)));
         return result;
     }
-
-    public Date getLastDateWithTimeSheet(Integer employeeId){
-        return timeSheetDAO.getLastDateWithTimeSheet(employeeId);
-    }
 }

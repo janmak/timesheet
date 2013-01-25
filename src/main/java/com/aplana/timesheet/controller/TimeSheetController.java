@@ -91,7 +91,6 @@ public class TimeSheetController {
         mav.addObject("selectedActCategoriesJson", "[{row:'0', actCat:''}]");
         mav.addObject("selectedLongVacationIllnessJson", getSelectedLongVacationIllnessJson(tsForm));
         mav.addObject("getDateByDefault", getDateByDefault(tsForm.getEmployeeId()));
-        mav.addObject("getLastWorkday", getLastWorkday(tsForm.getEmployeeId()));
 
         mav.addAllObjects(getListsToMAV());
         return mav;
@@ -208,13 +207,9 @@ public class TimeSheetController {
      * Возвращает дату (dd.mm.yyyy) для того чтобы установить ее на форме по умолчанию
     */
     private String getDateByDefault(Integer id){
-        Date result = timeSheetService.getLastWorkdayWithoutTimesheet(id);
+        Date res = timeSheetService.getLastWorkdayWithoutTimesheet(id);
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");
-        return "'" + dateFormat.format( result ) + "'";
-    }
-
-    private String getLastWorkday(Integer id){
-        return "'" + timeSheetService.getLastDateWithTimeSheet(id).toString() + "'";
+        return "'" + dateFormat.format( res ) + "'";
     }
 
     /*
