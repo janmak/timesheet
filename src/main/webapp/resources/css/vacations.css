@@ -1,11 +1,36 @@
-#vacations .date {
+#vacations .date, #createVacation .date {
     text-align: center;
 }
 
-#vacations .centered {
+#vacations .centered, #createVacation .centered {
     text-align: center;
 }
 
 #vacations .summary {
     font-weight: bold;
+}
+
+.create-button {
+    cursor: pointer;
+    vertical-align: middle;
+    margin: 12pt 0;
+    padding: 0;
+}
+
+.create-button img {
+    vertical-align: middle;
+}
+
+table.without_borders td {
+    border: none !important;
+    padding: 5pt 0 !important;
+}
+
+.label {
+    font-weight: bold;
+}
+
+.error {
+    font-weight: bold;
+    color: red;
 }

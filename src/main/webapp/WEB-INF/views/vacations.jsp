@@ -25,27 +25,34 @@
 
         function showVacations() {
             var empId = dojo.byId("employeeId").value;
-            var year = dojo.byId("year").value;
             var divisionId = dojo.byId("divisionId").value;
+            var year = dojo.byId("year").value;
 
-            if (isNotNilOrNull(year) && isNotNilOrNull(divisionId) && isNotNilOrNull(empId)) {
-                vacationsForm.action =
-                        "<%=request.getContextPath()%>/vacations/" + divisionId + "/" + empId + "/" + year;
-                vacationsForm.submit();
+            if (isNotNilOrNull(year)) {
+                if (checkEmployeeData(divisionId, empId)) {
+                    vacationsForm.action =
+                            "<%=request.getContextPath()%>/vacations/" + divisionId + "/" + empId + "/" + year;
+                    vacationsForm.submit();
+                }
             } else {
                 var error = "";
 
-                if (!isNotNilOrNull(year)) {
+                if (isNilOrNull(year)) {
                     error += ("Необходимо выбрать год\n");
                 }
 
-                if (!isNotNilOrNull(divisionId)) {
-                    error += ("Необходимо выбрать подразделение и сотрудника!\n");
-                } else if (!isNotNilOrNull(empId)) {
-                    error += ("Необходимо выбрать сотрудника!\n");
-                }
-
                 alert(error);
+            }
+        }
+
+        function createVacation() {
+            var divisionId = dojo.byId("divisionId").value;
+            var empId = dojo.byId("employeeId").value;
+
+            if (checkEmployeeData(divisionId, empId)) {
+                vacationsForm.action =
+                        "<%=request.getContextPath()%>/createVacation/" + empId;
+                vacationsForm.submit();
             }
         }
     </script>
@@ -89,7 +96,10 @@
     <button id="show" style="width:150px" style="vertical-align: middle" type="button"
             onclick="showVacations()">Показать</button>
 </form:form>
-<br/>
+<button class="create-button" onclick="createVacation()">
+    <img src="<c:url value="/resources/img/add.gif"/>" width="15px" height="15px" title="Создать"/>
+    <span>Создать</span>
+</button>
 <table id="vacations">
     <thead>
     <tr>
