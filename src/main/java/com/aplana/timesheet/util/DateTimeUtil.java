@@ -372,4 +372,7 @@ public class DateTimeUtil {
         return sb.toString();
     }
 
+    public static String dateToString(Date date){
+        return new SimpleDateFormat(DATE_PATTERN).format(date);
+    }
 }

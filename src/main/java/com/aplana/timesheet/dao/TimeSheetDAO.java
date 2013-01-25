@@ -171,6 +171,26 @@ public class TimeSheetDAO {
         return entityManager.find(TimeSheet.class, id);
     }
 
+    public boolean isEmplyeeHasTsForDate(Integer employeeId, java.util.Date date){
+        Query query = entityManager.createQuery(
+                "SELECT COUNT(ts.calDate.calDate) FROM TimeSheet as ts WHERE ts.employee.id = :employeeId AND ts.calDate.calDate = :date"
+        ).setParameter("employeeId", employeeId).setParameter("date", date);
+
+        return ((Long) query.getResultList().get(0)).equals(1L);
+    }
+
+    public Date getLastDateWithTimeSheet(Integer employeeId){
+        Query query = entityManager.createQuery(
+                "SELECT MAX(ts.calDate.calDate) FROM TimeSheet as ts WHERE ts.employee.id = :employeeId"
+        ).setParameter("employeeId", employeeId);
+
+        return new Date(
+                (
+                        (Timestamp)query.getResultList().get(0)
+                ).getTime()
+        );
+    }
+
     @Transactional
     public void delete(TimeSheet timeSheet) {
         entityManager.remove(timeSheet);

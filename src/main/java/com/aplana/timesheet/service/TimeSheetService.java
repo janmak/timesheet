@@ -1,17 +1,20 @@
 package com.aplana.timesheet.service;
 
+import com.aplana.timesheet.dao.HolidayDAO;
 import com.aplana.timesheet.dao.TimeSheetDAO;
 import com.aplana.timesheet.dao.entity.*;
 import com.aplana.timesheet.enums.TypeOfActivity;
 import com.aplana.timesheet.form.TimeSheetForm;
 import com.aplana.timesheet.form.TimeSheetTableRowForm;
 import com.aplana.timesheet.util.DateTimeUtil;
+import org.apache.commons.lang.time.DateUtils;
 import org.apache.velocity.app.VelocityEngine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -22,6 +25,9 @@ public class TimeSheetService {
 
     @Autowired
     private TimeSheetDAO timeSheetDAO;
+
+    @Autowired
+    private HolidayDAO holidayDAO;
 
     @Autowired
     private CalendarService calendarService;
@@ -241,5 +247,22 @@ public class TimeSheetService {
             i++;
         }
         return rezult.toString();
+    }
+
+    public Date getLastWorkdayWithoutTimesheet(Integer employeeId){
+        Date result = new Date();
+        // ищем последнюю дату, когда была списана занятость
+        do {
+            result = DateUtils.addDays(result, -1);
+        } while (!timeSheetDAO.isEmplyeeHasTsForDate(employeeId, result) );
+        // ищем следующий день после найденного, который является рабочим днем
+        do {
+            result = DateUtils.addDays(result, 1);
+        } while (!holidayDAO.isWorkDay(DateTimeUtil.dateToString(result)));
+        return result;
+    }
+
+    public Date getLastDateWithTimeSheet(Integer employeeId){
+        return timeSheetDAO.getLastDateWithTimeSheet(employeeId);
     }
 }

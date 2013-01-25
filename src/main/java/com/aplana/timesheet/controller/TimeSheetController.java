@@ -16,8 +16,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
+import sun.beans.editors.StringEditor;
 
 import javax.servlet.http.HttpServletRequest;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Controller
@@ -88,6 +90,8 @@ public class TimeSheetController {
         mav.addObject("selectedWorkplaceJson", "[{row:'0', workplace:''}]");
         mav.addObject("selectedActCategoriesJson", "[{row:'0', actCat:''}]");
         mav.addObject("selectedLongVacationIllnessJson", getSelectedLongVacationIllnessJson(tsForm));
+        mav.addObject("getDateByDefault", getDateByDefault(tsForm.getEmployeeId()));
+        mav.addObject("getLastWorkday", getLastWorkday(tsForm.getEmployeeId()));
 
         mav.addAllObjects(getListsToMAV());
         return mav;
@@ -198,6 +202,19 @@ public class TimeSheetController {
         sendMailService.performTimeSheetDeletedMailing(timeSheet);
 
         return "redirect:" + httpRequest.getHeader("Referer");
+    }
+
+    /*  <APLANATS-474>
+     * Возвращает дату (dd.mm.yyyy) для того чтобы установить ее на форме по умолчанию
+    */
+    private String getDateByDefault(Integer id){
+        Date result = timeSheetService.getLastWorkdayWithoutTimesheet(id);
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");
+        return "'" + dateFormat.format( result ) + "'";
+    }
+
+    private String getLastWorkday(Integer id){
+        return "'" + timeSheetService.getLastDateWithTimeSheet(id).toString() + "'";
     }
 
     /*
