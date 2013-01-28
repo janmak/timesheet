@@ -1,15 +1,16 @@
 package com.aplana.timesheet.service;
 
 import com.aplana.timesheet.dao.EmployeeDAO;
-import com.aplana.timesheet.dao.entity.BusinessTrip;
-import com.aplana.timesheet.dao.entity.Division;
-import com.aplana.timesheet.dao.entity.Employee;
-import com.aplana.timesheet.dao.entity.Illness;
+import com.aplana.timesheet.dao.entity.*;
+import com.aplana.timesheet.enums.Permissions;
 import com.aplana.timesheet.util.TimeSheetConstans;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 import org.apache.velocity.app.VelocityEngine;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Nullable;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
@@ -138,5 +139,20 @@ public class EmployeeService {
 
     public List<BusinessTrip> getEmployeeBusinessTrips(Employee employee) {
         return employeeDAO.getEmployeeBusinessTrips(employee);
+    }
+
+    public boolean isEmployeeAdmin(Integer employeeId) {
+        return isEmployeeHasPermissions(employeeId, Permissions.ADMIN_PERMISSION);
+    }
+
+    public boolean isEmployeeHasPermissions(Integer employeeId, final Permissions permissions) {
+        final Employee employee = find(employeeId);
+
+        return Iterables.any(employee.getPermissions(), new Predicate<Permission>() {
+            @Override
+            public boolean apply(@Nullable Permission permission) {
+                return permission.getId().equals(permissions.getId());
+            }
+        });
     }
 }

@@ -13,6 +13,7 @@ import com.aplana.timesheet.service.CalendarService;
 import com.aplana.timesheet.service.EmployeeService;
 import com.aplana.timesheet.service.SecurityService;
 import com.aplana.timesheet.util.DateTimeUtil;
+import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.time.DateFormatUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -111,9 +112,10 @@ public class CreateVacationController {
         );
     }
 
-    @RequestMapping(value = "/validateAndCreateVacation/{employeeId}", method = RequestMethod.POST)
+    @RequestMapping(value = "/validateAndCreateVacation/{employeeId}/{approved}", method = RequestMethod.POST)
     public ModelAndView validateAndCreateVacation(
             @PathVariable("employeeId") Integer employeeId,
+            @PathVariable("approved") Integer approved,
             @ModelAttribute(CREATE_VACATION_FORM) CreateVacationForm createVacationForm,
             BindingResult bindingResult
     ) {
@@ -125,19 +127,27 @@ public class CreateVacationController {
             return getModelAndView(employee);
         }
 
+        final Employee curEmployee = securityService.getSecurityPrincipal().getEmployee();
+
         final Vacation vacation = new Vacation();
 
         vacation.setBeginDate(DateTimeUtil.stringToTimestamp(createVacationForm.getCalFromDate()));
         vacation.setEndDate(DateTimeUtil.stringToTimestamp(createVacationForm.getCalToDate()));
         vacation.setComment(createVacationForm.getComment().trim());
         vacation.setType(dictionaryItemDAO.find(createVacationForm.getVacationType()));
-        vacation.setAuthor(securityService.getSecurityPrincipal().getEmployee());
+        vacation.setAuthor(curEmployee);
         vacation.setEmployee(employee);
-        vacation.setStatus(dictionaryItemDAO.find(VacationStatus.APPROVEMENT_WITH_PM.getId()));
+
+        final boolean isApprovedVacation =
+                (employeeService.isEmployeeAdmin(curEmployee.getId()) && BooleanUtils.toBoolean(approved));
+
+        vacation.setStatus(dictionaryItemDAO.find(
+                isApprovedVacation ? VacationStatus.APPROVED.getId() : VacationStatus.APPROVEMENT_WITH_PM.getId()
+        ));
 
         vacationDAO.store(vacation);
 
-        return new ModelAndView("redirect:");
+        return new ModelAndView("redirect:../");
     }
 
     @RequestMapping(value = "/validateAndCreateVacation", method = RequestMethod.GET)

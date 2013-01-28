@@ -13,10 +13,28 @@
     <script type="text/javascript" src="<%= request.getContextPath()%>/resources/js/vacations.js"></script>
     <script type="text/javascript" src="<%= request.getContextPath()%>/resources/js/createVacation.js"></script>
     <script type="text/javascript">
-        function createVacation() {
+        dojo.declare("DateTextBox", dijit.form.DateTextBox, {
+            popupClass: "Calendar"
+            <sec:authorize access="not hasRole('ROLE_ADMIN')">
+                ,
+
+                openDropDown: function() {
+                    this.inherited(arguments);
+
+                    this.dropDown.isDisabledDate = function(date) {
+                        return (date <= new Date());
+                    };
+
+                    this.dropDown._populateGrid();
+                }
+            </sec:authorize>
+        });
+
+        function createVacation(approved) {
             if (validate()) {
                 createVacationForm.action =
-                        "<%=request.getContextPath()%>/validateAndCreateVacation/${employee.id}";
+                        "<%=request.getContextPath()%>/validateAndCreateVacation/${employee.id}/"
+                                + (approved ? "1" : "0");
                 createVacationForm.submit();
             }
         }
@@ -141,7 +159,10 @@
         </tr>
     </table>
 
-    <button type="button" onclick="createVacation()">Создать</button>
+    <button type="button" onclick="createVacation(false)">Создать</button>
+    <sec:authorize access="hasRole('ROLE_ADMIN')">
+        <button type="button" onclick="createVacation(true)">Добавить утвержденное заявление на отпуск</button>
+    </sec:authorize>
 </form:form>
 </body>
 </html>

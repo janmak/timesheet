@@ -1,5 +1,7 @@
 package com.aplana.timesheet.service;
 
+import com.aplana.timesheet.dao.DictionaryItemDAO;
+import com.aplana.timesheet.dao.VacationDAO;
 import com.aplana.timesheet.dao.entity.*;
 import com.aplana.timesheet.enums.ProjectRole;
 import com.aplana.timesheet.enums.TypeOfActivity;
@@ -96,6 +98,8 @@ public class SendMailService{
     private TSPropertyProvider propertyProvider;
     @Autowired
     private OvertimeCauseService overtimeCauseService;
+    @Autowired
+    private VacationDAO vacationDAO;
 
 
     /**
@@ -208,6 +212,10 @@ public class SendMailService{
         new TimeSheetDeletedSender(this, propertyProvider).sendMessage(timeSheet);
     }
 
+    public void performVacationMailing(Vacation vacation) {
+        new VacationSender(this, propertyProvider).sendMessage(vacation);
+    }
+
     public String initMessageBodyForReport(TimeSheet timeSheet) {
         Map<String, Object> model1 = new HashMap<String, Object>();
 
@@ -239,6 +247,10 @@ public class SendMailService{
 
     public String getOvertimeCause(TimeSheetForm tsForm) {
         return overtimeCauseService.getCauseName(tsForm);
+    }
+
+    public List<String> getVacationApprovalEmailList(Integer vacationId) {
+        return vacationDAO.getVacationApprovalEmailList(vacationId);
     }
 
     interface RenameMe {

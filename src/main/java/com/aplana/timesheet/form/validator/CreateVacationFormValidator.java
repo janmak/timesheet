@@ -3,6 +3,8 @@ package com.aplana.timesheet.form.validator;
 import com.aplana.timesheet.dao.VacationDAO;
 import com.aplana.timesheet.enums.VacationType;
 import com.aplana.timesheet.form.CreateVacationForm;
+import com.aplana.timesheet.service.EmployeeService;
+import com.aplana.timesheet.service.SecurityService;
 import com.aplana.timesheet.util.DateTimeUtil;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +29,12 @@ public class CreateVacationFormValidator extends AbstractValidator {
     @Autowired
     private VacationDAO vacationDAO;
 
+    @Autowired
+    private SecurityService securityService;
+
+    @Autowired
+    private EmployeeService employeeService;
+
     @Override
     public boolean supports(Class<?> aClass) {
         return aClass.isAssignableFrom(CreateVacationForm.class);
@@ -46,22 +54,24 @@ public class CreateVacationFormValidator extends AbstractValidator {
             final Timestamp fromDate = DateTimeUtil.stringToTimestamp(calFromDate);
             final Timestamp toDate = DateTimeUtil.stringToTimestamp(calToDate);
 
-            final Date currentDate = new Date();
+            if (!employeeService.isEmployeeAdmin(securityService.getSecurityPrincipal().getEmployee().getId())) {
+                final Date currentDate = new Date();
 
-            if (!fromDate.after(currentDate)) {
-                errors.rejectValue(
-                        "calFromDate",
-                        "error.createVacation.fromdate.wrong",
-                        "Дата начала отпуска должна быть больше текущей даты"
-                );
-            }
+                if (!fromDate.after(currentDate)) {
+                    errors.rejectValue(
+                            "calFromDate",
+                            "error.createVacation.fromdate.wrong",
+                            "Дата начала отпуска должна быть больше текущей даты"
+                    );
+                }
 
-            if (!toDate.after(currentDate)) {
-                errors.rejectValue(
-                        "calToDate",
-                        "error.createVacation.todate.wrong",
-                        "Дата окончания отпуска должна быть больше текущей даты"
-                );
+                if (!toDate.after(currentDate)) {
+                    errors.rejectValue(
+                            "calToDate",
+                            "error.createVacation.todate.wrong",
+                            "Дата окончания отпуска должна быть больше текущей даты"
+                    );
+                }
             }
 
             final long intersectVacationsCount = vacationDAO.getIntersectVacationsCount(
@@ -129,4 +139,5 @@ public class CreateVacationFormValidator extends AbstractValidator {
             );
         }
     }
+
 }
