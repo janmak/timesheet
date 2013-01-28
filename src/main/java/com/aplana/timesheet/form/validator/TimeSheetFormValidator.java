@@ -2,12 +2,13 @@ package com.aplana.timesheet.form.validator;
 
 import com.aplana.timesheet.dao.entity.Employee;
 import com.aplana.timesheet.dao.entity.Project;
-import com.aplana.timesheet.enums.ProjectRole;
-import com.aplana.timesheet.enums.TypeOfActivity;
+import com.aplana.timesheet.enums.*;
 import com.aplana.timesheet.form.TimeSheetForm;
 import com.aplana.timesheet.form.TimeSheetTableRowForm;
+import com.aplana.timesheet.properties.TSPropertyProvider;
 import com.aplana.timesheet.service.*;
 import com.aplana.timesheet.util.DateTimeUtil;
+import com.aplana.timesheet.util.EnumsUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +23,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.aplana.timesheet.enums.ProjectRole.*;
+import static com.aplana.timesheet.util.TimeSheetConstans.WORK_DAY_DURATION;
 
 @Service
 public class TimeSheetFormValidator extends AbstractValidator {
@@ -31,18 +33,20 @@ public class TimeSheetFormValidator extends AbstractValidator {
     private TimeSheetService timeSheetService;
     @Autowired
     private ProjectService projectService;
-        @Autowired
-        private ProjectRoleService projectRoleService;
-        @Autowired
-        private EmployeeService employeeService;
-        @Autowired
-        private CalendarService calendarService;
-        @Autowired
-        private DivisionService divisionService;
-        @Autowired
-        private DictionaryItemService dictionaryItemService;
-        @Autowired
-        private ProjectTaskService projectTaskService;
+    @Autowired
+    private ProjectRoleService projectRoleService;
+    @Autowired
+    private EmployeeService employeeService;
+    @Autowired
+    private CalendarService calendarService;
+    @Autowired
+    private DivisionService divisionService;
+    @Autowired
+    private DictionaryItemService dictionaryItemService;
+    @Autowired
+    private ProjectTaskService projectTaskService;
+    @Autowired
+    private TSPropertyProvider propertyProvider;
 
     public boolean supports(Class<?> clazz) {
         return clazz.isAssignableFrom(TimeSheetForm.class);
@@ -77,7 +81,7 @@ public class TimeSheetFormValidator extends AbstractValidator {
 
             int notNullRowNumber = 0;
 
-            validateDuration( tsTablePart, notNullRowNumber, errors );
+            validateDuration( tsForm, notNullRowNumber, errors );
 
             for (TimeSheetTableRowForm formRow : tsTablePart) {
                 TypeOfActivity actType = TypeOfActivity.getById( formRow.getActivityTypeId() );
@@ -118,7 +122,8 @@ public class TimeSheetFormValidator extends AbstractValidator {
     }
 
     // <APLANATS-441> не менее 2х слов
-    private final String regexp = "([^-\\p{LD}]+)?([-\\p{LD}]++([^-\\p{LD}]+)?+){2,}";
+    private final String inStringMoreThanTwoWordsRegex = "([^-\\p{LD}]+)?([-\\p{LD}]++([^-\\p{LD}]+)?+){2,}";
+
     private void validatePlan( TimeSheetForm tsForm, ProjectRole emplJob, boolean planNecessary, Errors errors ) {
 
         String plan = tsForm.getPlan();
@@ -130,7 +135,7 @@ public class TimeSheetFormValidator extends AbstractValidator {
                         "Необходимо указать планы на следующий рабочий день.");
                 return;
             }
-            if (!plan.matches(regexp)){
+            if (!plan.matches(inStringMoreThanTwoWordsRegex)){
                 errors.rejectValue("plan",
                         "error.tsform.plan.invalid",
                         "Планы на следующий день не могут быть менее 2х слов.");
@@ -339,8 +344,9 @@ public class TimeSheetFormValidator extends AbstractValidator {
         return true;
     }
 
-    private void validateDuration( List<TimeSheetTableRowForm> tsTablePart, int notNullRowNumber, Errors errors ) {
+    private void validateDuration( TimeSheetForm tsForm, int notNullRowNumber, Errors errors ) {
         double totalDuration = 0;
+        List<TimeSheetTableRowForm> tsTablePart = tsForm.getTimeSheetTablePart();
 
         for ( TimeSheetTableRowForm rowForm : tsTablePart ) {
             String durationStr = rowForm.getDuration();
@@ -380,11 +386,38 @@ public class TimeSheetFormValidator extends AbstractValidator {
 
         logger.debug("Total duration is {}", totalDuration);
 
+        if (Math.abs(totalDuration - WORK_DAY_DURATION) > propertyProvider.getOvertimeThreshold()) {
+            boolean isOvertime = totalDuration - WORK_DAY_DURATION > 0;
+            String concreteName = isOvertime ? "переработок": "недоработок";
+            if (isNotChoosed(tsForm.getOvertimeCause())) {
+                errors.rejectValue("overtimeCause", "error.tsform.overtimecause.notchoosed", "Не указана причина " + concreteName);
+            }
+            if (isOvertime) {
+                UnfinishedDayCauses cause = EnumsUtils.tryFindById(tsForm.getOvertimeCause(), UnfinishedDayCauses.class);
+                checkCause(cause, tsForm.getOvertimeCauseComment(), concreteName, errors);
+            } else {
+                OvertimeCauses cause = EnumsUtils.tryFindById(tsForm.getOvertimeCause(), OvertimeCauses.class);
+                checkCause(cause, tsForm.getOvertimeCauseComment(), concreteName, errors);
+            }
+        }
+
         // Сумма часов превышает 24.
         if (totalDuration > 24) {
             errors.rejectValue("totalDuration",
                     "error.tsform.total.duration.max",
                     "Сумма часов не должна превышать 24.");
+        }
+    }
+
+    private void checkCause(TSEnum cause, String overtimeCauseComment, String concreteName, Errors errors) {
+        if(cause==null){
+            errors.rejectValue("overtimeCause", "error.tsform.overtimecause.wrongvalue", "Указана неверная причина для " + concreteName );
+        } else if( cause.getName().equals("Другое")
+                && (StringUtils.isBlank(overtimeCauseComment)
+                    || !overtimeCauseComment.matches(inStringMoreThanTwoWordsRegex))
+        ){
+            errors.rejectValue("getOvertimeCauseComment", "error.tsform.overtimecause.wrongcommentformat",
+                    "Не правильна указана причина "+ concreteName + "(должно быть больше 2 слов)");
         }
     }
 

@@ -13,6 +13,15 @@
     <script type="text/javascript">
         dojo.require("dijit.form.DateTextBox");
         dojo.require("dijit.Calendar");
+        dojo.require("dijit.Dialog");
+        dojo.require("dijit.form.Textarea");
+        dojo.require("dijit.form.Select");
+
+
+
+        var unfinishedDayCauseList = ${unfinishedDayCauseJson};
+        var overtimeCauseList = ${overtimeCauseJson};
+        var overtimeThreshold = ${overtimeThreshold};
         var workplaceList = ${workplaceJson};
         var actTypeList = ${actTypeJson};
         var projectList = ${projectListJson};
@@ -330,12 +339,31 @@
     </style>
 </head>
 <body>
+
 <div class="maskable" id="maskDiv"></div>
 
 <h1><fmt:message key="title.timesheet"/></h1>
 
+<div id="dialogOne" dojoType="dijit.Dialog" title="" display:none>
+    <div dojoType="dijit.layout.TabContainer" style="width: 450px; height: 200px;">
+        <div dojoType="dijit.layout.ContentPane">
+            <span>Выберите причину</span>
+            <select id="overtimeCause" onchange="overtimeCauseChange(this)" data-dojo-type="dijit.form.Select" />
+            <textarea data-dojo-type="dijit.form.Textarea" disabled="true"
+                      wrap="soft" id="overtimeCauseComment" rows="10" cols="59"
+                           placeholder="Напишите причину, если нет подходящей в списке"></textarea>
+            <button id="confirmOvertimeCauseButton" style="margin-top: 10px; margin-left: -1px"
+                    onclick="submitWithOvertimeCauseSet()">
+                Продолжить
+            </button>
+        </div>
+    </div>
+</div>
+<form:form method="post"  modelAttribute="timeSheetForm" cssClass="noborder">
 
-<form:form method="post" commandName="timeSheetForm" cssClass="noborder">
+    <%-- Костыль для диалога --%>
+    <form:textarea path="overtimeCauseComment" id="overtimeCauseComment_hidden" style="display: none;" />
+    <form:input path="overtimeCause" id="overtimeCause_hidden" style="display: none;" />
 
     <div id="form_header" style="margin-bottom: 15px;">
         <span class="label">Подразделение</span>
@@ -527,13 +555,12 @@
                 </td>
             </tr>
         </table>
-
     </div>
     <div>
         <table>
             <tr>
                 <td class="no_border" width="155px">
-                    <button id="submit_button" style="width:210px" onclick="submitform('send')" type="button">Отправить
+                    <button id="submit_button" style="width:210px" onclick="checkDurationThenSendForm()" type="button">Отправить
                         отчёт
                     </button>
                 </td>
@@ -545,6 +572,7 @@
             </tr>
         </table>
     </div>
+
 </form:form>
 </body>
 </html>

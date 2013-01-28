@@ -94,6 +94,8 @@ public class SendMailService{
     private SecurityService securityService;
     @Autowired
     private TSPropertyProvider propertyProvider;
+    @Autowired
+    private OvertimeCauseService overtimeCauseService;
 
 
     /**
@@ -233,6 +235,10 @@ public class SendMailService{
 
     public String getProjectName(int projectId) {
         return projectService.find(projectId).getName();
+    }
+
+    public String getOvertimeCause(TimeSheetForm tsForm) {
+        return overtimeCauseService.getCauseName(tsForm);
     }
 
     interface RenameMe {
