@@ -42,7 +42,7 @@ public class FeedbackFormValidator extends AbstractValidator {
             // Неверный тип проблемы
         } else if ( ! isFeedbackTypeValid( feedbackType ) ) {
             errors.rejectValue( "feedbackType", "error.fbform.feedbackType.invalid", "Неверный тип сообщения." );
-        } else if ( ! feedbackType.equals( "Меня нет в списке" ) ) { //TODO адъ! сравниваются
+        } else {
             // Подразделение не выбрано.
             if ( isNotChoosed( divisionId ) ) {
                 errors.rejectValue( "divisionId", "error.fbform.divisionId.required", "Подразделение не выбрано." );
@@ -57,15 +57,6 @@ public class FeedbackFormValidator extends AbstractValidator {
             // Неверный сотрудник
             } else if ( ! isEmployeeValid( employeeId ) ) {
                 errors.rejectValue( "employeeId", "error.fbform.employeeId.invalid", "Неверные данные сотрудника." );
-            }
-        } else {
-            if ( StringUtils.isBlank( name ) ) {
-                errors.rejectValue( "name", "error.fbform.name.required", "Не введено имя отправителя." );
-            }
-            if ( StringUtils.isBlank( email ) ) {
-                errors.rejectValue( "email", "error.fbform.email.required", "Не введен почтовый адрес отправителя." );
-            } else if ( ! validateEmail( email ) ) {
-                errors.rejectValue( "email", "error.fbform.email.invalid", "Неверный почтовый адрес отправителя." );
             }
         }
 
