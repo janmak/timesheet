@@ -50,16 +50,19 @@ public abstract class AbstractJasperReportModelAndViewGenerator implements Jaspe
     protected abstract String getViewName();
 
     protected void fillDivisionList( final ModelAndView mav ){
-        fillDivisionList( mav, false, false );
+        fillDivisionList( mav, false, false , false);
     }
 
     protected void fillDivisionList(
-            final ModelAndView mav, boolean fillProjectListJson, boolean fillEmployeeListJson
+            final ModelAndView mav, boolean fillProjectListJson, boolean fillEmployeeListJson,
+            boolean fillProjectListWithOwnerDivisionJson
     ){
         List<Division> divisions = divisionService.getDivisions();
         mav.addObject("divisionList", divisions );
         if( fillProjectListJson )
             mav.addObject("projectListJson", projectService.getProjectListJson(divisions));
+        if ( fillProjectListWithOwnerDivisionJson )
+            mav.addObject("projectListWithOwnerDivisionJson", projectService.getProjectListWithOwnerDivisionJson(divisions));
         if( fillEmployeeListJson )
             mav.addObject("employeeListJson", employeeHelper.getEmployeeListJson(divisions));
     }

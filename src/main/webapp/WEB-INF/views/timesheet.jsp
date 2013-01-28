@@ -228,7 +228,6 @@
                         }
                         else {
                             dojo.byId("lbNextPlan").innerHTML = "Планы на следующий рабочий день:";
-                            dojo.byId("plan").value = "";
                         }
 
                     }
@@ -237,7 +236,6 @@
                     if (err && ioArgs && ioArgs.args && ioArgs.args.content) {
                         dojo.byId("lbPrevPlan").innerHTML = "Ничего не запланировано.";
                         dojo.byId("plan_textarea").innerHTML = "";
-                        dojo.byId("plan").value = "";
                     }
                 }
             });

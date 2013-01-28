@@ -86,6 +86,31 @@ public class ProjectService {
 	}
 
     /**
+     * Возвращает список проектов с указанием подразделения РП проекта
+     *
+     */
+    public String getProjectListWithOwnerDivisionJson(List<Division> divisions) {
+        StringBuilder result = new StringBuilder();
+        result.append("[");
+        List<Project> projectList = projectDAO.getProjects();
+        for (Project project : projectList) {
+            result.append("{id:'");
+            result.append(project.getId());
+            result.append("', value:'");
+            result.append(project.getName());
+            result.append("', state:'");
+            result.append(project.getState().getId());
+            result.append("', ownerDivisionId:'");
+            result.append(project.getManager().getDivision().getId());
+            result.append("'}");
+            result.append(", ");
+        }
+        result.deleteCharAt(result.length() - 2);
+        result.append("]");
+        return result.toString();
+    }
+
+    /**
      * Возвращает JSON списка проектов, связанного с подразделениями
      *
      * @param divisions

@@ -5,11 +5,11 @@ package com.aplana.timesheet.enums;
  * @version 1.0
  */
 public enum VacationStatus implements TSEnum {
-    APPROVEMENT_WITH_PM(50, "На согласовании РПГ"),
-    APPROVED_BY_PM(51, "Согласовано РПГ"),
-    APPROVEMENT_WITH_LM(52, "На согласовании ЛР"),
-    APPROVED(53, "Утверждено"),
-    REJECTED(54, "Отклонено");
+    APPROVEMENT_WITH_PM(57, "На согласовании РПГ"),
+    APPROVED_BY_PM(58, "Согласовано РПГ"),
+    APPROVEMENT_WITH_LM(59, "На согласовании ЛР"),
+    APPROVED(60, "Утверждено"),
+    REJECTED(61, "Отклонено");
 
     private final int id;
     private final String name;
@@ -28,4 +28,5 @@ public enum VacationStatus implements TSEnum {
     public String getName() {
         return name;
     }
+
 }

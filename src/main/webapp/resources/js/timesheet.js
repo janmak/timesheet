@@ -1420,25 +1420,18 @@ function fillProjectListByDivision(division) {
 		if (checkBox.checked) {
 			dojo.removeAttr("divisionId", "disabled");
 
-			if (divisionId != 0) {
-
-				for (var i = 0; i < projectList.length; i++) {
-					if ((divisionId == projectList[i].divId) || (!checkBox.checked)) {
-						insertEmptyOption(projectSelect);
-						for (var j = 0; j < projectList[i].divProjs.length; j++) {
-							projectOption = dojo.doc.createElement("option");
-							dojo.attr(projectOption, {
-								value:projectList[i].divProjs[j].id
-							});
-							projectOption.title = projectList[i].divProjs[j].value;
-							projectOption.innerHTML = projectList[i].divProjs[j].value;
-							projectSelect.appendChild(projectOption);
-						}
-					}
-				}
-			} else {
-				insertEmptyOption(projectSelect);
-			}
+            insertEmptyOption(projectSelect);
+            for (var i = 0; i < projectListWithOwnerDivision.length; i++) {
+                if (divisionId == projectListWithOwnerDivision[i].ownerDivisionId) {
+                    projectOption = dojo.doc.createElement("option");
+                        dojo.attr(projectOption, {
+                            value:projectListWithOwnerDivision[i].id
+                        });
+                        projectOption.title = projectListWithOwnerDivision[i].value;
+                        projectOption.innerHTML = projectListWithOwnerDivision[i].value;
+                        projectSelect.appendChild(projectOption);
+                }
+            }
 		}
 		else {
 
