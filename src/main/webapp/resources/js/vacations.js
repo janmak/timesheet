@@ -17,3 +17,25 @@ function setCurrentYear(year) {
 function isNotNilOrNull(obj) {
     return (obj != null && obj != 0);
 }
+
+function isNilOrNull(obj) {
+    return !isNotNilOrNull(obj);
+}
+
+function checkEmployeeData(divisionId, empId) {
+    if (isNotNilOrNull(divisionId) && isNotNilOrNull(empId)) {
+        return true;
+    }
+
+    var error = "";
+
+    if (!isNotNilOrNull(divisionId)) {
+        error += ("Необходимо выбрать подразделение и сотрудника!\n");
+    } else if (!isNotNilOrNull(empId)) {
+        error += ("Необходимо выбрать сотрудника!\n");
+    }
+
+    alert(error);
+
+    return false;
+}

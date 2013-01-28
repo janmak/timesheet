@@ -12,8 +12,6 @@ import java.util.List;
 
 @Repository
 public class DictionaryItemDAO {
-	public static final Integer PROJECTS_ID = 12;
-	public static final Integer PRESALES_ID = 13;
 
 	@PersistenceContext
 	private EntityManager entityManager;

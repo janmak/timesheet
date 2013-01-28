@@ -57,13 +57,35 @@ public class ProjectRole {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj) { return true; }
-		if (obj == null) { return false; }
-		if (getClass() != obj.getClass()) { return false; }
-		ProjectRole other = (ProjectRole) obj;
-		if (code == null) {
-			if (other.code != null) { return false; }
-		} else if (!code.equals(other.code)) { return false; }
-		return true;
-	}
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+
+        ProjectRole other = (ProjectRole) obj;
+
+        final Integer thisId = getId();
+
+        if (thisId == null) {
+            if (other.getId() != null) {
+                return false;
+            }
+        } else if (!thisId.equals(other.getId())) {
+            return false;
+        }
+
+        final String thisCode = getCode();
+
+        if (thisCode == null) {
+            if (other.getCode() != null) {
+                return false;
+            }
+        } else if (!thisCode.equals(other.getCode())) {
+            return false;
+        }
+
+        return true;
+    }
 }

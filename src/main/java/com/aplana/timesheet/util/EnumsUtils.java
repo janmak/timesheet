@@ -11,13 +11,23 @@ import java.util.NoSuchElementException;
 public class EnumsUtils {
 
     public static <T extends TSEnum> T getEnumById(int id, Class<T> aClass) {
+        T result = tryFindById(id, aClass);
+
+        if (result == null) {
+            throw new NoSuchElementException();
+        }
+
+        return result;
+    }
+
+    public static <T extends TSEnum>T tryFindById( int id, Class<T> aClass) {
         for (T enumValue : aClass.getEnumConstants()) {
             if (enumValue.getId() == id) {
                 return enumValue;
             }
         }
-
-        throw new NoSuchElementException();
+        return null;
     }
+
 
 }

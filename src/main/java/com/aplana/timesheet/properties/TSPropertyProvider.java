@@ -18,6 +18,15 @@ import java.util.Properties;
 public class TSPropertyProvider {
 
     private static final Logger logger = LoggerFactory.getLogger(TSPropertyProvider.class);
+    /**
+     * путь к property файлу
+     */
+    private final static String PROPERTY_PATH = "./webapps/timesheet.properties";
+
+
+
+    private static boolean needUpdate = true;
+    private static Properties properties;
 
     public String getJiraIssueCreateUrl() {
         return getProperties().getProperty("jira.issue.create.url");
@@ -83,31 +92,6 @@ public class TSPropertyProvider {
         return Integer.parseInt(getProperties().getProperty("quickreport.regions.beginmounth"));
     }
 
-    /**
-     * Единый метод для загрузки почтовых настроек
-     *
-     * @param mailConfig
-     */
-    public static Properties getProperties() {
-        /**
-         * путь к property файлу
-         */
-        String PROPERTY_PATH = "./webapps/timesheet.properties";
-
-        try {
-            Properties properties = new Properties();
-            properties.load(new FileInputStream( PROPERTY_PATH ));
-            return properties;
-        } catch (FileNotFoundException e1) {
-            logger.error("File timesheet.properties not found.");
-        } catch (InvalidPropertiesFormatException e) {
-            logger.error("Invalid timesheet.properties file format.");
-        } catch (IOException e) {
-            logger.error("Input-output error.");
-        }
-        throw new IllegalStateException("File with system properties not founded!");
-    }
-
     public String getProjectRoleDeveloper() {
         return getProperties().getProperty("project.role.developer");
     }
@@ -126,5 +110,41 @@ public class TSPropertyProvider {
 
     public String getProjectRoleSystem() {
         return getProperties().getProperty("project.role.system");
+    }
+
+    public Double getOvertimeThreshold() {
+        return new Double(getProperties().getProperty("overtime.threshold"));
+    }
+
+
+    /**
+     * Единый метод для загрузки почтовых настроек
+     *
+     * @param mailConfig
+     */
+    public static Properties getProperties() {
+        if (needUpdate || properties == null) {
+            try {
+                properties = new Properties();
+                properties.load(new FileInputStream( PROPERTY_PATH ));
+
+                needUpdate = false;
+
+                return properties;
+            } catch (FileNotFoundException e1) {
+                logger.error("File timesheet.properties not found.");
+            } catch (InvalidPropertiesFormatException e) {
+                logger.error("Invalid timesheet.properties file format.");
+            } catch (IOException e) {
+                logger.error("Input-output error.");
+            }
+            throw new IllegalStateException("File with system properties not founded!");
+        } else {
+            return properties;
+        }
+    }
+
+    public static void updateProperties() {
+        needUpdate = true;
     }
 }

@@ -143,11 +143,11 @@ public class CalendarDAO {
     public Calendar getNextWorkDay(Calendar day, Region region) {
         Query query = entityManager.createQuery(
                 "select c " +
-                "from Calendar as c " +
-                "left outer join c.holidays as h with h.region.id is null " +
-                "where c.calDate>:calDatePar and h.id is null " +
-                "order by c.calDate asc " +
-                "limit 1"
+                        "from Calendar as c " +
+                        "left outer join c.holidays as h with h.region.id is null " +
+                        "where c.calDate>:calDatePar and h.id is null " +
+                        "order by c.calDate asc " +
+                        "limit 1"
         ).setParameter("calDatePar", new Date(day.getCalDate().getTime()));
 
         return ( Calendar ) query.getResultList().get( 0 );
@@ -173,9 +173,9 @@ public class CalendarDAO {
     }
 
     private void setParametersForHolidaysQuery(Date beginDate, Date endDate, Region region, Query query) {
-        query.setParameter(BEGIN_DATE, beginDate);
-        query.setParameter(END_DATE, endDate);
-        query.setParameter(REGION, region);
+        query.setParameter(BEGIN_DATE, beginDate)
+             .setParameter(END_DATE, endDate)
+             .setParameter(REGION, region);
     }
 
 }

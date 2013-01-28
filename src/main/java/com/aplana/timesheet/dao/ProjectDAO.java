@@ -4,6 +4,7 @@ import com.aplana.timesheet.dao.entity.DictionaryItem;
 import com.aplana.timesheet.dao.entity.Employee;
 import com.aplana.timesheet.dao.entity.Project;
 import com.aplana.timesheet.dao.entity.ProjectParticipant;
+import com.aplana.timesheet.enums.TypeOfActivity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,17 +23,14 @@ import static com.aplana.timesheet.enums.TypeOfActivity.PRESALE;
 @SuppressWarnings("unchecked")
 public class ProjectDAO {
     private static final Logger logger = LoggerFactory.getLogger(ProjectDAO.class);
-    private StringBuffer trace;
 
-    public static final Integer ANACCOUNTED_PRESALE_ID = 18;
-    public static final String ANACCOUNTED_PRESALE_NAME = "Неучтённый пресейл";
+    private StringBuffer trace;
 
     @PersistenceContext
     private EntityManager entityManager;
 
     @Autowired
     private DictionaryItemDAO dictionaryItemDAO;
-
 
     public void setTrace(StringBuffer trace) {
         this.trace = trace;
@@ -58,7 +56,7 @@ public class ProjectDAO {
     public List<Project> getProjects() {
         Query query = entityManager.createQuery(
                 "from Project as p where p.state=:state and p.active=:active ORDER BY name"
-        ).setParameter("state", dictionaryItemDAO.find(DictionaryItemDAO.PROJECTS_ID)).setParameter("active", true);
+        ).setParameter("state", dictionaryItemDAO.find(TypeOfActivity.PROJECT.getId())).setParameter("active", true);
 
         return query.getResultList();
     }
@@ -69,6 +67,7 @@ public class ProjectDAO {
     @Transactional(readOnly = true)
     @SuppressWarnings("unchecked")
     public List<Project> getPresales() {
+        final Integer ANACCOUNTED_PRESALE_ID = 18;
         Query query = entityManager.createQuery(
                 "from Project as p where p.state=:state and p.active=:active and p.id<>:anaccounted_presale" )
                 .setParameter( "state", dictionaryItemDAO.find( PRESALE.getId() ) )

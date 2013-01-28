@@ -53,7 +53,7 @@ public class TimeSheetService {
     @Autowired
     public SecurityService securityService;
 
-    public void storeTimeSheet(TimeSheetForm tsForm) {
+    public TimeSheet storeTimeSheet(TimeSheetForm tsForm) {
         TimeSheet timeSheet = new TimeSheet();
         logger.debug("Selected employee id = {}", tsForm.getEmployeeId());
         logger.debug("Selected calDate = {}", tsForm.getCalDate());
@@ -106,6 +106,7 @@ public class TimeSheetService {
         timeSheet.setTimeSheetDetails(timeSheetDetails);
         timeSheetDAO.storeTimeSheet(timeSheet);
         logger.info("TimeSheet object for employee {} ({}) saved.", tsForm.getEmployeeId(), timeSheet.getCalDate());
+        return timeSheet;
     }
 
     public void storeTimeSheetLong(TimeSheetForm tsForm) {

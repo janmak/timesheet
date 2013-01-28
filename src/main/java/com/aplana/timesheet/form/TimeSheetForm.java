@@ -11,10 +11,18 @@ public class TimeSheetForm {
     private String calDate;
     private String plan;
     private double totalDuration;
-    private String beginLongDate; //Начало продолжительного(й) отпуска(болезни)
-    private String endLongDate; //Конец продолжительного(й) отпуска(болезни)
-    private boolean longVacation; // Продолжительный отпуск
-    private boolean longIllness; // Продолжительная болезнь
+    /** Начало продолжительного(й) отпуска(болезни) */
+    private String beginLongDate;
+    /** Конец продолжительного(й) отпуска(болезни) */
+    private String endLongDate;
+    /** Продолжительный отпуск */
+    private boolean longVacation;
+    /** Продолжительная болезнь */
+    private boolean longIllness;
+    /** Причина недоработок, переработок */
+    private Integer overtimeCause;
+    /** Комментария к причине надоработок/переработко */
+    private String overtimeCauseComment;
 
     public String getBeginLongDate() {
         return beginLongDate;
@@ -98,5 +106,21 @@ public class TimeSheetForm {
 
     public String getPlanEscaped() {
         return StringEscapeUtils.escapeHtml4(this.plan);
+    }
+
+    public Integer getOvertimeCause() {
+        return overtimeCause;
+    }
+
+    public void setOvertimeCause(Integer overtimeCause) {
+        this.overtimeCause = overtimeCause;
+    }
+
+    public String getOvertimeCauseComment() {
+        return overtimeCauseComment;
+    }
+
+    public void setOvertimeCauseComment(String overtimeCauseComment) {
+        this.overtimeCauseComment = overtimeCauseComment;
     }
 }

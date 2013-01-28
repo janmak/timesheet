@@ -1,11 +1,9 @@
 package com.aplana.timesheet.dao.entity;
 
-import com.aplana.timesheet.util.DateTimeUtil;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.hibernate.annotations.ForeignKey;
 
 import javax.persistence.*;
-import java.sql.Timestamp;
 import java.util.Set;
 
 @Entity
@@ -38,6 +36,9 @@ public class TimeSheet {
     @OneToMany(mappedBy = "timeSheet", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @OrderBy("id asc")
     private Set<TimeSheetDetail> timeSheetDetails;
+
+    @OneToOne(mappedBy = "overtimeCause")
+    private OvertimeCause overtimeCause;
 
     public Calendar getCalDate() {
         return calDate;
@@ -90,6 +91,14 @@ public class TimeSheet {
 
     public String getPlanEscaped() {
         return StringEscapeUtils.escapeHtml4(this.plan);
+    }
+
+    public OvertimeCause getOvertimeCause() {
+        return overtimeCause;
+    }
+
+    public void setOvertimeCause(OvertimeCause overtimeCause) {
+        this.overtimeCause = overtimeCause;
     }
 
     @Override

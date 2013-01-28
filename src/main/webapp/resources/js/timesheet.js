@@ -1071,24 +1071,10 @@ function recalculateRowNumbers() {
 /* Отображает диалог подтверждения отправки отчёта. */
 function confirmSendReport() {
     var totalDuration = recalculateDuration();
-    var vacation = dojo.byId("long_vacation");
-    var illness = dojo.byId("long_illness");
     var actTypes = dojo.query(".activityType");
     var reportDate = dijit.byId("calDate").value;
-    var oob = false; //Отпуск или отгул или болезнь
-    for (var i = 0; i < actTypes.length; i++) {
-        if (actTypes[i].value == "17"
-            || actTypes[i].value == "15" || actTypes[i].value == "24"
-            || actTypes[i].value == "16" || actTypes[i].value == "18") {
-            oob = true;
-        }
-    }
-    if ((totalDuration < 8 || totalDuration > 8)
-        && (vacation.checked != true && illness.checked != true)
-        && !oob) {
-        return confirm("Количество отработанных часов отлично от 8. Вы действительно хотите отправить отчет?");
-    }
-    else if (reportDate !== null) {
+
+    if (reportDate !== null) {
         if (reportDate !== undefined) {
             if (dateNotBetweenMonth(reportDate))
                 return confirm("Указанная дата отличается от текущей более чем на 27 дней. Вы уверены, что хотите отправить отчет?");
@@ -1152,6 +1138,62 @@ function fillAvailableActivityCategoryList(rowIndex) {
         }
     }
     sortSelectOptions(actCatSelect);
+}
+
+function overtimeCauseChange(obj){
+    var select = obj.target === null || obj.target === undefined ? obj : obj.target;
+    var selectId = dojo.attr(select, "value");
+    //Если выбрано "Другое", то надо ввести комментарий
+    dojo.byId("overtimeCauseComment").disabled = !(selectId == 105 || selectId == 114);
+}
+
+function checkDurationThenSendForm(){
+    var totalDuration = recalculateDuration();
+    var vacation = dojo.byId("long_vacation");
+    var illness = dojo.byId("long_illness");
+    var oob = false; //Отпуск или отгул или болезнь
+    var actTypes = dojo.query(".activityType");
+
+    for (var i = 0; i < actTypes.length; i++) {
+        if (
+            actTypes[i].value == "17"
+            || actTypes[i].value == "15" || actTypes[i].value == "24"
+            || actTypes[i].value == "16" || actTypes[i].value == "18"
+        ) {
+            oob = true;
+            break;
+        }
+    }
+
+    if (
+        (totalDuration < (8 - overtimeThreshold) || totalDuration > (8 + overtimeThreshold) )
+        && (vacation.checked != true && illness.checked != true)
+        && !oob
+    ) {
+        var select_box = dojo.byId("overtimeCause");
+        select_box.innerHTML = '<option value="0"></option>';
+        var evald_json = totalDuration < 8 ? unfinishedDayCauseList : overtimeCauseList;
+
+
+        for (var key in evald_json) {
+            var row = evald_json[key];
+            dojo.create('option', { value: row.id, innerHTML: row.value }, select_box);
+        }
+
+        var dialog = dijit.byId("dialogOne");
+        dialog.set("title", "Укажите причину " + (totalDuration < 8 ? "недоработок" : "переработок"));
+        dialog.show();
+    } else {
+        submitform('send');
+    }
+}
+
+
+function submitWithOvertimeCauseSet(){
+    dojo.byId("overtimeCauseComment_hidden").value = dojo.byId("overtimeCauseComment").value;
+    dojo.byId("overtimeCause_hidden").value = dojo.byId("overtimeCause").value;
+    dijit.byId('dialogOne').hide();
+    submitform('send');
 }
 
 /*

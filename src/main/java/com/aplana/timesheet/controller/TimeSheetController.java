@@ -4,6 +4,7 @@ import com.aplana.timesheet.dao.entity.*;
 import com.aplana.timesheet.form.TimeSheetForm;
 import com.aplana.timesheet.form.TimeSheetTableRowForm;
 import com.aplana.timesheet.form.validator.TimeSheetFormValidator;
+import com.aplana.timesheet.properties.TSPropertyProvider;
 import com.aplana.timesheet.service.*;
 import com.aplana.timesheet.util.DateTimeUtil;
 import com.aplana.timesheet.util.EmployeeHelper;
@@ -20,7 +21,9 @@ import sun.beans.editors.StringEditor;
 
 import javax.servlet.http.HttpServletRequest;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Controller
 public class TimeSheetController {
@@ -45,17 +48,21 @@ public class TimeSheetController {
     @Autowired
     private AvailableActivityCategoryService availableActivityCategoryService;
     @Autowired
-    TimeSheetFormValidator tsFormValidator;
+    private TimeSheetFormValidator tsFormValidator;
     @Autowired
-    SendMailService sendMailService;
+    private SendMailService sendMailService;
     @Autowired
-    EmployeeLdapService employeeLdapService;
+    private EmployeeLdapService employeeLdapService;
     @Autowired
-    SecurityService securityService;
+    private SecurityService securityService;
     @Autowired
-    EmployeeHelper employeeHelper;
+    private EmployeeHelper employeeHelper;
     @Autowired
-    ViewReportHelper viewReportHelper;
+    private ViewReportHelper viewReportHelper;
+    @Autowired
+    private TSPropertyProvider propertyProvider;
+    @Autowired
+    private OvertimeCauseService overtimeCauseService;
 
     @RequestMapping(value = "/timesheet", method = RequestMethod.GET)
     public ModelAndView showMainForm(@RequestParam(value = "date",required = false) String date,
@@ -138,7 +145,8 @@ public class TimeSheetController {
 
             return mavWithErrors;
         }
-        timeSheetService.storeTimeSheet(tsForm);
+        TimeSheet timeSheet = timeSheetService.storeTimeSheet(tsForm);
+        overtimeCauseService.store(timeSheet, tsForm);
         sendMailService.performMailing(tsForm);
 
         ModelAndView mav = new ModelAndView("selected");
@@ -226,11 +234,12 @@ public class TimeSheetController {
         String typesOfActivityJson = getDictionaryItemsInJson(typesOfActivity);
         result.put("actTypeJson", typesOfActivityJson);
 
-        List<DictionaryItem> workplaces = dictionaryItemService.getWorkplaces();
-        result.put("workplaceList", workplaces);
-
-        String workplacesJson = getDictionaryItemsInJson(workplaces);
+        String workplacesJson = getDictionaryItemsInJson(dictionaryItemService.getWorkplaces());
         result.put("workplaceJson", workplacesJson);
+
+        result.put("overtimeCauseJson", getDictionaryItemsInJson(dictionaryItemService.getOvertimeCauses()) );
+        result.put("unfinishedDayCauseJson", getDictionaryItemsInJson(dictionaryItemService.getUnfinishedDayCauses()) );
+        result.put("overtimeThreshold", propertyProvider.getOvertimeThreshold());
 
         List<Division> divisions = divisionService.getDivisions();
         result.put("divisionList", divisions);

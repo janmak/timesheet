@@ -23,7 +23,7 @@ public class ViewReportHelper {
         for (int i = 0; i < calTSList.size(); i++) {
             DayTimeSheet queryResult = calTSList.get(i);
             sb.append("\"");
-            String day = new SimpleDateFormat("yyyy-MM-dd").format(queryResult.getCalDate());
+            String day = new SimpleDateFormat(DateTimeUtil.DATE_PATTERN).format(queryResult.getCalDate());
             sb.append(day);
             sb.append("\":\"");
             if (queryResult.getId() != null)
