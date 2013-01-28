@@ -28,7 +28,7 @@ public class ExceptionHandler implements HandlerExceptionResolver {
                                          HttpServletResponse response, Object handler, Exception exception)
     {
         // Отправим сообщение админам
-        sendMailService.performExceptionSender(exception.getMessage());
+        sendMailService.performExceptionSender(exception.getMessage() + "\n" + exception.getStackTrace());
         // Выведем в лог
         logger.error("Error message and stack trace:" + exception.getMessage() + "\n" + exception.getStackTrace());
 
