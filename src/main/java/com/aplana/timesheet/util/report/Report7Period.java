@@ -50,7 +50,7 @@ public class Report7Period implements Comparable {
 
     private String generateName() throws Exception {
         if (type == PERIOD_TYPE_MONTH) {
-            SimpleDateFormat sdf = new SimpleDateFormat("MM.YYYY");
+            SimpleDateFormat sdf = new SimpleDateFormat("MM.yyyy");
             return sdf.format(this.start);
         } else if (type == PERIOD_TYPE_KVARTAL) {
             SimpleDateFormat sdf = new SimpleDateFormat("MM");

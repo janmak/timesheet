@@ -854,7 +854,7 @@ public class JasperReportDAO {
 
     private String Report7PeriodName(Integer type, Date d) throws Exception {
         if (type == 1) {
-            SimpleDateFormat sdf = new SimpleDateFormat("MM.YYYY");
+            SimpleDateFormat sdf = new SimpleDateFormat("MM.yyyy");
             return sdf.format(d);
         } else if (type == 3) {
             SimpleDateFormat sdf = new SimpleDateFormat("MM");
