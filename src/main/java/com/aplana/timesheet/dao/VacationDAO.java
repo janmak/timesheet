@@ -43,6 +43,11 @@ public class VacationDAO {
         vacation.setId(mergedVacation.getId());
     }
 
+    @Transactional
+    public void delete(Vacation vacation) {
+        entityManager.remove(vacation);
+    }
+
     public Long getIntersectVacationsCount(Date fromDate, Date toDate) {
         final Query query = entityManager.createQuery(
                 "select count(*) as c " +
@@ -52,5 +57,18 @@ public class VacationDAO {
                 setParameter("status_id", VacationStatus.REJECTED.getId());
 
         return (Long) query.getSingleResult();
+    }
+
+    public Vacation findVacation(Integer vacationId) {
+        final Query query = entityManager.createQuery("from Vacation v where v.id = :id").setParameter("id", vacationId);
+
+        return (Vacation) query.getSingleResult();
+    }
+
+    public List<String> getVacationApprovalEmailList(Integer vacationId) {
+        final Query query = entityManager.createQuery("select va.manager.email from VacationApproval va where va.vacation.id = :vac_id")
+                .setParameter("vac_id", vacationId);
+
+        return query.getResultList();
     }
 }

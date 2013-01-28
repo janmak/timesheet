@@ -2,23 +2,21 @@ package com.aplana.timesheet.controller;
 
 import com.aplana.timesheet.dao.CalendarDAO;
 import com.aplana.timesheet.dao.VacationDAO;
-import com.aplana.timesheet.dao.entity.Employee;
-import com.aplana.timesheet.dao.entity.Holiday;
-import com.aplana.timesheet.dao.entity.Vacation;
+import com.aplana.timesheet.dao.entity.*;
+import com.aplana.timesheet.enums.Permissions;
 import com.aplana.timesheet.enums.VacationStatus;
 import com.aplana.timesheet.form.VacationsForm;
 import com.aplana.timesheet.form.validator.VacationsFormValidator;
+import com.aplana.timesheet.service.SendMailService;
 import com.aplana.timesheet.util.EnumsUtils;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.annotation.Nullable;
@@ -43,6 +41,9 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
 
     @Autowired
     private CalendarDAO calendarDAO;
+
+    @Autowired
+    private SendMailService sendMailService;
 
     @RequestMapping(value = "/vacations", method = RequestMethod.GET)
     public String prepareToShowVacations() {
@@ -173,6 +174,7 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
         modelAndView.addObject("summaryRejected", summaryRejected);
         modelAndView.addObject("summaryCalDays", summaryCalDays);
         modelAndView.addObject("summaryWorkDays", summaryWorkDays);
+        modelAndView.addObject("curEmployee", securityService.getSecurityPrincipal().getEmployee());
 
         return modelAndView;
     }
@@ -193,6 +195,59 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
                 );
             }
         }));
+    }
+
+    @RequestMapping(value = "/deleteVacation/{vac_id}", produces = "text/plain;charset=UTF-8")
+    @ResponseBody
+    public String deleteVacation(
+            @PathVariable("vac_id") Integer vacationId
+    ) {
+        try {
+            final Vacation vacation = vacationDAO.findVacation(vacationId);
+
+            if (vacation == null) { // если вдруг удалил автор, а не сотрудник
+                return "Запись не найдена";
+            }
+
+            final Employee employee =
+                    // TODO костыль из-за lazy inizialization
+                    employeeService.find(securityService.getSecurityPrincipal().getEmployee().getId());
+            final Integer employeeId = employee.getId();
+            final boolean isAdmin = Iterables.any(employee.getPermissions(), new Predicate<Permission>() {
+                @Override
+                public boolean apply(@Nullable Permission permission) {
+                    return (permission.getId().equals(Permissions.ADMIN_PERMISSION.getId()));
+                }
+            });
+
+            final DictionaryItem statusDictionaryItem = vacation.getStatus();
+            final VacationStatus vacationStatus =
+                    EnumsUtils.getEnumById(statusDictionaryItem.getId(), VacationStatus.class);
+
+            if (
+                    employeeId.equals(vacation.getEmployee().getId()) ||
+                    employeeId.equals(vacation.getAuthor().getId()) ||
+                    isAdmin
+            ) { // TODO костыль с id пока что не выпилишь (прежде, чем выпиливать, проверь, работает ли нормально equals)
+                if (!isAdmin && (vacationStatus == VacationStatus.REJECTED || vacationStatus == VacationStatus.APPROVED)) {
+                    return String.format(
+                            "Нельзя удалить заявление на отпуск в статусе \"%s\". Для удаления данного заявления " +
+                                    "необходимо написать на timesheet@aplana.com",
+                            statusDictionaryItem.getValue()
+                    );
+                }
+
+                vacationDAO.delete(vacation);
+
+                sendMailService.performVacationMailing(vacation);
+
+                return StringUtils.EMPTY;
+            }
+        } catch (Exception e) {
+            return e.getLocalizedMessage();
+        }
+
+        return "Ошибка доступа";
     }
 
 }
