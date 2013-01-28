@@ -17,6 +17,7 @@
 
 <script type="text/javascript">
     dojo.ready(function (){
+        dojo.byId("divisionOwner").value = "${employeeDivision}";
         dojo.require("dijit.form.DateTextBox");
         var filter = dojo.byId("filterDivisionOwner1");
         target = "divisionOwner"

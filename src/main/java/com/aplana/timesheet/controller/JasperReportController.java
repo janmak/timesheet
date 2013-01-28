@@ -155,10 +155,7 @@ public class JasperReportController {
                 mav = new ModelAndView("report07");
                 mav.addObject("reportForm", form);
                 divisions = divisionService.getDivisions();
-                Integer defaultDivisionId = securityService.getSecurityPrincipal().getEmployee().getDivision().getId();
-                Division o = divisions.get(0);
-                divisions.set(0, divisions.get(defaultDivisionId));
-                divisions.set(defaultDivisionId, o);
+                mav.addObject("employeeDivision", securityService.getSecurityPrincipal().getEmployee().getDivision().getId());
                 mav.addObject("divisionList", divisions);
 
                 mav.addObject("filterProjects", "checked");
