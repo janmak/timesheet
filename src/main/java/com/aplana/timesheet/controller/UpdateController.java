@@ -1,5 +1,6 @@
 package com.aplana.timesheet.controller;
 
+import com.aplana.timesheet.properties.TSPropertyProvider;
 import com.aplana.timesheet.service.EmployeeLdapService;
 import com.aplana.timesheet.service.EmployeeService;
 import com.aplana.timesheet.service.OQProjectSyncService;
@@ -27,6 +28,7 @@ public class UpdateController {
     public void setEmployeeLdapService(EmployeeLdapService employeeLdapService) {
         this.employeeLdapService = employeeLdapService;
     }
+
     @Autowired
     @Qualifier("reportCheckService")
     private ReportCheckService reportCheckService;
@@ -34,6 +36,7 @@ public class UpdateController {
     public void setReportCheckService(ReportCheckService reportCheckService) {
         this.reportCheckService = reportCheckService;
     }
+
     @Autowired
     OQProjectSyncService oqProjectSyncService;
 
@@ -76,6 +79,13 @@ public class UpdateController {
             cookie.setMaxAge(0);
             response.addCookie(cookie);
         }
+        return "redirect:/admin";
+    }
+
+    @RequestMapping(value = "/update/properties")
+    public String updateProperties(HttpServletRequest request, HttpServletResponse response) {
+        TSPropertyProvider.updateProperties();
+
         return "redirect:/admin";
     }
 }

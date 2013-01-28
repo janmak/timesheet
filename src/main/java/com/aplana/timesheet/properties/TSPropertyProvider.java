@@ -18,6 +18,15 @@ import java.util.Properties;
 public class TSPropertyProvider {
 
     private static final Logger logger = LoggerFactory.getLogger(TSPropertyProvider.class);
+    /**
+     * путь к property файлу
+     */
+    private final static String PROPERTY_PATH = "./webapps/timesheet.properties";
+
+
+
+    private static boolean needUpdate = true;
+    private static Properties properties;
 
     public String getJiraIssueCreateUrl() {
         return getProperties().getProperty("jira.issue.create.url");
@@ -114,22 +123,28 @@ public class TSPropertyProvider {
      * @param mailConfig
      */
     public static Properties getProperties() {
-        /**
-         * путь к property файлу
-         */
-        String PROPERTY_PATH = "./webapps/timesheet.properties";
+        if (needUpdate || properties == null) {
+            try {
+                properties = new Properties();
+                properties.load(new FileInputStream( PROPERTY_PATH ));
 
-        try {
-            Properties properties = new Properties();
-            properties.load(new FileInputStream( PROPERTY_PATH ));
+                needUpdate = false;
+
+                return properties;
+            } catch (FileNotFoundException e1) {
+                logger.error("File timesheet.properties not found.");
+            } catch (InvalidPropertiesFormatException e) {
+                logger.error("Invalid timesheet.properties file format.");
+            } catch (IOException e) {
+                logger.error("Input-output error.");
+            }
+            throw new IllegalStateException("File with system properties not founded!");
+        } else {
             return properties;
-        } catch (FileNotFoundException e1) {
-            logger.error("File timesheet.properties not found.");
-        } catch (InvalidPropertiesFormatException e) {
-            logger.error("Invalid timesheet.properties file format.");
-        } catch (IOException e) {
-            logger.error("Input-output error.");
         }
-        throw new IllegalStateException("File with system properties not founded!");
+    }
+
+    public static void updateProperties() {
+        needUpdate = true;
     }
 }
