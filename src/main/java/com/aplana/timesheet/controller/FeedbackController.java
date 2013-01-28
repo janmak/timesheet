@@ -85,12 +85,18 @@ public class FeedbackController {
 			mavWithErrors.addObject("divId", fbForm.getDivisionId());
 			mavWithErrors.addObject("empId", fbForm.getEmployeeId());
 			mavWithErrors.addObject("errors", result.getAllErrors());
-			mavWithErrors.addAllObjects(getListsToMAV());
 
 			return mavWithErrors;
 		}
 		//Если ошибок нет
 		fbForm.setFeedbackTypeName(messageSource.getMessage(FEEDBACK_TYPE_NAME_KEYS[ fbForm.getFeedbackType() ], null, locale));
+        TimeSheetUser securityUser = securityService.getSecurityPrincipal();
+        if (securityUser != null) {
+            divisionId = securityUser.getEmployee().getDivision().getId();
+            employeeId = securityUser.getEmployee().getId();
+        }
+        fbForm.setDivisionId(divisionId);
+        fbForm.setEmployeeId(employeeId);
 		sendMailService.performFeedbackMailing(fbForm);
 		ModelAndView mav = new ModelAndView("feedbackSent");
 		//сохраняем ID подразделения и сотрудника для будущей формы
@@ -128,62 +134,8 @@ public class FeedbackController {
 		mav.addObject("feedbackForm", fbForm);
 		mav.addObject("jiraIssueCreateUrl", jiraIssueCreateUrl);
 
-		TimeSheetUser securityUser = securityService.getSecurityPrincipal();
-		if (securityUser != null) {
-			divisionId = securityUser.getEmployee().getDivision().getId();
-			employeeId = securityUser.getEmployee().getId();
-		}
-
-		mav.addObject("divId", divisionId);
-		mav.addObject("empId", employeeId);
-		mav.addAllObjects(getListsToMAV());
 		logger.info("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
 		return mav;
 	 }
 
-	/*
-	 * Возвращает HashMap со значениями для заполнения списков сотрудников,
-	 * проектов, пресейлов, проектных задач, типов и категорий активности на
-	 * форме приложения.
-	 */
-	private Map<String, Object> getListsToMAV() {
-        List<Division> divisions = divisionService.getDivisions();
-
-        Map<String, Object> result = new HashMap<String, Object>();
-
-		result.put("divisionList", divisions);
-		result.put("employeeListJson", getEmployeeListJson(divisions));
-
-		return result;
-	}
-
-	private String getEmployeeListJson(List<Division> divisions) {
-		StringBuilder sb = new StringBuilder();
-		sb.append("[");
-		for (int i = 0; i < divisions.size(); i++) {
-			List<Employee> employees = employeeService.getEmployees(divisions.get(i));
-			sb.append("{divId:'");
-			sb.append(divisions.get(i).getId());
-			sb.append("', divEmps:[");
-			if (employees.size() > 0) {
-				for (int j = 0; j < employees.size(); j++) {
-					sb.append("{id:'");
-					sb.append(employees.get(j).getId());
-					sb.append("', value:'");
-					sb.append(employees.get(j).getName());
-					sb.append("', jobId:'");
-					sb.append(employees.get(j).getJob().getId());
-					sb.append("'}");
-					if (j < (employees.size() - 1)) {
-						sb.append(", ");
-					}
-				}
-				sb.append("]}");
-			} else { sb.append("{id:'0', value:''}]}"); }
-			
-			if (i < (divisions.size() - 1)) { sb.append(", "); }
-		}
-		sb.append("]");
-		return sb.toString();
-	}
 }

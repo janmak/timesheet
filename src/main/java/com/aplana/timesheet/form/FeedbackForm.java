@@ -9,8 +9,6 @@ public class FeedbackForm
 	private Integer feedbackType;
 	private String feedbackTypeName;
 	private String feedbackDescription;
-	private String name;
-	private String email;
 	private MultipartFile file1Path;
 	private MultipartFile file2Path;
 	
@@ -69,20 +67,4 @@ public class FeedbackForm
 	public MultipartFile getFile2Path() {
 		return file2Path;
 	}
-
-	public void setEmail(String email) {
-		this.email = email;
-	}
-
-	public String getEmail() {
-		return email;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public String getName() {
-		return name;
-	}	
 }

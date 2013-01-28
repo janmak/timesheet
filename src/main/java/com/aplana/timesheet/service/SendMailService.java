@@ -125,6 +125,16 @@ public class SendMailService{
     public String getEmployeeEmail(Integer empId) {
         return empId == null ? null : employeeService.find(empId).getEmail();
     }
+
+    /**
+     * Возвращает ФИО сотрудника
+     * @param Id сотрудника
+     * @return ФИО сотрудника
+     */
+    public String getEmployeeFIO(Integer empId){
+        return empId == null ? null : employeeService.find(empId).getName();
+    }
+
     /**
      * Возвращает строку с адресами менеджеров проектов/пресейлов
      * @param tsForm
