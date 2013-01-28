@@ -17,7 +17,12 @@
 
 <script type="text/javascript">
     dojo.ready(function (){
-        dojo.byId("divisionOwner").value = "${employeeDivision}";
+        var defaultDivision = "${employeeDivision}";
+        var lastDivision = "${reportForm.divisionOwner}";
+        if (lastDivision != "") {
+            defaultDivision = lastDivision;
+        }
+        dojo.byId("divisionOwner").value = defaultDivision;
         dojo.require("dijit.form.DateTextBox");
         var filter = dojo.byId("filterDivisionOwner1");
         target = "divisionOwner"
