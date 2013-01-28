@@ -368,15 +368,10 @@ function showOrHideDatePickers() {
     }
 }
 
-/* Устанавливает компоненту calDate текущую дату в качестве значения по умолчанию. */
+/* Устанавливает компоненту calDate дату по умолчанию. */
 function setDuringDate() {
-    var d = new Date();
-    /*var day = d.getDate();
-    var month = d.getMonth(); // 0-11
-    var year = d.getFullYear();*/
-    var during_date = d.format("dd.mm.yyyy");
     var date_picker = dijit.byId("calDate");
-    date_picker.set("displayedValue", during_date);
+    date_picker.set("displayedValue", dateByDefault);
 }
 
 /* Создает cookie с указанными параметрами */

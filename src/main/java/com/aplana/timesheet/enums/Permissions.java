@@ -8,7 +8,9 @@ public enum Permissions {
 
     PLAIN_PERMISSION(1, "Обычные права сотрудника"),
     RERPORTS_PERMISSION(2, "Формирование отчетов"),
-    ADMIN_PERMISSION(3, "Администрирование системы");
+    ADMIN_PERMISSION(3, "Администрирование системы"),
+    VIEW_ILLNESS_BUSINESS_TRIP(4, "Просмотр болезней и командировок всех сотрудников"),
+    CHANGE_ILLNESS_BUSINESS_TRIP(5, "Изменение болезней и командировок всех сотрудников");
 
     private int id;
     private String name;
