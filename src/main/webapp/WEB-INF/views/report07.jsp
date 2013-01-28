@@ -77,11 +77,11 @@
         <tr>
             <td colspan="2">Начало периода <span style="color:red">*</span> <form:input path="beginDate" id="beginDate" name="beginDate" class="date_picker"
                             data-dojo-id="fromDate"
-                            dojoType="dijit.form.DateTextBox"
+                            data-dojo-type='dijit/form/DateTextBox'
                             required="false"/></td>
             <td>Окончание периода <span style="color:red">*</span> <form:input path="endDate" id="endDate" name="endDate" class="date_picker"
                             data-dojo-id="toDate"
-                            dojoType="dijit.form.DateTextBox"
+                            data-dojo-type='dijit/form/DateTextBox'
                             required="false"/></td>
         </tr>
     </table>
