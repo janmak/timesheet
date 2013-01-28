@@ -2,8 +2,10 @@ package com.aplana.timesheet.controller;
 
 import com.aplana.timesheet.dao.CalendarDAO;
 import com.aplana.timesheet.dao.VacationDAO;
-import com.aplana.timesheet.dao.entity.*;
-import com.aplana.timesheet.enums.Permissions;
+import com.aplana.timesheet.dao.entity.DictionaryItem;
+import com.aplana.timesheet.dao.entity.Employee;
+import com.aplana.timesheet.dao.entity.Holiday;
+import com.aplana.timesheet.dao.entity.Vacation;
 import com.aplana.timesheet.enums.VacationStatus;
 import com.aplana.timesheet.form.VacationsForm;
 import com.aplana.timesheet.form.validator.VacationsFormValidator;
@@ -209,16 +211,8 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
                 return "Запись не найдена";
             }
 
-            final Employee employee =
-                    // TODO костыль из-за lazy inizialization
-                    employeeService.find(securityService.getSecurityPrincipal().getEmployee().getId());
-            final Integer employeeId = employee.getId();
-            final boolean isAdmin = Iterables.any(employee.getPermissions(), new Predicate<Permission>() {
-                @Override
-                public boolean apply(@Nullable Permission permission) {
-                    return (permission.getId().equals(Permissions.ADMIN_PERMISSION.getId()));
-                }
-            });
+            final Integer employeeId = securityService.getSecurityPrincipal().getEmployee().getId();
+            final boolean isAdmin = employeeService.isEmployeeAdmin(employeeId);
 
             final DictionaryItem statusDictionaryItem = vacation.getStatus();
             final VacationStatus vacationStatus =
