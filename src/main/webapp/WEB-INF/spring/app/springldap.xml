@@ -5,7 +5,7 @@
 
     <bean id="placeholderConfig"
           class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-        <property name="location" value="file:webapps\timesheet.properties" />
+        <property name="location" value="file:${pathToTsProperties}" />
     </bean>
 
 	<bean id="contextSource"
