@@ -1,6 +1,5 @@
 package com.aplana.timesheet.service;
 
-import com.aplana.timesheet.dao.DictionaryItemDAO;
 import com.aplana.timesheet.dao.VacationDAO;
 import com.aplana.timesheet.dao.entity.*;
 import com.aplana.timesheet.enums.ProjectRole;
@@ -174,9 +173,9 @@ public class SendMailService{
 
     private String getProjectParticipantsEmails(Iterable<RenameMe> details) {
         return Joiner.on(",").join(
-            Iterables.transform(
-                    Iterables.filter(details, LEAVE_PRESALE_AND_PROJECTS_ONLY),
-                    GET_EMAILS_OF_INTERESTED_PARTICIPANTS_FROM_PROJECT_FOR_CURRENT_ROLE)
+                Iterables.transform(
+                        Iterables.filter(details, LEAVE_PRESALE_AND_PROJECTS_ONLY),
+                        GET_EMAILS_OF_INTERESTED_PARTICIPANTS_FROM_PROJECT_FOR_CURRENT_ROLE)
         );
     }
 

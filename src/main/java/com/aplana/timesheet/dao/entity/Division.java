@@ -123,12 +123,30 @@ public class Division {
 	public boolean equals(Object obj) {
 		if (this == obj) { return true; }
 		if (obj == null) { return false; }
-		if (getClass() != obj.getClass()) { return false; }
-		Division other = (Division) obj;
-		if (ldapName == null) {
-			if (other.ldapName != null) { return false; }
-		} else if (!ldapName.equals(other.ldapName)) { return false; }
-		return true;
+
+        Division other = (Division) obj;
+
+        final Integer thisId = getId();
+
+        if (thisId == null) {
+            if (other.getId() != null) {
+                return false;
+            }
+        } else if (!thisId.equals(other.getId())) {
+            return false;
+        }
+
+        final String thisLdapName = getLdapName();
+
+        if (thisLdapName == null) {
+			if (other.getLdapName() != null) {
+                return false;
+            }
+		} else if (!thisLdapName.equals(other.getLdapName())) {
+            return false;
+        }
+
+        return true;
 	}
 
 }
