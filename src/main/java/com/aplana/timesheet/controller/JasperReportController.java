@@ -8,7 +8,7 @@ import com.aplana.timesheet.reports.*;
 import com.aplana.timesheet.service.JasperReportService;
 import com.aplana.timesheet.service.RegionService;
 import com.aplana.timesheet.service.SecurityService;
-import com.aplana.timesheet.util.JReportBuildError;
+import com.aplana.timesheet.exception.JReportBuildError;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,7 +1,7 @@
 package com.aplana.timesheet.service;
 
 import com.aplana.timesheet.reports.TSJasperReport;
-import com.aplana.timesheet.util.JReportBuildError;
+import com.aplana.timesheet.exception.JReportBuildError;
 import net.sf.jasperreports.engine.*;
 import net.sf.jasperreports.engine.export.*;
 import org.slf4j.Logger;

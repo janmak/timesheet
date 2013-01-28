@@ -83,6 +83,31 @@ public class TSPropertyProvider {
         return Integer.parseInt(getProperties().getProperty("quickreport.regions.beginmounth"));
     }
 
+    public String getProjectRoleDeveloper() {
+        return getProperties().getProperty("project.role.developer");
+    }
+
+    public String getProjectRoleRp() {
+        return getProperties().getProperty("project.role.rp");
+    }
+
+    public String getProjectRoleTest() {
+        return getProperties().getProperty("project.role.test");
+    }
+
+    public String getProjectRoleAnalyst() {
+        return getProperties().getProperty("project.role.analyst");
+    }
+
+    public String getProjectRoleSystem() {
+        return getProperties().getProperty("project.role.system");
+    }
+
+    public Double getOvertimeThreshold() {
+        return new Double(getProperties().getProperty("overtime.threshold"));
+    }
+
+
     /**
      * Единый метод для загрузки почтовых настроек
      *
@@ -106,25 +131,5 @@ public class TSPropertyProvider {
             logger.error("Input-output error.");
         }
         throw new IllegalStateException("File with system properties not founded!");
-    }
-
-    public String getProjectRoleDeveloper() {
-        return getProperties().getProperty("project.role.developer");
-    }
-
-    public String getProjectRoleRp() {
-        return getProperties().getProperty("project.role.rp");
-    }
-
-    public String getProjectRoleTest() {
-        return getProperties().getProperty("project.role.test");
-    }
-
-    public String getProjectRoleAnalyst() {
-        return getProperties().getProperty("project.role.analyst");
-    }
-
-    public String getProjectRoleSystem() {
-        return getProperties().getProperty("project.role.system");
     }
 }

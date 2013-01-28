@@ -3,6 +3,7 @@ package com.aplana.timesheet.controller.quickreport.generators;
 import com.aplana.timesheet.controller.quickreport.IllnessesQuickReport;
 import com.aplana.timesheet.dao.entity.Employee;
 import com.aplana.timesheet.dao.entity.Illness;
+import com.aplana.timesheet.util.TimeSheetConstans;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
@@ -33,7 +34,10 @@ public class IllnessesQuickReportGenerator extends AbstractQuickReportGenerator<
     }
 
     private IllnessesQuickReport addWorkDaysOnIllnessesWorkedToMounthStatistics(IllnessesQuickReport illnessesQuickReport, Illness illness) {
-        double workDaysOnIllnessWorked = employeeService.getWorkDaysOnIllnessWorked(illness.getEmployee(), illness.getBeginDate(), illness.getEndDate()) / 8;
+        double workDaysOnIllnessWorked =
+                employeeService.getWorkDaysOnIllnessWorked(
+                        illness.getEmployee(), illness.getBeginDate(), illness.getEndDate()
+                ) / TimeSheetConstans.WORK_DAY_DURATION;
         illness.setWorkDaysOnIllnessWorked(workDaysOnIllnessWorked);
         illnessesQuickReport.setMounthWorkDaysOnIllnessWorked(illnessesQuickReport.getMounthWorkDaysOnIllnessWorked() + workDaysOnIllnessWorked);
 
@@ -53,7 +57,10 @@ public class IllnessesQuickReportGenerator extends AbstractQuickReportGenerator<
         Long calendarDaysCount = calendarService.getAllDaysCount(illness.getBeginDate(), illness.getEndDate());
         Integer holidaysCount = calendarService.getHolidaysCounForRegion(illness.getBeginDate(), illness.getEndDate(), illness.getEmployee().getRegion());
         Long workingDays = calendarDaysCount - holidaysCount;
-        double workDaysOnIllnessWorked = employeeService.getWorkDaysOnIllnessWorked(illness.getEmployee(), illness.getBeginDate(), illness.getEndDate()) / 8;
+        double workDaysOnIllnessWorked =
+                employeeService.getWorkDaysOnIllnessWorked(
+                        illness.getEmployee(), illness.getBeginDate(), illness.getEndDate()
+                ) / TimeSheetConstans.WORK_DAY_DURATION;
         report.setYearWorkDaysOnIllness(report.getYearWorkDaysOnIllness() + workingDays);
         report.setYearWorkDaysOnIllnessWorked(report.getYearWorkDaysOnIllnessWorked() + workDaysOnIllnessWorked);
 

@@ -1,7 +1,7 @@
 package com.aplana.timesheet.controller;
 
 import com.aplana.timesheet.reports.TSJasperReport;
-import com.aplana.timesheet.util.JReportBuildError;
+import com.aplana.timesheet.exception.JReportBuildError;
 import org.springframework.web.servlet.ModelAndView;
 
 /**

@@ -60,6 +60,7 @@ public class TimeSheetSenderTest {
             }
         }
 
+        result.put(0, TimeSheetSender.OVERTIME_CAUSE, "Много чего повлияло на этот бесславный результат\n А так конечно, ничего, захотелось.");
         result.put(0, TimeSheetSender.REASON, reason);
         result.put(0, TimeSheetSender.BEGIN_LONG_DATE, "01.01.1900");
         result.put(0, TimeSheetSender.END_LONG_DATE, "31.12.2020");

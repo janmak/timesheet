@@ -9,19 +9,7 @@ import java.util.List;
 
 @Service
 public class ProjectRoleService {	
-	public static final Integer PROJECT_MANAGER = 1;
-	public static final Integer PROJECT_ANALYST = 2;
-	public static final Integer PROJECT_LEADER = 3;
-	public static final Integer PROJECT_DESIGNER = 4;
-	public static final Integer PROJECT_DEVELOPER = 5;
-	public static final Integer PROJECT_SYSENGINEER = 6;
-	public static final Integer PROJECT_TESTER = 7;
-	public static final Integer PROJECT_TECH_WRITER = 8;
-	public static final Integer CENTER_MANAGER = 9;
-	public static final Integer NOT_DEFINED_JOB = 10;
-	public static final Integer QUALITY_MANAGER = 11;
-	public static final Integer GENERAL_MANAGER = 12;
-	
+
 	@Autowired
 	private ProjectRoleDAO projectRoleDAO;
 	

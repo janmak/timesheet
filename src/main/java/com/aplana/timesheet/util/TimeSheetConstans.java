@@ -16,4 +16,5 @@ public class TimeSheetConstans {
      */
     public static String COOKIE_REMEMBER = "REMEMBER";
     public static String POST_REMEMBER = "remember";
+    public static double WORK_DAY_DURATION = 8.0;
 }
