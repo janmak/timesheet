@@ -5,9 +5,10 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <html>
 <head>
-    <title>Произошло внештатная ситуация</title>
+    <title>Произошла внештатная ситуация</title>
 </head>
 <body>
-<div class="errors_box">Произошло внештатная ситуация, оповещены все кто нужно.</div>
+<div class="errors_box">При обработке данной операции возникла ошибка. Письмо с описанием проблемы было
+    отправлено администраторам.</div>
 </body>
 </html>
