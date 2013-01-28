@@ -55,8 +55,7 @@ public class VacationSender extends MailSender<Vacation> {
 
         final Employee employee = params.getEmployee();
 
-        // TODO костыль с id пока что не выпилишь (прежде, чем выпиливать, проверь, работает ли нормально equals)
-        if (params.getAuthor().getId().equals(employee.getId())) {
+        if (params.getAuthor().equals(employee)) {
             stringBuilder.append("своё заявление");
         } else {
             stringBuilder.append(

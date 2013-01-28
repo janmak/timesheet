@@ -178,26 +178,39 @@ public class Employee {
         if (this == obj) {
             return true;
         }
+
         if (obj == null) {
             return false;
         }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
+
         Employee other = (Employee) obj;
-        if (email == null) {
-            if (other.email != null) {
+
+        final Integer thisId = getId();
+
+        if (thisId == null) {
+            if (other.getId() != null) {
                 return false;
             }
-        } else if (!email.equals(other.email)) {
+        } else if (!thisId.equals(other.getId())) {
             return false;
         }
+
+        final String thisEmail = getEmail();
+
+        if (thisEmail == null) {
+            if (other.getEmail() != null) {
+                return false;
+            }
+        } else if (!thisEmail.equals(other.getEmail())) {
+            return false;
+        }
+
         return true;
     }
 
     @Override
     public int hashCode() {
-        return email.hashCode();
+        return getEmail().hashCode();
     }
 
     @Override

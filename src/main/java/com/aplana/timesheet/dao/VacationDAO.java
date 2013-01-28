@@ -2,6 +2,7 @@ package com.aplana.timesheet.dao;
 
 import com.aplana.timesheet.dao.entity.Vacation;
 import com.aplana.timesheet.enums.VacationStatus;
+import org.hibernate.Hibernate;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -45,6 +46,8 @@ public class VacationDAO {
 
     @Transactional
     public void delete(Vacation vacation) {
+        Hibernate.initialize(vacation);
+
         entityManager.remove(vacation);
     }
 

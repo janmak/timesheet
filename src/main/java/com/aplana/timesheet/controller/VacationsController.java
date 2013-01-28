@@ -211,18 +211,18 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
                 return "Запись не найдена";
             }
 
-            final Integer employeeId = securityService.getSecurityPrincipal().getEmployee().getId();
-            final boolean isAdmin = employeeService.isEmployeeAdmin(employeeId);
+            final Employee employee = securityService.getSecurityPrincipal().getEmployee();
+            final boolean isAdmin = employeeService.isEmployeeAdmin(employee.getId());
 
             final DictionaryItem statusDictionaryItem = vacation.getStatus();
             final VacationStatus vacationStatus =
                     EnumsUtils.getEnumById(statusDictionaryItem.getId(), VacationStatus.class);
 
             if (
-                    employeeId.equals(vacation.getEmployee().getId()) ||
-                    employeeId.equals(vacation.getAuthor().getId()) ||
+                    employee.equals(vacation.getEmployee()) ||
+                    employee.equals(vacation.getAuthor()) ||
                     isAdmin
-            ) { // TODO костыль с id пока что не выпилишь (прежде, чем выпиливать, проверь, работает ли нормально equals)
+            ) {
                 if (!isAdmin && (vacationStatus == VacationStatus.REJECTED || vacationStatus == VacationStatus.APPROVED)) {
                     return String.format(
                             "Нельзя удалить заявление на отпуск в статусе \"%s\". Для удаления данного заявления " +
