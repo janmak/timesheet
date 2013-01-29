@@ -134,7 +134,7 @@ public class JasperReportDAO {
 
         if (withRegionClause)
             projQuery.setParameter("regionIds", report.getRegionIds());
-        projQuery.setParameter("divisionId", report.getDivisionId());
+        projQuery.setParameter("divisionId", report.getDivisionOwnerId());
         projQuery.setParameter("beginDate", DateTimeUtil.stringToTimestamp( report.getBeginDate() ));
         projQuery.setParameter("endDate", DateTimeUtil.stringToTimestamp(report.getEndDate()));
 
@@ -192,7 +192,7 @@ public class JasperReportDAO {
             query.setParameter("regionIds", report.getRegionIds());
 		}
 
-        query.setParameter("divisionId", report.getDivisionId())
+        query.setParameter("divisionId", report.getDivisionOwnerId())
                 .setParameter("beginDate", DateTimeUtil.stringToTimestamp( report.getBeginDate() ))
                 .setParameter("endDate", DateTimeUtil.stringToTimestamp(report.getEndDate()));
 
@@ -266,7 +266,7 @@ public class JasperReportDAO {
                     withEmployeeClasue ? EMPLOYEE_CLAUSE : WITHOUT_CLAUSE,
                     withDivisionClause ? DIVISION_CLAUSE : WITHOUT_CLAUSE,
                     withRegionClause   ? REGION_CLAUSE   : WITHOUT_CLAUSE
-            ) ).setParameter( "divisionId", report.getDivisionId() );
+            ) ).setParameter( "divisionId", report.getDivisionOwnerId() );
         } else {
             // Выборка по всем проектам всех центров
             query = entityManager.createQuery( String.format( report02QueryString,
@@ -349,7 +349,7 @@ public class JasperReportDAO {
                             withDivisionClause ? DIVISION_CLAUSE : WITHOUT_CLAUSE,
                             withRegionClause   ? REGION_CLAUSE   : WITHOUT_CLAUSE
             ) );
-            query.setParameter( "divisionId", report.getDivisionId() );
+            query.setParameter( "divisionId", report.getDivisionOwnerId() );
         } else {
             // Выборка по всем проектам всех центров
             query = entityManager.createQuery(
@@ -377,7 +377,7 @@ public class JasperReportDAO {
 
     private List getResultList( Report04 report ) {
         boolean withRegionClause   = report.hasRegions()                && !report.isAllRegions();
-        boolean withDivisionClause = report.getDivisionId() != null && report.getDivisionId() != 0;
+        boolean withDivisionClause = report.getDivisionOwnerId() != null && report.getDivisionOwnerId() != 0;
 
         Query query = entityManager.createQuery(
                 "select " +
@@ -415,7 +415,7 @@ public class JasperReportDAO {
             query.setParameter("regionIds", report.getRegionIds());
 		}
         if (withDivisionClause) {
-            query.setParameter("emplDivisionId", report.getDivisionId());
+            query.setParameter("emplDivisionId", report.getDivisionOwnerId());
         }
         query.setParameter("beginDate", DateTimeUtil.stringToTimestamp( report.getBeginDate() ));
         query.setParameter("endDate", DateTimeUtil.stringToTimestamp(report.getEndDate()));
@@ -425,7 +425,7 @@ public class JasperReportDAO {
 
     private List getResultList( Report05 report ) {
         boolean withRegionClause   = report.hasRegions()                && !report.isAllRegions();
-        boolean withDivisionClause = report.getDivisionId() != null && report.getDivisionId() != 0;
+        boolean withDivisionClause = report.getDivisionOwnerId() != null && report.getDivisionOwnerId() != 0;
         boolean withEmployeeClasue = report.getEmployeeId() != null && report.getEmployeeId    () != 0;
 
         Query query = entityManager.createQuery(
@@ -459,7 +459,7 @@ public class JasperReportDAO {
             query.setParameter("emplId", report.getEmployeeId());
         }
         if (withDivisionClause) {
-            query.setParameter("emplDivisionId", report.getDivisionId());
+            query.setParameter("emplDivisionId", report.getDivisionOwnerId());
         }
         query.setParameter("beginDate", DateTimeUtil.stringToTimestamp( report.getBeginDate() ));
         query.setParameter("endDate", DateTimeUtil.stringToTimestamp(report.getEndDate()));

@@ -16,8 +16,6 @@
     dojo.ready(function () {
         dojo.require("dijit.form.DateTextBox");
 
-        reportForm.divisionId.value = <sec:authentication property="principal.employee.division.id"/>;
-
         divisionChange(reportForm.divisionId);
 
         var filter = dojo.byId("allRegions");
@@ -54,9 +52,9 @@
         <table class="report_params" cellspacing="3">
             <tr>
                 <td><span class="label">Центр</span></td>
-                <td><form:select id="divisionId" name="divisionId" cssClass="without_dojo"
+                <td><form:select id="divisionId" name="divisionOwnerId" cssClass="without_dojo"
                                  onmouseover="tooltip.show(getTitle(this));" onchange="divisionChange(this)"
-                                 onmouseout="tooltip.hide();" path="divisionId">
+                                 onmouseout="tooltip.hide();" path="divisionOwnerId">
                     <form:option label="Все центры" value="0"/>
                     <form:options items="${divisionList}" itemLabel="name" itemValue="id"/>
                 </form:select></td>
