@@ -225,6 +225,10 @@ public class SendMailService{
         new VacationSender(this, propertyProvider).sendMessage(vacation);
     }
 
+    public void performExceptionSender(String problem){
+        new ExceptionSender(this, propertyProvider).sendMessage(problem);
+    }
+
     public String initMessageBodyForReport(TimeSheet timeSheet) {
         Map<String, Object> model1 = new HashMap<String, Object>();
 
