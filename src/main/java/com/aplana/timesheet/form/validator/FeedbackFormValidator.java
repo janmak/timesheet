@@ -7,7 +7,6 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
-import org.springframework.validation.Validator;
 import org.springframework.web.multipart.MultipartFile;
 
 @Service
@@ -26,38 +25,17 @@ public class FeedbackFormValidator extends AbstractValidator {
 	
 	public void validate(Object target, Errors errors){
 		FeedbackForm fbForm = (FeedbackForm) target;
-		
-		Integer divisionId = fbForm.getDivisionId();
-		Integer employeeId = fbForm.getEmployeeId();
 
 		String feedbackDescription = fbForm.getFeedbackDescription();
-		String name = fbForm.getName();
-		String email = fbForm.getEmail();
 		MultipartFile[] files = new MultipartFile[]{fbForm.getFile1Path(), fbForm.getFile2Path()};
 
         Integer feedbackType = fbForm.getFeedbackType();
 		// Тип проблемы не выбран.
 		if (feedbackType == null) {
 			errors.rejectValue("feedbackType", "error.fbform.feedbackType.required", 	"Тип сообщения не выбран.");
-            // Неверный тип проблемы
+        // Неверный тип проблемы
         } else if ( ! isFeedbackTypeValid( feedbackType ) ) {
             errors.rejectValue( "feedbackType", "error.fbform.feedbackType.invalid", "Неверный тип сообщения." );
-        } else {
-            // Подразделение не выбрано.
-            if ( isNotChoosed( divisionId ) ) {
-                errors.rejectValue( "divisionId", "error.fbform.divisionId.required", "Подразделение не выбрано." );
-            // Неверное подразделение.
-            } else if ( ! isDivisionValid( divisionId ) ) {
-                errors.rejectValue( "divisionId", "error.fbform.divisionId.invalid", "Выбрано неверное подразделение." );
-            }
-
-            // Сотрудник не выбран.
-            if ( isNotChoosed( employeeId ) ) {
-                errors.rejectValue( "employeeId", "error.fbform.employeeId.required", "Сотрудник не выбран." );
-            // Неверный сотрудник
-            } else if ( ! isEmployeeValid( employeeId ) ) {
-                errors.rejectValue( "employeeId", "error.fbform.employeeId.invalid", "Неверные данные сотрудника." );
-            }
         }
 
 		// Суть проблемы не описана
@@ -70,14 +48,6 @@ public class FeedbackFormValidator extends AbstractValidator {
 		}
 	}
 
-
-
-    private boolean isDivisionValid(Integer division) {
-        return divisionService.find( division ) != null;
-    }
-	private boolean isEmployeeValid(Integer employee) {
-        return employeeService.find( employee ) != null;
-    }
 	private boolean isFeedbackTypeValid(int feedbackType) {
 		return feedbackType > -1 && feedbackType < 6;
 	}

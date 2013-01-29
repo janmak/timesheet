@@ -1,5 +1,6 @@
 package com.aplana.timesheet.service;
 
+import com.aplana.timesheet.dao.EmployeeDAO;
 import com.aplana.timesheet.dao.HolidayDAO;
 import com.aplana.timesheet.dao.TimeSheetDAO;
 import com.aplana.timesheet.dao.entity.*;
@@ -28,6 +29,9 @@ public class TimeSheetService {
 
     @Autowired
     private HolidayDAO holidayDAO;
+
+    @Autowired
+    private EmployeeDAO employeeDAO;
 
     @Autowired
     private CalendarService calendarService;
@@ -261,5 +265,9 @@ public class TimeSheetService {
             result = DateUtils.addDays(result, 1);
         } while (!holidayDAO.isWorkDay(DateTimeUtil.dateToString(result)));
         return result;
+    }
+
+    public Date getEmployeeFirstWorkDay(Integer employeeId){
+         return employeeDAO.getEmployeeFirstWorkDay(employeeId);
     }
 }

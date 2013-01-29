@@ -15,6 +15,7 @@
 <h2><fmt:message key="title.report07"/></h2>
 <br/>
 
+<script type="text/javascript" src="<%= request.getContextPath()%>/resources/js/report.js"></script>
 <script type="text/javascript">
     dojo.ready(function (){
         dojo.require("dijit.form.DateTextBox");
@@ -77,11 +78,11 @@
         <tr>
             <td colspan="2">Начало периода <span style="color:red">*</span> <form:input path="beginDate" id="beginDate" name="beginDate" class="date_picker"
                             data-dojo-id="fromDate"
-                            dojoType="dijit.form.DateTextBox"
+                            data-dojo-type='dijit/form/DateTextBox'
                             required="false"/></td>
             <td>Окончание периода <span style="color:red">*</span> <form:input path="endDate" id="endDate" name="endDate" class="date_picker"
                             data-dojo-id="toDate"
-                            dojoType="dijit.form.DateTextBox"
+                            data-dojo-type='dijit/form/DateTextBox'
                             required="false"/></td>
         </tr>
     </table>

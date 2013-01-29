@@ -11,7 +11,7 @@
 	</head>
 
 	<body>
-
+        <script type="text/javascript" src="<%= request.getContextPath()%>/resources/js/report.js"></script>
 		<script type="text/javascript">		
 			this.dojo.ready(function () {
 				dojo.require("dijit.form.DateTextBox");
@@ -107,14 +107,14 @@
 						<td><span class="label">Начало периода</span><span style="color:red">*</span></td>
 						<td><form:input path="beginDate" id="beginDate" name="beginDate" class="date_picker"
 									data-dojo-id="fromDate"
-									dojoType="dijit.form.DateTextBox"
+									data-dojo-type='dijit/form/DateTextBox'
 									required="false"
 									onmouseover="tooltip.show(getTitle(this));"
 									onmouseout="tooltip.hide();"/></td> <%--onChange="toDate.constraints.min = arguments[0];"--%>
 						<td><span class="label">Окончание периода</span><span style="color:red">*</span></td>
 						<td><form:input path="endDate" id="endDate" name="endDate" class="date_picker"
 									data-dojo-id="toDate"
-									dojoType="dijit.form.DateTextBox"
+									data-dojo-type='dijit/form/DateTextBox'
 									required="false"
 									onmouseover="tooltip.show(getTitle(this));"
 									onmouseout="tooltip.hide();"/></td>  <%--onChange="fromDate.constraints.max = arguments[0];"--%>
