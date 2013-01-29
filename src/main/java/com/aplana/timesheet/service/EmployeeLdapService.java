@@ -1,6 +1,6 @@
 package com.aplana.timesheet.service;
 
-import com.aplana.timesheet.dao.EmployeeLdapDAO;
+import com.aplana.timesheet.dao.LdapDAO;
 import com.aplana.timesheet.dao.EmployeePermissionsDAO;
 import com.aplana.timesheet.dao.ProjectRolePermissionsDAO;
 import com.aplana.timesheet.dao.entity.*;
@@ -31,7 +31,7 @@ public class EmployeeLdapService {
 	private RegionService regionService;
 
 	@Autowired
-	private EmployeeLdapDAO employeeLdapDao;
+	private LdapDAO ldapDao;
 
     @Autowired
     private ProjectRolePermissionsDAO projectRolePermissionsDAO;
@@ -47,7 +47,7 @@ public class EmployeeLdapService {
 	 * Отображение ProjectRole --> роль в системе списания занятости.
 	 */
     public String synchronizeOneEmployee(String email) {
-        return syncOneActiveEmployee(employeeLdapDao,email);
+        return syncOneActiveEmployee(ldapDao,email);
     }
 
 	public void synchronize() {
@@ -56,13 +56,13 @@ public class EmployeeLdapService {
 		trace.append("Synchronization with ldap started.\n\n");
 		try {
             //Синхронизируем руководителей подразделений.
-			syncDivisionLeaders(employeeLdapDao);
+			syncDivisionLeaders(ldapDao);
 
 			//Синхронизируем активных сотрудников.
-		    syncActiveEmployees(employeeLdapDao);
+		    syncActiveEmployees(ldapDao);
 
 			//Синхронизируем уволенных сотрудников
-			syncDisabledEmployees(employeeLdapDao);
+			syncDisabledEmployees(ldapDao);
 		} catch (DataAccessException e) {
 			logger.error("Error occured " + e.getCause());
             trace.append("Error occured ").append(e.getCause());
@@ -74,14 +74,14 @@ public class EmployeeLdapService {
 	/**
 	 * Синхронизует неактивных сотрудников из ldap с сотрудниками из базы
 	 * системы списания занятости.
-	 * @param employeeLdapDao – дао
+	 * @param ldapDao – дао
 	 */
-	private void syncDisabledEmployees(EmployeeLdapDAO employeeLdapDao) {
+	private void syncDisabledEmployees(LdapDAO ldapDao) {
 		logger.info("Start synchronize disabled employees.");
 		trace.append("Start synchronize disabled employees.\n\n");
 
         //берем удаленных сотрудников из LDAP
-		List<EmployeeLdap> disabledEmployeesLdap = employeeLdapDao.getDisabledEmployyes();
+		List<EmployeeLdap> disabledEmployeesLdap = ldapDao.getDisabledEmployyes();
 		logger.debug("disabled employees ldap size = {}", disabledEmployeesLdap.size());
 
         //берем сотрудников из БД
@@ -95,7 +95,7 @@ public class EmployeeLdapService {
             //archived больше не используется
             if (empDb.getEndDate()==null) {
                 for (EmployeeLdap empLdap : disabledEmployeesLdap) {
-                    if(empDb.getEmail().equals(empLdap.getMail())) {
+                    if(empDb.getEmail().equals(empLdap.getEmail())) {
                         logger.debug("Employee {} disabled in ldap, but active in db.", empLdap.getDisplayName());
                         logger.debug("And was marked like archived.");
 
@@ -120,16 +120,16 @@ public class EmployeeLdapService {
 	/**
 	 * Синхронизует руководителей подразделений из ldap 
 	 * с базой данных системы списания занятости.
-	 * @param employeeLdapDao - дао
+	 * @param ldapDao - дао
 	 */
-	private String syncDivisionLeaders(EmployeeLdapDAO employeeLdapDao) {
+	private String syncDivisionLeaders(LdapDAO ldapDao) {
 		logger.info("Start synchronize division leaders.");
 		trace.append("Start synchronize division leaders.\n\n");
 		List<Division> divisions = divisionService.getDivisions();
 		List<Employee> managersToSync = new ArrayList<Employee>();
         StringBuffer errors = new StringBuffer();
         for (Division division : divisions) {
-			List<EmployeeLdap> divLeader = employeeLdapDao
+			List<EmployeeLdap> divLeader = ldapDao
 				.getDivisionLeader(division.getLeader(), division.getLdapName());
 			logger.debug("Division '{}' has {} leader", division.getLdapName(), divLeader.size());
 
@@ -152,12 +152,12 @@ public class EmployeeLdapService {
      * Синхронизация одного сотрудника из LDAP
      * Только когда сотрудник есть в LDAP но не было в БД
      */
-    private  String syncOneActiveEmployee(EmployeeLdapDAO employeeLdapDao,String email) {
+    private  String syncOneActiveEmployee(LdapDAO ldapDao,String email) {
         logger.info("Start synchronize employee.");
 
         StringBuffer errors = new StringBuffer();
         //пользователь из LDAP по email
-        EmployeeLdap employeeLdap = employeeLdapDao.getEmployee(email);
+        EmployeeLdap employeeLdap = ldapDao.getEmployeeByEmail(email);
         //проверка не нужна, но нАдо
         if(employeeLdap!=null) {
             //создаем нового сотрудника
@@ -174,9 +174,9 @@ public class EmployeeLdapService {
 	/**
 	 * Синхронизует активных сотрудников из ldap 
 	 * с базой данных системы списания занятости.
-	 * @param employeeLdapDao - дао
+	 * @param ldapDao - дао
 	 */
-    private String syncActiveEmployees(EmployeeLdapDAO employeeLdapDao) {
+    private String syncActiveEmployees(LdapDAO ldapDao) {
         logger.info("Start synchronize active employees.");
         trace.append("Start synchronize active employees.\n\n");
         List<EmployeeLdap> employeesLdap;
@@ -185,7 +185,7 @@ public class EmployeeLdapService {
 
         List<Employee> empsToSync = new ArrayList<Employee>();
         for (Division division : divisionService.getDivisions()) {
-            employeesLdap = employeeLdapDao.getEmployyes(division.getLdapName());
+            employeesLdap = ldapDao.getEmployyes(division.getLdapName());
             logger.debug("Ldap division {} has {} employees", division.getLdapName(), employeesLdap.size());
 
             for(EmployeeLdap employeeLdap:employeesLdap) {
@@ -214,7 +214,7 @@ public class EmployeeLdapService {
         Employee employee=new Employee();
 
         employee.setName(employeeLdap.getDisplayName());
-        employee.setEmail( employeeLdap.getMail().trim() );
+        employee.setEmail( employeeLdap.getEmail().trim() );
         employee.setLdap( employeeLdap.getLdapCn() );
 
 		if (employee.getJob() != null) {
@@ -234,7 +234,7 @@ public class EmployeeLdapService {
             case EMPLOYEE:
             case  MANAGER:
                 //Employee empInDbByObjectSid = employeeService.findByObjectSid( employeeLdap.getObjectSid() );
-                Employee empInDbByMail = employeeService.findByEmail( employeeLdap.getMail() );
+                Employee empInDbByMail = employeeService.findByEmail( employeeLdap.getEmail() );
                 if (empInDbByMail != null) {
                     employee.setId(empInDbByMail.getId());
                     employee.setStartDate(empInDbByMail.getStartDate());
@@ -242,7 +242,7 @@ public class EmployeeLdapService {
                 //Миша: для существующих поле манагер не обновлялось, при этом остальные поля должны обновляться
                 //сперва должно сравниваться по полю LDAP, если нет то по полю EMAIL, если нет то считать что сотрудник новый и добавлять
                 } else {
-                    logger.error(employeeLdap.getMail() + "no in db"); //TODO оповещение админа?
+                    logger.error(employeeLdap.getEmail() + "no in db"); //TODO оповещение админа?
                     employee.setStartDate(DateTimeUtil.ldapDateToTimestamp(employeeLdap.getWhenCreated()));
                 }
                 break;

@@ -1,37 +1,70 @@
 package com.aplana.timesheet.dao;
 
 import com.aplana.timesheet.dao.entity.ldap.EmployeeLdap;
+import com.google.common.collect.Iterables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ldap.NameNotFoundException;
-import org.springframework.ldap.core.AttributesMapper;
-import org.springframework.ldap.core.DistinguishedName;
-import org.springframework.ldap.core.LdapTemplate;
+import org.springframework.ldap.core.*;
 import org.springframework.ldap.filter.AndFilter;
 import org.springframework.ldap.filter.EqualsFilter;
+import org.springframework.ldap.filter.LikeFilter;
 import org.springframework.ldap.filter.PresentFilter;
+import org.springframework.ldap.support.LdapUtils;
 
+import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.SearchControls;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-public class EmployeeLdapDAO {
-	private static final Logger logger = LoggerFactory.getLogger(EmployeeLdapDAO.class);
+public class LdapDAO {
+	private static final Logger logger = LoggerFactory.getLogger(LdapDAO.class);
 
 	private LdapTemplate ldapTemplate;
 
-	public void setLdapTemplate(LdapTemplate ldapTemplate) {
+    public static final String SID = "objectSid";
+    public static final String NAME = "description";
+    public static final String LEADER = "managedBy";
+
+
+
+    public void setLdapTemplate(LdapTemplate ldapTemplate) {
 		this.ldapTemplate = ldapTemplate;
 	}
 
-    public EmployeeLdap getEmployee(String email) {
+    public EmployeeLdap getEmployeeByEmail(String email) {
         logger.info("Getting Employee {} from LDAP",email);
-
-        AndFilter andFilter = new AndFilter().and(new EqualsFilter("mail",email));
-        logger.debug("LDAP Query {}", andFilter.encode());
-        return ( EmployeeLdap ) ldapTemplate.search("",andFilter.encode(),new EmployeeAttributeMapper()).get( 0 );
+        EqualsFilter filter = new EqualsFilter("mail", email);
+        logger.debug("LDAP Query {}", filter.encode());
+        return ( EmployeeLdap ) Iterables.getFirst(ldapTemplate.search("", filter.encode(), new EmployeeAttributeMapper()), null);
     }
+
+    public EmployeeLdap getEmployeeByLdapName(String name) {
+        try {
+            EqualsFilter filter = new EqualsFilter("distinguishedName", name.replaceAll("/", ","));
+            logger.debug("LDAP Query {}", filter.encode());
+            return (EmployeeLdap) Iterables.getFirst(ldapTemplate.search("", filter.encode(), new EmployeeAttributeMapper()), null);
+        } catch (NameNotFoundException e) {
+            logger.debug("Not found: " + name);
+            return null;
+        }
+    }
+
+    public EmployeeLdap getEmployeeByDisplayName(String name) {
+        try {
+            EqualsFilter filter = new EqualsFilter("displayName", name);
+            logger.debug("LDAP Query {}", filter.encode());
+            return (EmployeeLdap) Iterables.getFirst(ldapTemplate.search("", filter.encode(), new EmployeeAttributeMapper()), null);
+        } catch (NameNotFoundException e) {
+            logger.debug("Not found: " + name);
+            return null;
+        }
+    }
+
 
 	@SuppressWarnings("unchecked")
 	public List<EmployeeLdap> getEmployyes(String department) {
@@ -59,35 +92,45 @@ public class EmployeeLdapDAO {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public List<EmployeeLdap> getDivisionLeader(String name, String division) {
+	public List<EmployeeLdap> getDivisionLeader(String divisionLeaderName, String division) {
 		logger.info("Getting Division Leaders from LDAP.");
         AndFilter andFilter = new AndFilter()
-                .and( new EqualsFilter( "displayName", name ) )
+                .and( new EqualsFilter( "displayName", divisionLeaderName ) )
                 .and( new EqualsFilter( "department", division ) );
         logger.debug("LDAP Query {}", andFilter.encode());
 		return ldapTemplate.search("", andFilter.encode(), new EmployeeAttributeMapper());
 	}
 
-	public EmployeeLdap getEmployeeByName(String name) {
-		try {
-			AndFilter andFilter = new AndFilter().and(new EqualsFilter("distinguishedName", name.replaceAll("/", ",")));
-            List employees = ldapTemplate.search("" , andFilter.encode(), new EmployeeAttributeMapper());
-			if((employees != null) && !employees.isEmpty())
-				return ( EmployeeLdap ) employees.get(0);
-		}
-		catch (NameNotFoundException e) {
-            logger.debug("Not found: " + name);
-        }
-		return null;
-	}
+    @SuppressWarnings("unchecked")
+    public List<Map> getDivisions() {
+        AndFilter andFilter = new AndFilter()
+                .and(new EqualsFilter("objectClass", "group"))
+                .and(new LikeFilter("cn", "_Project Center *"));
+        SearchControls ctls = new SearchControls();
+        ctls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+
+        return ldapTemplate.search("", andFilter.encode(), ctls, new AttributesMapper() {
+            @Override
+            public Map mapFromAttributes(Attributes attributes) throws NamingException {
+                Map map = new HashMap();
+                NamingEnumeration<? extends Attribute> all = attributes.getAll();
+                while (all.hasMoreElements()) {
+                    Attribute attribute = all.nextElement();
+                    map.put(attribute.getID(), attribute.get());
+                }
+                return map;
+            }
+        });
+    }
 
     private class EmployeeAttributeMapper implements AttributesMapper {
 		public Object mapFromAttributes(Attributes attributes) throws NamingException {
 			EmployeeLdap employee = new EmployeeLdap();
 
+            employee.setObjectSid   (LdapUtils.convertBinarySidToString((byte[]) attributes.get(SID).get()));
             employee.setDepartment  ( getAttributeByName( attributes, "department" ) );
             employee.setDisplayName ( getAttributeByName( attributes, "displayName" ));
-            employee.setMail        ( getAttributeByName( attributes, "mail" ));
+            employee.setEmail(getAttributeByName(attributes, "mail"));
 		    employee.setManager     ( getAttributeByName( attributes, "manager" ) );
             employee.setTitle       ( getAttributeByName( attributes, "title" ) );
             employee.setWhenCreated ( getAttributeByName( attributes, "whenCreated" ) );

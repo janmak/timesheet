@@ -63,6 +63,9 @@ public class Employee {
     @Column(name = "not_to_sync", columnDefinition = "bool not null default false")
     private boolean notToSync;
 
+    @Column(length = 50, name = "ldap_object_sid")
+    private String objectSid;
+
     public Set<Permission> getPermissions() {
         return permissions;
     }
@@ -157,6 +160,14 @@ public class Employee {
 
     public void setEndDate(Timestamp endDate) {
         this.endDate = endDate;
+    }
+
+    public String getObjectSid() {
+        return objectSid;
+    }
+
+    public void setObjectSid(String objectSid) {
+        this.objectSid = objectSid;
     }
 
     //проверяем уволенный ли сотрудник

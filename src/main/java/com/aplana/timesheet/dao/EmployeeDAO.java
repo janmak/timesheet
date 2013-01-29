@@ -4,6 +4,7 @@ import com.aplana.timesheet.dao.entity.BusinessTrip;
 import com.aplana.timesheet.dao.entity.Division;
 import com.aplana.timesheet.dao.entity.Employee;
 import com.aplana.timesheet.dao.entity.Illness;
+import com.google.common.collect.Iterables;
 import org.hibernate.Hibernate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -94,15 +95,14 @@ public class EmployeeDAO {
                 "select e from Employee e where e.ldap like :ldap"
         ).setMaxResults( 1 ).setParameter("ldap", "%" + ldap + "%");
 
-		List employees = query.getResultList();
-
-        if ( employees != null && ! employees.isEmpty() ) {
-            return (Employee)employees.get(0);
-        }
-		return null;
+		return (Employee) Iterables.getFirst(query.getResultList(), null);
 	}
-	
-	/**
+
+    public List<Employee> getEmployeesForSync() {
+        return getEmployeesForSync(null);
+    }
+
+    /**
 	 * Возвращает список доступных для синхронизации с ldap сотрудников.
 	 * @param division Если null, то поиск осуществляется без учета подразделения,
 	 * 				   иначе с учётом подразделения
@@ -216,7 +216,7 @@ public class EmployeeDAO {
 	 * @param employee
 	 */
 	@Transactional
-	public void setEmployee(Employee employee) {
+	public void save(Employee employee) {
 		Employee empMerged = entityManager.merge(employee);
 		entityManager.flush();
 		logger.info("Persistence context synchronized to the underlying database.");
@@ -249,7 +249,7 @@ public class EmployeeDAO {
                         "%s user: %s %s\n", emp.getId() != null ? "Updated" : "Added", emp.getEmail(), emp.getName()
                 ) );
 
-                setEmployee( emp );
+                save(emp);
             } else {
                 trace.append(String.format(
                         "\nUser: %s %s marked not_to_sync.(Need update)\n%s\n\n",
