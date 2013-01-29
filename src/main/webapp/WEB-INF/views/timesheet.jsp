@@ -540,13 +540,13 @@
                 <td class="no_border" width="60px">Болезнь</td>
                 <td class="no_border" width="20px"> с</td>
                 <td class="no_border" width="210px">
-                    <input id="begin_long_date" name="beginLongDate" data-dojo-id="fromDate" dojoType="dijit.form.DateTextBox"
+                    <input id="begin_long_date" name="beginLongDate" data-dojo-id="fromDate" data-dojo-type='dijit/form/DateTextBox'
                            class="date_picker" disabled="disabled" onmouseover="tooltip.show(getTitle(this));"
                            onmouseout="tooltip.hide();" onChange="toDate.constraints.min = arguments[0];"/>
                 </td>
                 <td class="no_border" width="20px"> по</td>
                 <td class="no_border" width="210px">
-                    <input id="end_long_date" name="endLongDate" data-dojo-id="toDate"  dojoType="dijit.form.DateTextBox" class="date_picker"
+                    <input id="end_long_date" name="endLongDate" data-dojo-id="toDate"  data-dojo-type='dijit/form/DateTextBox' class="date_picker"
                            disabled="disabled" onmouseover="tooltip.show(getTitle(this));"
                            onmouseout="tooltip.hide();" onChange="fromDate.constraints.max = arguments[0];"/>
                 </td>
