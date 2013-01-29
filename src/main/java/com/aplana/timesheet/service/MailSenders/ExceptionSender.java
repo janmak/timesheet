@@ -46,8 +46,7 @@ public class ExceptionSender extends MailSender<String> {
 
         mail.setFromEmail(propertyProvider.getMailFromAddress());
         mail.setSubject("У одного из пользователей во время работы произошла ошибка. Подробности в письме.");
-        mail.setPreconstructedMessageBody(
-                new StringBuilder().append(problem).toString()  );
+        mail.setPreconstructedMessageBody(problem);
         mail.setToEmails(Arrays.asList(propertyProvider.getMailProblemsAndProposalsCoaddress()));
 
         return Arrays.asList(mail);
