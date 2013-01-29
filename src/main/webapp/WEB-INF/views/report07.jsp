@@ -15,6 +15,7 @@
 <h2><fmt:message key="title.report07"/></h2>
 <br/>
 
+<script type="text/javascript" src="<%= request.getContextPath()%>/resources/js/report.js"></script>
 <script type="text/javascript">
     dojo.ready(function (){
         dojo.require("dijit.form.DateTextBox");

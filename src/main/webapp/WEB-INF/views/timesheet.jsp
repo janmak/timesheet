@@ -38,6 +38,9 @@
         var selectedLongVacationIllness = ${selectedLongVacationIllnessJson};
         var selectedCalDate = ${selectedCalDateJson};
         var dateByDefault = ${getDateByDefault};
+        var firstWorkDateString =  ${getFirstWorkDate};
+            var date = firstWorkDateString.split('.');
+            var firstWorkDate = new Date(date[2], date[1]-1, date[0]);
         var root = window.addEventListener || window.attachEvent ? window : document.addEventListener ? document : null;
         var dateInfoHolder = [];
         var month = correctLength(new Date().getMonth() + 1);
@@ -69,6 +72,8 @@
                         return 'classDateRedText';
                         break;
                     case "0":   //день без отчета
+                        if (date <= firstWorkDate) // день раньше начала работы
+                            return '';
                         if (date <= new Date())
                             return 'classDateRedBack';
                         else return '';
@@ -333,6 +338,7 @@
         .classDateRedBack{
             background-color: #f58383 !important;
         }
+
     </style>
 </head>
 <body>

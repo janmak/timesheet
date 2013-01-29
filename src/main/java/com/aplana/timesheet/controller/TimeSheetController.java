@@ -98,6 +98,7 @@ public class TimeSheetController {
         mav.addObject("selectedActCategoriesJson", "[{row:'0', actCat:''}]");
         mav.addObject("selectedLongVacationIllnessJson", getSelectedLongVacationIllnessJson(tsForm));
         mav.addObject("getDateByDefault", getDateByDefault(tsForm.getEmployeeId()));
+        mav.addObject("getFirstWorkDate", getEmployeeFirstWorkDay(tsForm.getEmployeeId()));
 
         mav.addAllObjects(getListsToMAV());
         return mav;
@@ -215,10 +216,23 @@ public class TimeSheetController {
      * Возвращает дату (dd.mm.yyyy) для того чтобы установить ее на форме по умолчанию
     */
     private String getDateByDefault(Integer id){
-        Date res = timeSheetService.getLastWorkdayWithoutTimesheet(id);
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");
-        return "'" + dateFormat.format( res ) + "'";
+        return dateToJsonString(
+                timeSheetService.getLastWorkdayWithoutTimesheet(id));
     }
+
+    /*
+     * <APLANATS-412>
+     * Возвращает дату начала работы сотрудника
+     */
+    private String getEmployeeFirstWorkDay(Integer id){
+        return dateToJsonString(
+                timeSheetService.getEmployeeFirstWorkDay(id));
+    }
+
+    private String dateToJsonString(Date date){
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");
+        return "'" + dateFormat.format( date ) + "'";
+    };
 
     /*
       * Возвращает HashMap со значениями для заполнения списков сотрудников,
