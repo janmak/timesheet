@@ -74,23 +74,27 @@ public class TimeSheetFormValidator implements Validator {
         dateValidation(selectedDate, selectedEmployeeId, errors);
         // Проверка, если выбран долгий отпуск или долгая болезнь
         longVacationOrIllnessValidation(longVacation, longIllness,
-                                        beginDate, endDate,
-                                        selectedEmployeeId, planNecessary,
-                                        errors);
+                beginDate, endDate,
+                selectedEmployeeId, planNecessary,
+                errors);
+
+        if ((longVacation || longIllness)) {
+            planNecessary = false;
+        }
 
         // Для табличной части (по строчно).
         List<TimeSheetTableRowForm> listToRemove = new ArrayList<TimeSheetTableRowForm>();
-        if (tsTablePart != null || tsTablePart.size() != 0) {
+        if (tsTablePart != null && tsTablePart.size() != 0) {
 
             for (TimeSheetTableRowForm formRow : tsTablePart) {
                 int notNullRowNumber = 0;
                 if (!currentRowValidation(formRow,            // вернет false если требуется перейти на след. строку
-                                          planNecessary,
-                                          listToRemove,
-                                          employeeJob,
-                                          totalDuration,
-                                          notNullRowNumber,
-                                          errors)){
+                        planNecessary,
+                        listToRemove,
+                        employeeJob,
+                        totalDuration,
+                        notNullRowNumber,
+                        errors)) {
                     continue;
                 }
             }
@@ -99,14 +103,17 @@ public class TimeSheetFormValidator implements Validator {
             errors.reject("error.tsform.tablepart.required",
                     "В отчёте должны быть записи.");
         }
-        // Проверка на длину рабочего дня
-        totalDurationValidation(totalDuration, errors);
-        // Проверка планов на следующий день
-        planValidation(planNecessary, employeeJob, plan, errors);
+
+        if (planNecessary) {
+            // Проверка на длину рабочего дня
+            totalDurationValidation(totalDuration, errors);
+            // Проверка планов на следующий день
+            planValidation(planNecessary, employeeJob, plan, errors);
+        }
     }
 
-    public ProjectRole getEmployeeJob(Integer employeeId){
-        Employee employee   = employeeService.find(employeeId);
+    public ProjectRole getEmployeeJob(Integer employeeId) {
+        Employee employee = employeeService.find(employeeId);
         ProjectRole emplJob = (employee != null) ? employee.getJob() : projectRoleService.getUndefinedRole();
         if (emplJob == null) {
             logger.warn("emplJob is null");
@@ -118,12 +125,14 @@ public class TimeSheetFormValidator implements Validator {
 
     public void dateValidation(String date, Integer employeeId, Errors errors) {
         // Дата не выбрана.
-        if (date == null) {return;}
+        if (date == null) {
+            return;
+        }
 
-        if (StringUtils.isBlank(date)){
+        if (StringUtils.isBlank(date)) {
             errors.rejectValue("calDate",
-                "error.tsform.caldate.required",
-                "Необходимо выбрать дату.");
+                    "error.tsform.caldate.required",
+                    "Необходимо выбрать дату.");
             return;
         }
 
@@ -131,8 +140,8 @@ public class TimeSheetFormValidator implements Validator {
         // диапазона дат, которые еще не внесены в таблицу calendar.
         if (calendarService.find(date) == null) {
             errors.rejectValue("calDate",
-                "error.tsform.caldate.invalid",
-                "Выбрана недопустимая дата.");
+                    "error.tsform.caldate.invalid",
+                    "Выбрана недопустимая дата.");
             return;
         }
 
@@ -140,9 +149,9 @@ public class TimeSheetFormValidator implements Validator {
         else if (timeSheetService.findForDateAndEmployee(date, employeeId) != null) {
             Object[] errorMessageArgs = {DateTimeUtil.formatDateString(date)};
             errors.rejectValue("calDate",
-                "error.tsform.caldate.notuniq",
-                errorMessageArgs,
-                "Вы уже списывали занятость за " + DateTimeUtil.formatDateString(date));
+                    "error.tsform.caldate.notuniq",
+                    errorMessageArgs,
+                    "Вы уже списывали занятость за " + DateTimeUtil.formatDateString(date));
         }
     }
 
@@ -179,27 +188,27 @@ public class TimeSheetFormValidator implements Validator {
     }
 
     public void longVacationOrIllnessValidation(boolean longVacation, boolean longIllness,
-                                                 String beginDate, String endDate,
-                                                 Integer employeeId, Boolean planNecessary, Errors errors ){
+                                                String beginDate, String endDate,
+                                                Integer employeeId, Boolean planNecessary, Errors errors) {
         // если это не долгая болезнь или долгий отпуск - выход
-        if (!(longVacation || longIllness)){
+        if (!(longVacation || longIllness)) {
             return;
         } else { // для болезни и отпуска продолжаем, план на завтра не требуется
             planNecessary = false;
         }
 
         // Не указана дата начала
-        if (beginDate == null || StringUtils.isBlank(beginDate)){
+        if (beginDate == null || StringUtils.isBlank(beginDate)) {
             errors.rejectValue("beginLongDate",
-                "error.tsform.beginlongdate.required",
-                "Необходимо выбрать дату начала отпуска\\болезни.");
+                    "error.tsform.beginlongdate.required",
+                    "Необходимо выбрать дату начала отпуска\\болезни.");
             return;
         }
         // Не указана дата окончания
-        if (endDate == null || StringUtils.isBlank(endDate)){
+        if (endDate == null || StringUtils.isBlank(endDate)) {
             errors.rejectValue("endLongDate",
-                "error.tsform.endlongdate.required",
-                "Необходимо выбрать дату окончания отпуска\\болезни.");
+                    "error.tsform.endlongdate.required",
+                    "Необходимо выбрать дату окончания отпуска\\болезни.");
             return;
         }
         // Дата окончания не может быть раньше даты начала
@@ -229,17 +238,17 @@ public class TimeSheetFormValidator implements Validator {
         List<String> splittedDateRange = DateTimeUtil.splitDateRangeOnDays(beginDate, endDate);
         for (String dateInStr : splittedDateRange) {
             if (timeSheetService.findForDateAndEmployee(dateInStr, employeeId) != null) {// есть отчет
-                    Object[] errorMessageArgs = {DateTimeUtil.formatDateString(dateInStr)};
-                    errors.rejectValue("calDate",
-                            "error.tsform.caldate.notuniq",
-                            errorMessageArgs,
-                            "Вы уже списывали занятость за " + DateTimeUtil.formatDateString(dateInStr));
-                    break;
+                Object[] errorMessageArgs = {DateTimeUtil.formatDateString(dateInStr)};
+                errors.rejectValue("calDate",
+                        "error.tsform.caldate.notuniq",
+                        errorMessageArgs,
+                        "Вы уже списывали занятость за " + DateTimeUtil.formatDateString(dateInStr));
+                break;
             }
         }
     }
 
-    public void totalDurationValidation(Double totalDuration, Errors errors){
+    public void totalDurationValidation(Double totalDuration, Errors errors) {
         // Сумма часов превышает 24.
         if (totalDuration > 24) {
             errors.rejectValue("totalDuration",
@@ -250,13 +259,13 @@ public class TimeSheetFormValidator implements Validator {
 
     public void planValidation(Boolean planNecessary, ProjectRole employeeJob, String plan, Errors errors) {
         if (!planNecessary || // если планов на след. день не требуется
-            employeeJob.getCode().equals("MN") || // это менеджер
-            employeeJob.getCode().equals("DR"))   // или руководитель
+                employeeJob.getCode().equals("MN") || // это менеджер
+                employeeJob.getCode().equals("DR"))   // или руководитель
         {
             return; // то план можно не указывать
         }
 
-        if (plan == null || StringUtils.isBlank(plan)){
+        if (plan == null || StringUtils.isBlank(plan)) {
             errors.rejectValue("plan",
                     "error.tsform.plan.required",
                     "Необходимо указать планы на следующий рабочий день.");
@@ -264,7 +273,7 @@ public class TimeSheetFormValidator implements Validator {
         }
         // <APLANATS-441> не менее 2х слов
         String regexp = "([^-\\p{LD}]+)?([-\\p{LD}]++([^-\\p{LD}]+)?+){2,}";
-        if (!plan.matches(regexp)){
+        if (!plan.matches(regexp)) {
             errors.rejectValue("plan",
                     "error.tsform.plan.invalid",
                     "Планы на следующий день не могут быть менее 2х слов.");
@@ -272,21 +281,21 @@ public class TimeSheetFormValidator implements Validator {
     }
 
     private boolean currentRowValidation(TimeSheetTableRowForm formRow,
-                                      Boolean planNecessary,
-                                      List<TimeSheetTableRowForm> listToRemove,
-                                      ProjectRole employeeJob,
-                                      Double totalDuration,
-                                      Integer notNullRowNumber,
-                                      Errors errors
-                                      ){
+                                         Boolean planNecessary,
+                                         List<TimeSheetTableRowForm> listToRemove,
+                                         ProjectRole employeeJob,
+                                         Double totalDuration,
+                                         Integer notNullRowNumber,
+                                         Errors errors
+    ) {
         // получаем значения из строки таблицы
-        Integer actTypeId     = formRow.getActivityTypeId();
-        Integer projectId     = formRow.getProjectId();
+        Integer actTypeId = formRow.getActivityTypeId();
+        Integer projectId = formRow.getProjectId();
         Integer projectRoleId = formRow.getProjectRoleId();
-        Integer actCatId      = formRow.getActivityCategoryId();
-        String  cqId          = formRow.getCqId();
-        String  durationStr   = formRow.getDuration();
-        String  description   = formRow.getDescription();
+        Integer actCatId = formRow.getActivityCategoryId();
+        String cqId = formRow.getCqId();
+        String durationStr = formRow.getDuration();
+        String description = formRow.getDescription();
 
         // Номер строки, где произошла ошибка валидации
         Object[] errorMessageArgs = {"в строке №" + (notNullRowNumber + 1)};
@@ -334,7 +343,7 @@ public class TimeSheetFormValidator implements Validator {
     }
 
     public void actTypeValidation(Integer actTypeId,
-                                   Integer notNullRowNumber, Object[] errorMessageArgs, Errors errors) {
+                                  Integer notNullRowNumber, Object[] errorMessageArgs, Errors errors) {
         // Неверный тип активности
         if (dictionaryItemService.find(actTypeId) == null) {
             errors.rejectValue("timeSheetTablePart[" + notNullRowNumber + "].activityTypeId",
@@ -344,7 +353,7 @@ public class TimeSheetFormValidator implements Validator {
     }
 
     public void projectValidation(Integer actTypeId, Integer projectId,
-                                   Integer notNullRowNumber, Object[] errorMessageArgs, Errors errors){
+                                  Integer notNullRowNumber, Object[] errorMessageArgs, Errors errors) {
         // Не указано название проекта
         if (actTypeId == DETAIL_TYPE_PROJECT && (projectId == null || projectId == 0)) {
             errors.rejectValue("timeSheetTablePart[" + notNullRowNumber + "].projectId",
@@ -366,9 +375,11 @@ public class TimeSheetFormValidator implements Validator {
     }
 
     public void projectRoleValidation(Integer actTypeId, Integer projectRoleId,
-                                       Integer notNullRowNumber, Object[] errorMessageArgs, Errors errors){
+                                      Integer notNullRowNumber, Object[] errorMessageArgs, Errors errors) {
         // APLANATS-276 Роль нужно указывать только для проектных видов
-        if (!isProjectActType(actTypeId)) { return; }
+        if (!isProjectActType(actTypeId)) {
+            return;
+        }
 
         // Не указана проектная роль
         if (projectRoleId == null || projectRoleId == 0) {
@@ -385,9 +396,11 @@ public class TimeSheetFormValidator implements Validator {
     }
 
     public void actCatValidation(Integer actCatId, ProjectRole employeeJob,
-                                  Integer notNullRowNumber, Object[] errorMessageArgs, Errors errors){
+                                 Integer notNullRowNumber, Object[] errorMessageArgs, Errors errors) {
         //У проектной роли "Руководитель центра" нет доступных категорий активности.
-        if (employeeJob.getCode().equals("DR")) { return; }
+        if (employeeJob.getCode().equals("DR")) {
+            return;
+        }
 
         // Не указана категория активности
         if (actCatId == null || actCatId == 0) {
@@ -404,8 +417,10 @@ public class TimeSheetFormValidator implements Validator {
     }
 
     public void projectTaskValidation(Integer projectId, String cqId,
-                                       Integer notNullRowNumber, Object[] errorMessageArgs, Errors errors){
-        if (projectId == null || projectId == 0) {return;}
+                                      Integer notNullRowNumber, Object[] errorMessageArgs, Errors errors) {
+        if (projectId == null || projectId == 0) {
+            return;
+        }
 
         Project project = projectService.find(projectId);
         // Необходимо указать проектную задачу
@@ -425,27 +440,27 @@ public class TimeSheetFormValidator implements Validator {
     }
 
     public void discriptionValidation(String description, ProjectRole employeeJob,
-                                       Integer notNullRowNumber, Object[] errorMessageArgs, Errors errors){
+                                      Integer notNullRowNumber, Object[] errorMessageArgs, Errors errors) {
         // Эти категории пользователей могут не указывать комментарии
         if (employeeJob.getCode().equals("MN") && !employeeJob.getCode().equals("DR")) {
             return;
         }
         // Необходимо указать комментарии
         if (description == null || StringUtils.isBlank(description)) {
-                errors.rejectValue("timeSheetTablePart[" + notNullRowNumber + "].description",
-                        "error.tsform.description.required", errorMessageArgs,
-                        "Необходимо указать комментарии в строке " + (notNullRowNumber + 1) + ".");
+            errors.rejectValue("timeSheetTablePart[" + notNullRowNumber + "].description",
+                    "error.tsform.description.required", errorMessageArgs,
+                    "Необходимо указать комментарии в строке " + (notNullRowNumber + 1) + ".");
         }
     }
 
     public void durationValidation(String durationStr, Double totalDuration,
-                                    Integer notNullRowNumber, Object[] errorMessageArgs, Errors errors){
+                                   Integer notNullRowNumber, Object[] errorMessageArgs, Errors errors) {
         double duration = 0;
         // Необходимо указать часы
-        if (durationStr == null || StringUtils.isBlank(durationStr)){
+        if (durationStr == null || StringUtils.isBlank(durationStr)) {
             errors.rejectValue("timeSheetTablePart[" + notNullRowNumber + "].duration",
-                "error.tsform.duration.required", errorMessageArgs,
-                "Необходимо указать часы в строке " + (notNullRowNumber + 1) + ".");
+                    "error.tsform.duration.required", errorMessageArgs,
+                    "Необходимо указать часы в строке " + (notNullRowNumber + 1) + ".");
             return;
         }
 
@@ -460,7 +475,7 @@ public class TimeSheetFormValidator implements Validator {
                     "error.tsform.duration.format", errorMessageArgs,
                     "Количество часов указано не верно в строке " + (notNullRowNumber + 1) + ". Примеры правильных значений (5, 3.5, 2.0 и т.п.).");
         } else {
-            duration = Double.parseDouble(durationStr.replace(",","."));
+            duration = Double.parseDouble(durationStr.replace(",", "."));
             // Количество часов должно быть больше нуля
             if (duration <= 0) {
                 errors.rejectValue("timeSheetTablePart[" + notNullRowNumber + "].duration",
@@ -473,7 +488,7 @@ public class TimeSheetFormValidator implements Validator {
     }
 
     private boolean isProjectValid(Integer project) {
-        return project == null || projectService.findActive( project ) != null;
+        return project == null || projectService.findActive(project) != null;
     }
 
     private boolean isActCatValid(Integer actCat) {
@@ -481,17 +496,17 @@ public class TimeSheetFormValidator implements Validator {
     }
 
     private boolean isProjectRoleValid(Integer projectRole) {
-        return projectRole == null || projectRoleService.findActive( projectRole ) != null;
+        return projectRole == null || projectRoleService.findActive(projectRole) != null;
     }
 
     private boolean isProjectTaskValid(Integer project, String task) {
-        return  project == null && task == null ||
-                projectTaskService.find( project, task ) != null;
+        return project == null && task == null ||
+                projectTaskService.find(project, task) != null;
     }
 
     public boolean isProjectActType(Integer actTypeId) {
         return actTypeId.equals(new Integer(DETAIL_TYPE_PROJECT)) ||
-               actTypeId.equals(new Integer(DETAIL_TYPE_PRESALE)) ||
-               actTypeId.equals(new Integer(DETAIL_TYPE_OUTPROJECT));
+                actTypeId.equals(new Integer(DETAIL_TYPE_PRESALE)) ||
+                actTypeId.equals(new Integer(DETAIL_TYPE_OUTPROJECT));
     }
 }

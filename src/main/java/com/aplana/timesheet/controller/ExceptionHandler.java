@@ -1,5 +1,7 @@
 package com.aplana.timesheet.controller;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.servlet.HandlerExceptionResolver;
@@ -13,6 +15,8 @@ import java.util.Map;
 @Controller
 public class ExceptionHandler implements HandlerExceptionResolver {
 
+    private static final Logger logger = LoggerFactory.getLogger(ExceptionHandler.class);
+
     public ModelAndView resolveException(HttpServletRequest request,
                                          HttpServletResponse response, Object handler, Exception exception)
     {
@@ -24,6 +28,8 @@ public class ExceptionHandler implements HandlerExceptionResolver {
         } else
         {
             model.put("errors", "Unexpected error: " + exception.getMessage());
+            logger.error("Unexpected error", exception);
+
         }
         return new ModelAndView("exception", model);
     }
