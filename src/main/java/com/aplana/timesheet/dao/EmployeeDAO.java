@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.*;
+import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
 
@@ -291,5 +292,16 @@ public class EmployeeDAO {
         query.setParameter("employee", employee);
 
         return (List<BusinessTrip>) query.getResultList();
+    }
+
+    /**
+     * @param employeeId
+     * @return Date - дата начала работы сотрудника
+     */
+    public Date getEmployeeFirstWorkDay(Integer employeeId){
+        Query query = entityManager.createQuery(
+                "SELECT startDate FROM Employee empl WHERE empl.id = :emplId)").setParameter("emplId", employeeId);
+        Timestamp result = (Timestamp) query.getResultList().get(0);
+        return new Date(result.getTime());
     }
 }
