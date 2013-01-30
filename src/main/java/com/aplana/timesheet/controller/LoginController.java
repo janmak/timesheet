@@ -1,6 +1,7 @@
 package com.aplana.timesheet.controller;
 
 import com.aplana.timesheet.form.AdminMessageForm;
+import com.aplana.timesheet.form.validator.AdminMessageFormValidator;
 import com.aplana.timesheet.service.SendMailService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,14 +14,11 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
-import com.aplana.timesheet.form.validator.AdminMessageFormValidator;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Enumeration;
 
 @Controller
 public class LoginController {
@@ -71,7 +69,7 @@ public class LoginController {
         return mav;
     }
 
-    //по нажатию на кнопку отправить
+    //по нажатию на кнопку отправить.
     @RequestMapping(value = "/adminMessage", method = RequestMethod.POST)
     public ModelAndView adminMessage(@ModelAttribute("adminMessageForm") AdminMessageForm adminMessageForm,  BindingResult result, HttpServletRequest request) {
         ModelAndView mav;
