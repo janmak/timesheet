@@ -24,6 +24,16 @@ public abstract class BaseReport implements TSJasperReport {
 
     protected String endDate;
 
+    public Integer getDivisionOwnerId() {
+        return divisionOwnerId;
+    }
+
+    public void setDivisionOwnerId(Integer divisionOwnerId) {
+        this.divisionOwnerId = divisionOwnerId;
+    }
+
+    private Integer divisionOwnerId;
+
 	/**
 	 * Список идентификаторов регионов
 	 */

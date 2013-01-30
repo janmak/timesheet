@@ -36,14 +36,4 @@ public class Report04 extends BaseReport {
             endDate = yesterday;
         }
     }
-
-    private Integer divisionId;
-
-    public Integer getDivisionId() {
-        return divisionId;
-    }
-
-    public void setDivisionId(Integer divisionId) {
-        this.divisionId = divisionId;
-    }
 }
