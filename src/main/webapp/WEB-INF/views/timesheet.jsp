@@ -384,9 +384,9 @@
             <form:option label="" value="0"/>
         </form:select>
         <span class="label">за дату</span>
-        <form:input path="calDate" id="calDate" class="date_picker" dojoType="DateTextBox" required="true"
-                     onMouseOver="tooltip.show(getTitle(this));" onMouseOut="tooltip.hide();"
-                     onChange="validateReportDate(this.value);refreshPlans(this.value, dojo.byId('employeeId').value);"/>
+        <form:input path="calDate" id="calDate" class="date_picker" dojoType="DateTextBox" data-dojo-id="reportDate"
+                     required="true" onMouseOver="tooltip.show(getTitle(this));" onMouseOut="tooltip.hide();"
+                     onChange="validateReportDate(this.value);refreshPlans(this.value, dojo.byId('employeeId').value);reportDate.constraints.min = firstWorkDate;"/>
         <span id="date_warning"></span>
     </div>
 
