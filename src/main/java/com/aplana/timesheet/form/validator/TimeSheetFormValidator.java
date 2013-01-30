@@ -86,15 +86,6 @@ public class TimeSheetFormValidator extends AbstractValidator {
             for (TimeSheetTableRowForm formRow : tsTablePart) {
                 TypeOfActivity actType = TypeOfActivity.getById( formRow.getActivityTypeId() );
 
-                // По каким-то неведомым причинам при нажатии на кнопку веб интерфейса
-                // "Удалить выбранные строки" (если выбраны промежуточные строки) они удаляются с формы, но
-                // в объект формы вместо них попадают null`ы. Мы эти строки удаляем из объекта формы. Если
-                // удалять последние строки (с конца табличной части формы), то все работает корректно.
-                // Также, если тип активности не выбран значит вся строка пустая, валидацию ее не проводим и удаляем.
-                if ( actType == null ) {
-                    listToRemove.add( formRow ); //Удалил проверку на валидность formRow.getActivityTypeId()
-                    continue;
-                }
                 // Если хоть в одной строке таблицы есть тип активности
                 // отгул(с отработкой или за переработки), отпуск или болезнь
                 // то планы на следующий рабочий день можно не указывать.
@@ -107,7 +98,6 @@ public class TimeSheetFormValidator extends AbstractValidator {
                 validateProject           ( formRow, actType, notNullRowNumber, errors );
                 notNullRowNumber++;
             }
-            tsTablePart.removeAll(listToRemove);
 
             if ( !longInactivity && tsTablePart.isEmpty()) {
                 errors.reject("error.tsform.tablepart.required",
@@ -385,19 +375,20 @@ public class TimeSheetFormValidator extends AbstractValidator {
         }
 
         logger.debug("Total duration is {}", totalDuration);
-
-        if (Math.abs(totalDuration - WORK_DAY_DURATION) > propertyProvider.getOvertimeThreshold()) {
-            boolean isOvertime = totalDuration - WORK_DAY_DURATION > 0;
-            String concreteName = isOvertime ? "переработок": "недоработок";
-            if (isNotChoosed(tsForm.getOvertimeCause())) {
-                errors.rejectValue("overtimeCause", "error.tsform.overtimecause.notchoosed", "Не указана причина " + concreteName);
-            }
-            if (isOvertime) {
-                UnfinishedDayCauses cause = EnumsUtils.tryFindById(tsForm.getOvertimeCause(), UnfinishedDayCauses.class);
-                checkCause(cause, tsForm.getOvertimeCauseComment(), concreteName, errors);
-            } else {
-                OvertimeCauses cause = EnumsUtils.tryFindById(tsForm.getOvertimeCause(), OvertimeCauses.class);
-                checkCause(cause, tsForm.getOvertimeCauseComment(), concreteName, errors);
+        if (tsTablePart != null && !tsTablePart.isEmpty()) {
+            if (Math.abs(totalDuration - WORK_DAY_DURATION) > propertyProvider.getOvertimeThreshold()) {
+                boolean isOvertime = totalDuration - WORK_DAY_DURATION > 0;
+                String concreteName = isOvertime ? "переработок": "недоработок";
+                if (isNotChoosed(tsForm.getOvertimeCause())) {
+                    errors.rejectValue("overtimeCause", "error.tsform.overtimecause.notchoosed", "Не указана причина " + concreteName);
+                }
+                if (isOvertime) {
+                    UnfinishedDayCauses cause = EnumsUtils.tryFindById(tsForm.getOvertimeCause(), UnfinishedDayCauses.class);
+                    checkCause(cause, tsForm.getOvertimeCauseComment(), concreteName, errors);
+                } else {
+                    OvertimeCauses cause = EnumsUtils.tryFindById(tsForm.getOvertimeCause(), OvertimeCauses.class);
+                    checkCause(cause, tsForm.getOvertimeCauseComment(), concreteName, errors);
+                }
             }
         }
 
