@@ -18,6 +18,8 @@
 
         reportForm.divisionId.value = defaultDivision;
         fillProjectListByDivision(reportForm.divisionId);
+        fillEmployeeListByDivision(reportForm.emplDivisionId);
+        reportForm.employeeId.value = defaultEmployee;
         var prevProjectId = ${reportForm.projectId};
         document.getElementById('projectId').value = prevProjectId;
         var filter = dojo.byId("allRegions");
@@ -40,6 +42,7 @@
     var projectList = ${projectListJson};
     var fullProjectList = ${fullProjectListJson};
     var defaultDivision = ${defaultDivisionId};
+    var defaultEmployee = "${reportForm.employeeId}";
     var prevDivision = ${reportForm.divisionId} + 1 - 2;// особая уличная магия операция поможет если divisionId не инициализирован
     if (prevDivision != -1)  {
          prevDivision += 1;// чтобы отпустила уличная магия

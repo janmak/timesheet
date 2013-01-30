@@ -329,11 +329,11 @@ public class JasperReportDAO {
         String regionClause;
 
         if (report.hasRegions() && !report.isAllRegions()) {
-            hasEmployee = true;
-            employeeClause = "empl.id=:emplId AND ";
+            hasRegion = true;
+            regionClause = "empl.region.id in :regionIds AND ";
         } else {
-            hasEmployee = false;
-            employeeClause = "";
+            hasRegion = false;
+            regionClause = "";
         }
 
         if (report.getEmplDivisionId() != null && report.getEmplDivisionId() != 0) {
@@ -345,11 +345,11 @@ public class JasperReportDAO {
         }
 
         if (report.getEmployeeId() != null && report.getEmployeeId() != 0) {
-            hasRegion = true;
-            regionClause = "empl.region.id in :regionIds AND ";
+            hasEmployee = true;
+            employeeClause = "empl.id=:emplId AND ";
         } else {
-            hasRegion = false;
-            regionClause = "";
+            hasEmployee = false;
+            employeeClause = "";
         }
 
         if (report.getProjectId() != null && report.getProjectId() != 0) {
