@@ -8,6 +8,7 @@ import com.aplana.timesheet.enums.TypeOfActivity;
 import com.aplana.timesheet.form.TimeSheetForm;
 import com.aplana.timesheet.form.TimeSheetTableRowForm;
 import com.aplana.timesheet.util.DateTimeUtil;
+import com.google.common.collect.Lists;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.velocity.app.VelocityEngine;
 import org.slf4j.Logger;
@@ -19,6 +20,8 @@ import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+
+import static com.aplana.timesheet.enums.TypeOfActivity.*;
 
 @Service
 public class TimeSheetService {
@@ -216,7 +219,10 @@ public class TimeSheetService {
         if (lastTimeSheet != null && nextTimeSheet != null)
             json.append(",");
 
-        if (nextTimeSheet != null) {
+        if (nextTimeSheet != null &&
+            !( ILLNESS == getById(
+                    Lists.newArrayList(
+                            nextTimeSheet.getTimeSheetDetails()).get(0).getActType().getId()))) { // <APLANATS-458>
             json.append("\"next\":{")
                     .append( "\"dateStr\":" ).append( "\"" )
                     .append( DateTimeUtil.formatDate( nextTimeSheet.getCalDate().getCalDate() ) )
