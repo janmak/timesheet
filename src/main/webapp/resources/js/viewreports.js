@@ -20,7 +20,7 @@ dojo.addOnLoad(function () {
     }
     function changeNormal(evt) {
         evt = parseFloat(evt);
-        stavka = evt / 7;
+        stavka = evt / 5;
         setDurationPlan();
     }
     for (i = 0; i < durations.length; i++) {
