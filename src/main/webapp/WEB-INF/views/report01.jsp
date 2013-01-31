@@ -90,15 +90,17 @@
             </tr>
         </table>
         <div style="width: 225px">
-            <div style="float: left">
-                <span class="label">Регион</span>
-                <span style="color:red">*</span>
-            </div>
-            <div>
-            <span class="all_regions">
-                        <form:checkbox id="allRegions" name="allRegions" path="allRegions"/>
-                    Все регионы
-            </span>
+            <div style="margin: 5px 0; overflow: hidden">
+                <div style="float: left">
+                    <span class="label">Регион</span>
+                    <span style="color:red">*</span>
+                </div>
+                <div>
+                <span class="all_regions">
+                            <form:checkbox id="allRegions" name="allRegions" path="allRegions"/>
+                        Все регионы
+                </span>
+                </div>
             </div>
         <span>
             <form:select id="regionIds" name="regionIds"
