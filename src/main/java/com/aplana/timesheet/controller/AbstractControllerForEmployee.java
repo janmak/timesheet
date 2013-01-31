@@ -17,7 +17,7 @@ import java.util.List;
  * @author rshamsutdinov
  * @version 1.0
  */
-public abstract class AbstractControllerForEmployee {
+public abstract class AbstractControllerForEmployee extends AbstractController{
 
     protected static final Logger logger = LoggerFactory.getLogger(AbstractControllerForEmployee.class);
 
