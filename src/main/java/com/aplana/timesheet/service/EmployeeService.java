@@ -89,6 +89,18 @@ public class EmployeeService {
         return result;
     }
 
+    /**
+     * Получает список сотрудников
+     * Необходимо из за APLANATS-557
+     * @param division
+     * @return
+     */
+    public List<Employee> getEmployeesReportCheck(Division division) {
+        List<Employee> result;
+        result = employeeDAO.getEmployees(division);
+        return result;
+    }
+
     public List<Employee> getAllEmployeesDivision(Division division) {
         return employeeDAO.getAllEmployeesDivision(division);
     }
