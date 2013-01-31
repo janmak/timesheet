@@ -1,7 +1,5 @@
 package com.aplana.timesheet.reports;
 
-import com.aplana.timesheet.dao.JasperReportDAO;
-import com.aplana.timesheet.util.DateTimeUtil;
 import net.sf.jasperreports.engine.JRDataSource;
 
 public class Report03 extends BaseReport {
@@ -27,7 +25,7 @@ public class Report03 extends BaseReport {
 
     private boolean filterProjects = true;
 
-    private Integer projectId;
+    private Integer projectId = 0;
 
     private Integer emplDivisionId;
 

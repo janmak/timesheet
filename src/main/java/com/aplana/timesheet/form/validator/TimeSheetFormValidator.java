@@ -70,8 +70,9 @@ public class TimeSheetFormValidator extends AbstractValidator {
 
         boolean longInactivity = tsForm.isLongVacation() || tsForm.isLongIllness();
         logger.debug("longInactivity = {} .", longInactivity);
-        boolean planNecessary = validateLongInactivity( longInactivity, selectedEmployeeId, tsForm, errors );
+        boolean planNecessary = !longInactivity;
 
+        validateLongInactivity( longInactivity, selectedEmployeeId, tsForm, errors );
         // Для табличной части (по строчно).
         List<TimeSheetTableRowForm> tsTablePart = tsForm.getTimeSheetTablePart();
 
@@ -81,7 +82,9 @@ public class TimeSheetFormValidator extends AbstractValidator {
 
             int notNullRowNumber = 0;
 
-            validateDuration( tsForm, notNullRowNumber, errors );
+            if(planNecessary){
+                validateDuration( tsForm, notNullRowNumber, errors );
+            }
 
             for (TimeSheetTableRowForm formRow : tsTablePart) {
                 TypeOfActivity actType = TypeOfActivity.getById( formRow.getActivityTypeId() );
@@ -292,7 +295,7 @@ public class TimeSheetFormValidator extends AbstractValidator {
         }
     }
 
-    private boolean validateLongInactivity( boolean longInactivity, Integer selectedEmployeeId, TimeSheetForm tsForm, Errors errors ) {
+    private void validateLongInactivity( boolean longInactivity, Integer selectedEmployeeId, TimeSheetForm tsForm, Errors errors ) {
         //Если выбран долгий отпуск или долгая болезнь
         if ( longInactivity ) {
 
@@ -339,9 +342,8 @@ public class TimeSheetFormValidator extends AbstractValidator {
                     }
                 }
             }
-            return false;
+
         }
-        return true;
     }
 
     private void validateDuration( TimeSheetForm tsForm, int notNullRowNumber, Errors errors ) {

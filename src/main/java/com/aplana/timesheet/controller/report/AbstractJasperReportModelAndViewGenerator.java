@@ -6,6 +6,7 @@ import com.aplana.timesheet.reports.TSJasperReport;
 import com.aplana.timesheet.service.DivisionService;
 import com.aplana.timesheet.service.ProjectService;
 import com.aplana.timesheet.service.RegionService;
+import com.aplana.timesheet.service.SecurityService;
 import com.aplana.timesheet.util.EmployeeHelper;
 import com.aplana.timesheet.exception.JReportBuildError;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,12 +32,16 @@ public abstract class AbstractJasperReportModelAndViewGenerator implements Jaspe
     @Autowired
     private EmployeeHelper employeeHelper;
 
+    @Autowired
+    private SecurityService securityService;
+
     @Override
     public final ModelAndView getModelAndViewForReport( TSJasperReport form ) throws JReportBuildError {
         ModelAndView mav = new ModelAndView(getViewName());
 
         mav.addObject("reportForm", form == null ? getForm() : form);
         mav.addObject("regionList", regionService.getRegions());
+        mav.addObject("defaultDivisionId", securityService.getSecurityPrincipal().getEmployee().getDivision().getId());
 
         fillSpecificProperties( mav );
 

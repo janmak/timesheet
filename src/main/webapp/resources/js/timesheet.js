@@ -482,14 +482,6 @@ function divisionChange(obj) {
     if (divisionId == 0) {
         insertEmptyOption(employeeSelect);
     }
-    if (divisionId == 1) {
-        var employeeOption = dojo.doc.createElement("option");
-        dojo.attr(employeeOption, {
-            value:'27'
-        });
-        employeeOption.innerHTML = 'Тестовый';
-        employeeSelect.appendChild(employeeOption);
-    }
     var rows = dojo.query(".row_number");
     for (var i = 0; i < rows.length; i++) {
         fillProjectList(i, dojo.byId("activity_type_id_" + i).value);
@@ -772,7 +764,7 @@ function getTitle(processed) {
  */
 function reloadRowsState() {
     var rowsCount = dojo.query(".time_sheet_row").length;
-    var rows=dojo.query(".time_sheet_row");
+    var rows = dojo.query(".time_sheet_row");
     for (var i = 0; i < rowsCount; i++) {
         var actTypeSelect = dojo.byId("activity_type_id_" + i);
         typeActivityChange(actTypeSelect);
@@ -820,7 +812,7 @@ function reloadRowsState() {
             }
         }
 
-        if(dojo.byId("delete_button_"+i)===null || dojo.byId("delete_button_"+i) === undefined) {
+        if (dojo.byId("delete_button_" + i) === null || dojo.byId("delete_button_" + i) === undefined) {
             var deleteCell = rows[i].cells[0];
             var img = dojo.doc.createElement("img");
             dojo.addClass(img, "pointer");
@@ -1406,14 +1398,14 @@ function fillProjectListByDivision(division) {
     var projectSelect = dojo.byId("projectId");
 
     projectSelect.options.length = 0;
-	if (divisionId == 0) {
-		dojo.attr("filterProjects", {disabled:"disabled", checked: false});
-		dojo.attr("projectId", {disabled:"disabled"});
-	} else {
-		dojo.removeAttr("filterProjects", "disabled");		
-		dojo.removeAttr("projectId", "disabled");
-		if (checkBox.checked) {
-			dojo.removeAttr("divisionId", "disabled");
+    if (divisionId == 0) {
+        dojo.attr("filterProjects", {disabled:"disabled", checked:false});
+        dojo.attr("projectId", {disabled:"disabled"});
+    } else {
+        dojo.removeAttr("filterProjects", "disabled");
+        dojo.removeAttr("projectId", "disabled");
+        if (checkBox.checked) {
+            dojo.removeAttr("divisionId", "disabled");
 
             insertEmptyOption(projectSelect);
             for (var i = 0; i < projectListWithOwnerDivision.length; i++) {
@@ -1432,23 +1424,23 @@ function fillProjectListByDivision(division) {
 
             /*division.value = 0;
 
-			dojo.attr("divisionId", {
-				disabled:"disabled"
-			});  */
+             dojo.attr("divisionId", {
+             disabled:"disabled"
+             });  */
 
-			insertEmptyOption(projectSelect);
-			for (var i = 0; i < fullProjectList.length; i++) {
-				projectOption = dojo.doc.createElement("option");
-				dojo.attr(projectOption, {
-					value:fullProjectList[i].id
-				});
-				projectOption.title = fullProjectList[i].value;
-				projectOption.innerHTML = fullProjectList[i].value;
-				projectSelect.appendChild(projectOption);
-			}
-		}
-		sortSelectOptions(projectSelect);
-	}
+            insertEmptyOption(projectSelect);
+            for (var i = 0; i < fullProjectList.length; i++) {
+                projectOption = dojo.doc.createElement("option");
+                dojo.attr(projectOption, {
+                    value:fullProjectList[i].id
+                });
+                projectOption.title = fullProjectList[i].value;
+                projectOption.innerHTML = fullProjectList[i].value;
+                projectSelect.appendChild(projectOption);
+            }
+        }
+        sortSelectOptions(projectSelect);
+    }
 }
 
 function fillEmployeeListByDivision(division) {
@@ -1478,14 +1470,7 @@ function fillEmployeeListByDivision(division) {
     if (divisionId == 0) {
         insertEmptyOption(employeeSelect);
     }
-    if (divisionId == 1) {
-        var employeeOption = dojo.doc.createElement("option");
-        dojo.attr(employeeOption, {
-            value:'27'
-        });
-        employeeOption.innerHTML = 'Тестовый';
-        employeeSelect.appendChild(employeeOption);
-    }
+
     var rows = dojo.query(".row_number");
     for (var i = 0; i < rows.length; i++) {
         fillProjectList(i, dojo.byId("activity_type_id_" + i).value);

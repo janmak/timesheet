@@ -23,18 +23,7 @@ public class Report07ModelAndViewGenerator extends AbstractJasperReportModelAndV
     @Override
     protected void fillSpecificProperties(ModelAndView mav) {
         fillDivisionList(mav);
-        List<Division> divisions = (List<Division>) mav.getModelMap().get("divisionList");
-
-        final Integer defaultId = securityService.getSecurityPrincipal().getEmployee().getDivision().getId();
-
-        Division division = Iterables.find(divisions, new Predicate<Division>() {
-            @Override
-            public boolean apply(@Nullable Division input) {
-                return defaultId == input.getId();
-            } });
-        divisions.remove(division);
-        divisions.add(divisions.set(0, division));
-
+        mav.addObject("employeeDivision", securityService.getSecurityPrincipal().getEmployee().getDivision().getId());
         mav.addObject("filterProjects", "checked");
     }
 

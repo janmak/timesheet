@@ -19,9 +19,17 @@
 
         reportForm.divisionId.value = defaultDivision;
         fillProjectListByDivision(reportForm.divisionId);
-
+        fillEmployeeListByDivision(reportForm.emplDivisionId);
+        reportForm.employeeId.value = defaultEmployee;
+        var prevProjectId = ${reportForm.projectId};
+        document.getElementById('projectId').value = prevProjectId;
         var filter = dojo.byId("allRegions");
         var target = "regionIds";
+        var region = dojo.byId(target);
+        if (region.value == "") {
+            filter.checked = true;
+            region.disabled = true;
+        }
         dojo.connect(filter, "onchange", function () {
             if (filter.checked) {
                 dojo.attr(target, {disabled:"disabled"});
@@ -34,7 +42,13 @@
 
     var projectList = ${projectListJson};
     var fullProjectList = ${fullProjectListJson};
-    var defaultDivision = <sec:authentication property="principal.employee.division.id"/>;
+    var defaultDivision = ${defaultDivisionId};
+    var defaultEmployee = "${reportForm.employeeId}";
+    var prevDivision = ${reportForm.divisionId} + 1 - 2;// особая уличная магия операция поможет если divisionId не инициализирован
+    if (prevDivision != -1)  {
+         prevDivision += 1;// чтобы отпустила уличная магия
+        defaultDivision = prevDivision;
+    }
     var employeeList = ${employeeListJson};
 
 </script>
@@ -116,6 +130,7 @@
             <tr>
                 <td style="width: 225px">
                     <span class="label" style="float:left">Регион</span>
+                    <span style="color:red">*</span>
 							<span style="float: right">
 								<span>
 									<form:checkbox  id="allRegions" name="allRegions"  path="allRegions"/>

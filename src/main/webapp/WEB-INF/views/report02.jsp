@@ -27,6 +27,11 @@
 
                 var filter = dojo.byId("allRegions");
                 var target = "regionIds";
+                var region = dojo.byId(target);
+                if (region.value == "") {
+                    filter.checked = true;
+                    region.disabled = true;
+                }
                 dojo.connect(filter, "onchange", function () {
                     if (filter.checked) {
                         dojo.attr(target, {disabled:"disabled"});
@@ -122,6 +127,7 @@
                     <tr>
                         <td style="width: 225px">
                             <span class="label" style="float:left">Регион</span>
+                            <span style="color:red">*</span>
 							<span style="float: right">
 								<span>
 									<form:checkbox  id="allRegions" name="allRegions"  path="allRegions"/>

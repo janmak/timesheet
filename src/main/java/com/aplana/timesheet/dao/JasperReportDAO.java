@@ -5,6 +5,7 @@ import com.aplana.timesheet.reports.*;
 import com.aplana.timesheet.util.DateTimeUtil;
 import com.aplana.timesheet.util.HibernateQueryResultDataSource;
 import com.aplana.timesheet.util.report.Report7Period;
+import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.lang.time.DateUtils;
 import org.intellij.lang.annotations.Language;
 import org.slf4j.Logger;
@@ -24,6 +25,7 @@ import java.util.*;
 
 @Repository
 public class JasperReportDAO {
+
 
     private DecimalFormat doubleFormat = new DecimalFormat("#.##");
 
@@ -48,6 +50,8 @@ public class JasperReportDAO {
     private static final String DIVISION_CLAUSE = "d.id=:emplDivisionId AND ";
     private static final String EMPLOYEE_CLAUSE = "empl.id=:emplId AND ";
     private static final String REGION_CLAUSE   = "empl.region.id in :regionIds AND ";
+    private static final String PROJECT_CLAUSE  = "tsd.project.id=:projectId AND ";
+
     private static final String WITHOUT_CLAUSE  = "";
 
     @PersistenceContext
@@ -120,30 +124,38 @@ public class JasperReportDAO {
         return projNames.toString();
     }
 
-    private List getProjResultList( Report01 report ) {
+    @VisibleForTesting
+    List getProjResultList( Report01 report ) {
         boolean withRegionClause   = report.hasRegions()                && !report.isAllRegions();
+        boolean withDivisionClause = ! report.getDivisionId().equals(0);
         // Запрос достанет для сотрудников наименования проектов по датам
         Query projQuery = entityManager.createQuery(
                 "select empl.id, ts.calDate.calDate, td.project.name " +
                 "from TimeSheetDetail td " +
                     "inner join td.timeSheet ts " +
                     "inner join ts.employee empl " +
-                "where empl.division.id = :divisionId and " +
+                    "join empl.division d "+
+                "where " +
+                    (withDivisionClause ? DIVISION_CLAUSE : WITHOUT_CLAUSE) +
                     (withRegionClause ? REGION_CLAUSE : WITHOUT_CLAUSE ) +
                     "ts.calDate.calDate between :beginDate and :endDate ");
 
         if (withRegionClause)
             projQuery.setParameter("regionIds", report.getRegionIds());
-        projQuery.setParameter("divisionId", report.getDivisionId());
-        projQuery.setParameter("beginDate", DateTimeUtil.stringToTimestamp( report.getBeginDate() ));
-        projQuery.setParameter("endDate", DateTimeUtil.stringToTimestamp(report.getEndDate()));
+        if (withDivisionClause)
+            projQuery.setParameter("emplDivisionId", report.getDivisionId());
+
+        projQuery.setParameter("beginDate", DateTimeUtil.stringToTimestamp( report.getBeginDate() ))
+                 .setParameter("endDate", DateTimeUtil.stringToTimestamp(report.getEndDate()));
 
         return projQuery.getResultList();
     }
 
-    private List getResultList( Report01 report ) {
+    @VisibleForTesting
+    List getResultList( Report01 report ) {
         boolean withRegionClause   = report.hasRegions()                && !report.isAllRegions();
         String regionClause2 = withRegionClause ? "region.id in :regionIds and " : "";
+        boolean withDivisionClause = ! report.getDivisionId().equals(0);
 
         String workDaySeparator = "";
 
@@ -177,9 +189,11 @@ public class JasperReportDAO {
                     "inner join em.region as region " +
                     "left outer join ts.calDate.holidays h " +
                     "left outer join td.project project " +
-                    "where em.division.id = :divisionId " +
+                    "join em.division d " +
+                    "where " +
+                        (withDivisionClause ? DIVISION_CLAUSE : WITHOUT_CLAUSE) +
                         // В этом отчете учитываются только следующие виды деятельности "Проектная", "Пресейловая", "Внепроектная" (соответсвенно)
-                        "and td.actType.id in (12, 13, 14) " +
+                        "td.actType.id in (12, 13, 14) " +
                         "and " + regionClause2 +
                         "ts.calDate.calDate between :beginDate and :endDate " +
                         "and ((h.region.id is null) or (h.region.id=region.id)) " +
@@ -191,9 +205,11 @@ public class JasperReportDAO {
         if (withRegionClause) {
             query.setParameter("regionIds", report.getRegionIds());
 		}
+        if (withDivisionClause) {
+            query.setParameter("emplDivisionId", report.getDivisionId());
+        }
 
-        query.setParameter("divisionId", report.getDivisionId())
-                .setParameter("beginDate", DateTimeUtil.stringToTimestamp( report.getBeginDate() ))
+        query   .setParameter("beginDate", DateTimeUtil.stringToTimestamp(report.getBeginDate()))
                 .setParameter("endDate", DateTimeUtil.stringToTimestamp(report.getEndDate()));
 
         List resultList = query.getResultList();
@@ -253,7 +269,7 @@ public class JasperReportDAO {
             // Выборка по конкретному проекту
             query = entityManager.createQuery( String.format( report02QueryString,
                     "",
-                    "tsd.project.id=:projectId AND ",
+                    PROJECT_CLAUSE,
                     withEmployeeClasue ? EMPLOYEE_CLAUSE : WITHOUT_CLAUSE,
                     withDivisionClause ? DIVISION_CLAUSE : WITHOUT_CLAUSE,
                     withRegionClause   ? REGION_CLAUSE   : WITHOUT_CLAUSE
@@ -333,7 +349,7 @@ public class JasperReportDAO {
             query = entityManager.createQuery(
                     String.format( report03QueryString,
                             "",
-                            "tsd.project.id=:projectId AND ",
+                            PROJECT_CLAUSE,
                             withEmployeeClasue ? EMPLOYEE_CLAUSE : WITHOUT_CLAUSE,
                             withDivisionClause ? DIVISION_CLAUSE : WITHOUT_CLAUSE,
                             withRegionClause   ? REGION_CLAUSE   : WITHOUT_CLAUSE
@@ -467,8 +483,11 @@ public class JasperReportDAO {
         return query.getResultList();
     }
 
-    private List getResultList( Report06 report ) {
+    @VisibleForTesting
+    List getResultList(Report06 report) {
         boolean withRegionClause   = report.hasRegions()                && !report.isAllRegions();
+
+        boolean withProjectClause = !report.getProjectId().equals(0);
 
         Query query = entityManager.createQuery(
                 "SELECT " +
@@ -481,10 +500,10 @@ public class JasperReportDAO {
                         "AvailableActivityCategory act " +
                         "join tsd.timeSheet.employee empl " +
                 "WHERE " +
-                        "tsd.project.id=:projectId AND " +
                         "tsd.actType=act.actType AND " +
                         "tsd.actCat=act.actCat AND " +
-                        ( withRegionClause ? REGION_CLAUSE : WITHOUT_CLAUSE ) +
+                        (withRegionClause ? REGION_CLAUSE : WITHOUT_CLAUSE) +
+                        (withProjectClause ? PROJECT_CLAUSE : WITHOUT_CLAUSE) +
                         "tsd.timeSheet.calDate.calDate between :beginDate AND :endDate AND " +
                         "act.projectRole=tsd.timeSheet.employee.job " +
                 "GROUP BY act.projectRole.name, tsd.timeSheet.employee.name, tsd.actCat.value " +
@@ -492,12 +511,15 @@ public class JasperReportDAO {
 
         if (withRegionClause)
 			query.setParameter("regionIds", report.getRegionIds());
+        if (withProjectClause)
+            query.setParameter("projectId", report.getProjectId());
         query.setParameter("projectId", report.getProjectId());
         query.setParameter("beginDate", DateTimeUtil.stringToTimestamp( report.getBeginDate() ));
         query.setParameter("endDate", DateTimeUtil.stringToTimestamp(report.getEndDate()));
 
         return query.getResultList();
     }
+
 
 
     @Transactional(readOnly = true)
@@ -720,12 +742,12 @@ public class JasperReportDAO {
 
     private String Report7PeriodName(Integer type, Date d) throws Exception {
         if (type == 1) {
-            SimpleDateFormat sdf = new SimpleDateFormat("MM.YYYY");
+            SimpleDateFormat sdf = new SimpleDateFormat("MM.yyyy");
             return sdf.format(d);
         } else if (type == 3) {
             SimpleDateFormat sdf = new SimpleDateFormat("MM");
             Integer number = new Integer(sdf.format(d));
-            SimpleDateFormat sdf2 = new SimpleDateFormat("YYYY");
+            SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy");
             if (number > 0 && number < 4) {
                 return "1-ый квартал " + sdf2.format(d);
             } else if (number > 2 && number < 7) {
@@ -737,7 +759,7 @@ public class JasperReportDAO {
             }
         } else if (type == 6) {
             SimpleDateFormat sdf = new SimpleDateFormat("MM");
-            SimpleDateFormat sdf2 = new SimpleDateFormat("YYYY");
+            SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy");
             Integer number = new Integer(sdf.format(d));
             if (number > 0 && number < 7) {
                 return "1-ый квартал " + sdf2.format(d);
@@ -745,7 +767,7 @@ public class JasperReportDAO {
                 return "2-ой квартал" + sdf2.format(d);
             }
         } else if (type == 12) {
-            SimpleDateFormat sdf = new SimpleDateFormat("YYYY");
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy");
             return sdf.format(d) + " г.";
         }
         throw new Exception();

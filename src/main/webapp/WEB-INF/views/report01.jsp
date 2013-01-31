@@ -21,6 +21,11 @@
 
         var filter = dojo.byId("allRegions");
         var target = "regionIds";
+        var region = dojo.byId(target);
+        if (region.value == "") {
+            filter.checked = true;
+            region.disabled = true;
+        }
         dojo.connect(filter, "onchange", function () {
             if (filter.checked) {
                 dojo.attr(target, {disabled:"disabled"});
@@ -52,7 +57,7 @@
     <div id="form_header">
         <table class="report_params" cellspacing="3">
             <tr>
-                <td><span class="label">Центр</span><span style="color:red">*</span></td>
+                <td style="width: 225px"><span class="label">Центр</span><span style="color:red">*</span></td>
                 <td><form:select id="divisionId" name="divisionId" cssClass="without_dojo"
                                  onmouseover="tooltip.show(getTitle(this));"
                                  onmouseout="tooltip.hide();" path="divisionId">

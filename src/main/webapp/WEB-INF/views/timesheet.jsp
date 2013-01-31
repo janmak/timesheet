@@ -209,7 +209,7 @@
                             var prev = data.prev;
                             var dateString = prev.dateStr;
 
-                            dojo.byId("lbPrevPlan").innerHTML = "Планы предущего рабочего дня (" + timestampStrToDisplayStr(dateString.toString()) + "):";
+                            dojo.byId("lbPrevPlan").innerHTML = "Планы предыдущего рабочего дня (" + timestampStrToDisplayStr(dateString.toString()) + "):";
                             var planText = prev.plan;
                             if (planText.length != 0 ){
                                 var text = prev.plan;
@@ -377,7 +377,7 @@
         </form:select>
 
         <span class="label">Отчет сотрудника</span>
-        <form:select path="employeeId" id="employeeId" class="without_dojo" onmouseover="tooltip.show(getTitle(this));"
+        <form:select path="employeeId" id="employeeId" class="without_dojo" onmouseover="tooltip.show(getTitle(this));" cssStyle="width: auto"
                      onmouseout="tooltip.hide();" onchange="setDefaultEmployeeJob(-1);
                      colorDayWithReportFromThreeMonth(dateInfoHolder, new Date().getFullYear(), correctLength(new Date().getMonth() + 1), this.value);
                      refreshPlans(dijit.byId('calDate').value, this.value);">
@@ -391,7 +391,7 @@
     </div>
 
     <div style="width: 500px;">
-        <span id="lbPrevPlan">Планы предущего рабочего дня:</span>
+        <span id="lbPrevPlan">Планы предыдущего рабочего дня:</span>
         <div id="plan_textarea" style="margin: 2px 0px 2px 0px; padding:2px 2px 2px 2px;border: solid 1px silver;"></div>
         <button id="add_in_comments" type="button" style="width:300px" onclick="CopyPlan()">Скопировать в первый
             комментарий

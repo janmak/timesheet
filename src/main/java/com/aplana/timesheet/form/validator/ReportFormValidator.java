@@ -51,9 +51,9 @@ public class ReportFormValidator implements Validator {
 
         ValidationUtils.rejectIfEmptyOrWhitespace(errors, "projectId", "error.reportform.noproject");
 
-        if (form.getProjectId() == 0) {
+        /*if (form.getProjectId() == 0) {
             errors.rejectValue("projectId", "error.reportform.noproject");
-        }
+        }*/
     }
 
     private void validateReport07(Object o, Errors errors) {
