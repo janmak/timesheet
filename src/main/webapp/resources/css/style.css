@@ -191,11 +191,16 @@ div.menu_holder ul a:hover {
     margin: 5px 5px 5px 0px;
 }
 
-.date_picker {
-    width: 198px;
-    margin-left: 1px !important;
-    height: 22px !important;
+.date_picker{
+    width: 200px;
+}
 
+.date_picker * {
+    height: 22px;
+}
+
+.tundra .dijitArrowButtonInner {
+    margin: 5px;
 }
 
 /*блок стилей для тултипа*/
