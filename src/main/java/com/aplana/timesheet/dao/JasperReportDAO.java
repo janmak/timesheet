@@ -126,7 +126,7 @@ public class JasperReportDAO {
     @VisibleForTesting
     List getProjResultList( Report01 report ) {
         boolean withRegionClause   = report.hasRegions()                && !report.isAllRegions();
-        boolean withDivisionClause = ! report.getDivisionId().equals(0);
+        boolean withDivisionClause = ! report.getDivisionOwnerId().equals(0);
         // Запрос достанет для сотрудников наименования проектов по датам
         Query projQuery = entityManager.createQuery(
                 "select empl.id, ts.calDate.calDate, td.project.name " +
@@ -154,7 +154,7 @@ public class JasperReportDAO {
     List getResultList( Report01 report ) {
         boolean withRegionClause   = report.hasRegions()                && !report.isAllRegions();
         String regionClause2 = withRegionClause ? "region.id in :regionIds and " : "";
-        boolean withDivisionClause = ! report.getDivisionId().equals(0);
+        boolean withDivisionClause = ! report.getDivisionOwnerId().equals(0);
 
         String workDaySeparator = "";
 
@@ -205,7 +205,7 @@ public class JasperReportDAO {
             query.setParameter("regionIds", report.getRegionIds());
 		}
         if (withDivisionClause) {
-            query.setParameter("emplDivisionId", report.getDivisionId());
+            query.setParameter("emplDivisionId", report.getDivisionOwnerId());
         }
 
         query   .setParameter("beginDate", DateTimeUtil.stringToTimestamp(report.getBeginDate()))

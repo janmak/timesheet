@@ -34,7 +34,7 @@ public class JasperReportDAOTest {
     public void testGetResultList() {
         Report01 report = getPrefilledBaseReport(new Report01());
         report.setCategory(OverTimeCategory.All);
-        report.setDivisionId(1);
+        report.setDivisionOwnerId(1);
         dao.getResultList(report);
 
         Report06 report06 = getPrefilledBaseReport(new Report06());
