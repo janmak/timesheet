@@ -2,8 +2,8 @@
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="report4" pageWidth="842" pageHeight="595" orientation="Landscape" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="e19aeca1-a444-4463-ba37-07d7f89c08d1">
 	<property name="net.sf.jasperreports.print.keep.full.text" value="true"/>
 	<property name="ireport.zoom" value="2.0"/>
-	<property name="ireport.x" value="361"/>
-	<property name="ireport.y" value="9"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
 	<import value="com.aplana.timesheet.util.DateTimeUtil"/>
 	<style name="Normal" isDefault="true" fontSize="8" pdfFontName="arial.ttf" pdfEncoding="Cp1251"/>
 	<style name="Title" style="Normal" fontName="Arial" fontSize="26"/>
@@ -31,7 +31,7 @@
 	<group name="GroupByName">
 		<groupExpression><![CDATA[$F{name}]]></groupExpression>
 		<groupHeader>
-			<band height="19">
+			<band height="13">
 				<textField evaluationTime="Group" evaluationGroup="GroupByOvertime">
 					<reportElement uuid="a1446b57-8bad-4ecd-929e-c87aeb526e12" style="Group Header 2" x="0" y="0" width="146" height="13"/>
 					<textElement/>
@@ -116,7 +116,7 @@
 		</band>
 	</columnHeader>
 	<detail>
-		<band height="25">
+		<band height="13">
 			<printWhenExpression><![CDATA[$F{holiday} == null ? Boolean.TRUE:Boolean.FALSE]]></printWhenExpression>
 			<textField>
 				<reportElement uuid="b1f611cf-8131-4840-8eb7-a6f13faf1aba" style="Detail" x="0" y="0" width="146" height="13"/>
