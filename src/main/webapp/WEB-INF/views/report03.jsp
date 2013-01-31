@@ -16,20 +16,10 @@
 <script type="text/javascript">
     dojo.ready(function () {
         dojo.require("dijit.form.DateTextBox");
-
-        reportForm.divisionId.value = defaultDivision;
         fillProjectListByDivision(reportForm.divisionId);
-        fillEmployeeListByDivision(reportForm.emplDivisionId);
-        reportForm.employeeId.value = defaultEmployee;
-        var prevProjectId = ${reportForm.projectId};
-        document.getElementById('projectId').value = prevProjectId;
+
         var filter = dojo.byId("allRegions");
         var target = "regionIds";
-        var region = dojo.byId(target);
-        if (region.value == "") {
-            filter.checked = true;
-            region.disabled = true;
-        }
         dojo.connect(filter, "onchange", function () {
             if (filter.checked) {
                 dojo.attr(target, {disabled:"disabled"});
@@ -42,13 +32,6 @@
 
     var projectList = ${projectListJson};
     var fullProjectList = ${fullProjectListJson};
-    var defaultDivision = ${defaultDivisionId};
-    var defaultEmployee = "${reportForm.employeeId}";
-    var prevDivision = ${reportForm.divisionId} + 1 - 2;// особая уличная магия операция поможет если divisionId не инициализирован
-    if (prevDivision != -1)  {
-         prevDivision += 1;// чтобы отпустила уличная магия
-        defaultDivision = prevDivision;
-    }
     var employeeList = ${employeeListJson};
 
 </script>
@@ -74,9 +57,9 @@
         <table class="report_params" cellspacing="3">
             <tr>
                 <td><span class="label">Центр владельца проекта</span></td>
-                <td><form:select id="divisionId" name="divisionId" cssClass="without_dojo"
+                <td><form:select id="divisionId" name="divisionOwnerId" cssClass="without_dojo"
                                  onmouseover="tooltip.show(getTitle(this));"
-                                 onmouseout="tooltip.hide();" path="divisionId"
+                                 onmouseout="tooltip.hide();" path="divisionOwnerId"
                                  onchange="fillProjectListByDivision(this)">
                     <form:option label="Все центры" value="0"/>
                     <form:options items="${divisionList}" itemLabel="name" itemValue="id"/>
@@ -130,7 +113,6 @@
             <tr>
                 <td style="width: 225px">
                     <span class="label" style="float:left">Регион</span>
-                    <span style="color:red">*</span>
 							<span style="float: right">
 								<span>
 									<form:checkbox  id="allRegions" name="allRegions"  path="allRegions"/>

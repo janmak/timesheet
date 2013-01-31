@@ -15,7 +15,6 @@
 		<script type="text/javascript">		
 			this.dojo.ready(function () {
 				dojo.require("dijit.form.DateTextBox");
-				reportForm.divisionId.value = defaultDivision;
 				fillProjectListByDivision(reportForm.divisionId);
 			
 				var emplDivisionId = "${reportForm.emplDivisionId}";
@@ -43,11 +42,7 @@
 		
 			var projectList = ${projectListJson};
 			var fullProjectList = ${fullProjectListJson};
-			var defaultDivision = "${reportForm.divisionId}";
             var projectListWithOwnerDivision = ${projectListWithOwnerDivisionJson};
-			if(defaultDivision == "") {
-				defaultDivision = <sec:authentication property="principal.employee.division.id"/>;
-			}
 			var employeeList = ${employeeListJson};
 		</script>
 
@@ -71,9 +66,9 @@
 				<table class="report_params" cellspacing="3">
 					<tr>
 						<td><span class="label">Центр владельца проекта</span><span style="color:red">*</span></td>
-						<td><form:select id="divisionId" name="divisionId" cssClass="without_dojo"
+						<td><form:select id="divisionId" name="divisionOwnerId" cssClass="without_dojo"
 									 onmouseover="tooltip.show(getTitle(this));"
-									 onmouseout="tooltip.hide();" path="divisionId"
+									 onmouseout="tooltip.hide();" path="divisionOwnerId"
 									 onchange="fillProjectListByDivision(this)"
 									 oninit="">
 								<form:option label="" value="0"/>

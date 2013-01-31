@@ -38,8 +38,14 @@ public abstract class AbstractJasperReportModelAndViewGenerator implements Jaspe
     @Override
     public final ModelAndView getModelAndViewForReport( TSJasperReport form ) throws JReportBuildError {
         ModelAndView mav = new ModelAndView(getViewName());
-
-        mav.addObject("reportForm", form == null ? getForm() : form);
+        TSJasperReport result = null;
+        if (form != null) {
+            result = form;
+        } else {
+            result = getForm();
+            result.setDivisionOwnerId(securityService.getSecurityPrincipal().getEmployee().getDivision().getId());
+        }
+        mav.addObject("reportForm", result);
         mav.addObject("regionList", regionService.getRegions());
         mav.addObject("defaultDivisionId", securityService.getSecurityPrincipal().getEmployee().getDivision().getId());
 

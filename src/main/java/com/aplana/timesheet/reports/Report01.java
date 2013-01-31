@@ -29,16 +29,6 @@ public class Report01 extends BaseReport {
         return reportDAO.getReportData(this);
     }
 
-    private Integer divisionId;
-
-    public Integer getDivisionId() {
-        return divisionId;
-    }
-
-    public void setDivisionId(Integer divisionId) {
-        this.divisionId = divisionId;
-    }
-
 	public void setCategory(OverTimeCategory category) {
 		this.category = category;
 	}

@@ -10,6 +10,8 @@ public interface TSJasperReport {
 
     String getJRName();
 
+    public void setDivisionOwnerId(Integer divisionOwnerId);
+
     void setReportDAO(JasperReportDAO reportDAO);
 
     String getJRNameFile();

@@ -26,7 +26,6 @@ import java.util.*;
 @Repository
 public class JasperReportDAO {
 
-
     private DecimalFormat doubleFormat = new DecimalFormat("#.##");
 
     private static Map<Class, String[]> fieldsMap = new HashMap<Class, String[]>( 6 );
@@ -143,7 +142,7 @@ public class JasperReportDAO {
         if (withRegionClause)
             projQuery.setParameter("regionIds", report.getRegionIds());
         if (withDivisionClause)
-            projQuery.setParameter("emplDivisionId", report.getDivisionId());
+            projQuery.setParameter("emplDivisionId", report.getDivisionOwnerId());
 
         projQuery.setParameter("beginDate", DateTimeUtil.stringToTimestamp( report.getBeginDate() ))
                  .setParameter("endDate", DateTimeUtil.stringToTimestamp(report.getEndDate()));
@@ -282,7 +281,7 @@ public class JasperReportDAO {
                     withEmployeeClasue ? EMPLOYEE_CLAUSE : WITHOUT_CLAUSE,
                     withDivisionClause ? DIVISION_CLAUSE : WITHOUT_CLAUSE,
                     withRegionClause   ? REGION_CLAUSE   : WITHOUT_CLAUSE
-            ) ).setParameter( "divisionId", report.getDivisionId() );
+            ) ).setParameter( "divisionId", report.getDivisionOwnerId() );
         } else {
             // Выборка по всем проектам всех центров
             query = entityManager.createQuery( String.format( report02QueryString,
@@ -365,7 +364,7 @@ public class JasperReportDAO {
                             withDivisionClause ? DIVISION_CLAUSE : WITHOUT_CLAUSE,
                             withRegionClause   ? REGION_CLAUSE   : WITHOUT_CLAUSE
             ) );
-            query.setParameter( "divisionId", report.getDivisionId() );
+            query.setParameter( "divisionId", report.getDivisionOwnerId() );
         } else {
             // Выборка по всем проектам всех центров
             query = entityManager.createQuery(
@@ -393,7 +392,7 @@ public class JasperReportDAO {
 
     private List getResultList( Report04 report ) {
         boolean withRegionClause   = report.hasRegions()                && !report.isAllRegions();
-        boolean withDivisionClause = report.getDivisionId() != null && report.getDivisionId() != 0;
+        boolean withDivisionClause = report.getDivisionOwnerId() != null && report.getDivisionOwnerId() != 0;
 
         Query query = entityManager.createQuery(
                 "select " +
@@ -431,7 +430,7 @@ public class JasperReportDAO {
             query.setParameter("regionIds", report.getRegionIds());
 		}
         if (withDivisionClause) {
-            query.setParameter("emplDivisionId", report.getDivisionId());
+            query.setParameter("emplDivisionId", report.getDivisionOwnerId());
         }
         query.setParameter("beginDate", DateTimeUtil.stringToTimestamp( report.getBeginDate() ));
         query.setParameter("endDate", DateTimeUtil.stringToTimestamp(report.getEndDate()));
@@ -441,7 +440,7 @@ public class JasperReportDAO {
 
     private List getResultList( Report05 report ) {
         boolean withRegionClause   = report.hasRegions()                && !report.isAllRegions();
-        boolean withDivisionClause = report.getDivisionId() != null && report.getDivisionId() != 0;
+        boolean withDivisionClause = report.getDivisionOwnerId() != null && report.getDivisionOwnerId() != 0;
         boolean withEmployeeClasue = report.getEmployeeId() != null && report.getEmployeeId    () != 0;
 
         Query query = entityManager.createQuery(
@@ -475,7 +474,7 @@ public class JasperReportDAO {
             query.setParameter("emplId", report.getEmployeeId());
         }
         if (withDivisionClause) {
-            query.setParameter("emplDivisionId", report.getDivisionId());
+            query.setParameter("emplDivisionId", report.getDivisionOwnerId());
         }
         query.setParameter("beginDate", DateTimeUtil.stringToTimestamp( report.getBeginDate() ));
         query.setParameter("endDate", DateTimeUtil.stringToTimestamp(report.getEndDate()));
@@ -519,8 +518,6 @@ public class JasperReportDAO {
 
         return query.getResultList();
     }
-
-
 
     @Transactional(readOnly = true)
     public HibernateQueryResultDataSource getReport07Data(Report07 report) {
@@ -623,15 +620,15 @@ public class JasperReportDAO {
 
                     if (projectName != null) {
                         // по должностям
-                        dataSource.add(this.report7DataSourceRow(period, projectName, "По Должностям", "Руководитель проекта ч. (%)",
+                        dataSource.add(this.report7DataSourceRow(period, projectName, "По Должностям", "Руководитель проекта, ч. (%)",
                                 this.report7GenerateValue(durationByRP, durationPeriod)));
-                        dataSource.add(this.report7DataSourceRow(period, projectName, "По Должностям", "Аналитик ч. (%)",
+                        dataSource.add(this.report7DataSourceRow(period, projectName, "По Должностям", "Аналитик, ч. (%)",
                                 this.report7GenerateValue(durationByAnalyst, durationPeriod)));
-                        dataSource.add(this.report7DataSourceRow(period, projectName, "По Должностям", "Разработчик ч. (%)",
+                        dataSource.add(this.report7DataSourceRow(period, projectName, "По Должностям", "Разработчик, ч. (%)",
                                 this.report7GenerateValue(durationByDev, durationPeriod)));
-                        dataSource.add(this.report7DataSourceRow(period, projectName, "По Должностям", "Системный инженер ч. (%)",
+                        dataSource.add(this.report7DataSourceRow(period, projectName, "По Должностям", "Системный инженер, ч. (%)",
                                 this.report7GenerateValue(durationBySystem, durationPeriod)));
-                        dataSource.add(this.report7DataSourceRow(period, projectName, "По Должностям", "Тестирование ч. (%)",
+                        dataSource.add(this.report7DataSourceRow(period, projectName, "По Должностям", "Тестирование, ч. (%)",
                                 this.report7GenerateValue(durationByTest, durationPeriod)));
 
                         // Подсчитаем к итоговому периоду
@@ -643,17 +640,17 @@ public class JasperReportDAO {
 
                         // Подсчёт по регионам
                         for (Map.Entry<String, Double> region : regions.entrySet()) {
-                            dataSource.add(this.report7DataSourceRow(period, projectName, "По Регионам", (String) region.getKey().concat(" ч. (%)"),
+                            dataSource.add(this.report7DataSourceRow(period, projectName, "По Регионам", (String) region.getKey().concat(", ч. (%)"),
                                     this.report7GenerateValue(region.getValue(), durationPeriod)));
                             // Посчитаем для итого
                             if (periodRegions.get(region.getKey().concat(" ч. (%)")) == null) {
                                 periodRegions.put(region.getKey().concat(" ч. (%)"), region.getValue());
                             } else {
-                                periodRegions.put(region.getKey().concat(" ч. (%)"), region.getValue() + periodRegions.get(region.getKey().concat(" ч. (%)")));
+                                periodRegions.put(region.getKey().concat(" ч. (%)"), region.getValue() + periodRegions.get(region.getKey().concat(", ч. (%)")));
                             }
                         }
                         if (durationPeriod > 0) {
-                            dataSource.add(this.report7DataSourceRow(period, projectName, "Трудозатраты", "Общие (ч.)", doubleFormat.format(durationPeriod)));
+                            dataSource.add(this.report7DataSourceRow(period, projectName, "Трудозатраты", "Общие, ч.", doubleFormat.format(durationPeriod)));
                         }
 
                         if (periodsDuration.get(period.getNumber().toString()) == null) {
@@ -665,9 +662,9 @@ public class JasperReportDAO {
                         }
 
                         // Относительные затраты по центрам
-                        dataSource.add(this.report7DataSourceRow(period, projectName, "По Центрам", "Центр владельца проекта ч. (%)",
+                        dataSource.add(this.report7DataSourceRow(period, projectName, "По Центрам", "Центр владельца проекта, ч. (%)",
                                 this.report7GenerateValue(durationByCenterOwner, durationPeriod)));
-                        dataSource.add(this.report7DataSourceRow(period, projectName, "По Центрам", "Другие центры ч. (%)",
+                        dataSource.add(this.report7DataSourceRow(period, projectName, "По Центрам", "Другие центры, ч. (%)",
                                 this.report7GenerateValue(durationByCenterEtc, durationPeriod)));
                         periodByCenterEtc += durationByCenterEtc;
                         periodByCenterOwner += durationByCenterOwner;
@@ -679,25 +676,25 @@ public class JasperReportDAO {
                 }
                 // Вывод итого в dataSource
                 if (projectName != null) {
-                    dataSource.add(this.report7DataSourceRow(itogoPeriod, projectName, "По Должностям", "Руководитель проекта ч. (%)",
+                    dataSource.add(this.report7DataSourceRow(itogoPeriod, projectName, "По Должностям", "Руководитель проекта, ч. (%)",
                             this.report7GenerateValue(periodByRP, durations.get(projectName))));
-                    dataSource.add(this.report7DataSourceRow(itogoPeriod, projectName, "По Должностям", "Аналитик ч. (%)",
+                    dataSource.add(this.report7DataSourceRow(itogoPeriod, projectName, "По Должностям", "Аналитик, ч. (%)",
                             this.report7GenerateValue(periodByAnalyst, durations.get(projectName))));
-                    dataSource.add(this.report7DataSourceRow(itogoPeriod, projectName, "По Должностям", "Разработчик ч. (%)",
+                    dataSource.add(this.report7DataSourceRow(itogoPeriod, projectName, "По Должностям", "Разработчик, ч. (%)",
                             this.report7GenerateValue(periodByDev, durations.get(projectName))));
-                    dataSource.add(this.report7DataSourceRow(itogoPeriod, projectName, "По Должностям", "Системный инженер ч. (%)",
+                    dataSource.add(this.report7DataSourceRow(itogoPeriod, projectName, "По Должностям", "Системный инженер, ч. (%)",
                             this.report7GenerateValue(periodBySystem, durations.get(projectName))));
-                    dataSource.add(this.report7DataSourceRow(itogoPeriod, projectName, "По Должностям", "Тестирование ч. (%)",
+                    dataSource.add(this.report7DataSourceRow(itogoPeriod, projectName, "По Должностям", "Тестирование, ч. (%)",
                             this.report7GenerateValue(periodByTest, durations.get(projectName))));
 
                     // Относительные затраты по центрам
-                    dataSource.add(this.report7DataSourceRow(itogoPeriod, projectName, "По Центрам", "Центр владельца проекта ч. (%)",
+                    dataSource.add(this.report7DataSourceRow(itogoPeriod, projectName, "По Центрам", "Центр владельца проекта, ч. (%)",
                             this.report7GenerateValue(periodByCenterOwner, durations.get(projectName))));
-                    dataSource.add(this.report7DataSourceRow(itogoPeriod, projectName, "По Центрам", "Другие центры ч. (%)",
+                    dataSource.add(this.report7DataSourceRow(itogoPeriod, projectName, "По Центрам", "Другие центры, ч. (%)",
                             this.report7GenerateValue(periodByCenterEtc, durations.get(projectName))));
 
                     // Трудозатраты
-                    dataSource.add(this.report7DataSourceRow(itogoPeriod, projectName, "Трудозатраты", "Общие (ч.)", doubleFormat.format(durations.get(projectName))));
+                    dataSource.add(this.report7DataSourceRow(itogoPeriod, projectName, "Трудозатраты", "Общие, ч.", doubleFormat.format(durations.get(projectName))));
 
                     // По регионам
                     for (Map.Entry<String, Double> region : periodRegions.entrySet()) {
@@ -714,7 +711,7 @@ public class JasperReportDAO {
                 for (Map.Entry<String, Double> project : period.getValue().entrySet()) {
                     if (sum > 0 && project.getValue() > 0) {
                         temp = project.getValue() / sum * 100;
-                        dataSource.add(this.report7DataSourceRow(itogoPeriod, project.getKey(), "Трудозатраты", "Относительные (%)",
+                        dataSource.add(this.report7DataSourceRow(itogoPeriod, project.getKey(), "Трудозатраты", "Относительные, %",
                                 doubleFormat.format(temp).concat("%")));
                     }
                 }
@@ -727,7 +724,7 @@ public class JasperReportDAO {
 
             for (Map.Entry<String, Double> period : durations.entrySet()) {
                 temp = period.getValue() / sum * 100;
-                dataSource.add(this.report7DataSourceRow(itogoPeriod, period.getKey(), "Трудозатраты", "Относительные (%)",
+                dataSource.add(this.report7DataSourceRow(itogoPeriod, period.getKey(), "Трудозатраты", "Относительные, %",
                         doubleFormat.format(temp).concat("%")));
             }
             String[] fields = {"period", "name", "group", "type", "value"};

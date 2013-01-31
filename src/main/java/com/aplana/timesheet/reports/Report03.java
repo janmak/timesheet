@@ -49,14 +49,6 @@ public class Report03 extends BaseReport {
         this.emplDivisionId = emplDivisionId;
     }
 
-    public Integer getDivisionId() {
-        return divisionId;
-    }
-
-    public void setDivisionId(Integer divisionId) {
-        this.divisionId = divisionId;
-    }
-
     public Boolean getFilterProjects() {
         return filterProjects;
     }
