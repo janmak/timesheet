@@ -142,6 +142,8 @@ public class TimeSheetController {
             mavWithErrors.addObject("selectedActCategoriesJson", getSelectedActCategoriesJson(tsForm));
             mavWithErrors.addObject("selectedLongVacationIllnessJson", getSelectedLongVacationIllnessJson(tsForm));
             mavWithErrors.addObject("selectedCalDateJson", getSelectedCalDateJson(tsForm));
+            mavWithErrors.addObject("getDateByDefault", getDateByDefault(tsForm.getEmployeeId()));
+            mavWithErrors.addObject("getFirstWorkDate", getEmployeeFirstWorkDay(tsForm.getEmployeeId()));
             mavWithErrors.addAllObjects(getListsToMAV());
 
             return mavWithErrors;
