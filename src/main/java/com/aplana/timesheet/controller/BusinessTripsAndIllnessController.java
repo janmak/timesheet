@@ -7,7 +7,7 @@ import com.aplana.timesheet.controller.quickreport.QuickReportGenerator;
 import com.aplana.timesheet.dao.entity.Calendar;
 import com.aplana.timesheet.dao.entity.Division;
 import com.aplana.timesheet.dao.entity.Employee;
-import com.aplana.timesheet.enums.Region;
+import com.aplana.timesheet.enums.Regions;
 import com.aplana.timesheet.exception.controller.BusinessTripsAndIllnessControllerException;
 import com.aplana.timesheet.form.BusinessTripsAndIllnessForm;
 import com.aplana.timesheet.properties.TSPropertyProvider;
@@ -182,9 +182,9 @@ public class BusinessTripsAndIllnessController {
     private YearPeriod getYearPeriodForEmployyesRegion(Employee employee) {
         YearPeriod yearPeriod = new YearPeriod();
 
-        Region regionEnum = EnumsUtils.getEnumById(employee.getRegion().getId(), Region.class);
+        Regions regionsEnum = EnumsUtils.getEnumById(employee.getRegion().getId(), Regions.class);
 
-        switch (regionEnum) {
+        switch (regionsEnum) {
             case MOSCOW: {
                 yearPeriod.yearBeginDay = propertyProvider.getQuickreportMoskowBegindate();
                 yearPeriod.yearBeginMounth = propertyProvider.getQuickreportMoskowBeginmounth();

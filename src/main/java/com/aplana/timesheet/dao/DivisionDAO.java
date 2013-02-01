@@ -17,30 +17,26 @@ public class DivisionDAO {
 	
 	@PersistenceContext
 	private EntityManager entityManager;
-	
-	/**
-	 * Возвращает список подразделений
-	 */
+
+    /**
+     * Возвращает список активных подразделений
+     */
 	@Transactional(readOnly = true)
 	@SuppressWarnings("unchecked")
-	public List<Division> getDivisions() {
-		Query query = entityManager.createQuery(
+	public List<Division> getActiveDivisions() {
+        Query query = entityManager.createQuery(
                 "from Division as d where d.active=:active order by d.name asc"
-        ).setParameter( "active", true );
+        ).setParameter("active", true);
 
-		return query.getResultList();
-	}
-	/**
-	 * Возвращает список подразделений, которые нужно синхронизировать
-	 */
-	@Transactional(readOnly = true)
+        return query.getResultList();
+    }
+
+    @Transactional(readOnly = true)
 	@SuppressWarnings("unchecked")
-	public List<Division> getDivisionsForSync() {
-		Query query = entityManager.createQuery(
-                "from Division as d where d.active=:active and d.notToSyncWithLdap = false order by d.name asc"
-        ).setParameter( "active", true );
-
-		return query.getResultList();
+	public List<Division> getAllDivisions() {
+        return  entityManager.createQuery(
+                "from Division as d order by d.name asc"
+        ).getResultList();
 	}
 
 	@Transactional(readOnly = true)
@@ -56,8 +52,8 @@ public class DivisionDAO {
 	@Transactional(readOnly = true)
 	public Division find(String title) {
 		Query query = entityManager.createQuery(
-                "from Division as d where d.active=:active and d.ldapName=:title"
-        ).setParameter( "active", true ).setParameter( "title", title );
+                "from Division as d where d.active=:active and lower(d.ldapName)=:title"
+        ).setParameter( "active", true ).setParameter( "title", title.toLowerCase() );
 
         try {
 			return  (Division) query.getSingleResult();
@@ -67,12 +63,23 @@ public class DivisionDAO {
 		}
 	}
 
+    @Transactional(readOnly = true)
+    public Division findByDepartmentName(String departmentName) {
+        logger.debug("findByDepartmentName: departmentName = {}", departmentName);
+        Integer id = (Integer) entityManager.createNativeQuery(
+                "SELECT id FROM division as d WHERE lower(department_name) SIMILAR TO  :departmentName"
+        ).setParameter("departmentName", ("(%_,|)" + departmentName + "(,_%|)").toLowerCase()).getSingleResult();
+        return (Division) find(id);
+    }
+
     @Transactional
     public void save(Division division) {
         if (division.getId() != null) {
             entityManager.merge(division);
         } else {
+            division.setId((Integer) entityManager.createQuery("SELECT MAX(id) FROM Division").getSingleResult() + 1);
             entityManager.persist(division);
         }
+        entityManager.flush();
     }
 }

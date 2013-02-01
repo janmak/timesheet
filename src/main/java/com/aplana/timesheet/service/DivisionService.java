@@ -16,7 +16,7 @@ public class DivisionService {
 	ProjectDAO projectDAO;
 
 	public List<Division> getDivisions() {
-		return divisionDAO.getDivisions();
+		return divisionDAO.getActiveDivisions();
 	}
 
 	/**

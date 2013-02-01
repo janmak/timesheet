@@ -1,11 +1,13 @@
 package com.aplana.timesheet.dao.entity;
 
+import com.aplana.timesheet.dao.Identifiable;
+
 import javax.persistence.*;
 import java.util.Set;
 
 @Entity
 @Table(name = "project_role", uniqueConstraints = @UniqueConstraint(columnNames = {"name", "code"}))
-public class ProjectRole {
+public class ProjectRole implements Identifiable {
 	@Id
 	@Column(nullable = false)
 	private Integer id;

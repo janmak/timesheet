@@ -1,7 +1,6 @@
 package com.aplana.timesheet.service;
 
 import com.aplana.timesheet.dao.LdapDAO;
-import com.aplana.timesheet.dao.EmployeePermissionsDAO;
 import com.aplana.timesheet.dao.ProjectRolePermissionsDAO;
 import com.aplana.timesheet.dao.entity.*;
 import com.aplana.timesheet.dao.entity.ldap.EmployeeLdap;
@@ -36,8 +35,6 @@ public class EmployeeLdapService {
     @Autowired
     private ProjectRolePermissionsDAO projectRolePermissionsDAO;
 
-    @Autowired
-    private EmployeePermissionsDAO employeePermissionsDAO;
 
     private enum EmployeeType {
         EMPLOYEE, MANAGER, NEW_EMPLOYEE
@@ -185,7 +182,7 @@ public class EmployeeLdapService {
 
         List<Employee> empsToSync = new ArrayList<Employee>();
         for (Division division : divisionService.getDivisions()) {
-            employeesLdap = ldapDao.getEmployyes(division.getLdapName());
+            employeesLdap = ldapDao.getEmployees(division.getLdapName());
             logger.debug("Ldap division {} has {} employees", division.getLdapName(), employeesLdap.size());
 
             for(EmployeeLdap employeeLdap:employeesLdap) {

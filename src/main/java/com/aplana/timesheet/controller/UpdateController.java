@@ -15,6 +15,8 @@ import com.aplana.timesheet.util.TimeSheetConstans;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.ldap.support.LdapUtils;
@@ -33,6 +35,7 @@ import java.util.Map;
 @Controller
 @RequestMapping(value = "/admin*")
 public class UpdateController {
+    private static final Logger logger = LoggerFactory.getLogger(UpdateController.class);
 
     @Autowired
     private EmployeeLdapService employeeLdapService;
@@ -109,26 +112,31 @@ public class UpdateController {
         return "redirect:/admin";
     }
 
-    public String updateObjectSids(){
+    public String updateObjectSids() {
 
-        Iterable<Division> divisionsFromDb = divisionDAO.getDivisionsForSync();
+        Iterable<Division> divisionsFromDb = divisionDAO.getActiveDivisions();
 
         List<Map> divisions = ldapDAO.getDivisions();
         for (final Division division : divisionsFromDb) {
-            Map map = Iterables.find(divisions, new Predicate<Map>() {
-                @Override
-                public boolean apply(@Nullable Map input) {
-                    return division.getLdapName().equalsIgnoreCase((String) input.get(LdapDAO.NAME));
-                }
-            });
-            division.setObjectSid(LdapUtils.convertBinarySidToString((byte[]) map.get(LdapDAO.SID)));
-            divisionDAO.save(division);
+
+            logger.debug("Division – {}", division.getName());
+
+            if (StringUtils.isBlank(division.getObjectSid())) {
+                Map map = Iterables.find(divisions, new Predicate<Map>() {
+                    @Override
+                    public boolean apply(@Nullable Map input) {
+                        return division.getLdapName().equalsIgnoreCase((String) input.get(LdapDAO.NAME));
+                    }
+                });
+                division.setObjectSid(LdapUtils.convertBinarySidToString((byte[]) map.get(LdapDAO.SID)));
+                divisionDAO.save(division);
+            }
         }
 
         List<Employee> employeesForSync = employeeDAO.getEmployeesForSync();
 
         for (Employee employee : employeesForSync) {
-            if(StringUtils.isBlank(employee.getObjectSid())){
+            if (StringUtils.isBlank(employee.getObjectSid())) {
                 EmployeeLdap employeeFromLdap = ldapDAO.getEmployeeByLdapName(employee.getLdap());
                 if (employeeFromLdap == null) {
                     employeeFromLdap = ldapDAO.getEmployeeByDisplayName(employee.getName());
