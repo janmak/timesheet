@@ -73,12 +73,12 @@ public class EmployeeService {
      * Возвращает список сотрудников
      * @param division Если null, то поиск осуществляется без учета подразделения,
      *                 иначе с учётом подразделения
-     * @param withRemove Отоброжать ли удалённых сотрудников
+     * @param filterFired Отоброжать ли удалённых сотрудников
      * @return список действующих сотрудников.
      */
-    public List<Employee> getEmployees(Division division, Boolean withRemove) {
+    public List<Employee> getEmployees(Division division, Boolean filterFired) {
         List<Employee> result;
-        if (withRemove == true) {
+        if (filterFired == true) {
             result = employeeDAO.getAllEmployeesDivision(division);
         } else {
             result = employeeDAO.getEmployees(division);
