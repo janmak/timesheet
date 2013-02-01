@@ -30,7 +30,7 @@ public class TimeSheetDAO {
 
     @Transactional
     public void storeTimeSheet(TimeSheet timeSheet) {
-        if (timeSheet.getCreationDate() == null){  //создается новый отчет, а не редактируется старый
+        if (timeSheet.getId() == null){  //создается новый отчет, а не редактируется старый
             timeSheet.setCreationDate(new java.util.Date());
         }
         TimeSheet tsMerged = entityManager.merge(timeSheet);
