@@ -73,7 +73,7 @@ public class EmployeeService {
      * Возвращает список сотрудников
      * @param division Если null, то поиск осуществляется без учета подразделения,
      *                 иначе с учётом подразделения
-     * @param filterFired Отоброжать ли удалённых сотрудников
+     * @param filterFired Отоброжать ли уволленных сотрудников
      * @return список действующих сотрудников.
      */
     public List<Employee> getEmployees(Division division, Boolean filterFired) {
