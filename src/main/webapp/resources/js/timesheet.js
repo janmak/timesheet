@@ -448,7 +448,7 @@ function divisionChange(obj) {
         if (divisionId == employeeList[i].divId) {
             insertEmptyOption(employeeSelect);
             for (var j = 0; j < employeeList[i].divEmps.length; j++) {
-                if (employeeList[i].divEmps[j].id != 0 && employeeList[i].divEmps[j].id != 27) {
+                if (employeeList[i].divEmps[j].id != 0) {
                     employeeOption = dojo.doc.createElement("option");
                     dojo.attr(employeeOption, {
                         value:employeeList[i].divEmps[j].id
@@ -1360,7 +1360,7 @@ function fillEmployeeListByDivision(division) {
         if (divisionId == employeeList[i].divId) {
             insertEmptyOption(employeeSelect);
             for (var j = 0; j < employeeList[i].divEmps.length; j++) {
-                if (employeeList[i].divEmps[j].id != 0 && employeeList[i].divEmps[j].id != 27) {
+                if (employeeList[i].divEmps[j].id != 0) {
                     employeeOption = dojo.doc.createElement("option");
                     dojo.attr(employeeOption, {
                         value:employeeList[i].divEmps[j].id

@@ -168,7 +168,7 @@ public class FeedbackController {
         StringBuilder sb = new StringBuilder();
         sb.append("[");
         for (int i = 0; i < divisions.size(); i++) {
-            List<Employee> employees = employeeService.getEmployees(divisions.get(i));
+            List<Employee> employees = employeeService.getEmployeesReportCheck(divisions.get(i));
             sb.append("{divId:'");
             sb.append(divisions.get(i).getId());
             sb.append("', divEmps:[");

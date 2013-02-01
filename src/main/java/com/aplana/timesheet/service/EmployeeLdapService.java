@@ -235,6 +235,9 @@ public class EmployeeLdapService {
             employee.setEmail(employeeLdap.getMail().trim());
         employee.setLdap(employeeLdap.getLdapCn());
 
+        findAndFillJobField(employeeLdap, errors, employee);
+        findAndFillRegionField(employeeLdap, errors, employee);
+
         ProjectRole role = employee.getJob();
         if (role != null) {
             ProjectRole sysRole = projectRoleService.getSysRole(employee.getJob().getId());
@@ -242,9 +245,6 @@ public class EmployeeLdapService {
                 employee.setRole(sysRole.getSysRoleId());
             }
         }
-
-        findAndFillJobField(employeeLdap, errors, employee);
-        findAndFillRegionField(employeeLdap, errors, employee);
 
         switch (employeeType) {
             case NEW_EMPLOYEE:

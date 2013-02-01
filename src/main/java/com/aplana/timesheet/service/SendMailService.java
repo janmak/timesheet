@@ -227,7 +227,7 @@ public class SendMailService{
     }
     
     public List<Employee> getEmployeesList(Division division){
-        return employeeService.getEmployees(division);
+        return employeeService.getEmployeesReportCheck(division);
     }
 
     public void performMailing(TimeSheetForm form) {
