@@ -5,8 +5,10 @@ import com.aplana.timesheet.controller.quickreport.QuickReportGenerator;
 import com.aplana.timesheet.dao.entity.Employee;
 import com.aplana.timesheet.dao.entity.Periodical;
 import com.aplana.timesheet.exception.controller.BusinessTripsAndIllnessControllerException;
+import com.aplana.timesheet.service.BusinessTripService;
 import com.aplana.timesheet.service.CalendarService;
 import com.aplana.timesheet.service.EmployeeService;
+import com.aplana.timesheet.service.IllnessService;
 import org.apache.commons.lang.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -21,10 +23,16 @@ public abstract class AbstractQuickReportGenerator <T extends QuickReport, K ext
 
     public static final String QOICK_REPORT_GENARATE_ERROR_MESSAGE = "Ошибка при генерации отчета!";
     @Autowired
-    EmployeeService employeeService;
+    BusinessTripService businessTripService;
+
+    @Autowired
+    IllnessService illnessService;
 
     @Autowired
     CalendarService calendarService;
+
+    @Autowired
+    EmployeeService employeeService;
 
     public final T generate(Employee employee, Date periodBeginDate, Date periodEndDate, Date yearBeginDate, Date yearEndDate) throws BusinessTripsAndIllnessControllerException {
         try{

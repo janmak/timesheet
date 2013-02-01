@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -84,6 +85,10 @@ public class ProjectService {
 	public List<ProjectParticipant> getEmployeeProjectRoles(Project project, Employee employee){
 		return projectDAO.getEmployeeProjectRoles(project, employee);
 	}
+
+    public List<Project> getProjectsByDates(Date beginDate, Date endDate){
+        return projectDAO.getProjectsByDates(beginDate, endDate);
+    }
 
     /**
      * Возвращает список проектов с указанием подразделения РП проекта
@@ -182,6 +187,28 @@ public class ProjectService {
             } else {
                 sb.append("{id:'0', value:''}");
             }
+        sb.append("]");
+        return sb.toString();
+    }
+
+    public String getProjectListAsJson(List<Project> projects){
+        StringBuilder sb = new StringBuilder();
+        sb.append("[");
+        if (projects.size() > 0) {
+            for (Project project : projects) {
+                sb.append("{id:'");
+                sb.append(project.getId());
+                sb.append("', value:'");
+                sb.append(project.getName());
+                sb.append("', state:'");
+                sb.append(project.getState().getId());
+                sb.append("'}");
+                sb.append(", ");
+            }
+            sb.deleteCharAt(sb.length() - 2);
+        } else {
+            sb.append("{id:'0', value:''}");
+        }
         sb.append("]");
         return sb.toString();
     }

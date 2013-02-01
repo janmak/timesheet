@@ -25,7 +25,7 @@ public class IllnessesQuickReportGenerator extends AbstractQuickReportGenerator<
 
     @Override
     protected List<Illness> getAllPeriodicals(Employee employee) {
-        return employeeService.getEnployeeIllness(employee);
+        return illnessService.getEmployeeIllness(employee);
     }
 
     @Override

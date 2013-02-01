@@ -70,20 +70,20 @@ public class TSPropertyProvider {
         return getProperties().getProperty("mail.password");
     }
 
-    public Integer getQuickreportMoskowBegindate() {
-        return Integer.parseInt(getProperties().getProperty("quickreport.moskow.begindate"));
+    public Integer getQuickreportMoskowBeginDay() {
+        return Integer.parseInt(getProperties().getProperty("quickreport.moskow.beginday"));
     }
 
-    public Integer getQuickreportMoskowBeginmounth() {
-        return Integer.parseInt(getProperties().getProperty("quickreport.moskow.beginmounth"));
+    public Integer getQuickreportMoskowBeginMonth() {
+        return Integer.parseInt(getProperties().getProperty("quickreport.moskow.beginmonth"));
     }
 
-    public Integer getQuickreportRegionsBegindate() {
-        return Integer.parseInt(getProperties().getProperty("quickreport.regions.begindate"));
+    public Integer getQuickreportRegionsBeginDay() {
+        return Integer.parseInt(getProperties().getProperty("quickreport.regions.beginday"));
     }
 
-    public Integer getQuickreportRegionsBeginmounth() {
-        return Integer.parseInt(getProperties().getProperty("quickreport.regions.beginmounth"));
+    public Integer getQuickreportRegionsBeginMonth() {
+        return Integer.parseInt(getProperties().getProperty("quickreport.regions.beginmonth"));
     }
 
     public String getProjectRoleDeveloper() {

@@ -1,7 +1,9 @@
 package com.aplana.timesheet.service;
 
 import com.aplana.timesheet.dao.EmployeeDAO;
-import com.aplana.timesheet.dao.entity.*;
+import com.aplana.timesheet.dao.entity.Division;
+import com.aplana.timesheet.dao.entity.Employee;
+import com.aplana.timesheet.dao.entity.Permission;
 import com.aplana.timesheet.enums.Permissions;
 import com.aplana.timesheet.util.TimeSheetConstans;
 import com.google.common.base.Predicate;
@@ -141,16 +143,8 @@ public class EmployeeService {
         return employeeDAO.getRegionManager(regionId, divisionId);
     }
 
-    public List<Illness> getEnployeeIllness(Employee employee) {
-        return employeeDAO.getEnployeeIllnessList(employee);
-    }
-
     public Double getWorkDaysOnIllnessWorked(Employee employee, Date beginDate, Date endDate){
         return employeeDAO.getWorkDaysOnIllnessWorked(employee, beginDate, endDate);
-    }
-
-    public List<BusinessTrip> getEmployeeBusinessTrips(Employee employee) {
-        return employeeDAO.getEmployeeBusinessTrips(employee);
     }
 
     public boolean isEmployeeAdmin(Integer employeeId) {
