@@ -13,7 +13,7 @@ public class AdminController {
     private EmployeeService employeeService;
 
     @RequestMapping
-    public ModelAndView adminPanel() {
-        return new ModelAndView("adminPanel").addObject("showalluser", employeeService.isShowAll());
+    public ModelAndView adminPanel(HttpServletRequest request) {
+        return new ModelAndView("adminPanel").addObject("showalluser", employeeService.isShowAll(request));
     }
 }

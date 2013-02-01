@@ -14,6 +14,9 @@ import java.util.Date;
  */
 public abstract class AbstractController {
 
+    @Autowired
+    protected HttpServletRequest request;
+
     /**
      * формат передачи даты между моделью и формой
      */

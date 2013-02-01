@@ -15,11 +15,11 @@ public class EmployeeHelper {
 	@Autowired
 	private EmployeeService employeeService;
 
-	public String getEmployeeListJson(List<Division> divisions) {
+	public String getEmployeeListJson(List<Division> divisions, Boolean withRemove) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("[");
 		for (int i = 0; i < divisions.size(); i++) {
-			List<Employee> employees = employeeService.getEmployees(divisions.get(i));
+			List<Employee> employees = employeeService.getEmployees(divisions.get(i), withRemove);
 			sb.append("{divId:'");
 			sb.append(divisions.get(i).getId());
 			sb.append("', divEmps:[");

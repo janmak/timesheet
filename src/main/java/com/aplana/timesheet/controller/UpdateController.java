@@ -93,7 +93,7 @@ public class UpdateController {
 
     @RequestMapping(value = "/update/hidealluser")
     public String hideAllUser(HttpServletRequest request, HttpServletResponse response) {
-        if (employeeService.isShowAll()) {
+        if (employeeService.isShowAll(request)) {
             Cookie cookie = new Cookie(TimeSheetConstans.COOKIE_SHOW_ALLUSER, "deactive");
             cookie.setPath("/");
             cookie.setMaxAge(0);
