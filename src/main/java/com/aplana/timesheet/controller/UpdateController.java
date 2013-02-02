@@ -114,7 +114,12 @@ public class UpdateController {
 
     public String updateObjectSids() {
 
-        Iterable<Division> divisionsFromDb = divisionDAO.getActiveDivisions();
+        Iterable<Division> divisionsFromDb = Iterables.filter(divisionDAO.getActiveDivisions(), new Predicate<Division>() {
+            @Override
+            public boolean apply(@Nullable Division input) {
+                return !input.getNotToSyncWithLdap();
+            }
+        });
 
         List<Map> divisions = ldapDAO.getDivisions();
         for (final Division division : divisionsFromDb) {

@@ -222,7 +222,7 @@ public class EmployeeDAO {
 		entityManager.flush();
 		logger.info("Persistence context synchronized to the underlying database.");
 		logger.debug("Flushed Employee object id = {}", empMerged.getId());
-        return employee;
+        return empMerged;
 	}
 
     public boolean isNotToSync(Employee employee) {
@@ -314,6 +314,8 @@ public class EmployeeDAO {
         if(employee == null) return null;
 
         Hibernate.initialize(employee.getDivision());
+        Hibernate.initialize(employee.getDivision().getLeaderId());
+        Hibernate.initialize(employee.getDivision().getLeader());
         Hibernate.initialize(employee.getJob());
         Hibernate.initialize(employee.getManager());
         Hibernate.initialize(employee.getRegion());

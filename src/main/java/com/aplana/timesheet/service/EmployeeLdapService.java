@@ -47,6 +47,29 @@ public class EmployeeLdapService {
         return syncOneActiveEmployee(ldapDao,email);
     }
 
+    /**
+     * Синхронизация одного сотрудника из LDAP
+     * Только когда сотрудник есть в LDAP но не было в БД
+     */
+    private  String syncOneActiveEmployee(LdapDAO ldapDao,String email) {
+        logger.info("Start synchronize employee.");
+
+        StringBuffer errors = new StringBuffer();
+        //пользователь из LDAP по email
+        EmployeeLdap employeeLdap = ldapDao.getEmployeeByEmail(email);
+        //проверка не нужна, но нАдо
+        if(employeeLdap!=null) {
+            //создаем нового сотрудника
+            Employee employee = createAndFillEmployee(employeeLdap, errors, EmployeeType.NEW_EMPLOYEE);
+            //добавляем в БД сотрудника
+            if( errors.length() == 0 ) employeeService.setEmployee(employee);
+
+            return errors.toString();
+        } else {
+            return null;
+        }
+    }
+
 	public void synchronize() {
 		trace.setLength(0);
 		logger.info("Synchronization with ldap started.");
@@ -145,28 +168,7 @@ public class EmployeeLdapService {
         return errors.toString();
 	}
 
-    /**
-     * Синхронизация одного сотрудника из LDAP
-     * Только когда сотрудник есть в LDAP но не было в БД
-     */
-    private  String syncOneActiveEmployee(LdapDAO ldapDao,String email) {
-        logger.info("Start synchronize employee.");
 
-        StringBuffer errors = new StringBuffer();
-        //пользователь из LDAP по email
-        EmployeeLdap employeeLdap = ldapDao.getEmployeeByEmail(email);
-        //проверка не нужна, но нАдо
-        if(employeeLdap!=null) {
-            //создаем нового сотрудника
-            Employee employee = createAndFillEmployee(employeeLdap, errors, EmployeeType.NEW_EMPLOYEE);
-            //добавляем в БД сотрудника
-            if( errors.length() == 0 ) employeeService.setEmployee(employee);
-
-            return errors.toString();
-        } else {
-            return null;
-        }
-    }
 
 	/**
 	 * Синхронизует активных сотрудников из ldap 

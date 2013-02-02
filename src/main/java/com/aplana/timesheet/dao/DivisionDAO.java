@@ -6,6 +6,8 @@ import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+
+import org.hibernate.Hibernate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
@@ -41,7 +43,9 @@ public class DivisionDAO {
 
 	@Transactional(readOnly = true)
 	public Division find(Integer id) {
-		return entityManager.find(Division.class, id);
+        Division division = entityManager.find(Division.class, id);
+        Hibernate.initialize(division.getLeaderId());
+        return division;
 	}
 	
 	/**

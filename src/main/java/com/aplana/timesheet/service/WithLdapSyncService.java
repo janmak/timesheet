@@ -74,7 +74,7 @@ public class WithLdapSyncService {
         logger.info("Starting synchronization other division …");
         Iterable<Division> divisions = Iterables.filter(dao.getActiveDivisions(), new Predicate<Division>() {
             @Override public boolean apply(@Nullable Division input) {
-                return StringUtils.isBlank(input.getObjectSid()) && !input.getNotToSyncWithLdap();
+                return StringUtils.isBlank(input.getObjectSid());
             } });
         logger.info("Count division for sync — {}", Iterables.size(divisions));
         for (Division division : divisions) {
@@ -102,8 +102,15 @@ public class WithLdapSyncService {
                 logger.info("Creating new division in DB started...");
                 //Если не удалось найти отдел - добавить новый отдел
                 dao.save(dbDivision = createNewDivision(division));
+                if (dbDivision.getLeaderId() == null) {
+                    Employee leader = employeeDAO.save(
+                            createUser(ldapDAO.getEmployeeByLdapName((String) division.get(LdapDAO.LEADER)), true));
+                    dbDivision.setLeaderId(leader);
+                    dbDivision.setLeader(leader.getName());
+                    dao.save(dbDivision);
+                }
                 logger.info("…created division saved.");
-                //Если отдел уже есть и active = false - перейти к анализу следующего отдела
+            //Если отдел уже есть и active = false - перейти к анализу следующего отдела
             } else if (!dbDivision.isActive() || dbDivision.getNotToSyncWithLdap()) {
                 logger.info(
                         "Division \"{}\" is {}. Go to next division.",
@@ -111,7 +118,7 @@ public class WithLdapSyncService {
                         dbDivision.getNotToSyncWithLdap() ? "marked as not to sync" : "not active"
                 );
                 continue;
-                //Если отдел уже есть и active = true - проверить/обновить поля ldap_name, leader
+            //Если отдел уже есть и active = true - проверить/обновить поля ldap_name, leader
             } else {
                 Employee employeeByObjectSid = employeeDAO.findByObjectSid((String) division.get(LdapDAO.LEADER));
                 if (employeeByObjectSid != null && !employeeByObjectSid.getName().equals(dbDivision.getLeader())) {
@@ -218,10 +225,17 @@ public class WithLdapSyncService {
         employeeFromDb.setLdap      (employeeFromLdap.getLdap());
         employeeFromDb.setName      (employeeFromLdap.getName());
         employeeFromDb.setRegion    (employeeFromLdap.getRegion());
-        employeeFromDb.setManager   (employeeFromLdap.getManager());
         employeeFromDb.setDivision  (employeeFromLdap.getDivision());
         employeeFromDb.setJob       (employeeFromLdap.getJob());
 
+        // У руководителей отделений не должны быть прописаны руководители
+        Division division = dao.find(employeeFromDb.getDivision().getId());
+
+        if(!division.getLeaderId().equals(employeeFromDb)){
+            employeeFromDb.setManager   (employeeFromLdap.getManager());
+        } else {
+            employeeFromDb.setManager(null);
+        }
         if (StringUtils.isBlank(employeeFromLdap.getEmail())) {
             logger.info("Employee {} is deactivated(empty email)", employeeFromDb.getName());
             employeeFromDb.setEndDate(employeeFromLdap.getEndDate());
@@ -231,8 +245,7 @@ public class WithLdapSyncService {
     }
 
     private boolean compareEmployees(Employee employeeFromDb, Employee employeeFromLdap) {
-
-        return     Objects.equal(employeeFromDb.getLdap()            , employeeFromLdap.getLdap())
+        return     Objects.equal(employeeFromDb.getLdap()            ,  employeeFromLdap.getLdap())
                 && Objects.equal(employeeFromDb.getName()            ,  employeeFromLdap.getName())
                 && Objects.equal(getId(employeeFromDb.getDivision()) ,  getId(employeeFromLdap.getDivision()))
                 && Objects.equal(employeeFromDb.getEmail()           ,  employeeFromLdap.getEmail())
@@ -269,30 +282,24 @@ public class WithLdapSyncService {
         }).orNull();
     }
 
-
     @VisibleForTesting
     Employee createUser(final EmployeeLdap employeeFromLdap) {
+        return createUser(employeeFromLdap, false);
+    }
+
+    @VisibleForTesting
+    Employee createUser(final EmployeeLdap employeeFromLdap, boolean leader) {
         Employee employee = new Employee();
 
         logger.debug("Starting creating new employee(Email={})", employeeFromLdap.getEmail());
         employee.setLdap(employeeFromLdap.getLdapCn());
         employee.setObjectSid(employeeFromLdap.getObjectSid());
         employee.setEmail(employeeFromLdap.getEmail());
-        employee.setJob(
-                Optional.fromNullable(projectRoleDAO.find(employeeFromLdap.getTitle()))
-                        .or(projectRoleService.getUndefinedRole()));
-
-        if (StringUtils.isNotBlank(employeeFromLdap.getManager())) {
-            employee.setManager(employeeDAO.findByLdapName(employeeFromLdap.getManager()));
-            if (employee.getManager() == null) {
-                createUser(ldapDAO.getEmployeeByLdapName(employeeFromLdap.getManager()));
-            }
-        }
 
         employee.setDivision(dao.findByDepartmentName(employeeFromLdap.getDepartment()));
         employee.setNotToSync(false);
         employee.setName(employeeFromLdap.getDisplayName());
-        employee.setPermissions(Sets.newHashSet(projectRolePermissionsDAO.getProjectRolePermission(employee.getJob())));
+
         employee.setStartDate(new Timestamp(DateUtils.addDays(new Date(), 1).getTime()));
 
         Region region = Iterables.tryFind(regionDAO.getRegions(), new Predicate<Region>() {
@@ -303,6 +310,25 @@ public class WithLdapSyncService {
         }).or(regionDAO.find(Regions.OTHERS.getId()));
 
         employee.setRegion(region);
+
+        employee.setJob(
+                Optional.fromNullable(projectRoleDAO.find(employeeFromLdap.getTitle()))
+                        .or(projectRoleService.getUndefinedRole()));
+
+        employee.setPermissions(Sets.newHashSet(projectRolePermissionsDAO.getProjectRolePermission(employee.getJob())));
+
+        if (StringUtils.isNotBlank(employeeFromLdap.getManager())) {
+            logger.debug("Employee' division – {}, division leader {}", employee.getDivision().getLdapName(), employee.getDivision().getLeader());
+            if(leader || employee.getDivision().getLeader().equals(employeeFromLdap.getDisplayName())){
+                employee.setManager(null);
+            } else {
+                employee.setManager(employeeDAO.findByLdapName(employeeFromLdap.getManager()));
+                if (employee.getManager() == null) {
+                    employee.setManager(
+                            employeeDAO.save(createUser(ldapDAO.getEmployeeByLdapName(employeeFromLdap.getManager()))));
+                }
+            }
+        }
 
         return employee;
     }
@@ -317,10 +343,11 @@ public class WithLdapSyncService {
         dbDivision.setNotToSyncWithLdap(false);
         dbDivision.setLdapName((String) division.get(LdapDAO.NAME));
         logger.info("In field ldapName set \"()\" value.", dbDivision.getLdapName());
-        dbDivision.setLeaderId(employeeDAO.findByLdapName((String) division.get(LdapDAO.LEADER)));
+
 
         dbDivision.setName(dbDivision.getLdapName());
         dbDivision.setDepartmentName(dbDivision.getLdapName());
+        dbDivision.setLeaderId(employeeDAO.findByLdapName((String) division.get(LdapDAO.LEADER)));
         dbDivision.setLeader(dbDivision.getLeaderId() == null ? null : dbDivision.getLeaderId().getName());
         logger.info("In field leader set \"()\" value.", dbDivision.getLeader());
 
