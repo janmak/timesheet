@@ -4,6 +4,7 @@ import org.apache.commons.lang3.StringEscapeUtils;
 import org.hibernate.annotations.ForeignKey;
 
 import javax.persistence.*;
+import java.util.Date;
 import java.util.Set;
 
 @Entity
@@ -39,6 +40,17 @@ public class TimeSheet {
 
     @OneToOne(mappedBy = "overtimeCause")
     private OvertimeCause overtimeCause;
+
+    @Column(name = "creation_date")
+    private Date creationDate;
+
+    public Date getCreationDate() {
+        return creationDate;
+    }
+
+    public void setCreationDate(Date creationDate) {
+        this.creationDate = creationDate;
+    }
 
     public Calendar getCalDate() {
         return calDate;

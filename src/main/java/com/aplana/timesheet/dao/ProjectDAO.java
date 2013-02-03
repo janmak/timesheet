@@ -15,6 +15,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import java.util.Date;
 import java.util.List;
 
 import static com.aplana.timesheet.enums.TypeOfActivity.PRESALE;
@@ -200,5 +201,13 @@ public class ProjectDAO {
         if (project.getDivisions() != null)
             exProject.getDivisions().addAll(project.getDivisions());
         exProject.setState(item);
+    }
+
+    public List<Project> getProjectsByDates(Date beginDate, Date endDate) {
+        Query query = entityManager.createQuery("from Project p where p.startDate <= :endDate and p.endDate >= :startDate");
+        query.setParameter("startDate", beginDate);
+        query.setParameter("endDate", endDate);
+
+        return query.getResultList();
     }
 }

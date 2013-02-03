@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
+import javax.servlet.http.HttpServletRequest;
 
 @Controller
 @RequestMapping(value = {"/admin/", "/admin"})
@@ -13,7 +14,7 @@ public class AdminController {
     private EmployeeService employeeService;
 
     @RequestMapping
-    public ModelAndView adminPanel() {
-        return new ModelAndView("adminPanel").addObject("showalluser", employeeService.isShowAll());
+    public ModelAndView adminPanel(HttpServletRequest request) {
+        return new ModelAndView("adminPanel").addObject("showalluser", employeeService.isShowAll(request));
     }
 }

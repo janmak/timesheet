@@ -127,7 +127,7 @@ public class ReportCheckService {
         logger.info("storeReportcheck() for division {} entered", division.getId());
         Integer reportsNotSendNumber;
         List<ReportCheck> reportCheckList = new ArrayList<ReportCheck>();
-        List<Employee> employeeList = employeeService.getEmployees(division);
+        List<Employee> employeeList = employeeService.getEmployees(division, false);
         List<String> dayList = DateTimeUtil
                 .splitDateRangeOnDays(firstDay, lastDay);
         String currentDay = DateTimeUtil.currentDay();

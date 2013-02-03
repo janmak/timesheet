@@ -190,7 +190,7 @@ public class SendMailService{
     }
 
     public List<Employee> getEmployeesList(Division division){
-        return employeeService.getEmployees(division);
+        return employeeService.getEmployees(division,false);
     }
 
     public void performMailing(TimeSheetForm form) {

@@ -17,7 +17,7 @@ import java.util.List;
  * @author rshamsutdinov
  * @version 1.0
  */
-public abstract class AbstractControllerForEmployee {
+public abstract class AbstractControllerForEmployee extends AbstractController{
 
     protected static final Logger logger = LoggerFactory.getLogger(AbstractControllerForEmployee.class);
 
@@ -46,7 +46,7 @@ public abstract class AbstractControllerForEmployee {
         modelAndView.addObject("employeeId", employeeId);
         modelAndView.addObject(EMPLOYEE, employee);
         modelAndView.addObject("divisionList", divisionList);
-        modelAndView.addObject("employeeListJson", employeeHelper.getEmployeeListJson(divisionList));
+        modelAndView.addObject("employeeListJson", employeeHelper.getEmployeeListJson(divisionList, employeeService.isShowAll(request)));
 
         return modelAndView;
     }

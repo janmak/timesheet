@@ -30,6 +30,9 @@ public class TimeSheetController {
     private static final Logger logger = LoggerFactory.getLogger(TimeSheetController.class);
 
     @Autowired
+    protected HttpServletRequest request;
+
+    @Autowired
     private DivisionService divisionService;
     @Autowired
     private EmployeeService employeeService;
@@ -142,6 +145,8 @@ public class TimeSheetController {
             mavWithErrors.addObject("selectedActCategoriesJson", getSelectedActCategoriesJson(tsForm));
             mavWithErrors.addObject("selectedLongVacationIllnessJson", getSelectedLongVacationIllnessJson(tsForm));
             mavWithErrors.addObject("selectedCalDateJson", getSelectedCalDateJson(tsForm));
+            mavWithErrors.addObject("getDateByDefault", getDateByDefault(tsForm.getEmployeeId()));
+            mavWithErrors.addObject("getFirstWorkDate", getEmployeeFirstWorkDay(tsForm.getEmployeeId()));
             mavWithErrors.addAllObjects(getListsToMAV());
 
             return mavWithErrors;
@@ -258,7 +263,7 @@ public class TimeSheetController {
         List<Division> divisions = divisionService.getDivisions();
         result.put("divisionList", divisions);
 
-        result.put("employeeListJson", employeeHelper.getEmployeeListJson(divisions));
+        result.put("employeeListJson", employeeHelper.getEmployeeListJson(divisions, employeeService.isShowAll(request)));
 
         List<DictionaryItem> categoryOfActivity = dictionaryItemService.getCategoryOfActivity();
         result.put("actCategoryList", categoryOfActivity);

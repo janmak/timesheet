@@ -19,7 +19,7 @@ public class BusinessTripsQuickReportGenerator extends AbstractQuickReportGenera
 
     @Override
     protected List<BusinessTrip> getAllPeriodicals(Employee employee) {
-        return employeeService.getEmployeeBusinessTrips(employee);
+        return businessTripService.getEmployeeBusinessTrips(employee);
     }
 
     @Override

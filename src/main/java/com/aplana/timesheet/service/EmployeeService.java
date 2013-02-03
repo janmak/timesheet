@@ -1,7 +1,9 @@
 package com.aplana.timesheet.service;
 
 import com.aplana.timesheet.dao.EmployeeDAO;
-import com.aplana.timesheet.dao.entity.*;
+import com.aplana.timesheet.dao.entity.Division;
+import com.aplana.timesheet.dao.entity.Employee;
+import com.aplana.timesheet.dao.entity.Permission;
 import com.aplana.timesheet.enums.Permissions;
 import com.aplana.timesheet.util.TimeSheetConstans;
 import com.google.common.base.Predicate;
@@ -24,10 +26,6 @@ public class EmployeeService {
     TimeSheetService timeSheetService;
     @Autowired
     private EmployeeDAO employeeDAO;
-    @Autowired
-    private HttpServletRequest request;
-    private Boolean isShowAllLoaded = false;
-    private Boolean isShowAll;
 
     /**
      * Возвращает сотрудника по идентификатору.
@@ -39,16 +37,14 @@ public class EmployeeService {
         return employeeDAO.find(id);
     }
 
-    public Boolean isShowAll() {
-        if (!isShowAllLoaded) {
-            isShowAll = false;
-            Cookie[] cookies = request.getCookies();
-            if (cookies != null) {
-                for (Cookie cookie : cookies) {
-                    if (cookie.getName().equals(TimeSheetConstans.COOKIE_SHOW_ALLUSER)) {
-                        isShowAll = true;
-                        break;
-                    }
+    public Boolean isShowAll(HttpServletRequest request) {
+        Boolean isShowAll = false;
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if (cookie.getName().equals(TimeSheetConstans.COOKIE_SHOW_ALLUSER)) {
+                    isShowAll = true;
+                    break;
                 }
             }
         }
@@ -77,11 +73,12 @@ public class EmployeeService {
      * Возвращает список сотрудников
      * @param division Если null, то поиск осуществляется без учета подразделения,
      *                 иначе с учётом подразделения
+     * @param filterFired Отоброжать ли уволленных сотрудников
      * @return список действующих сотрудников.
      */
-    public List<Employee> getEmployees(Division division) {
+    public List<Employee> getEmployees(Division division, Boolean filterFired) {
         List<Employee> result;
-        if (isShowAll()) {
+        if (filterFired == true) {
             result = employeeDAO.getAllEmployeesDivision(division);
         } else {
             result = employeeDAO.getEmployees(division);
@@ -129,16 +126,8 @@ public class EmployeeService {
         return employeeDAO.getRegionManager(regionId, divisionId);
     }
 
-    public List<Illness> getEnployeeIllness(Employee employee) {
-        return employeeDAO.getEnployeeIllnessList(employee);
-    }
-
     public Double getWorkDaysOnIllnessWorked(Employee employee, Date beginDate, Date endDate){
         return employeeDAO.getWorkDaysOnIllnessWorked(employee, beginDate, endDate);
-    }
-
-    public List<BusinessTrip> getEmployeeBusinessTrips(Employee employee) {
-        return employeeDAO.getEmployeeBusinessTrips(employee);
     }
 
     public boolean isEmployeeAdmin(Integer employeeId) {

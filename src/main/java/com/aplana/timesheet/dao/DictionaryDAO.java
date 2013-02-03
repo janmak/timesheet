@@ -11,7 +11,7 @@ import java.util.List;
 @Repository
 public class DictionaryDAO {
 
-	@PersistenceContext
+    @PersistenceContext
 	private EntityManager entityManager;
 
 	@Transactional(readOnly = true)

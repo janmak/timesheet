@@ -4,9 +4,7 @@ package com.aplana.timesheet.dao.entity;
 import org.hibernate.annotations.ForeignKey;
 
 import javax.persistence.*;
-import java.io.Serializable;
 import java.util.Date;
-import java.lang.Integer;
 
 /**
  * User: vsergeev
@@ -17,9 +15,9 @@ import java.lang.Integer;
 public class Illness implements Cloneable, Periodical {
 
     @Id
-    @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "illness_seq")
     @SequenceGenerator(name = "illness_seq", sequenceName = "illness_seq", allocationSize = 10)
+    @Column(nullable = false)
     private Integer id;
 
     @ManyToOne(fetch = FetchType.LAZY)

@@ -70,3 +70,4 @@
 
 Для сборки и запуска приложения необходимо установить Maven (http://maven.apache.org). Тестовое приложение запускается в контейнере Jetty.
 Запуск приложения осуществляется вызовом run.bat.
+При запуске приложения из IDE необходимо прописать в параметры запуска путь к файлу timesheet.properties вида: -DpathToTsProperties=webapps\timesheet.properties

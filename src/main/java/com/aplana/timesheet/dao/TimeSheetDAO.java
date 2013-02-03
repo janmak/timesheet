@@ -1,9 +1,10 @@
 package com.aplana.timesheet.dao;
 
-import com.aplana.timesheet.dao.entity.*;
 import com.aplana.timesheet.dao.entity.Calendar;
+import com.aplana.timesheet.dao.entity.DayTimeSheet;
+import com.aplana.timesheet.dao.entity.Employee;
+import com.aplana.timesheet.dao.entity.TimeSheet;
 import com.aplana.timesheet.enums.TypeOfActivity;
-import com.aplana.timesheet.util.TimeSheetConstans;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
@@ -15,7 +16,10 @@ import javax.persistence.Query;
 import java.math.BigDecimal;
 import java.sql.Date;
 import java.sql.Timestamp;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
 
 @Repository
 public class TimeSheetDAO {
@@ -26,6 +30,9 @@ public class TimeSheetDAO {
 
     @Transactional
     public void storeTimeSheet(TimeSheet timeSheet) {
+        if (timeSheet.getId() == null){  //создается новый отчет, а не редактируется старый
+            timeSheet.setCreationDate(new java.util.Date());
+        }
         TimeSheet tsMerged = entityManager.merge(timeSheet);
         logger.info("timeSheet merged.");
         entityManager.flush();
