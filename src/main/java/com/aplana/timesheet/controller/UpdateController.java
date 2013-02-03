@@ -112,9 +112,9 @@ public class UpdateController {
         return "redirect:/admin";
     }
 
+    @RequestMapping(value = "/update/objectSid")
     public String updateObjectSids() {
-
-        Iterable<Division> divisionsFromDb = Iterables.filter(divisionDAO.getActiveDivisions(), new Predicate<Division>() {
+        Iterable<Division> divisionsFromDb = Iterables.filter(divisionDAO.getAllDivisions(), new Predicate<Division>() {
             @Override
             public boolean apply(@Nullable Division input) {
                 return !input.getNotToSyncWithLdap();
