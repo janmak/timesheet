@@ -3,7 +3,6 @@ package com.aplana.timesheet.service;
 import com.aplana.timesheet.dao.*;
 import com.aplana.timesheet.dao.entity.Division;
 import com.aplana.timesheet.dao.entity.Employee;
-import com.aplana.timesheet.dao.entity.ProjectRole;
 import com.aplana.timesheet.dao.entity.Region;
 import com.aplana.timesheet.dao.entity.ldap.EmployeeLdap;
 import com.aplana.timesheet.enums.Regions;
@@ -72,9 +71,9 @@ public class WithLdapSyncService {
 
     private void syncDivisionsNotInLdap(List<Integer> syncedEmployees) {
         logger.info("Starting synchronization other division …");
-        Iterable<Division> divisions = Iterables.filter(dao.getActiveDivisions(), new Predicate<Division>() {
+        Iterable<Division> divisions = Iterables.filter(dao.getAllDivisions(), new Predicate<Division>() {
             @Override public boolean apply(@Nullable Division input) {
-                return StringUtils.isBlank(input.getObjectSid());
+                return input.getNotToSyncWithLdap() && input.getSyncEmployye();
             } });
         logger.info("Count division for sync — {}", Iterables.size(divisions));
         for (Division division : divisions) {
@@ -102,13 +101,8 @@ public class WithLdapSyncService {
                 logger.info("Creating new division in DB started...");
                 //Если не удалось найти отдел - добавить новый отдел
                 dao.save(dbDivision = createNewDivision(division));
-                if (dbDivision.getLeaderId() == null) {
-                    Employee leader = employeeDAO.save(
-                            createUser(ldapDAO.getEmployeeByLdapName((String) division.get(LdapDAO.LEADER)), true));
-                    dbDivision.setLeaderId(leader);
-                    dbDivision.setLeader(leader.getName());
-                    dao.save(dbDivision);
-                }
+
+                setLeaderIfNeed(division, dbDivision);
                 logger.info("…created division saved.");
             //Если отдел уже есть и active = false - перейти к анализу следующего отдела
             } else if (!dbDivision.isActive() || dbDivision.getNotToSyncWithLdap()) {
@@ -120,6 +114,7 @@ public class WithLdapSyncService {
                 continue;
             //Если отдел уже есть и active = true - проверить/обновить поля ldap_name, leader
             } else {
+                setLeaderIfNeed(division, dbDivision);
                 Employee employeeByObjectSid = employeeDAO.findByObjectSid((String) division.get(LdapDAO.LEADER));
                 if (employeeByObjectSid != null && !employeeByObjectSid.getName().equals(dbDivision.getLeader())) {
                     logger.info("Divisions in LDAP and DB is not same.");
@@ -136,19 +131,22 @@ public class WithLdapSyncService {
             logger.info("Starting synchronization active division users");
             syncActiveEmployees(division, syncedEmployees, dbDivision.getDepartmentName());
             logger.info("Synchronization active division users finished");
-
-            if (StringUtils.isBlank(dbDivision.getLeader())) {
-                Employee byObjectSid = employeeDAO.findByObjectSid((String) division.get(LdapDAO.LEADER));
-                if (byObjectSid == null) {
-                    //TODO эпик фейл
-                } else {
-                    dbDivision.setLeader(byObjectSid.getName());
-                    dbDivision.setLeaderId(byObjectSid);
-                    dao.save(dbDivision);
-                }
-            }
         }
         logger.info("Synchronization division from LDAP was");
+    }
+
+    private void setLeaderIfNeed(Map division, Division dbDivision) {
+        if (dbDivision.getLeaderId() == null) {
+            Employee leader;
+            String employeeLdap = (String) division.get(LdapDAO.LEADER);
+            if ((leader = employeeDAO.findByLdapName(employeeLdap)) == null) {
+                leader = employeeDAO.save(createUser(ldapDAO.getEmployeeByLdapName(employeeLdap), true));
+            }
+
+            dbDivision.setLeaderId(leader);
+            dbDivision.setLeader(leader.getName());
+            dao.save(dbDivision);
+        }
     }
 
     private void syncOtherEmployees(List<Employee> activeEmployeesNotInList, List<Integer> syncedEmployees) {
@@ -341,6 +339,7 @@ public class WithLdapSyncService {
         logger.info("In field objectSid set \"()\" value.", dbDivision.getObjectSid());
         dbDivision.setActive(true);
         dbDivision.setNotToSyncWithLdap(false);
+        dbDivision.setSyncEmployye(true);
         dbDivision.setLdapName((String) division.get(LdapDAO.NAME));
         logger.info("In field ldapName set \"()\" value.", dbDivision.getLdapName());
 
