@@ -8,6 +8,7 @@ import com.aplana.timesheet.enums.OvertimeCauses;
 import com.aplana.timesheet.enums.TSEnum;
 import com.aplana.timesheet.enums.UnfinishedDayCauses;
 import com.aplana.timesheet.form.TimeSheetForm;
+import com.aplana.timesheet.form.TimeSheetTableRowForm;
 import com.aplana.timesheet.properties.TSPropertyProvider;
 import com.aplana.timesheet.util.EnumsUtils;
 import com.aplana.timesheet.util.TimeSheetConstans;
@@ -31,15 +32,25 @@ public class OvertimeCauseService {
 
 
     public void store(TimeSheet timeSheet, TimeSheetForm tsForm) {
-        if (!isOvertimeCauseNeeeded(tsForm.getTotalDuration())) return;
+        double totalDuration = calculateTotalDuration(tsForm);
+
+        if (!isOvertimeCauseNeeeded(totalDuration)) return;
 
         OvertimeCause overtimeCause = new OvertimeCause();
-
         overtimeCause.setOvertimeCause( dictionaryItemDAO.find(tsForm.getOvertimeCause()) );
         overtimeCause.setTimeSheet(timeSheet);
         overtimeCause.setComment(tsForm.getOvertimeCauseComment());
 
         dao.store(overtimeCause);
+    }
+
+    private double calculateTotalDuration(TimeSheetForm tsForm) {
+        double totalDuration = 0D;
+        for (TimeSheetTableRowForm tableRowForm : tsForm.getTimeSheetTablePart()) {
+            totalDuration += Double.parseDouble(tableRowForm.getDuration());
+        }
+
+        return totalDuration;
     }
 
     public String getCauseName(TimeSheetForm tsForm) {

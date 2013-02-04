@@ -522,6 +522,7 @@
                 <td></td>
                 <td></td>
                 <td></td>
+                <td></td>
                 <td id="total_duration" class="text_right_align">0</td>
                 <td></td>
                 <td></td>

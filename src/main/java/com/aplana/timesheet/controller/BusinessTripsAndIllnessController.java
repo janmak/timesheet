@@ -10,7 +10,7 @@ import com.aplana.timesheet.dao.entity.Employee;
 import com.aplana.timesheet.dao.entity.Permission;
 import com.aplana.timesheet.enums.Permissions;
 import com.aplana.timesheet.enums.QuickReportTypes;
-import com.aplana.timesheet.enums.Region;
+import com.aplana.timesheet.enums.Regions;
 import com.aplana.timesheet.exception.controller.BusinessTripsAndIllnessControllerException;
 import com.aplana.timesheet.form.BusinessTripsAndIllnessForm;
 import com.aplana.timesheet.properties.TSPropertyProvider;
@@ -334,7 +334,7 @@ public class BusinessTripsAndIllnessController extends AbstractController{
     private YearStarts getYearPeriodForEmployyesRegion(Employee employee) throws BusinessTripsAndIllnessControllerException {
         YearStarts yearStarts = new YearStarts();
 
-        Region regionEnum = EnumsUtils.getEnumById(employee.getRegion().getId(), Region.class);
+        Regions regionEnum = EnumsUtils.getEnumById(employee.getRegion().getId(), Regions.class);
 
         switch (regionEnum) {
             case MOSCOW: {
