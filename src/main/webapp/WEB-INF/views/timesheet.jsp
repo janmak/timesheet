@@ -16,8 +16,8 @@
         dojo.require("dijit.Dialog");
         dojo.require("dijit.form.Textarea");
         dojo.require("dijit.form.Select");
-        dojo.require("dijit/layout/TabContainer");
-        dojo.require("dijit/layout/ContentPane");
+        dojo.require("dijit.layout.TabContainer");
+        dojo.require("dijit.layout.ContentPane");
 
 
 
