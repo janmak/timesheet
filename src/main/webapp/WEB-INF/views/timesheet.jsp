@@ -16,6 +16,8 @@
         dojo.require("dijit.Dialog");
         dojo.require("dijit.form.Textarea");
         dojo.require("dijit.form.Select");
+        dojo.require("dijit/layout/TabContainer");
+        dojo.require("dijit/layout/ContentPane");
 
 
 
@@ -349,14 +351,14 @@
 
 <h1><fmt:message key="title.timesheet"/></h1>
 
-<div id="dialogOne" dojoType="dijit.Dialog" title="" display:none>
-    <div dojoType="dijit.layout.TabContainer" style="width: 450px; height: 200px;">
-        <div dojoType="dijit.layout.ContentPane">
+<div id="dialogOne" data-dojo-type="dijit.Dialog" title="" display:none>
+    <div data-dojo-type="dijit.layout.TabContainer" style="width: 450px; height: 200px;">
+        <div data-dojo-type="dijit.layout.ContentPane">
             <span>Выберите причину</span>
             <select id="overtimeCause" onchange="overtimeCauseChange(this)" data-dojo-type="dijit.form.Select" />
             <textarea data-dojo-type="dijit.form.Textarea" disabled="true"
                       wrap="soft" id="overtimeCauseComment" rows="10" cols="59"
-                           placeholder="Напишите причину, если нет подходящей в списке"></textarea>
+                      placeholder="Напишите причину, если нет подходящей в списке"></textarea>
             <button id="confirmOvertimeCauseButton" style="margin-top: 10px; margin-left: -1px"
                     onclick="submitWithOvertimeCauseSet()">
                 Продолжить
@@ -386,7 +388,7 @@
             <form:option label="" value="0"/>
         </form:select>
         <span class="label">за дату</span>
-        <form:input path="calDate" id="calDate" class="date_picker" dojoType="DateTextBox" data-dojo-id="reportDate"
+        <form:input path="calDate" id="calDate" class="date_picker" data-dojo-type="DateTextBox" data-dojo-id="reportDate"
                      required="true" onMouseOver="tooltip.show(getTitle(this));" onMouseOut="tooltip.hide();"
                      onChange="validateReportDate(this.value);refreshPlans(this.value, dojo.byId('employeeId').value);reportDate.constraints.min = firstWorkDate;"/>
         <span id="date_warning"></span>
