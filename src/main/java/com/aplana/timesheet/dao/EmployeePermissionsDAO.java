@@ -23,17 +23,13 @@ public class EmployeePermissionsDAO {
     public List<Permission> getEmployeePermissions(Integer employeeId) {
 
         Query query = entityManager.createQuery(
-                "select ep from EmployeePermissions as ep where ep.employee.id=:employeeId"
+                "select ep.permission from EmployeePermissions as ep where ep.employee.id=:employeeId"
         ).setParameter("employeeId", employeeId);
 
-        List<EmployeePermissions> result = query.getResultList();
+        List<Permission> result = query.getResultList();
 
         if ( result != null && ! result.isEmpty() ) {
-            List <Permission> permissionList = new ArrayList<Permission>();
-            for (int i = 0; i < result.size(); i++){
-                permissionList.add(result.get(i).getPermission());
-            }
-            return permissionList;
+            return result;
         }
 
         return null;
