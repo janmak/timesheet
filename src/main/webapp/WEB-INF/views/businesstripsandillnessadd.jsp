@@ -249,13 +249,13 @@
 
         <div class="checkboxeslabel lowspace">Дата с:</div>
         <div class="checkboxesselect lowspace">
-            <form:input path="beginDate" id="beginDate" class="date_picker" cssClass="fullwidth" dojoType="DateTextBox" required="true"
+            <form:input path="beginDate" id="beginDate" class="date_picker" cssClass="fullwidth" data-dojo-type="DateTextBox" required="true"
                         onMouseOver="tooltip.show(getTitle(this));" onMouseOut="tooltip.hide();" onchange="updateProject()"/>
         </div>
 
         <div class="checkboxeslabel lowspace">Дата по:</div>
         <div class="checkboxesselect lowspace">
-            <form:input path="endDate" id="endDate" class="date_picker" cssClass="fullwidth" dojoType="DateTextBox" required="true"
+            <form:input path="endDate" id="endDate" class="date_picker" cssClass="fullwidth" data-dojo-type="DateTextBox" required="true"
                         onMouseOver="tooltip.show(getTitle(this));" onMouseOut="tooltip.hide();" onchange="updateProject()"/>
         </div>
 
