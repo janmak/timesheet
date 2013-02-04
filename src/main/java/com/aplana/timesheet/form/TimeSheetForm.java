@@ -1,14 +1,7 @@
 package com.aplana.timesheet.form;
 
-import com.aplana.timesheet.enums.TypeOfActivity;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
-import org.apache.commons.collections.iterators.ArrayListIterator;
 import org.apache.commons.lang3.StringEscapeUtils;
 
-import javax.annotation.Nullable;
-import java.util.ArrayList;
 import java.util.List;
 
 public class TimeSheetForm {
@@ -79,29 +72,7 @@ public class TimeSheetForm {
         this.totalDuration = totalDuration;
     }
 
-    private void filterTable(){
-        if (timeSheetTablePart == null) {return;}
-        Iterable<TimeSheetTableRowForm> tsTablePart = Iterables.filter(timeSheetTablePart,
-                new Predicate<TimeSheetTableRowForm>() {
-                    @Override
-                    public boolean apply(@Nullable TimeSheetTableRowForm timeSheetTableRowForm) {
-                        // По каким-то неведомым причинам при нажатии на кнопку веб интерфейса
-                        // "Удалить выбранные строки" (если выбраны промежуточные строки) они удаляются с формы, но
-                        // в объект формы вместо них попадают null`ы. Мы эти строки удаляем из объекта формы. Если
-                        // удалять последние строки (с конца табличной части формы), то все работает корректно.
-                        // Также, если тип активности не выбран значит вся строка пустая, валидацию ее не проводим и удаляем
-                        // UPD: теперь делаем фильтрацию
-                        TypeOfActivity actType =
-                                TypeOfActivity.getById(timeSheetTableRowForm.getActivityTypeId());
-                        return actType != null;
-                    }
-        });
-
-        this.setTimeSheetTablePart(Lists.newArrayList(tsTablePart));
-    }
-
     public List<TimeSheetTableRowForm> getTimeSheetTablePart() {
-        filterTable();// удалим пустые строки
         return timeSheetTablePart;
     }
 

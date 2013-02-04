@@ -9,6 +9,9 @@ import com.aplana.timesheet.properties.TSPropertyProvider;
 import com.aplana.timesheet.service.*;
 import com.aplana.timesheet.util.DateTimeUtil;
 import com.aplana.timesheet.util.EnumsUtils;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -74,7 +78,8 @@ public class TimeSheetFormValidator extends AbstractValidator {
 
         validateLongInactivity( longInactivity, selectedEmployeeId, tsForm, errors );
         // Для табличной части (по строчно).
-        List<TimeSheetTableRowForm> tsTablePart = tsForm.getTimeSheetTablePart();
+        List<TimeSheetTableRowForm> tsTablePart = filterTable(tsForm);// удалим пустые строки
+        tsForm.setTimeSheetTablePart(tsTablePart);
 
         if (tsTablePart != null) {
             List<TimeSheetTableRowForm> listToRemove = new ArrayList<TimeSheetTableRowForm>();
@@ -112,6 +117,28 @@ public class TimeSheetFormValidator extends AbstractValidator {
         }
 
         validatePlan( tsForm, emplJob, planNecessary, errors );
+    }
+
+    private List<TimeSheetTableRowForm> filterTable(TimeSheetForm tsForm){
+        List<TimeSheetTableRowForm> timeSheetTablePart = tsForm.getTimeSheetTablePart();
+        if (timeSheetTablePart == null) {return null;}
+        Iterable<TimeSheetTableRowForm> tsTablePart = Iterables.filter(timeSheetTablePart,
+                new Predicate<TimeSheetTableRowForm>() {
+                    @Override
+                    public boolean apply(@Nullable TimeSheetTableRowForm timeSheetTableRowForm) {
+                        // По каким-то неведомым причинам при нажатии на кнопку веб интерфейса
+                        // "Удалить выбранные строки" (если выбраны промежуточные строки) они удаляются с формы, но
+                        // в объект формы вместо них попадают null`ы. Мы эти строки удаляем из объекта формы. Если
+                        // удалять последние строки (с конца табличной части формы), то все работает корректно.
+                        // Также, если тип активности не выбран значит вся строка пустая, валидацию ее не проводим и удаляем
+                        // UPD: теперь делаем фильтрацию
+                        TypeOfActivity actType =
+                                TypeOfActivity.getById(timeSheetTableRowForm.getActivityTypeId());
+                        return actType != null;
+                    }
+                });
+
+        return Lists.newArrayList(tsTablePart);
     }
 
     // <APLANATS-441> не менее 2х слов
