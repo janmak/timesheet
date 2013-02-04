@@ -2,7 +2,6 @@ package com.aplana.timesheet.service;
 
 import com.aplana.timesheet.controller.TimeSheetController;
 import com.aplana.timesheet.dao.EmployeeDAO;
-import com.aplana.timesheet.dao.EmployeePermissionsDAO;
 import com.aplana.timesheet.dao.entity.Employee;
 import com.aplana.timesheet.dao.entity.Permission;
 import com.aplana.timesheet.enums.Permissions;
@@ -11,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import com.google.common.collect.Iterables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,8 +35,6 @@ public class LdapUserDetailsService implements UserDetailsContextMapper {
     @Autowired
     private EmployeeDAO employeeDAO;
 
-    @Autowired
-    private EmployeePermissionsDAO employeePermissonsDAO;
 
     @Autowired
     private EmployeeLdapService employeeLdapService;

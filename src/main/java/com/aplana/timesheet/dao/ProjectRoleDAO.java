@@ -68,6 +68,7 @@ public class ProjectRoleDAO {
                 "from ProjectRole as pr where pr.active=:active and pr.ldapTitle like :title"
         ).setParameter("active", true).setParameter("title", "%"+title+"%");
         try {
+            logger.debug("Title {}", title);
             return  (ProjectRole) query.getSingleResult();
         } catch (NoResultException e) {
             return findByCode("ND");

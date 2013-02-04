@@ -1,7 +1,7 @@
 package com.aplana.timesheet.dao;
 
 import com.aplana.timesheet.dao.entity.Division;
-import com.aplana.timesheet.enums.Region;
+import com.aplana.timesheet.enums.Regions;
 import com.aplana.timesheet.reports.BaseReport;
 import com.aplana.timesheet.reports.OverTimeCategory;
 import com.aplana.timesheet.reports.Report01;
@@ -47,8 +47,8 @@ public class JasperReportDAOTest {
     private <T extends BaseReport> T getPrefilledBaseReport(final T report) {
         report.setBeginDate(DateTimeUtil.dateToString(DateUtils.addDays(new Date(), -120)));
         report.setEndDate(DateTimeUtil.dateToString(DateUtils.addDays(new Date(), -90)));
-        report.setRegionIds(Arrays.asList(Region.UFA.getId()));
-        report.setRegionNames(Arrays.asList(Region.UFA.getName()));
+        report.setRegionIds(Arrays.asList(Regions.UFA.getId()));
+        report.setRegionNames(Arrays.asList(Regions.UFA.getName()));
         report.setAllRegions(false);
 
         return report;

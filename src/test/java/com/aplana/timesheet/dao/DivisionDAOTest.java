@@ -21,8 +21,16 @@ public class DivisionDAOTest {
     DivisionDAO divisionDAO;
 
     @Test
-    public void testGetDivisionsForSync() throws Exception {
-        List<Division> divisionsForSync = divisionDAO.getDivisionsForSync();
+    public void testGetDivisions() throws Exception {
+        List<Division> divisionsForSync = divisionDAO.getActiveDivisions();
         Assert.assertFalse(divisionsForSync.isEmpty());
+    }
+
+    @Test
+    public void testGetByDepartmentName() {
+        String departmentName = "ЦТ";
+        Division division = divisionDAO.findByDepartmentName(departmentName);
+        Assert.assertNotNull(division);
+        Assert.assertTrue(division.getDepartmentName().contains(departmentName));
     }
 }

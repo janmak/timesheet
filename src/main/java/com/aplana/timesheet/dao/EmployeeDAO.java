@@ -15,6 +15,7 @@ import java.util.Date;
 import java.util.List;
 
 @Service
+@Transactional
 public class EmployeeDAO {
 	private static final Logger logger = LoggerFactory.getLogger(EmployeeDAO.class);
 
@@ -214,12 +215,12 @@ public class EmployeeDAO {
 	 * существующего сотрудника.
 	 * @param employee
 	 */
-	@Transactional
-	public void save(Employee employee) {
+	public Employee save(Employee employee) {
 		Employee empMerged = entityManager.merge(employee);
 		entityManager.flush();
 		logger.info("Persistence context synchronized to the underlying database.");
 		logger.debug("Flushed Employee object id = {}", empMerged.getId());
+        return empMerged;
 	}
 
     public boolean isNotToSync(Employee employee) {
@@ -239,7 +240,6 @@ public class EmployeeDAO {
 	 * существующих сотрудников.
 	 * @param employee
 	 */
-	@Transactional
 	public StringBuffer setEmployees(List<Employee> employees) {
         StringBuffer trace = new StringBuffer();
 		for (Employee emp : employees) {
@@ -284,8 +284,36 @@ public class EmployeeDAO {
      */
     public Date getEmployeeFirstWorkDay(Integer employeeId){
         Query query = entityManager.createQuery(
-                "SELECT startDate FROM Employee empl WHERE empl.id = :emplId)").setParameter("emplId", employeeId);
+                "SELECT startDate FROM Employee empl WHERE empl.id = :emplId").setParameter("emplId", employeeId);
         Timestamp result = (Timestamp) query.getResultList().get(0);
         return new Date(result.getTime());
+    }
+
+    @Transactional(readOnly = true)
+    public Employee findByObjectSid(String objectSid) {
+        Employee employee = (Employee) Iterables.getFirst(entityManager.createQuery(
+                "FROM Employee emp WHERE objectSid = :objectSid"
+        ).setParameter("objectSid", objectSid).getResultList(), null);
+
+        if(employee == null) return null;
+
+        Hibernate.initialize(employee.getDivision());
+        Hibernate.initialize(employee.getDivision().getLeaderId());
+        Hibernate.initialize(employee.getDivision().getLeader());
+        Hibernate.initialize(employee.getJob());
+        Hibernate.initialize(employee.getManager());
+        Hibernate.initialize(employee.getRegion());
+
+        return employee;
+    }
+
+    @Transactional(readOnly = true)
+    public List<Employee> getActiveEmployeesNotInList(List<Integer> syncedEmployees) {
+        return entityManager.createQuery(
+                "FROM Employee AS emp " +
+                        "WHERE (emp.endDate IS NOT NULL " +
+                        "AND emp.endDate >= :curDate) " +
+                        "OR (emp.endDate IS NULL) AND emp.id NOT IN :ids"
+        ).setParameter("curDate", new Date()).setParameter("ids", syncedEmployees).getResultList();
     }
 }

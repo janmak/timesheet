@@ -1,5 +1,6 @@
 package com.aplana.timesheet.dao.entity;
 
+import com.aplana.timesheet.dao.Identifiable;
 import org.hibernate.annotations.ForeignKey;
 
 import javax.persistence.*;
@@ -7,7 +8,7 @@ import java.util.Set;
 
 @Entity
 @Table(name = "division", uniqueConstraints = @UniqueConstraint(columnNames = { "ldap_name", "name" }))
-public class Division {
+public class Division implements Identifiable {
 	@Id
 	@Column(nullable = false)
 	private Integer id;
@@ -45,6 +46,12 @@ public class Division {
 
     @Column(name = "not_to_sync")
     private Boolean notToSyncWithLdap;
+
+    @Column(length = 255, name = "department_name")
+    private String departmentName;
+
+    @Column(name = "sync_employee")
+    private Boolean syncEmployye;
 
     public Division() {	}
 
@@ -130,6 +137,22 @@ public class Division {
 
     public void setNotToSyncWithLdap(Boolean notToSyncWithLdap) {
         this.notToSyncWithLdap = notToSyncWithLdap;
+    }
+
+    public String getDepartmentName() {
+        return departmentName;
+    }
+
+    public void setDepartmentName(String departmentName) {
+        this.departmentName = departmentName;
+    }
+
+    public Boolean getSyncEmployye() {
+        return syncEmployye;
+    }
+
+    public void setSyncEmployye(Boolean syncEmployye) {
+        this.syncEmployye = syncEmployye;
     }
 
     public String toString() {
