@@ -2,6 +2,7 @@ package com.aplana.timesheet.dao;
 
 import com.aplana.timesheet.dao.entity.EmployeePermissions;
 import com.aplana.timesheet.dao.entity.Permission;
+import org.apache.commons.lang.exception.NestableError;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
@@ -10,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import java.util.ArrayList;
 import java.util.List;
 
 @Repository
@@ -18,19 +20,23 @@ public class EmployeePermissionsDAO {
     @PersistenceContext
     private EntityManager entityManager;
 
-    public int getEmployeePermissionId(Integer employeeId) {
-        int result = 0;
+    public List<Permission> getEmployeePermissions(Integer employeeId) {
+
         Query query = entityManager.createQuery(
-                "select ep.permission.id from EmployeePermissions as ep where ep.employee.id=:employeeId"
+                "select ep from EmployeePermissions as ep where ep.employee.id=:employeeId"
         ).setParameter("employeeId", employeeId);
 
-        List permissions = query.getResultList();
+        List<EmployeePermissions> result = query.getResultList();
 
-        if ( permissions != null && ! permissions.isEmpty() ) {
-            result = (Integer) permissions.get(0);
+        if ( result != null && ! result.isEmpty() ) {
+            List <Permission> permissionList = new ArrayList<Permission>();
+            for (int i = 0; i < result.size(); i++){
+                permissionList.add(result.get(i).getPermission());
+            }
+            return permissionList;
         }
 
-        return result;
+        return null;
     }
 
 }

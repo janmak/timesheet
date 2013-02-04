@@ -4,6 +4,7 @@ import com.aplana.timesheet.controller.TimeSheetController;
 import com.aplana.timesheet.dao.EmployeeDAO;
 import com.aplana.timesheet.dao.EmployeePermissionsDAO;
 import com.aplana.timesheet.dao.entity.Employee;
+import com.aplana.timesheet.dao.entity.Permission;
 import com.aplana.timesheet.enums.Permissions;
 import com.aplana.timesheet.util.TimeSheetUser;
 import java.util.ArrayList;
@@ -41,19 +42,22 @@ public class LdapUserDetailsService implements UserDetailsContextMapper {
     private EmployeeLdapService employeeLdapService;
 
     public void fillAuthority(Employee employee, List<GrantedAuthority> list) {
-        switch ( Permissions.getById( employeePermissonsDAO.getEmployeePermissionId(employee.getId()))) {
-            case RERPORTS_PERMISSION: {
-                list.add( new SimpleGrantedAuthority( "ROLE_MANAGER" ) );
-                list.add( new SimpleGrantedAuthority( "ROLE_USER" ) );
-                break;
+        List<Permission> permissionList = employeePermissonsDAO.getEmployeePermissions(employee.getId());
+        for (Permission permission : permissionList){
+            switch ( Permissions.getById( permission.getId() )) {
+                case RERPORTS_PERMISSION: {
+                    list.add( new SimpleGrantedAuthority( "ROLE_MANAGER" ) );
+                    list.add( new SimpleGrantedAuthority( "ROLE_USER" ) );
+                    break;
+                }
+                case ADMIN_PERMISSION: {
+                    list.add( new SimpleGrantedAuthority( "ROLE_ADMIN" ) );
+                    list.add( new SimpleGrantedAuthority( "ROLE_USER" ) );
+                    break;
+                }
+                default:
+                    list.add( new SimpleGrantedAuthority( "ROLE_USER" ) );
             }
-            case ADMIN_PERMISSION: {
-                list.add( new SimpleGrantedAuthority( "ROLE_ADMIN" ) );
-                list.add( new SimpleGrantedAuthority( "ROLE_USER" ) );
-                break;
-            }
-            default:
-                list.add( new SimpleGrantedAuthority( "ROLE_USER" ) );
         }
     }
 
