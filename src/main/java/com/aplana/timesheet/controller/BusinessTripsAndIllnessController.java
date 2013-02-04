@@ -264,7 +264,7 @@ public class BusinessTripsAndIllnessController extends AbstractController{
         modelAndView.addObject("employeeName", employee.getName());
         modelAndView.addObject("monthList", DateTimeUtil.getMonthListJson(years, calendarService));
         modelAndView.addObject("divisionList", divisionList);
-        modelAndView.addObject("employeeListJson", employeeHelper.getEmployeeListJson(divisionList));
+        modelAndView.addObject("employeeListJson", employeeHelper.getEmployeeListJson(divisionList, employeeService.isShowAll(request)));
         modelAndView.addObject("reports", report);
         modelAndView.addObject("reportFormed", printtype);
         modelAndView.addObject("recipientPermission", recipientPermission);

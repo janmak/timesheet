@@ -6,10 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ldap.NameNotFoundException;
 import org.springframework.ldap.core.*;
-import org.springframework.ldap.filter.AndFilter;
-import org.springframework.ldap.filter.EqualsFilter;
-import org.springframework.ldap.filter.LikeFilter;
-import org.springframework.ldap.filter.PresentFilter;
+import org.springframework.ldap.filter.*;
 import org.springframework.ldap.support.LdapUtils;
 
 import javax.naming.NamingEnumeration;
@@ -17,6 +14,7 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchControls;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -65,14 +63,24 @@ public class LdapDAO {
         }
     }
 
+    public List<EmployeeLdap> getEmployeesByDepartmentNameFromDb(String department) {
+        logger.debug("DeparmentName – {}", department);
+        String[] split = department.split(",");
+        List<EmployeeLdap> result = new ArrayList<EmployeeLdap>();
+
+        for (String s : split) {
+            result.addAll(getEmployees(s));
+        }
+        return result;
+    }
 
 	@SuppressWarnings("unchecked")
-	public List<EmployeeLdap> getEmployyes(String department) {
+	public List<EmployeeLdap> getEmployees(String department) {
 		logger.info("Getting Employees from LDAP.");
-		AndFilter andFilter = new AndFilter()
+        AndFilter andFilter = new AndFilter()
                 .and(new EqualsFilter("department", department))
-                .and( new PresentFilter( "memberOf" ) );
-		logger.debug("LDAP Query {}", andFilter.encode());
+                .and(new EqualsFilter("objectClass", "user"));
+        logger.debug("LDAP Query {}", andFilter.encode());
 		List<EmployeeLdap> employees = ldapTemplate.search("", andFilter.encode(), new EmployeeAttributeMapper());
 		logger.debug("Employees size is {}", employees.size());
 		if(!employees.isEmpty())

@@ -1,5 +1,6 @@
 package com.aplana.timesheet.dao.entity;
 
+import com.aplana.timesheet.dao.Identifiable;
 import org.hibernate.annotations.ForeignKey;
 
 import javax.persistence.*;
@@ -9,7 +10,7 @@ import java.util.Set;
 
 @Entity
 @Table(name = "employee", uniqueConstraints = @UniqueConstraint(columnNames = {"name", "job", "division"}))
-public class Employee {
+public class Employee implements Identifiable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "emp_seq")
@@ -52,7 +53,7 @@ public class Employee {
     @ForeignKey(name = "FK_EMP_REGION")
     private Region region;
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(name = "employee_permissions",
                joinColumns = {
                        @JoinColumn(name = "employee_id", nullable = false) },
@@ -185,43 +186,20 @@ public class Employee {
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Employee)) return false;
 
-        if (obj == null) {
-            return false;
-        }
+        Employee employee = (Employee) o;
 
-        Employee other = (Employee) obj;
-
-        final Integer thisId = getId();
-
-        if (thisId == null) {
-            if (other.getId() != null) {
-                return false;
-            }
-        } else if (!thisId.equals(other.getId())) {
-            return false;
-        }
-
-        final String thisEmail = getEmail();
-
-        if (thisEmail == null) {
-            if (other.getEmail() != null) {
-                return false;
-            }
-        } else if (!thisEmail.equals(other.getEmail())) {
-            return false;
-        }
+        if (id != null ? !id.equals(employee.id) : employee.id != null) return false;
 
         return true;
     }
 
     @Override
     public int hashCode() {
-        return getEmail().hashCode();
+        return id != null ? id.hashCode() : 0;
     }
 
     @Override

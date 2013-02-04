@@ -1,7 +1,6 @@
 package com.aplana.timesheet.service;
 
 import com.aplana.timesheet.dao.LdapDAO;
-import com.aplana.timesheet.dao.EmployeePermissionsDAO;
 import com.aplana.timesheet.dao.ProjectRolePermissionsDAO;
 import com.aplana.timesheet.dao.entity.*;
 import com.aplana.timesheet.dao.entity.ldap.EmployeeLdap;
@@ -36,8 +35,6 @@ public class EmployeeLdapService {
     @Autowired
     private ProjectRolePermissionsDAO projectRolePermissionsDAO;
 
-    @Autowired
-    private EmployeePermissionsDAO employeePermissionsDAO;
 
     private enum EmployeeType {
         EMPLOYEE, MANAGER, NEW_EMPLOYEE
@@ -48,6 +45,29 @@ public class EmployeeLdapService {
 	 */
     public String synchronizeOneEmployee(String email) {
         return syncOneActiveEmployee(ldapDao,email);
+    }
+
+    /**
+     * Синхронизация одного сотрудника из LDAP
+     * Только когда сотрудник есть в LDAP но не было в БД
+     */
+    private  String syncOneActiveEmployee(LdapDAO ldapDao,String email) {
+        logger.info("Start synchronize employee.");
+
+        StringBuffer errors = new StringBuffer();
+        //пользователь из LDAP по email
+        EmployeeLdap employeeLdap = ldapDao.getEmployeeByEmail(email);
+        //проверка не нужна, но нАдо
+        if(employeeLdap!=null) {
+            //создаем нового сотрудника
+            Employee employee = createAndFillEmployee(employeeLdap, errors, EmployeeType.NEW_EMPLOYEE);
+            //добавляем в БД сотрудника
+            if( errors.length() == 0 ) employeeService.setEmployee(employee);
+
+            return errors.toString();
+        } else {
+            return null;
+        }
     }
 
 	public void synchronize() {
@@ -148,28 +168,7 @@ public class EmployeeLdapService {
         return errors.toString();
 	}
 
-    /**
-     * Синхронизация одного сотрудника из LDAP
-     * Только когда сотрудник есть в LDAP но не было в БД
-     */
-    private  String syncOneActiveEmployee(LdapDAO ldapDao,String email) {
-        logger.info("Start synchronize employee.");
 
-        StringBuffer errors = new StringBuffer();
-        //пользователь из LDAP по email
-        EmployeeLdap employeeLdap = ldapDao.getEmployeeByEmail(email);
-        //проверка не нужна, но нАдо
-        if(employeeLdap!=null) {
-            //создаем нового сотрудника
-            Employee employee = createAndFillEmployee(employeeLdap, errors, EmployeeType.NEW_EMPLOYEE);
-            //добавляем в БД сотрудника
-            if( errors.length() == 0 ) employeeService.setEmployee(employee);
-
-            return errors.toString();
-        } else {
-            return null;
-        }
-    }
 
 	/**
 	 * Синхронизует активных сотрудников из ldap 
@@ -185,7 +184,7 @@ public class EmployeeLdapService {
 
         List<Employee> empsToSync = new ArrayList<Employee>();
         for (Division division : divisionService.getDivisions()) {
-            employeesLdap = ldapDao.getEmployyes(division.getLdapName());
+            employeesLdap = ldapDao.getEmployees(division.getLdapName());
             logger.debug("Ldap division {} has {} employees", division.getLdapName(), employeesLdap.size());
 
             for(EmployeeLdap employeeLdap:employeesLdap) {

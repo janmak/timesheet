@@ -2,14 +2,15 @@ package com.aplana.timesheet.service;
 
 import com.aplana.timesheet.controller.TimeSheetController;
 import com.aplana.timesheet.dao.EmployeeDAO;
-import com.aplana.timesheet.dao.EmployeePermissionsDAO;
 import com.aplana.timesheet.dao.entity.Employee;
+import com.aplana.timesheet.dao.entity.Permission;
 import com.aplana.timesheet.enums.Permissions;
 import com.aplana.timesheet.util.TimeSheetUser;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import com.google.common.collect.Iterables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,14 +35,12 @@ public class LdapUserDetailsService implements UserDetailsContextMapper {
     @Autowired
     private EmployeeDAO employeeDAO;
 
-    @Autowired
-    private EmployeePermissionsDAO employeePermissonsDAO;
 
     @Autowired
     private EmployeeLdapService employeeLdapService;
 
     public void fillAuthority(Employee employee, List<GrantedAuthority> list) {
-        switch ( Permissions.getById( employeePermissonsDAO.getEmployeePermissionId(employee.getId()))) {
+        switch ( Permissions.getById(Iterables.getFirst(employee.getPermissions(), new Permission()).getId()) ) {
             case RERPORTS_PERMISSION: {
                 list.add( new SimpleGrantedAuthority( "ROLE_MANAGER" ) );
                 list.add( new SimpleGrantedAuthority( "ROLE_USER" ) );

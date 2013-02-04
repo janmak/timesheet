@@ -26,10 +26,6 @@ public class EmployeeService {
     TimeSheetService timeSheetService;
     @Autowired
     private EmployeeDAO employeeDAO;
-    @Autowired
-    private HttpServletRequest request;
-    private Boolean isShowAllLoaded = false;
-    private Boolean isShowAll;
 
     /**
      * Возвращает сотрудника по идентификатору.
@@ -41,16 +37,14 @@ public class EmployeeService {
         return employeeDAO.find(id);
     }
 
-    public Boolean isShowAll() {
-        if (!isShowAllLoaded) {
-            isShowAll = false;
-            Cookie[] cookies = request.getCookies();
-            if (cookies != null) {
-                for (Cookie cookie : cookies) {
-                    if (cookie.getName().equals(TimeSheetConstans.COOKIE_SHOW_ALLUSER)) {
-                        isShowAll = true;
-                        break;
-                    }
+    public Boolean isShowAll(HttpServletRequest request) {
+        Boolean isShowAll = false;
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if (cookie.getName().equals(TimeSheetConstans.COOKIE_SHOW_ALLUSER)) {
+                    isShowAll = true;
+                    break;
                 }
             }
         }
@@ -79,27 +73,16 @@ public class EmployeeService {
      * Возвращает список сотрудников
      * @param division Если null, то поиск осуществляется без учета подразделения,
      *                 иначе с учётом подразделения
+     * @param filterFired Отоброжать ли уволленных сотрудников
      * @return список действующих сотрудников.
      */
-    public List<Employee> getEmployees(Division division) {
+    public List<Employee> getEmployees(Division division, Boolean filterFired) {
         List<Employee> result;
-        if (isShowAll()) {
+        if (filterFired == true) {
             result = employeeDAO.getAllEmployeesDivision(division);
         } else {
             result = employeeDAO.getEmployees(division);
         }
-        return result;
-    }
-
-    /**
-     * Получает список сотрудников
-     * Необходимо из за APLANATS-557
-     * @param division
-     * @return
-     */
-    public List<Employee> getEmployeesReportCheck(Division division) {
-        List<Employee> result;
-        result = employeeDAO.getEmployees(division);
         return result;
     }
 
