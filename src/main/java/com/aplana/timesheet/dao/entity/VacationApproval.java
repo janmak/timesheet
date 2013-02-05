@@ -31,7 +31,7 @@ public class VacationApproval {
     @Column(name = "request_datetime", columnDefinition = "date NOT NULL")
     private Date requestDate;
 
-    @Column(name = "responce_datetime", columnDefinition = "date")
+    @Column(name = "response_datetime", columnDefinition = "date")
     private Date responseDate;
 
     @Column(name = "uid", columnDefinition = "CHAR(36) NOT NULL")
