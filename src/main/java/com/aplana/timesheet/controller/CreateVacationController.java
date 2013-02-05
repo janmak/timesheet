@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.sql.Timestamp;
+import java.util.Date;
 
 /**
  * @author rshamsutdinov
@@ -131,6 +132,7 @@ public class CreateVacationController {
 
         final Vacation vacation = new Vacation();
 
+        vacation.setCreationDate(new Date());
         vacation.setBeginDate(DateTimeUtil.stringToTimestamp(createVacationForm.getCalFromDate()));
         vacation.setEndDate(DateTimeUtil.stringToTimestamp(createVacationForm.getCalToDate()));
         vacation.setComment(createVacationForm.getComment().trim());

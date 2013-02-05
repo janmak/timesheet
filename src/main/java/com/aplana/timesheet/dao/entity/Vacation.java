@@ -24,6 +24,9 @@ public class Vacation {
     @ForeignKey(name = "fk_employee")
     private Employee employee;
 
+    @Column(name = "creation_date", columnDefinition = "date not null")
+    private Date creationDate;
+
     @Column(name = "begin_date", columnDefinition = "date not null")
     private Date beginDate;
 
@@ -110,6 +113,14 @@ public class Vacation {
 
     public void setAuthor(Employee author) {
         this.author = author;
+    }
+
+    public Date getCreationDate() {
+        return creationDate;
+    }
+
+    public void setCreationDate(Date creationDate) {
+        this.creationDate = creationDate;
     }
 
     @Override
