@@ -45,7 +45,7 @@ public class PersonalAlertSender extends MailSender<List<ReportCheck>> {
 
         for ( ReportCheck currentReportCheck : params ) {
             Mail mail = new Mail();
-
+            mail.setFromEmail(this.propertyProvider.getMailFromAddress());  // Возможно стоит добавить метод getPropertyProvider в родитель
             mail.setToEmails(Arrays.asList(currentReportCheck.getEmployee().getEmail()));
             mail.setSubject(getSubject(currentReportCheck));
             mail.setEmployeeList(Arrays.asList(currentReportCheck.getEmployee()));

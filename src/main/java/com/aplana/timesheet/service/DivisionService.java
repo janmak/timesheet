@@ -28,6 +28,10 @@ public class DivisionService {
 	public Division find(String title) {
 		return divisionDAO.find(title);
 	}
+
+    public List<Division> getDivisionCheck() {
+        return divisionDAO.getDivisionCheck();
+    }
 	
 	/**
 	 * Ищет активное подразделение с указанным идентификатором.

@@ -109,9 +109,12 @@ public class ReportCheckService {
     }
 
     private String[] getDivisionSendMail() {
-        String divisionSendMailPropety = propertyProvider.getMailDivisions();
-        String[] split = divisionSendMailPropety.split(" ");
-        return split;
+        List<Division> divisions = divisionService.getDivisionCheck();
+        List<String> result = new ArrayList<String>();
+        for (Division division : divisions) {
+            result.add(division.getId().toString());
+        }
+        return result.toArray(new String[0]);
     }
 
     /**

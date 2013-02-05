@@ -41,6 +41,13 @@ public class DivisionDAO {
         ).getResultList();
 	}
 
+    @Transactional(readOnly = true)
+    public List<Division> getDivisionCheck() {
+        return  entityManager.createQuery(
+                "from Division as d where d.isCheck = true"
+        ).getResultList();
+    }
+
 	@Transactional(readOnly = true)
 	public Division find(Integer id) {
         Division division = entityManager.find(Division.class, id);

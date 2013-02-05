@@ -45,7 +45,7 @@ public class TimeSheetDeletedSender extends MailSender<TimeSheet> {
     protected List<Mail> getMailList(TimeSheet params) {
         logger.info("Performing mailing about deleted timesheet.");
         Mail mail = new Mail();
-
+        mail.setFromEmail(propertyProvider.getMailFromAddress());
         mail.setToEmails(getToEmails(params));
         mail.setEmployeeList(Arrays.asList(params.getEmployee()));
         String date = DateTimeUtil.formatDate(params.getCalDate().getCalDate());

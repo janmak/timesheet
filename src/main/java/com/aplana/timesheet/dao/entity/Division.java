@@ -20,7 +20,10 @@ public class Division implements Identifiable {
 	private String ldapName;
 
 	@Column(columnDefinition = "bool not null default true")
-	private boolean active;
+    private boolean active;
+
+    @Column(columnDefinition = "bool not null default true")
+    private boolean isCheck;
 
 	@Column(length = 100, nullable = false)
 	private String leader;
@@ -194,4 +197,11 @@ public class Division implements Identifiable {
         return true;
 	}
 
+    public boolean isCheck() {
+        return isCheck;
+    }
+
+    public void setCheck(boolean check) {
+        isCheck = check;
+    }
 }

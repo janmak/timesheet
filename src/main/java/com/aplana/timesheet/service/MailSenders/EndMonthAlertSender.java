@@ -48,6 +48,7 @@ public class EndMonthAlertSender extends MailSender<List<ReportCheck>> {
         mail.setSubject(String.format("Не забудьте списать занятость за %s", getMonthTxt(currentDay())));
         mail.setDivision(Iterables.getFirst(params, null).getDivision());
         mail.setToEmails(getToEmails(mail.getEmployeeList(), mail.getDivision()));
+        mail.setFromEmail(propertyProvider.getMailFromAddress());
         
         return Lists.newArrayList(mail);
     }

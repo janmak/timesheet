@@ -30,10 +30,6 @@ public class TSPropertyProvider {
         return getProperties().getProperty("OQ.url");
     }
 
-    public String getMailDivisions() {
-        return getProperties().getProperty("mail.divisions");
-    }
-
     public String getPentahoUrl() {
         return getProperties().getProperty("pentaho.url");
     }

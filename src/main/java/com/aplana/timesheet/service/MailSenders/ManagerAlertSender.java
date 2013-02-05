@@ -70,6 +70,7 @@ public class ManagerAlertSender extends MailSender<List<ReportCheck>> {
                 mail.setSubject(getSubject(currentReportCheckList));
                 mail.setDivision(currentReportCheckList.get(0).getDivision());
                 mail.setEmployeeList(Arrays.asList(currentManager));
+                mail.setFromEmail(propertyProvider.getMailFromAddress());
                 mail.getPassedDays().putAll(getPassedDays(currentReportCheckList));
 
                 mails.add(mail);
