@@ -6,6 +6,7 @@ import com.aplana.timesheet.dao.entity.Division;
 import com.aplana.timesheet.dao.entity.Employee;
 import com.aplana.timesheet.dao.entity.Project;
 import com.aplana.timesheet.properties.TSPropertyProvider;
+import com.aplana.timesheet.util.DateTimeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +33,8 @@ import java.util.TreeSet;
 
 @Service("oqProgectSyncService")
 public class OQProjectSyncService {
+
+    private static final String DATE_FORMAT = "dd.MM.yyyy";
 
     private static final Logger logger = LoggerFactory.getLogger(OQProjectSyncService.class);
     private final StringBuffer trace = new StringBuffer();
@@ -123,6 +126,8 @@ public class OQProjectSyncService {
 
         project.setName(name);
         project.setProjectId(idProject);
+        project.setStartDate(DateTimeUtil.stringToDate(nodeMap.getNamedItem("begining").getNodeValue(), DATE_FORMAT));
+        project.setEndDate(DateTimeUtil.stringToDate(nodeMap.getNamedItem("ending").getNodeValue(), DATE_FORMAT));
 
         if (project.isActive()) {
             if (!setPM(project, pmLdap)){
