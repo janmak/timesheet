@@ -38,6 +38,9 @@
         var selectedLongVacationIllness = ${selectedLongVacationIllnessJson};
         var selectedCalDate = ${selectedCalDateJson};
         var dateByDefault = ${getDateByDefault};
+        var firstWorkDateString =  ${getFirstWorkDate};
+            var date = firstWorkDateString.split('.');
+            var firstWorkDate = new Date(date[2], date[1]-1, date[0]);
         var root = window.addEventListener || window.attachEvent ? window : document.addEventListener ? document : null;
         var dateInfoHolder = [];
         var month = correctLength(new Date().getMonth() + 1);
@@ -69,6 +72,8 @@
                         return 'classDateRedText';
                         break;
                     case "0":   //день без отчета
+                        if (date <= firstWorkDate) // день раньше начала работы
+                            return '';
                         if (date <= new Date())
                             return 'classDateRedBack';
                         else return '';
@@ -204,7 +209,7 @@
                             var prev = data.prev;
                             var dateString = prev.dateStr;
 
-                            dojo.byId("lbPrevPlan").innerHTML = "Планы предущего рабочего дня (" + timestampStrToDisplayStr(dateString.toString()) + "):";
+                            dojo.byId("lbPrevPlan").innerHTML = "Планы предыдущего рабочего дня (" + timestampStrToDisplayStr(dateString.toString()) + "):";
                             var planText = prev.plan;
                             if (planText.length != 0 ){
                                 var text = prev.plan;
@@ -333,6 +338,7 @@
         .classDateRedBack{
             background-color: #f58383 !important;
         }
+
     </style>
 </head>
 <body>
@@ -371,21 +377,21 @@
         </form:select>
 
         <span class="label">Отчет сотрудника</span>
-        <form:select path="employeeId" id="employeeId" class="without_dojo" onmouseover="tooltip.show(getTitle(this));"
+        <form:select path="employeeId" id="employeeId" class="without_dojo" onmouseover="tooltip.show(getTitle(this));" cssStyle="width: auto"
                      onmouseout="tooltip.hide();" onchange="setDefaultEmployeeJob(-1);
                      colorDayWithReportFromThreeMonth(dateInfoHolder, new Date().getFullYear(), correctLength(new Date().getMonth() + 1), this.value);
                      refreshPlans(dijit.byId('calDate').value, this.value);">
             <form:option label="" value="0"/>
         </form:select>
         <span class="label">за дату</span>
-        <form:input path="calDate" id="calDate" class="date_picker" dojoType="DateTextBox" required="true"
-                     onMouseOver="tooltip.show(getTitle(this));" onMouseOut="tooltip.hide();"
-                     onChange="validateReportDate(this.value);refreshPlans(this.value, dojo.byId('employeeId').value);"/>
+        <form:input path="calDate" id="calDate" class="date_picker" dojoType="DateTextBox" data-dojo-id="reportDate"
+                     required="true" onMouseOver="tooltip.show(getTitle(this));" onMouseOut="tooltip.hide();"
+                     onChange="validateReportDate(this.value);refreshPlans(this.value, dojo.byId('employeeId').value);reportDate.constraints.min = firstWorkDate;"/>
         <span id="date_warning"></span>
     </div>
 
     <div style="width: 500px;">
-        <span id="lbPrevPlan">Планы предущего рабочего дня:</span>
+        <span id="lbPrevPlan">Планы предыдущего рабочего дня:</span>
         <div id="plan_textarea" style="margin: 2px 0px 2px 0px; padding:2px 2px 2px 2px;border: solid 1px silver;"></div>
         <button id="add_in_comments" type="button" style="width:300px" onclick="CopyPlan()">Скопировать в первый
             комментарий
@@ -540,13 +546,13 @@
                 <td class="no_border" width="60px">Болезнь</td>
                 <td class="no_border" width="20px"> с</td>
                 <td class="no_border" width="210px">
-                    <input id="begin_long_date" name="beginLongDate" data-dojo-id="fromDate" dojoType="dijit.form.DateTextBox"
+                    <input id="begin_long_date" name="beginLongDate" data-dojo-id="fromDate" data-dojo-type='dijit/form/DateTextBox'
                            class="date_picker" disabled="disabled" onmouseover="tooltip.show(getTitle(this));"
                            onmouseout="tooltip.hide();" onChange="toDate.constraints.min = arguments[0];"/>
                 </td>
                 <td class="no_border" width="20px"> по</td>
                 <td class="no_border" width="210px">
-                    <input id="end_long_date" name="endLongDate" data-dojo-id="toDate"  dojoType="dijit.form.DateTextBox" class="date_picker"
+                    <input id="end_long_date" name="endLongDate" data-dojo-id="toDate"  data-dojo-type='dijit/form/DateTextBox' class="date_picker"
                            disabled="disabled" onmouseover="tooltip.show(getTitle(this));"
                            onmouseout="tooltip.hide();" onChange="fromDate.constraints.max = arguments[0];"/>
                 </td>

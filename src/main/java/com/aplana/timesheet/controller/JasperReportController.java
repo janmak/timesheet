@@ -3,12 +3,11 @@ package com.aplana.timesheet.controller;
 import com.aplana.timesheet.controller.report.JasperReportModelAndViewGeneratorsFactory;
 import com.aplana.timesheet.dao.JasperReportDAO;
 import com.aplana.timesheet.dao.entity.Region;
+import com.aplana.timesheet.exception.JReportBuildError;
 import com.aplana.timesheet.form.validator.ReportFormValidator;
 import com.aplana.timesheet.reports.*;
 import com.aplana.timesheet.service.JasperReportService;
 import com.aplana.timesheet.service.RegionService;
-import com.aplana.timesheet.service.SecurityService;
-import com.aplana.timesheet.exception.JReportBuildError;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +19,6 @@ import org.springframework.web.bind.ServletRequestDataBinder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
-import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
@@ -43,13 +41,6 @@ public class JasperReportController {
 
     @Autowired
     private ReportFormValidator reportValidator;
-
-    @SuppressWarnings("SpringJavaAutowiringInspection")
-    @Autowired
-    private ServletContext context;
-
-	@Autowired
-	private SecurityService securityService;
 
     @Autowired
     private JasperReportModelAndViewGeneratorsFactory factory;

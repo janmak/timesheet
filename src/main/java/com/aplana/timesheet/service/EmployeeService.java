@@ -109,7 +109,7 @@ public class EmployeeService {
      * @param employee
      */
     public void setEmployee(Employee employee) {
-        employeeDAO.setEmployee(employee);
+        employeeDAO.save(employee);
     }
 
     /**

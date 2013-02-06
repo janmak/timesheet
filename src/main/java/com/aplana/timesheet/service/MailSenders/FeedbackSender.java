@@ -49,26 +49,30 @@ public class FeedbackSender extends MailSender<FeedbackForm> {
     protected List<Mail> getMailList(FeedbackForm params) {
         Mail mail = new Mail();
 
-        mail.setCcEmail(params.getEmail());
-        mail.setFromEmail(sendMailService.getEmployeeEmail(params.getEmployeeId()));
+        String employeeName = sendMailService.getEmployeeFIO(params.getEmployeeId());
+        String employeeEmail = sendMailService.getEmployeeEmail(params.getEmployeeId());
+
+        mail.setCcEmail(employeeEmail);
+        mail.setFromEmail(employeeEmail);
         mail.setSubject(params.getFeedbackTypeName());
         mail.setFilePahts(Arrays.asList(params.getFile1Path(), params.getFile2Path()));
-        mail.setPreconstructedMessageBody(getMessageBody(params));
+        mail.setPreconstructedMessageBody(
+                getMessageBody(employeeName, employeeEmail, params.getFeedbackDescription()) );
         mail.setToEmails(Arrays.asList(propertyProvider.getMailProblemsAndProposalsCoaddress()));
 
         return Arrays.asList(mail);
     }
 
-    private String getMessageBody(FeedbackForm input) {
+    private String getMessageBody(String name, String email, String discription) {
         StringBuilder bodyTxt = new StringBuilder();
 
-        if (StringUtils.isNotBlank(input.getName())) {
-            bodyTxt.append("Сообщение пришло от: ").append(input.getName()).append("\n");
+        if (StringUtils.isNotBlank(name)) {
+            bodyTxt.append("Сообщение пришло от: ").append(name).append("\n");
         }
-        if (StringUtils.isNotBlank(input.getEmail())) {
-            bodyTxt.append("С адреса: ").append(input.getEmail()).append("\n");
+        if (StringUtils.isNotBlank(email)) {
+            bodyTxt.append("С адреса: ").append(email).append("\n");
         }
-        bodyTxt.append(StringEscapeUtils.escapeHtml4(input.getFeedbackDescription()));
+        bodyTxt.append(StringEscapeUtils.escapeHtml4(discription));
 
         return bodyTxt.toString();
     }

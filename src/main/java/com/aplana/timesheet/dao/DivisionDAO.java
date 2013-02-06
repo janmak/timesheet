@@ -30,6 +30,18 @@ public class DivisionDAO {
 
 		return query.getResultList();
 	}
+	/**
+	 * Возвращает список подразделений, которые нужно синхронизировать
+	 */
+	@Transactional(readOnly = true)
+	@SuppressWarnings("unchecked")
+	public List<Division> getDivisionsForSync() {
+		Query query = entityManager.createQuery(
+                "from Division as d where d.active=:active and d.notToSyncWithLdap = false order by d.name asc"
+        ).setParameter( "active", true );
+
+		return query.getResultList();
+	}
 
 	@Transactional(readOnly = true)
 	public Division find(Integer id) {
@@ -54,4 +66,13 @@ public class DivisionDAO {
             return null;
 		}
 	}
+
+    @Transactional
+    public void save(Division division) {
+        if (division.getId() != null) {
+            entityManager.merge(division);
+        } else {
+            entityManager.persist(division);
+        }
+    }
 }

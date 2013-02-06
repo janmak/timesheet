@@ -11,12 +11,18 @@
 
 <body>
 
+<script type="text/javascript" src="<%= request.getContextPath()%>/resources/js/report.js"></script>
 <script type="text/javascript">
     dojo.ready(function () {
         dojo.require("dijit.form.DateTextBox");
 
         var filter = dojo.byId("allRegions");
         var target = "regionIds";
+        var region = dojo.byId(target);
+        if (region.value == "") {
+            filter.checked = true;
+            region.disabled = true;
+        }
         dojo.connect(filter, "onchange", function () {
             if (filter.checked) {
                 dojo.attr(target, {disabled:"disabled"});
@@ -59,14 +65,14 @@
                 <td><span class="label">Начало периода</span><span style="color:red">*</span></td>
                 <td><form:input path="beginDate" id="beginDate" name="beginDate" class="date_picker"
                                 data-dojo-id="fromDate"
-                                dojoType="dijit.form.DateTextBox"
+                                data-dojo-type='dijit/form/DateTextBox'
                                 required="false"
                                 onmouseover="tooltip.show(getTitle(this));"
                                 onmouseout="tooltip.hide();"/></td>
                 <td><span class="label">Окончание периода</span><span style="color:red">*</span></td>
                 <td><form:input path="endDate" id="endDate" name="endDate" class="date_picker"
                                 data-dojo-id="toDate"
-                                dojoType="dijit.form.DateTextBox"
+                                data-dojo-type='dijit/form/DateTextBox'
                                 required="false"
                                 onmouseover="tooltip.show(getTitle(this));"
                                 onmouseout="tooltip.hide();"/></td>
@@ -74,6 +80,7 @@
             <tr>
                 <td style="width: 225px">
                     <span class="label" style="float:left">Регион</span>
+                    <span style="color:red">*</span>
 							<span style="float: right">
 								<span>
 									<form:checkbox  id="allRegions" name="allRegions"  path="allRegions"/>

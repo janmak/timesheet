@@ -14,57 +14,9 @@
             window.focus();
         });
 
-        var employeeList = ${employeeListJson};
 		var hasFile1 = false;
 		var hasFile2 = false;
 
-        // Устанавливаем подразделение и сотрудника по умолчанию
-        //из аргументов переданных через контроллер
-        window.onload = function setDefaultEmployee() {
-            dojo.attr("name", {disabled:"disabled"});
-            dojo.attr("email", {disabled:"disabled"});
-            name_email.style.display = 'none';
-
-            var divVal = ${divId};
-            var empVal = ${empId};
-
-            mainForm.divisionId.value = divVal;
-
-            //устанавливаем сотрудника
-            var employeeSelect = dojo.byId("employeeId");
-            var employeeOption = null;
-            //Очищаем список сотрудников.
-            employeeSelect.options.length = 0;
-            for (var i = 0; i < employeeList.length; i++) {
-                if (divVal == employeeList[i].divId) {
-                    insertEmptyOption(employeeSelect);
-                    for (var j = 0; j < employeeList[i].divEmps.length; j++) {
-                        if (employeeList[i].divEmps[j].id != 0 && employeeList[i].divEmps[j].id != 27) {
-                            employeeOption = dojo.doc.createElement("option");
-                            if (employeeList[i].divEmps[j].id == empVal) {
-                                dojo.attr(employeeOption, {
-                                    value:employeeList[i].divEmps[j].id,
-                                    selected:"selected"
-                                });
-                            } else {
-                                dojo.attr(employeeOption, {
-                                    value:employeeList[i].divEmps[j].id
-                                });
-                            }
-                            employeeOption.title = employeeList[i].divEmps[j].value;
-                            employeeOption.innerHTML = employeeList[i].divEmps[j].value;
-                            employeeSelect.appendChild(employeeOption);
-                        }
-                    }
-                }
-            }
-            sortSelectOptions(employeeSelect);
-        };
-		
-		function uploadFile(control) {
-			
-		}
-		
 		/**
 		 * проверяет чтобы суммарный размер файлов не превышал 8 Mb
 		 */
@@ -98,32 +50,15 @@
 
         //проверяем и отсылаем форму
         function submitform() {
-            var division = dojo.byId('divisionId');
-            var employee = dojo.byId('employeeId');
             var description = dojo.byId('feedbackDescription');
-            var type = dojo.byId('feedback_type');
-            var typeIndex = type.selectedIndex;
-            var divIndex = division.selectedIndex;
-            var empIndex = employee.selectedIndex;
-            var name = dojo.byId('name').value;
-            var email = dojo.byId('email').value;
-			
+
 			if (checkFileSize()) {
 				alert("Суммарный размер вложений превышает 8 Mb");
 				return;
 			}
             if (description != null && description.value != "") {
-                if (divIndex != null && divIndex != 0 && empIndex != 0) {
-                    feedbackForm.action = "feedback";
-                    feedbackForm.submit();
-                } else {
-                    if (name == "" || email == "") {
-                        alert("Введите, пожалуйста, ваше имя и email.");
-                    } else {
-                        feedbackForm.action = "feedback";
-                        feedbackForm.submit();
-                    }
-                }
+                feedbackForm.action = "feedback";
+                feedbackForm.submit();
             } else {
                 alert("Поле 'Текст сообщения' не определено.");
             }
@@ -149,11 +84,9 @@
 		 * Отображает второй набор контролов и кнопку удаления первого файла
 		 */
 		function showControls() {
-			//if(feedbackForm.file2Path.files[0] == null) {
-				showAdditionalInput('file2PathContainer');
-				showAdditionalInput('fileDelete2');
-				disableInput('fileDelete2');
-			//}
+			showAdditionalInput('file2PathContainer');
+			showAdditionalInput('fileDelete2');
+			disableInput('fileDelete2');
 			enableInput('fileDelete1');
 		}
 		
@@ -260,7 +193,7 @@
 						</tr>
 						<tr>
 							<td style="border-style:none">
-								<button style="display:none" id="fileDelete2" name="fileDelete1" type="button" onclick="deleteFileIn2Position()">
+								<button style="display:none" id="fileDelete2" name="fileDelete2" type="button" onclick="deleteFileIn2Position()" disabled="true">
 									Удалить
 								</button>
 							</td>
@@ -270,35 +203,11 @@
 								</div>
 							</td>
 					</table>
-                    <span>Суммарный размер вложений - не более 8МБ</span>
+                    <span>Суммарный размер вложений - не более 8МБ, не более 2 файлов.</span>
                 </td>
 					
             </tr>
         </table>
-    </div>
-
-    <div id="form_header">
-        <span class="label">Подразделение</span>
-        <form:select path="divisionId" id="divisionId" name="divisionId" onchange="divisionChange(this)"
-                     class="without_dojo" onload="setSelect()" onmouseover="tooltip.show(getTitle(this));"
-                     onmouseout="tooltip.hide();">
-            <form:option label="" value="0"/>
-            <form:options class="divOption" items="${divisionList}" itemLabel="name" itemValue="id"/>
-        </form:select>
-
-        <span class="label">Сотрудник</span>
-        <form:select path="employeeId" id="employeeId" name="employeeId" class="without_dojo" onchange="setIDs()"
-                     onmouseover="tooltip.show(getTitle(this));" onmouseout="tooltip.hide();">
-            <form:option label="" value="0"/>
-            <form:options items="${employeeList}" itemLabel="name" itemValue="id"/>
-        </form:select>
-    </div>
-
-    <div id="name_email">
-        <span id="nameLabel" class="label">Имя и фамилия:</span>
-        <input id="name" name="name" class="without_dojo" disabled="disabled"/>
-        <span id="emailLabel" class="label">Ваш email:</span>
-        <input id="email" name="email" class="without_dojo" disabled="disabled"/>
     </div>
 
     <div id="marg_buttons" style="margin-top:10px; margin-bottom:10px ">

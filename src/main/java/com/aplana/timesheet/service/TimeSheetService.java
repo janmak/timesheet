@@ -1,5 +1,6 @@
 package com.aplana.timesheet.service;
 
+import com.aplana.timesheet.dao.EmployeeDAO;
 import com.aplana.timesheet.dao.HolidayDAO;
 import com.aplana.timesheet.dao.TimeSheetDAO;
 import com.aplana.timesheet.dao.entity.*;
@@ -7,6 +8,7 @@ import com.aplana.timesheet.enums.TypeOfActivity;
 import com.aplana.timesheet.form.TimeSheetForm;
 import com.aplana.timesheet.form.TimeSheetTableRowForm;
 import com.aplana.timesheet.util.DateTimeUtil;
+import com.google.common.collect.Lists;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.velocity.app.VelocityEngine;
 import org.slf4j.Logger;
@@ -19,6 +21,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import static com.aplana.timesheet.enums.TypeOfActivity.*;
+
 @Service
 public class TimeSheetService {
     private static final Logger logger = LoggerFactory.getLogger(TimeSheetService.class);
@@ -28,6 +32,9 @@ public class TimeSheetService {
 
     @Autowired
     private HolidayDAO holidayDAO;
+
+    @Autowired
+    private EmployeeDAO employeeDAO;
 
     @Autowired
     private CalendarService calendarService;
@@ -212,7 +219,10 @@ public class TimeSheetService {
         if (lastTimeSheet != null && nextTimeSheet != null)
             json.append(",");
 
-        if (nextTimeSheet != null) {
+        if (nextTimeSheet != null &&
+            !( ILLNESS == getById(
+                    Lists.newArrayList(
+                            nextTimeSheet.getTimeSheetDetails()).get(0).getActType().getId()))) { // <APLANATS-458>
             json.append("\"next\":{")
                     .append( "\"dateStr\":" ).append( "\"" )
                     .append( DateTimeUtil.formatDate( nextTimeSheet.getCalDate().getCalDate() ) )
@@ -261,5 +271,9 @@ public class TimeSheetService {
             result = DateUtils.addDays(result, 1);
         } while (!holidayDAO.isWorkDay(DateTimeUtil.dateToString(result)));
         return result;
+    }
+
+    public Date getEmployeeFirstWorkDay(Integer employeeId){
+         return employeeDAO.getEmployeeFirstWorkDay(employeeId);
     }
 }

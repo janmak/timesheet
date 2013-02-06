@@ -1,6 +1,5 @@
 package com.aplana.timesheet.reports;
 
-import com.aplana.timesheet.dao.JasperReportDAO;
 import net.sf.jasperreports.engine.JRDataSource;
 
 public class Report02 extends BaseReport {
@@ -32,8 +31,6 @@ public class Report02 extends BaseReport {
 
     private Integer employeeId;
 
-    private Integer divisionId;
-
     public Integer getEmployeeId() {
         return employeeId;
     }
@@ -48,14 +45,6 @@ public class Report02 extends BaseReport {
 
     public void setEmplDivisionId(Integer emplDivisionId) {
         this.emplDivisionId = emplDivisionId;
-    }
-
-    public Integer getDivisionId() {
-        return divisionId;
-    }
-
-    public void setDivisionId(Integer divisionId) {
-        this.divisionId = divisionId;
     }
 
     public Boolean getFilterProjects() {

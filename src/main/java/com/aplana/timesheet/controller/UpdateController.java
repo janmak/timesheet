@@ -1,20 +1,34 @@
 package com.aplana.timesheet.controller;
 
+import com.aplana.timesheet.dao.DivisionDAO;
+import com.aplana.timesheet.dao.EmployeeDAO;
+import com.aplana.timesheet.dao.LdapDAO;
+import com.aplana.timesheet.dao.entity.Division;
+import com.aplana.timesheet.dao.entity.Employee;
+import com.aplana.timesheet.dao.entity.ldap.EmployeeLdap;
 import com.aplana.timesheet.properties.TSPropertyProvider;
 import com.aplana.timesheet.service.EmployeeLdapService;
 import com.aplana.timesheet.service.EmployeeService;
 import com.aplana.timesheet.service.OQProjectSyncService;
 import com.aplana.timesheet.service.ReportCheckService;
 import com.aplana.timesheet.util.TimeSheetConstans;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.ldap.support.LdapUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
+
+import javax.annotation.Nullable;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequestMapping(value = "/admin*")
@@ -24,6 +38,12 @@ public class UpdateController {
     private EmployeeLdapService employeeLdapService;
     @Autowired
     private EmployeeService employeeService;
+    @Autowired
+    private DivisionDAO divisionDAO;
+    @Autowired
+    private LdapDAO ldapDAO;
+    @Autowired
+    private EmployeeDAO employeeDAO;
 
     public void setEmployeeLdapService(EmployeeLdapService employeeLdapService) {
         this.employeeLdapService = employeeLdapService;
@@ -85,6 +105,40 @@ public class UpdateController {
     @RequestMapping(value = "/update/properties")
     public String updateProperties(HttpServletRequest request, HttpServletResponse response) {
         TSPropertyProvider.updateProperties();
+
+        return "redirect:/admin";
+    }
+
+    public String updateObjectSids(){
+
+        Iterable<Division> divisionsFromDb = divisionDAO.getDivisionsForSync();
+
+        List<Map> divisions = ldapDAO.getDivisions();
+        for (final Division division : divisionsFromDb) {
+            Map map = Iterables.find(divisions, new Predicate<Map>() {
+                @Override
+                public boolean apply(@Nullable Map input) {
+                    return division.getLdapName().equalsIgnoreCase((String) input.get(LdapDAO.NAME));
+                }
+            });
+            division.setObjectSid(LdapUtils.convertBinarySidToString((byte[]) map.get(LdapDAO.SID)));
+            divisionDAO.save(division);
+        }
+
+        List<Employee> employeesForSync = employeeDAO.getEmployeesForSync();
+
+        for (Employee employee : employeesForSync) {
+            if(StringUtils.isBlank(employee.getObjectSid())){
+                EmployeeLdap employeeFromLdap = ldapDAO.getEmployeeByLdapName(employee.getLdap());
+                if (employeeFromLdap == null) {
+                    employeeFromLdap = ldapDAO.getEmployeeByDisplayName(employee.getName());
+                    employee.setLdap(employeeFromLdap.getLdapCn());
+                }
+
+                employee.setObjectSid(employeeFromLdap.getObjectSid());
+                employeeDAO.save(employee);
+            }
+        }
 
         return "redirect:/admin";
     }

@@ -7,6 +7,7 @@ import com.aplana.timesheet.service.SecurityService;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.annotation.Nullable;
@@ -16,6 +17,7 @@ import java.util.List;
  * @author eshangareev
  * @version 1.0
  */
+@Component
 public class Report07ModelAndViewGenerator extends AbstractJasperReportModelAndViewGenerator {
     @Autowired
     private SecurityService securityService;
@@ -23,18 +25,7 @@ public class Report07ModelAndViewGenerator extends AbstractJasperReportModelAndV
     @Override
     protected void fillSpecificProperties(ModelAndView mav) {
         fillDivisionList(mav);
-        List<Division> divisions = (List<Division>) mav.getModelMap().get("divisionList");
-
-        final Integer defaultId = securityService.getSecurityPrincipal().getEmployee().getDivision().getId();
-
-        Division division = Iterables.find(divisions, new Predicate<Division>() {
-            @Override
-            public boolean apply(@Nullable Division input) {
-                return defaultId == input.getId();
-            } });
-        divisions.remove(division);
-        divisions.add(divisions.set(0, division));
-
+        mav.addObject("employeeDivision", securityService.getSecurityPrincipal().getEmployee().getDivision().getId());
         mav.addObject("filterProjects", "checked");
     }
 

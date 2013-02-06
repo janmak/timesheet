@@ -12,11 +12,10 @@
 
 <body>
 
+<script type="text/javascript" src="<%= request.getContextPath()%>/resources/js/report.js"></script>
 <script type="text/javascript">
     dojo.ready(function () {
         dojo.require("dijit.form.DateTextBox");
-
-        reportForm.divisionId.value = defaultDivision;
         fillProjectListByDivision(reportForm.divisionId);
 
         var filter = dojo.byId("allRegions");
@@ -33,7 +32,6 @@
 
     var projectList = ${projectListJson};
     var fullProjectList = ${fullProjectListJson};
-    var defaultDivision = <sec:authentication property="principal.employee.division.id"/>;
     var employeeList = ${employeeListJson};
 
 </script>
@@ -59,9 +57,9 @@
         <table class="report_params" cellspacing="3">
             <tr>
                 <td><span class="label">Центр владельца проекта</span></td>
-                <td><form:select id="divisionId" name="divisionId" cssClass="without_dojo"
+                <td><form:select id="divisionId" name="divisionOwnerId" cssClass="without_dojo"
                                  onmouseover="tooltip.show(getTitle(this));"
-                                 onmouseout="tooltip.hide();" path="divisionId"
+                                 onmouseout="tooltip.hide();" path="divisionOwnerId"
                                  onchange="fillProjectListByDivision(this)">
                     <form:option label="Все центры" value="0"/>
                     <form:options items="${divisionList}" itemLabel="name" itemValue="id"/>
@@ -92,14 +90,14 @@
                 <td><span class="label">Начало периода</span><span style="color:red">*</span></td>
                 <td><form:input path="beginDate" id="beginDate" name="beginDate" class="date_picker"
                                 data-dojo-id="fromDate"
-                                dojoType="dijit.form.DateTextBox"
+                                data-dojo-type='dijit/form/DateTextBox'
                                 required="false"
                                 onmouseover="tooltip.show(getTitle(this));"
                                 onmouseout="tooltip.hide();"/></td>
                 <td><span class="label">Окончание периода</span><span style="color:red">*</span></td>
                 <td><form:input path="endDate" id="endDate" name="endDate" class="date_picker"
                                 data-dojo-id="toDate"
-                                dojoType="dijit.form.DateTextBox"
+                                data-dojo-type='dijit/form/DateTextBox'
                                 required="false"
                                 onmouseover="tooltip.show(getTitle(this));"
                                 onmouseout="tooltip.hide();"/></td>

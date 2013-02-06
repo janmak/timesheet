@@ -9,7 +9,7 @@
 
 	<beans:bean id="placeholderConfig"
 		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-		<beans:property name="location" value="file:webapps\timesheet.properties" />
+		<beans:property name="location" value="file:${pathToTsProperties}" />
 	</beans:bean>
 	
 	<!-- Enables the Spring MVC @Controller programming model -->

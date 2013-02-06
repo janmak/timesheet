@@ -40,6 +40,12 @@ public class Division {
     @ForeignKey(name = "fk_employee")
     private Employee leaderId;
 
+    @Column(length = 50, name = "ldap_object_sid")
+    private String objectSid;
+
+    @Column(name = "not_to_sync")
+    private Boolean notToSyncWithLdap;
+
     public Division() {	}
 
     public Employee getLeaderId() {
@@ -108,6 +114,22 @@ public class Division {
 
     public void setName( String name ) {
         this.name = name;
+    }
+
+    public String getObjectSid() {
+        return objectSid;
+    }
+
+    public void setObjectSid(String objectSid) {
+        this.objectSid = objectSid;
+    }
+
+    public Boolean getNotToSyncWithLdap() {
+        return notToSyncWithLdap;
+    }
+
+    public void setNotToSyncWithLdap(Boolean notToSyncWithLdap) {
+        this.notToSyncWithLdap = notToSyncWithLdap;
     }
 
     public String toString() {

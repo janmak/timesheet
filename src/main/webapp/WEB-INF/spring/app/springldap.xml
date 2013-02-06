@@ -5,7 +5,7 @@
 
     <bean id="placeholderConfig"
           class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-        <property name="location" value="file:webapps\timesheet.properties" />
+        <property name="location" value="file:${pathToTsProperties}" />
     </bean>
 
 	<bean id="contextSource"
@@ -28,7 +28,7 @@
 	</bean>
 
 	<bean id="ldapEmployee"
-		  class="com.aplana.timesheet.dao.EmployeeLdapDAO">
+		  class="com.aplana.timesheet.dao.LdapDAO">
 		<property name="ldapTemplate" ref="ldapTemplate" />
 	</bean>
 </beans>

@@ -18,12 +18,6 @@ import java.util.Properties;
 public class TSPropertyProvider {
 
     private static final Logger logger = LoggerFactory.getLogger(TSPropertyProvider.class);
-    /**
-     * путь к property файлу
-     */
-    private final static String PROPERTY_PATH = "./webapps/timesheet.properties";
-
-
 
     private static boolean needUpdate = true;
     private static Properties properties;
@@ -126,7 +120,7 @@ public class TSPropertyProvider {
         if (needUpdate || properties == null) {
             try {
                 properties = new Properties();
-                properties.load(new FileInputStream( PROPERTY_PATH ));
+                properties.load(new FileInputStream( System.getProperty("pathToTsProperties") ));
 
                 needUpdate = false;
 

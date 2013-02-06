@@ -55,19 +55,19 @@ public class Report7Period implements Comparable {
         } else if (type.equals(PERIOD_TYPE_KVARTAL)) {
             SimpleDateFormat sdf = new SimpleDateFormat("MM");
             Integer number = new Integer(sdf.format(this.start));
-            SimpleDateFormat sdf2 = new SimpleDateFormat("YYYY");
+            SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy");
             if (number > 0 && number < 4) {
                 return "1-ый квартал " + sdf2.format(this.start);
-            } else if (number > 2 && number < 7) {
+            } else if (number > 3 && number < 7) {
                 return "2-ой квартал" + sdf2.format(this.start);
-            } else if (number > 5 && number < 8) {
+            } else if (number > 6 && number < 10) {
                 return "3-ий квартал " + sdf2.format(this.start);
-            } else if (number > 7) {
+            } else if (number > 9) {
                 return "4-ый квартал " + sdf2.format(this.start);
             }
         } else if (type.equals(PERIOD_TYPE_HALF_YEAR)) {
             SimpleDateFormat sdf = new SimpleDateFormat("MM");
-            SimpleDateFormat sdf2 = new SimpleDateFormat("YYYY");
+            SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy");
             Integer number = new Integer(sdf.format(this.start));
             if (number > 0 && number < 7) {
                 return "1-ый квартал " + sdf2.format(this.start);
