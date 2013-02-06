@@ -2,8 +2,8 @@ package com.aplana.timesheet.service;
 
 import com.aplana.timesheet.dao.VacationDAO;
 import com.aplana.timesheet.dao.entity.*;
-import com.aplana.timesheet.enums.ProjectRole;
-import com.aplana.timesheet.enums.TypeOfActivity;
+import com.aplana.timesheet.enums.ProjectRolesEnum;
+import com.aplana.timesheet.enums.TypesOfActivityEnum;
 import com.aplana.timesheet.form.AdminMessageForm;
 import com.aplana.timesheet.form.FeedbackForm;
 import com.aplana.timesheet.form.TimeSheetForm;
@@ -32,7 +32,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.aplana.timesheet.enums.ProjectRole.*;
+import static com.aplana.timesheet.enums.ProjectRolesEnum.*;
 
 @Service
 public class SendMailService{
@@ -42,8 +42,8 @@ public class SendMailService{
             Predicates.and(Predicates.notNull(), new Predicate<RenameMe>() {
                 @Override
                 public boolean apply(@Nullable RenameMe renameMe) {
-                    TypeOfActivity actType = renameMe.getTypeOfActivity();
-                    return actType == TypeOfActivity.PROJECT || actType == TypeOfActivity.PRESALE;
+                    TypesOfActivityEnum actType = renameMe.getTypeOfActivity();
+                    return actType == TypesOfActivityEnum.PROJECT || actType == TypesOfActivityEnum.PRESALE;
                 }
             });
     private final Function<ProjectParticipant, String> GET_EMAIL_FROM_PARTICIPANT
@@ -58,7 +58,7 @@ public class SendMailService{
             = new Function<RenameMe, String>() {
         @Nullable @Override
         public String apply(@Nullable RenameMe input) {
-            final ProjectRole roleInCurrentProject = input.getProjectRole();
+            final ProjectRolesEnum roleInCurrentProject = input.getProjectRole();
 
             return Joiner.on(",").join(
                 Iterables.transform(
@@ -68,14 +68,14 @@ public class SendMailService{
                                 @Override
                                 public boolean apply(@Nullable ProjectParticipant participant) {
                                     if(participant == null || participant.getProjectRole()==null) return false;
-                                    ProjectRole projectPaticipantRole = getById(participant.getProjectRole().getId());
+                                    ProjectRolesEnum projectPaticipantRole = getById(participant.getProjectRole().getId());
                                     return rolesOfEmploeeysForRole.get(projectPaticipantRole).contains(roleInCurrentProject);
                                 } }),
                     GET_EMAIL_FROM_PARTICIPANT
                 )
         ); } };
 
-    public static Multimap<ProjectRole, ProjectRole> rolesOfEmploeeysForRole = HashMultimap.create();
+    public static Multimap<ProjectRolesEnum, ProjectRolesEnum> rolesOfEmploeeysForRole = HashMultimap.create();
 
     static {
         rolesOfEmploeeysForRole.putAll(PROJECT_MANAGER, Arrays.asList(values()));
@@ -190,7 +190,7 @@ public class SendMailService{
     }
 
     public List<Employee> getEmployeesList(Division division){
-        return employeeService.getEmployees(division,false);
+        return employeeService.getEmployees(division, false);
     }
 
     public void performMailing(TimeSheetForm form) {
@@ -267,49 +267,58 @@ public class SendMailService{
     }
 
     interface RenameMe {
-        TypeOfActivity getTypeOfActivity();
-        ProjectRole getProjectRole();
+        TypesOfActivityEnum getTypeOfActivity();
+        ProjectRolesEnum getProjectRole();
         Integer getProjectId();
     }
 
     public Iterable<RenameMe> transformTimeSheetTableRowForm(Iterable<TimeSheetTableRowForm> tsRows) {
         return Iterables.transform(tsRows, new Function<TimeSheetTableRowForm, RenameMe>() {
-            @Nullable @Override
+            @Nullable
+            @Override
             public RenameMe apply(@Nullable final TimeSheetTableRowForm input) {
                 return new RenameMe() {
-                    @Override public TypeOfActivity getTypeOfActivity() {
-                        return TypeOfActivity.getById(input.getActivityTypeId());
-                    }
                     @Override
-                    public ProjectRole getProjectRole() {
-                        return ProjectRole.getById(input.getProjectRoleId());
+                    public TypesOfActivityEnum getTypeOfActivity() {
+                        return TypesOfActivityEnum.getById(input.getActivityTypeId());
                     }
+
+                    @Override
+                    public ProjectRolesEnum getProjectRole() {
+                        return ProjectRolesEnum.getById(input.getProjectRoleId());
+                    }
+
                     @Override
                     public Integer getProjectId() {
                         return input.getProjectId();
                     }
                 };
-            } });
+            }
+        });
     }
 
     public Iterable<RenameMe> transformTimeSheetDetail(Iterable<TimeSheetDetail> details) {
         return Iterables.transform(details, new Function<TimeSheetDetail, RenameMe>() {
-            @Nullable @Override
+            @Nullable
+            @Override
             public RenameMe apply(@Nullable final TimeSheetDetail input) {
                 return new RenameMe() {
                     @Override
-                    public TypeOfActivity getTypeOfActivity() {
-                        return TypeOfActivity.getById(input.getActType().getId());
+                    public TypesOfActivityEnum getTypeOfActivity() {
+                        return TypesOfActivityEnum.getById(input.getActType().getId());
                     }
+
                     @Override
-                    public ProjectRole getProjectRole() {
-                        return ProjectRole.getById(input.getProjectRole().getId());
+                    public ProjectRolesEnum getProjectRole() {
+                        return ProjectRolesEnum.getById(input.getProjectRole().getId());
                     }
+
                     @Override
                     public Integer getProjectId() {
                         return input.getProject().getId();
                     }
                 };
-            } });
+            }
+        });
     }
 }

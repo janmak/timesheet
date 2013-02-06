@@ -1,7 +1,7 @@
 package com.aplana.timesheet.form.validator;
 
 import com.aplana.timesheet.dao.VacationDAO;
-import com.aplana.timesheet.enums.VacationType;
+import com.aplana.timesheet.enums.VacationTypesEnum;
 import com.aplana.timesheet.form.CreateVacationForm;
 import com.aplana.timesheet.service.EmployeeService;
 import com.aplana.timesheet.service.SecurityService;
@@ -21,7 +21,7 @@ import java.util.Date;
 @Service
 public class CreateVacationFormValidator extends AbstractValidator {
 
-    public static final int TYPE_WITH_REQUIRED_COMMENT = VacationType.WITH_NEXT_WORKING.getId();
+    public static final int TYPE_WITH_REQUIRED_COMMENT = VacationTypesEnum.WITH_NEXT_WORKING.getId();
     private static final int MAX_COMMENT_LENGTH = 400;
     private static final String MAX_LENGTH_ERROR_MESSAGE =
             String.format("Длина комментария превышает допустимые %d символов", MAX_COMMENT_LENGTH);

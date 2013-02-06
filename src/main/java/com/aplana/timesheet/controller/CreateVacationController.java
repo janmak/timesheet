@@ -5,8 +5,8 @@ import com.aplana.timesheet.dao.VacationDAO;
 import com.aplana.timesheet.dao.entity.Calendar;
 import com.aplana.timesheet.dao.entity.Employee;
 import com.aplana.timesheet.dao.entity.Vacation;
-import com.aplana.timesheet.enums.VacationStatus;
-import com.aplana.timesheet.enums.VacationType;
+import com.aplana.timesheet.enums.VacationStatusEnum;
+import com.aplana.timesheet.enums.VacationTypesEnum;
 import com.aplana.timesheet.form.CreateVacationForm;
 import com.aplana.timesheet.form.validator.CreateVacationFormValidator;
 import com.aplana.timesheet.service.CalendarService;
@@ -80,7 +80,7 @@ public class CreateVacationController {
     private ModelAndView getModelAndView(Employee employee) {
         final ModelAndView modelAndView = new ModelAndView("createVacation");
 
-        modelAndView.addObject("vacationTypes", dictionaryItemDAO.getItemsByDictionaryId(VacationType.DICT_ID));
+        modelAndView.addObject("vacationTypes", dictionaryItemDAO.getItemsByDictionaryId(VacationTypesEnum.DICT_ID));
         modelAndView.addObject("employee", employee);
         modelAndView.addObject("typeWithRequiredComment", CreateVacationFormValidator.TYPE_WITH_REQUIRED_COMMENT);
 
@@ -144,7 +144,7 @@ public class CreateVacationController {
                 (employeeService.isEmployeeAdmin(curEmployee.getId()) && BooleanUtils.toBoolean(approved));
 
         vacation.setStatus(dictionaryItemDAO.find(
-                isApprovedVacation ? VacationStatus.APPROVED.getId() : VacationStatus.APPROVEMENT_WITH_PM.getId()
+                isApprovedVacation ? VacationStatusEnum.APPROVED.getId() : VacationStatusEnum.APPROVEMENT_WITH_PM.getId()
         ));
 
         vacationDAO.store(vacation);

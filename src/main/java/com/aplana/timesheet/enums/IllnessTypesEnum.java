@@ -4,14 +4,14 @@ package com.aplana.timesheet.enums;
  * User: vsergeev
  * Date: 25.01.13
  */
-public enum QuickReportTypes implements TSEnum{
-    ILLNESS(6, "Больничный"),
-    BUSINESS_TRIP(7, "Командировка");
+public enum IllnessTypesEnum implements TSEnum{
+    ILLNESS(53, "Больничный"),
+    EMPLOYEE_INFO(54, "Данные сотрудника");
 
     private Integer id;
     private String name;
 
-    QuickReportTypes(int id, String name) {
+    IllnessTypesEnum(Integer id, String name) {
         this.id = id;
         this.name = name;
     }

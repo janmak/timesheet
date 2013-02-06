@@ -4,7 +4,7 @@ package com.aplana.timesheet.enums;
  * User: vsergeev
  * Date: 22.01.13
  */
-public enum Regions implements TSEnum {
+public enum RegionsEnum implements TSEnum {
     OTHERS(1, "Остальные регионы"),
     UFA(2, "Уфа"),
     MOSCOW(3, "Москва"),
@@ -14,7 +14,7 @@ public enum Regions implements TSEnum {
     private int id;
     private final String name;
 
-    Regions(int id, String name) {
+    RegionsEnum(int id, String name) {
         this.id = id;
         this.name = name;
     }

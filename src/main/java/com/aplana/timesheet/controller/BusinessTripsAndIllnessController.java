@@ -8,9 +8,9 @@ import com.aplana.timesheet.dao.entity.Calendar;
 import com.aplana.timesheet.dao.entity.Division;
 import com.aplana.timesheet.dao.entity.Employee;
 import com.aplana.timesheet.dao.entity.Permission;
-import com.aplana.timesheet.enums.Permissions;
-import com.aplana.timesheet.enums.QuickReportTypes;
-import com.aplana.timesheet.enums.Regions;
+import com.aplana.timesheet.enums.PermissionsEnum;
+import com.aplana.timesheet.enums.QuickReportTypesEnum;
+import com.aplana.timesheet.enums.RegionsEnum;
 import com.aplana.timesheet.exception.controller.BusinessTripsAndIllnessControllerException;
 import com.aplana.timesheet.form.BusinessTripsAndIllnessForm;
 import com.aplana.timesheet.properties.TSPropertyProvider;
@@ -43,8 +43,8 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
-import static com.aplana.timesheet.enums.Permissions.CHANGE_ILLNESS_BUSINESS_TRIP;
-import static com.aplana.timesheet.enums.Permissions.VIEW_ILLNESS_BUSINESS_TRIP;
+import static com.aplana.timesheet.enums.PermissionsEnum.CHANGE_ILLNESS_BUSINESS_TRIP;
+import static com.aplana.timesheet.enums.PermissionsEnum.VIEW_ILLNESS_BUSINESS_TRIP;
 
 /**
  * User: vsergeev
@@ -105,7 +105,7 @@ public class BusinessTripsAndIllnessController extends AbstractController{
     public String deleteReport(@PathVariable("reportId") Integer reportId,
                                @PathVariable("reportType") Integer reportType) {
         try {
-            final QuickReportTypes reportTypeAsEnum = EnumsUtils.getEnumById(reportType, QuickReportTypes.class);
+            final QuickReportTypesEnum reportTypeAsEnum = EnumsUtils.getEnumById(reportType, QuickReportTypesEnum.class);
             switch (reportTypeAsEnum) {
                 case BUSINESS_TRIP:
                     return deleteBusinessTrip(reportId);
@@ -147,7 +147,7 @@ public class BusinessTripsAndIllnessController extends AbstractController{
         Employee employee = employeeService.find(employeeId);
         List<Calendar> years = DateTimeUtil.getYearsList(calendarService);
         List<Division> divisionList = divisionService.getDivisions();
-        Permissions recipientPermission = getRecipientPermission(employee);
+        PermissionsEnum recipientPermission = getRecipientPermission(employee);
         QuickReport report = getReport(printtype, employee, month, year);
 
         return  fillResponseModel(divisionId, year, month, printtype, employee, years, divisionList, report, recipientPermission);
@@ -196,7 +196,7 @@ public class BusinessTripsAndIllnessController extends AbstractController{
      * Получаем права сотрудника для просмотреа отчетов. Если у сотрудника прав несколько, то возвращается разрешение с
      * наивысшим приоритетом.
      */
-    private Permissions getRecipientPermission(Employee employee) throws BusinessTripsAndIllnessControllerException {
+    private PermissionsEnum getRecipientPermission(Employee employee) throws BusinessTripsAndIllnessControllerException {
         TimeSheetUser securityUser = securityService.getSecurityPrincipal();
         if (securityUser == null) {
             throw new BusinessTripsAndIllnessControllerException(ACCESS_ERROR_MESSAGE);
@@ -236,7 +236,7 @@ public class BusinessTripsAndIllnessController extends AbstractController{
     /**
      * находим среди разрешений сотрудника нужное
      */
-    private boolean checkRecipientForPermission(Set<Permission> recipientPermissions, final Permissions permission) {
+    private boolean checkRecipientForPermission(Set<Permission> recipientPermissions, final PermissionsEnum permission) {
         try {
             Iterables.find(recipientPermissions, new Predicate<Permission>() {
                 @Override
@@ -254,7 +254,7 @@ public class BusinessTripsAndIllnessController extends AbstractController{
      * заполняем данные об отчетах сотрудников и возвращаем формочку с табличкой по нужному типу отчетов
      */
     private ModelAndView fillResponseModel(Integer divisionId, Integer year, Integer month, Integer printtype,
-                                           Employee employee, List<Calendar> years, List<Division> divisionList, QuickReport report, Permissions recipientPermission) {
+                                           Employee employee, List<Calendar> years, List<Division> divisionList, QuickReport report, PermissionsEnum recipientPermission) {
         ModelAndView modelAndView = new ModelAndView("businesstripsandillness");
         modelAndView.addObject("year", year);
         modelAndView.addObject("month", month);
@@ -334,7 +334,7 @@ public class BusinessTripsAndIllnessController extends AbstractController{
     private YearStarts getYearPeriodForEmployyesRegion(Employee employee) throws BusinessTripsAndIllnessControllerException {
         YearStarts yearStarts = new YearStarts();
 
-        Regions regionEnum = EnumsUtils.getEnumById(employee.getRegion().getId(), Regions.class);
+        RegionsEnum regionEnum = EnumsUtils.getEnumById(employee.getRegion().getId(), RegionsEnum.class);
 
         switch (regionEnum) {
             case MOSCOW: {
@@ -373,7 +373,7 @@ public class BusinessTripsAndIllnessController extends AbstractController{
      * В зависимости от типа отчета ввозвращает нужный генератор
      */
     private QuickReportGenerator getQuickReportGenerator(Integer printtype) throws BusinessTripsAndIllnessControllerException {
-        QuickReportTypes quickReportType = EnumsUtils.getEnumById(printtype, QuickReportTypes.class);
+        QuickReportTypesEnum quickReportType = EnumsUtils.getEnumById(printtype, QuickReportTypesEnum.class);
         switch (quickReportType) {
             case ILLNESS:
                 return illnessesQuickReportGenerator;

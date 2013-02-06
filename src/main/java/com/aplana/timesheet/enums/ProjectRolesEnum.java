@@ -5,13 +5,11 @@ import com.google.common.collect.Iterables;
 
 import java.util.Arrays;
 
-import static com.aplana.timesheet.enums.Permissions.*;
-
 /**
  * @author eshangareev
  * @version 1.0
  */
-public enum ProjectRole implements TSEnum {
+public enum ProjectRolesEnum implements TSEnum {
     ADMINISTRATOR(12, "GM", "Генеральный директор,Заместитель генерального директора", "Администрация"),
     DESIGN_ENGINEER(4, "KO", "Ведущий инженер-конструктор,Инженер-конструктор,Старший инженер-конструктор",
             "Конструктор"),
@@ -51,7 +49,7 @@ public enum ProjectRole implements TSEnum {
     private String ldapTitle;
     private String name;
 
-    private ProjectRole( int id, String code, String ldapTitle, String name) {
+    private ProjectRolesEnum(int id, String code, String ldapTitle, String name) {
         this.id = id;
         this.code = code;
         this.ldapTitle = ldapTitle;
@@ -74,19 +72,19 @@ public enum ProjectRole implements TSEnum {
         return name;
     }
 
-    public static ProjectRole getByCode( final String code ) {
-        return Iterables.tryFind(Arrays.asList(ProjectRole.values()), new Predicate<ProjectRole>() {
+    public static ProjectRolesEnum getByCode( final String code ) {
+        return Iterables.tryFind(Arrays.asList(ProjectRolesEnum.values()), new Predicate<ProjectRolesEnum>() {
             @Override
-            public boolean apply(ProjectRole input) {
+            public boolean apply(ProjectRolesEnum input) {
                 return input.getCode().equals(code);
             }
         }).orNull();
     }
 
-    public static ProjectRole getById(final int id) {
-        return Iterables.tryFind(Arrays.asList(ProjectRole.values()), new Predicate<ProjectRole>() {
+    public static ProjectRolesEnum getById(final int id) {
+        return Iterables.tryFind(Arrays.asList(ProjectRolesEnum.values()), new Predicate<ProjectRolesEnum>() {
             @Override
-            public boolean apply(ProjectRole input) {
+            public boolean apply(ProjectRolesEnum input) {
                 return input.getId() == id;
             }
         }).orNull();

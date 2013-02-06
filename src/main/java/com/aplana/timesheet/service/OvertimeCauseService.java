@@ -4,9 +4,9 @@ import com.aplana.timesheet.dao.DictionaryItemDAO;
 import com.aplana.timesheet.dao.OvertimeCauseDAO;
 import com.aplana.timesheet.dao.entity.OvertimeCause;
 import com.aplana.timesheet.dao.entity.TimeSheet;
-import com.aplana.timesheet.enums.OvertimeCauses;
+import com.aplana.timesheet.enums.OvertimeCausesEnum;
 import com.aplana.timesheet.enums.TSEnum;
-import com.aplana.timesheet.enums.UnfinishedDayCauses;
+import com.aplana.timesheet.enums.UnfinishedDayCausesEnum;
 import com.aplana.timesheet.form.TimeSheetForm;
 import com.aplana.timesheet.form.TimeSheetTableRowForm;
 import com.aplana.timesheet.properties.TSPropertyProvider;
@@ -57,8 +57,8 @@ public class OvertimeCauseService {
         Integer overtimeCauseId = tsForm.getOvertimeCause();
         if (!isOvertimeCauseNeeeded(tsForm.getTotalDuration()) || overtimeCauseId == null) return null;
 
-        OvertimeCauses overtimeCause = EnumsUtils.tryFindById(overtimeCauseId, OvertimeCauses.class);
-        UnfinishedDayCauses unfinishedDayCauses = EnumsUtils.tryFindById(overtimeCauseId, UnfinishedDayCauses.class);
+        OvertimeCausesEnum overtimeCause = EnumsUtils.tryFindById(overtimeCauseId, OvertimeCausesEnum.class);
+        UnfinishedDayCausesEnum unfinishedDayCauses = EnumsUtils.tryFindById(overtimeCauseId, UnfinishedDayCausesEnum.class);
         TSEnum cause = overtimeCause == null? unfinishedDayCauses : overtimeCause;
         if (Preconditions.checkNotNull(cause).getName().equals("Другой")) {
             return Preconditions.checkNotNull(tsForm.getOvertimeCauseComment());

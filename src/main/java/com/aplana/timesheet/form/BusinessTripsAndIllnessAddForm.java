@@ -1,9 +1,9 @@
 package com.aplana.timesheet.form;
 
 import com.aplana.timesheet.dao.entity.Employee;
-import com.aplana.timesheet.enums.BusinessTripTypes;
-import com.aplana.timesheet.enums.IllnessTypes;
-import com.aplana.timesheet.enums.QuickReportTypes;
+import com.aplana.timesheet.enums.BusinessTripTypesEnum;
+import com.aplana.timesheet.enums.IllnessTypesEnum;
+import com.aplana.timesheet.enums.QuickReportTypesEnum;
 
 import java.util.Arrays;
 import java.util.Date;
@@ -19,12 +19,12 @@ public class BusinessTripsAndIllnessAddForm {
     private Date beginDate = new Date();
     private Date endDate = new Date();
     private String comment;
-    private Integer reason = IllnessTypes.ILLNESS.getId();
-    private Integer reportType = QuickReportTypes.ILLNESS.getId();
-    private List<QuickReportTypes> reportTypes = Arrays.asList(QuickReportTypes.values());
-    private List<IllnessTypes> illnessTypes = Arrays.asList(IllnessTypes.values());
-    private Integer businessTripType = BusinessTripTypes.NOT_PROJECT.getId();
-    private List<BusinessTripTypes> businessTripTypes = Arrays.asList(BusinessTripTypes.values());
+    private Integer reason = IllnessTypesEnum.ILLNESS.getId();
+    private Integer reportType = QuickReportTypesEnum.ILLNESS.getId();
+    private List<QuickReportTypesEnum> reportTypes = Arrays.asList(QuickReportTypesEnum.values());
+    private List<IllnessTypesEnum> illnessTypes = Arrays.asList(IllnessTypesEnum.values());
+    private Integer businessTripType = BusinessTripTypesEnum.NOT_PROJECT.getId();
+    private List<BusinessTripTypesEnum> businessTripTypes = Arrays.asList(BusinessTripTypesEnum.values());
     private Integer projectId;
 
     public Integer getProjectId() {
@@ -35,11 +35,11 @@ public class BusinessTripsAndIllnessAddForm {
         this.projectId = projectId;
     }
 
-    public List<BusinessTripTypes> getBusinessTripTypes() {
+    public List<BusinessTripTypesEnum> getBusinessTripTypes() {
         return businessTripTypes;
     }
 
-    public void setBusinessTripTypes(List<BusinessTripTypes> businessTripTypes) {
+    public void setBusinessTripTypes(List<BusinessTripTypesEnum> businessTripTypes) {
         this.businessTripTypes = businessTripTypes;
     }
 
@@ -51,19 +51,19 @@ public class BusinessTripsAndIllnessAddForm {
         this.businessTripType = businessTripType;
     }
 
-    public List<QuickReportTypes> getReportTypes() {
+    public List<QuickReportTypesEnum> getReportTypes() {
         return reportTypes;
     }
 
-    public void setReportTypes(List<QuickReportTypes> reportTypes) {
+    public void setReportTypes(List<QuickReportTypesEnum> reportTypes) {
         this.reportTypes = reportTypes;
     }
 
-    public List<IllnessTypes> getIllnessTypes() {
+    public List<IllnessTypesEnum> getIllnessTypes() {
         return illnessTypes;
     }
 
-    public void setIllnessTypes(List<IllnessTypes> illnessTypes) {
+    public void setIllnessTypes(List<IllnessTypesEnum> illnessTypes) {
         this.illnessTypes = illnessTypes;
     }
 
