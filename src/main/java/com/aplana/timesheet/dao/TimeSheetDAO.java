@@ -4,7 +4,7 @@ import com.aplana.timesheet.dao.entity.Calendar;
 import com.aplana.timesheet.dao.entity.DayTimeSheet;
 import com.aplana.timesheet.dao.entity.Employee;
 import com.aplana.timesheet.dao.entity.TimeSheet;
-import com.aplana.timesheet.enums.TypeOfActivity;
+import com.aplana.timesheet.enums.TypesOfActivityEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
@@ -115,7 +115,7 @@ public class TimeSheetDAO {
                 map.put(calDate.getTime(), ds);
             } else {
                 DayTimeSheet dts = map.get(calDate.getTime());
-                if (duration != null && TypeOfActivity.isEfficientActivity( actType ) ) {
+                if (duration != null && TypesOfActivityEnum.isEfficientActivity(actType) ) {
                     dts.setDuration(dts.getDuration().add(duration));
                 }
             }

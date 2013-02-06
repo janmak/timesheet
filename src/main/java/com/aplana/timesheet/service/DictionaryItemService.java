@@ -2,7 +2,7 @@ package com.aplana.timesheet.service;
 
 import com.aplana.timesheet.dao.DictionaryItemDAO;
 import com.aplana.timesheet.dao.entity.DictionaryItem;
-import com.aplana.timesheet.enums.Dictionary;
+import com.aplana.timesheet.enums.DictionaryEnum;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,11 +15,11 @@ public class DictionaryItemService {
 	private DictionaryItemDAO dictionaryItemDAO;
 
 	public List<DictionaryItem> getCategoryOfActivity() {
-		return dictionaryItemDAO.getItemsByDictionaryId(Dictionary.CATEGORY_OF_ACTIVITY.getId());
+		return dictionaryItemDAO.getItemsByDictionaryId(DictionaryEnum.CATEGORY_OF_ACTIVITY.getId());
 	}
 
 	public List<DictionaryItem> getTypesOfActivity() {
-		return dictionaryItemDAO.getItemsByDictionaryId(Dictionary.TYPES_OF_ACTIVITY.getId());
+		return dictionaryItemDAO.getItemsByDictionaryId(DictionaryEnum.TYPES_OF_ACTIVITY.getId());
 	}
 
 	public DictionaryItem find(Integer id) {
@@ -27,14 +27,14 @@ public class DictionaryItemService {
 	}
 
     public List<DictionaryItem> getWorkplaces() {
-        return dictionaryItemDAO.getItemsByDictionaryId(Dictionary.WORKPLACE.getId());
+        return dictionaryItemDAO.getItemsByDictionaryId(DictionaryEnum.WORKPLACE.getId());
     }
 
     public List<DictionaryItem> getOvertimeCauses() {
-        return dictionaryItemDAO.getItemsByDictionaryId(Dictionary.OVERTIME_CAUSE.getId());
+        return dictionaryItemDAO.getItemsByDictionaryId(DictionaryEnum.OVERTIME_CAUSE.getId());
     }
 
     public List<DictionaryItem> getUnfinishedDayCauses() {
-        return dictionaryItemDAO.getItemsByDictionaryId(Dictionary.UNFINISHED_DAY_CAUSE.getId());
+        return dictionaryItemDAO.getItemsByDictionaryId(DictionaryEnum.UNFINISHED_DAY_CAUSE.getId());
     }
 }

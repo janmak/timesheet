@@ -4,7 +4,7 @@ import com.aplana.timesheet.dao.EmployeeDAO;
 import com.aplana.timesheet.dao.entity.Division;
 import com.aplana.timesheet.dao.entity.Employee;
 import com.aplana.timesheet.dao.entity.Permission;
-import com.aplana.timesheet.enums.Permissions;
+import com.aplana.timesheet.enums.PermissionsEnum;
 import com.aplana.timesheet.util.TimeSheetConstans;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
@@ -131,10 +131,10 @@ public class EmployeeService {
     }
 
     public boolean isEmployeeAdmin(Integer employeeId) {
-        return isEmployeeHasPermissions(employeeId, Permissions.ADMIN_PERMISSION);
+        return isEmployeeHasPermissions(employeeId, PermissionsEnum.ADMIN_PERMISSION);
     }
 
-    public boolean isEmployeeHasPermissions(Integer employeeId, final Permissions permissions) {
+    public boolean isEmployeeHasPermissions(Integer employeeId, final PermissionsEnum permissions) {
         final Employee employee = find(employeeId);
 
         return Iterables.any(employee.getPermissions(), new Predicate<Permission>() {

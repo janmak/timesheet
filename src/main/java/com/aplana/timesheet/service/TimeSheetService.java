@@ -4,7 +4,7 @@ import com.aplana.timesheet.dao.EmployeeDAO;
 import com.aplana.timesheet.dao.HolidayDAO;
 import com.aplana.timesheet.dao.TimeSheetDAO;
 import com.aplana.timesheet.dao.entity.*;
-import com.aplana.timesheet.enums.TypeOfActivity;
+import com.aplana.timesheet.enums.TypesOfActivityEnum;
 import com.aplana.timesheet.form.TimeSheetForm;
 import com.aplana.timesheet.form.TimeSheetTableRowForm;
 import com.aplana.timesheet.util.DateTimeUtil;
@@ -21,7 +21,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import static com.aplana.timesheet.enums.TypeOfActivity.*;
+import static com.aplana.timesheet.enums.TypesOfActivityEnum.ILLNESS;
+import static com.aplana.timesheet.enums.TypesOfActivityEnum.getById;
 
 @Service
 public class TimeSheetService {
@@ -127,11 +128,11 @@ public class TimeSheetService {
             Set<TimeSheetDetail> timeSheetDetails = new LinkedHashSet<TimeSheetDetail>();
             TimeSheetDetail timeSheetDetail = new TimeSheetDetail();
             if (tsForm.isLongVacation()) {
-                timeSheetDetail.setActType( dictionaryItemService.find( TypeOfActivity.VACATION.getId() ) );
-                timeSheetDetail.setDescription( TypeOfActivity.VACATION.getName() );
+                timeSheetDetail.setActType( dictionaryItemService.find( TypesOfActivityEnum.VACATION.getId() ) );
+                timeSheetDetail.setDescription( TypesOfActivityEnum.VACATION.getName() );
             } else if (tsForm.isLongIllness()) {
-                timeSheetDetail.setActType( dictionaryItemService.find( TypeOfActivity.ILLNESS.getId() ) );
-                timeSheetDetail.setDescription( TypeOfActivity.ILLNESS.getName() );
+                timeSheetDetail.setActType( dictionaryItemService.find( TypesOfActivityEnum.ILLNESS.getId() ) );
+                timeSheetDetail.setDescription( TypesOfActivityEnum.ILLNESS.getName() );
             }
             timeSheetDetail.setTimeSheet(timeSheet);
             timeSheetDetails.add(timeSheetDetail);

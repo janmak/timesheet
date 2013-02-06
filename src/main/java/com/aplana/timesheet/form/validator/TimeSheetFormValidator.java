@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.aplana.timesheet.enums.ProjectRole.*;
+import static com.aplana.timesheet.enums.ProjectRolesEnum.*;
 import static com.aplana.timesheet.util.TimeSheetConstans.WORK_DAY_DURATION;
 
 @Service
@@ -60,7 +60,7 @@ public class TimeSheetFormValidator extends AbstractValidator {
         TimeSheetForm tsForm = (TimeSheetForm) target;
         Integer selectedEmployeeId = tsForm.getEmployeeId();
         Employee employee = employeeService.find(selectedEmployeeId);
-        ProjectRole emplJob = (employee != null)
+        ProjectRolesEnum emplJob = (employee != null)
                 ? getByCode( employee.getJob().getCode() )
                 : NOT_DEFINED;
 
@@ -92,12 +92,12 @@ public class TimeSheetFormValidator extends AbstractValidator {
             }
 
             for (TimeSheetTableRowForm formRow : tsTablePart) {
-                TypeOfActivity actType = TypeOfActivity.getById( formRow.getActivityTypeId() );
+                TypesOfActivityEnum actType = TypesOfActivityEnum.getById(formRow.getActivityTypeId());
 
                 // Если хоть в одной строке таблицы есть тип активности
                 // отгул(с отработкой или за переработки), отпуск или болезнь
                 // то планы на следующий рабочий день можно не указывать.
-                if ( TypeOfActivity.isNotEfficientActivity( actType ) ) {
+                if ( TypesOfActivityEnum.isNotEfficientActivity(actType) ) {
                     planNecessary = false;
                 }
                 validateProjectRole       ( formRow, notNullRowNumber, errors );
@@ -132,8 +132,8 @@ public class TimeSheetFormValidator extends AbstractValidator {
                         // удалять последние строки (с конца табличной части формы), то все работает корректно.
                         // Также, если тип активности не выбран значит вся строка пустая, валидацию ее не проводим и удаляем
                         // UPD: теперь делаем фильтрацию
-                        TypeOfActivity actType =
-                                TypeOfActivity.getById(timeSheetTableRowForm.getActivityTypeId());
+                        TypesOfActivityEnum actType =
+                                TypesOfActivityEnum.getById(timeSheetTableRowForm.getActivityTypeId());
                         return actType != null;
                     }
                 });
@@ -144,7 +144,7 @@ public class TimeSheetFormValidator extends AbstractValidator {
     // <APLANATS-441> не менее 2х слов
     private final String inStringMoreThanTwoWordsRegex = "([^-\\p{LD}]+)?([-\\p{LD}]++([^-\\p{LD}]+)?+){2,}";
 
-    private void validatePlan( TimeSheetForm tsForm, ProjectRole emplJob, boolean planNecessary, Errors errors ) {
+    private void validatePlan( TimeSheetForm tsForm, ProjectRolesEnum emplJob, boolean planNecessary, Errors errors ) {
 
         String plan = tsForm.getPlan();
         // Планы на следующий рабочий день.
@@ -163,7 +163,7 @@ public class TimeSheetFormValidator extends AbstractValidator {
         }
     }
 
-    private void validateDescription( TimeSheetTableRowForm formRow, ProjectRole emplJob, int notNullRowNumber, Errors errors ) {
+    private void validateDescription( TimeSheetTableRowForm formRow, ProjectRolesEnum emplJob, int notNullRowNumber, Errors errors ) {
         String description = formRow.getDescription();
         // Необходимо указать комментарии
         if (description != null) {
@@ -181,7 +181,7 @@ public class TimeSheetFormValidator extends AbstractValidator {
         return new Object[] {"в строке №" + (notNullRowNumber + 1)};
     }
 
-    private void valdateCategoryOfActivity( TimeSheetTableRowForm formRow, ProjectRole emplJob, int notNullRowNumber, Errors errors ) {
+    private void valdateCategoryOfActivity( TimeSheetTableRowForm formRow, ProjectRolesEnum emplJob, int notNullRowNumber, Errors errors ) {
         Integer actCatId = formRow.getActivityCategoryId();
 
         // Не указана категория активности
@@ -202,7 +202,7 @@ public class TimeSheetFormValidator extends AbstractValidator {
         Integer projectRoleId = formRow.getProjectRoleId();
 
         // Не указана проектная роль
-        if ( TypeOfActivity.isEfficientActivity( actTypeId )// APLANATS-276 Роль нужно указывать только для проектных видов деятельности
+        if ( TypesOfActivityEnum.isEfficientActivity(actTypeId)// APLANATS-276 Роль нужно указывать только для проектных видов деятельности
                 && isNotChoosed( projectRoleId )
         ) {
             errors.rejectValue("timeSheetTablePart[" + notNullRowNumber + "].projectRoleId",
@@ -216,7 +216,7 @@ public class TimeSheetFormValidator extends AbstractValidator {
         }
     }
 
-    private void validateProject( TimeSheetTableRowForm formRow, TypeOfActivity actType, int notNullRowNumber, Errors errors ) {
+    private void validateProject( TimeSheetTableRowForm formRow, TypesOfActivityEnum actType, int notNullRowNumber, Errors errors ) {
         Integer projectId = formRow.getProjectId();
         String cqId = formRow.getCqId();
         if (projectId != null) {
@@ -238,11 +238,11 @@ public class TimeSheetFormValidator extends AbstractValidator {
 
         // Не указано название проекта
         // Не указано название пресейла
-        if ( ( actType == TypeOfActivity.PROJECT  || actType == TypeOfActivity.PRESALE )
+        if ( ( actType == TypesOfActivityEnum.PROJECT  || actType == TypesOfActivityEnum.PRESALE )
                 && isNotChoosed( projectId )
                 ) {
             errors.rejectValue( "timeSheetTablePart[" + notNullRowNumber + "].projectId",
-                    actType == TypeOfActivity.PRESALE
+                    actType == TypesOfActivityEnum.PRESALE
                             ? "error.tsform.presale.required"
                             : "error.tsform.project.required",
                     getErrorMessageArgs( notNullRowNumber ),
@@ -412,10 +412,10 @@ public class TimeSheetFormValidator extends AbstractValidator {
                     errors.rejectValue("overtimeCause", "error.tsform.overtimecause.notchoosed", "Не указана причина " + concreteName);
                 }
                 if (isOvertime) {
-                    UnfinishedDayCauses cause = EnumsUtils.tryFindById(tsForm.getOvertimeCause(), UnfinishedDayCauses.class);
+                    UnfinishedDayCausesEnum cause = EnumsUtils.tryFindById(tsForm.getOvertimeCause(), UnfinishedDayCausesEnum.class);
                     checkCause(cause, tsForm.getOvertimeCauseComment(), concreteName, errors);
                 } else {
-                    OvertimeCauses cause = EnumsUtils.tryFindById(tsForm.getOvertimeCause(), OvertimeCauses.class);
+                    OvertimeCausesEnum cause = EnumsUtils.tryFindById(tsForm.getOvertimeCause(), OvertimeCausesEnum.class);
                     checkCause(cause, tsForm.getOvertimeCauseComment(), concreteName, errors);
                 }
             }
@@ -464,7 +464,7 @@ public class TimeSheetFormValidator extends AbstractValidator {
         return employeeService.find( employee ) != null;
     }
 
-    private boolean isActCatValid(Integer actCat, ProjectRole emplJob) {
+    private boolean isActCatValid(Integer actCat, ProjectRolesEnum emplJob) {
         if (actCat == null ||
                 //У проектной роли "Руководитель центра" нет доступных категорий активности.
                 ( emplJob == HEAD_OF_CENTER && actCat == 0 )

@@ -4,7 +4,7 @@ package com.aplana.timesheet.enums;
  * @author rshamsutdinov
  * @version 1.0
  */
-public enum VacationType implements TSEnum {
+public enum VacationTypesEnum implements TSEnum {
 
     WITH_PAY(62, "Отпуск с сохранением содержания"),
     WITHOUT_PAY(63, "Отпуск без сохранения содержания"),
@@ -15,7 +15,7 @@ public enum VacationType implements TSEnum {
     private final int id;
     private final String name;
 
-    private VacationType(int id, String name) {
+    private VacationTypesEnum(int id, String name) {
         this.id = id;
         this.name = name;
     }

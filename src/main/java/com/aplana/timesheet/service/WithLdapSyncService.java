@@ -5,7 +5,7 @@ import com.aplana.timesheet.dao.entity.Division;
 import com.aplana.timesheet.dao.entity.Employee;
 import com.aplana.timesheet.dao.entity.Region;
 import com.aplana.timesheet.dao.entity.ldap.EmployeeLdap;
-import com.aplana.timesheet.enums.Regions;
+import com.aplana.timesheet.enums.RegionsEnum;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Objects;
 import com.google.common.base.Optional;
@@ -305,7 +305,7 @@ public class WithLdapSyncService {
             public boolean apply(@Nullable Region input) {
                 return employeeFromLdap.getCity().toLowerCase().contains(input.getLdapCity());
             }
-        }).or(regionDAO.find(Regions.OTHERS.getId()));
+        }).or(regionDAO.find(RegionsEnum.OTHERS.getId()));
 
         employee.setRegion(region);
 

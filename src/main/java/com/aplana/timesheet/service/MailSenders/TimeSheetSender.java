@@ -1,9 +1,9 @@
 package com.aplana.timesheet.service.MailSenders;
 
 import com.aplana.timesheet.dao.entity.Employee;
-import com.aplana.timesheet.enums.CategoryOfActivity;
-import com.aplana.timesheet.enums.TypeOfActivity;
-import com.aplana.timesheet.enums.WorkPlace;
+import com.aplana.timesheet.enums.CategoriesOfActivityEnum;
+import com.aplana.timesheet.enums.TypesOfActivityEnum;
+import com.aplana.timesheet.enums.WorkPlacesEnum;
 import com.aplana.timesheet.form.TimeSheetForm;
 import com.aplana.timesheet.form.TimeSheetTableRowForm;
 import com.aplana.timesheet.properties.TSPropertyProvider;
@@ -110,11 +110,11 @@ public class TimeSheetSender extends MailSender<TimeSheetForm> {
             for (int i = 0; i < tsRows.size(); i++) {
                 TimeSheetTableRowForm tsRow = tsRows.get(i);
 
-                WorkPlace workPlace = WorkPlace.getById(tsRow.getWorkplaceId());
+                WorkPlacesEnum workPlace = WorkPlacesEnum.getById(tsRow.getWorkplaceId());
                 result.put(i, WORK_PLACE, workPlace != null ? workPlace.getName() : "Неизвестно");
 
                 Integer actTypeId = tsRow.getActivityTypeId();
-                result.put(i, ACT_TYPE, TypeOfActivity.getById(actTypeId).getName());
+                result.put(i, ACT_TYPE, TypesOfActivityEnum.getById(actTypeId).getName());
 
                 String projectName = null;
                 if (actTypeId <= 13) {
@@ -125,7 +125,7 @@ public class TimeSheetSender extends MailSender<TimeSheetForm> {
                 }
                 Integer actCatId = tsRow.getActivityCategoryId();
                 if (actCatId != null && actCatId > 0) {
-                    result.put(i, CATEGORY_OF_ACTIVITY, CategoryOfActivity.getById(actCatId).getName());
+                    result.put(i, CATEGORY_OF_ACTIVITY, CategoriesOfActivityEnum.getById(actCatId).getName());
                 }
                 putIfIsNotBlank(i, result, CQ_ID, tsRow.getCqId());
                 putIfIsNotBlank(i, result, DURATION, tsRow.getDuration());
