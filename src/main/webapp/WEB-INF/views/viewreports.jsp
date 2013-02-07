@@ -1,3 +1,4 @@
+<%@ page import="java.io.File" %>
 <%@page contentType="text/html" pageEncoding="UTF-8" %>
 
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form" %>
@@ -9,8 +10,8 @@
 <html>
     <head>
         <title><fmt:message key="viewreports"/></title>
-        <link rel="stylesheet" type="text/css" href="<%= request.getContextPath()%>/resources/css/viewreports.css">
-        <script type="text/javascript" src="<%= request.getContextPath()%>/resources/js/viewreports.js"></script>
+        <link rel="stylesheet" type="text/css" href="<%= request.getContextPath()%>/resources/css/viewreports.css?modified=<%= new File(application.getRealPath("/resources/css/viewreports.css")).lastModified()%>">
+        <script type="text/javascript" src="<%= request.getContextPath()%>/resources/js/viewreports.js?modified=<%= new File(application.getRealPath("/resources/js/viewreports.js")).lastModified()%>"></script>
         <script type="text/javascript">
 
             dojo.ready(function () {
@@ -243,7 +244,7 @@
                 </tr>
                 <tr>
                     <td colspan="2">Норма (часов) в неделю:</td>
-                    <td><input type="text" id="normainweak"></td>
+                    <td><input type="text" id="normaInWeek"></td>
                 </tr>
             </thead>
         </table>

@@ -9,7 +9,7 @@ import java.util.Arrays;
  * @author eshangareev
  * @version 1.0
  */
-public enum CategoryOfActivity implements TSEnum {
+public enum CategoriesOfActivityEnum implements TSEnum {
     //TODO переименовать
     CATEGORY_11(11, "Решение вопросов с персоналом"),
     CATEGORY_32(32, "Управление субподрядом"),
@@ -38,7 +38,7 @@ public enum CategoryOfActivity implements TSEnum {
     private int id;
     private String name;
 
-    private CategoryOfActivity(int id, String name) {
+    private CategoriesOfActivityEnum(int id, String name) {
         this.id = id;
         this.name = name;
     }
@@ -53,10 +53,10 @@ public enum CategoryOfActivity implements TSEnum {
         return name;
     }
 
-    public static CategoryOfActivity getById(final int id) {
-        return Iterables.find(Arrays.asList(CategoryOfActivity.values()),new Predicate<CategoryOfActivity>() {
+    public static CategoriesOfActivityEnum getById(final int id) {
+        return Iterables.find(Arrays.asList(CategoriesOfActivityEnum.values()),new Predicate<CategoriesOfActivityEnum>() {
             @Override
-            public boolean apply(CategoryOfActivity input) {
+            public boolean apply(CategoriesOfActivityEnum input) {
                 return input.getId() == id;
             }
         } );

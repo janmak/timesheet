@@ -4,7 +4,7 @@ package com.aplana.timesheet.enums;
  * @author eshangareev
  * @version 1.0
  */
-public enum UnfinishedDayCauses implements TSEnum {
+public enum UnfinishedDayCausesEnum implements TSEnum {
     ASK_FOR_LEAVE(100, "Отпросился"),
     DOG_SICK(101, "Плохо себя чувствовал"),
     LATE_FOR_WORK(102, "Опоздал"),
@@ -23,7 +23,7 @@ public enum UnfinishedDayCauses implements TSEnum {
         return name;
     }
 
-    private UnfinishedDayCauses(int id, String name) {
+    private UnfinishedDayCausesEnum(int id, String name) {
         this.id = id;
         this.name = name;
     }

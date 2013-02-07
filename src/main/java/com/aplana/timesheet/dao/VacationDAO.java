@@ -1,7 +1,7 @@
 package com.aplana.timesheet.dao;
 
 import com.aplana.timesheet.dao.entity.Vacation;
-import com.aplana.timesheet.enums.VacationStatus;
+import com.aplana.timesheet.enums.VacationStatusEnum;
 import org.hibernate.Hibernate;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -57,7 +57,7 @@ public class VacationDAO {
                 "from Vacation v, DictionaryItem di " +
                 "where di.id = :status_id and ((:from_date between v.beginDate and v.endDate) or (:to_date between v.beginDate and v.endDate)) and not v.status = di"
         ).setParameter("from_date", fromDate).setParameter("to_date", toDate).
-                setParameter("status_id", VacationStatus.REJECTED.getId());
+                setParameter("status_id", VacationStatusEnum.REJECTED.getId());
 
         return (Long) query.getSingleResult();
     }

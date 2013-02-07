@@ -4,8 +4,8 @@ import com.aplana.timesheet.dao.entity.BusinessTrip;
 import com.aplana.timesheet.dao.entity.Employee;
 import com.aplana.timesheet.dao.entity.Illness;
 import com.aplana.timesheet.dao.entity.Project;
-import com.aplana.timesheet.enums.BusinessTripTypes;
-import com.aplana.timesheet.enums.QuickReportTypes;
+import com.aplana.timesheet.enums.BusinessTripTypesEnum;
+import com.aplana.timesheet.enums.QuickReportTypesEnum;
 import com.aplana.timesheet.exception.controller.BusinessTripsAndIllnessAddException;
 import com.aplana.timesheet.form.BusinessTripsAndIllnessAddForm;
 import com.aplana.timesheet.form.validator.BusinessTripsAndIllnessAddFormValidator;
@@ -28,8 +28,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-import static com.aplana.timesheet.enums.QuickReportTypes.BUSINESS_TRIP;
-import static com.aplana.timesheet.enums.QuickReportTypes.ILLNESS;
+import static com.aplana.timesheet.enums.QuickReportTypesEnum.BUSINESS_TRIP;
+import static com.aplana.timesheet.enums.QuickReportTypesEnum.ILLNESS;
 
 /**
  * User: vsergeev
@@ -63,7 +63,7 @@ public class BusinessTripsAndIllnessAddController extends AbstractController{
                                             @PathVariable("reportFormed") Integer reportFormed,
                                             @ModelAttribute("businesstripsandillnessadd") BusinessTripsAndIllnessAddForm tsForm,
                                             BindingResult result) throws BusinessTripsAndIllnessAddException {
-        QuickReportTypes reportType = getReportTypeAsEnum(reportFormed);
+        QuickReportTypesEnum reportType = getReportTypeAsEnum(reportFormed);
         switch (reportType){
             case ILLNESS: return getIllnessEditingForm(reportId, tsForm);
             case BUSINESS_TRIP: return getBusinessTripEditingForm(reportId, tsForm);
@@ -93,7 +93,7 @@ public class BusinessTripsAndIllnessAddController extends AbstractController{
             return getModelAndViewCreation(employee);
         }
 
-        QuickReportTypes reportType = getReportTypeAsEnum(tsForm.getReportType());
+        QuickReportTypesEnum reportType = getReportTypeAsEnum(tsForm.getReportType());
         tsForm.setEmployee(employee);
 
         switch (reportType){
@@ -112,7 +112,7 @@ public class BusinessTripsAndIllnessAddController extends AbstractController{
             return getModelAndViewCreation(tsForm.getEmployee());
         }
 
-        QuickReportTypes reportType = getReportTypeAsEnum(tsForm.getReportType());
+        QuickReportTypesEnum reportType = getReportTypeAsEnum(tsForm.getReportType());
 
         switch (reportType){
             case BUSINESS_TRIP: return saveBusinessTrip(tsForm, reportId);
@@ -154,9 +154,9 @@ public class BusinessTripsAndIllnessAddController extends AbstractController{
     /**
      * возвращаем enum отчета по id. если такого id в emun-е не существует - бросаем exception
      */
-    private QuickReportTypes getReportTypeAsEnum(Integer reportId) throws BusinessTripsAndIllnessAddException {
+    private QuickReportTypesEnum getReportTypeAsEnum(Integer reportId) throws BusinessTripsAndIllnessAddException {
         try {
-            return EnumsUtils.getEnumById(reportId, QuickReportTypes.class);
+            return EnumsUtils.getEnumById(reportId, QuickReportTypesEnum.class);
         } catch (NoSuchElementException ex){
             throw new BusinessTripsAndIllnessAddException("Операция не поддерживается для данного типа отчета!", ex);
         }
@@ -166,7 +166,7 @@ public class BusinessTripsAndIllnessAddController extends AbstractController{
      * Возвращает формочку с табличкой по больничным или командировкам выбранного сотрудника за выбранный месяц и
      * результат о выполнении операции
      */
-    private ModelAndView getModelAndViewSuccess(Employee employee, Date reportDate, QuickReportTypes reportType) {
+    private ModelAndView getModelAndViewSuccess(Employee employee, Date reportDate, QuickReportTypesEnum reportType) {
         Integer divisionId = employee.getDivision().getId();
         Integer employeeId = employee.getId();
 
@@ -185,12 +185,12 @@ public class BusinessTripsAndIllnessAddController extends AbstractController{
         BusinessTrip businessTrip;
         try {
             businessTrip = businessTripService.find(reportId);
-            tsForm.setReportType(QuickReportTypes.BUSINESS_TRIP.getId());
+            tsForm.setReportType(QuickReportTypesEnum.BUSINESS_TRIP.getId());
             tsForm.setBeginDate(businessTrip.getBeginDate());
             tsForm.setEndDate(businessTrip.getEndDate());
             tsForm.setEmployee(businessTrip.getEmployee());
             tsForm.setBusinessTripType(businessTrip.getType().getId());
-            if (businessTrip.getType().getId().equals(BusinessTripTypes.PROJECT)) {
+            if (businessTrip.getType().getId().equals(BusinessTripTypesEnum.PROJECT)) {
                 tsForm.setProjectId(businessTrip.getProject().getId());
             }
             tsForm.setComment(businessTrip.getComment());
@@ -207,7 +207,7 @@ public class BusinessTripsAndIllnessAddController extends AbstractController{
      */
     private ModelAndView getIllnessEditingForm(Integer reportId, BusinessTripsAndIllnessAddForm tsForm) {
         Illness illness = illnessService.find(reportId);
-        tsForm.setReportType(QuickReportTypes.ILLNESS.getId());
+        tsForm.setReportType(QuickReportTypesEnum.ILLNESS.getId());
         tsForm.setEmployee(illness.getEmployee());
         tsForm.setBeginDate(illness.getBeginDate());
         tsForm.setEndDate(illness.getEndDate());
@@ -244,7 +244,7 @@ public class BusinessTripsAndIllnessAddController extends AbstractController{
             businessTrip.setBeginDate(tsForm.getBeginDate());
             businessTrip.setEndDate(tsForm.getEndDate());
             businessTrip.setType(dictionaryItemService.find(tsForm.getReportType()));
-            if (tsForm.getReportType().equals(BusinessTripTypes.PROJECT.getId())){
+            if (tsForm.getReportType().equals(BusinessTripTypesEnum.PROJECT.getId())){
                 businessTrip.setProject(projectService.find(tsForm.getProjectId()));
             }
             businessTrip.setComment(tsForm.getComment());

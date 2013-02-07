@@ -10,7 +10,7 @@ import java.util.Arrays;
  * @author eshangareev
  * @version 1.0
  */
-public enum TypeOfActivity implements TSEnum {
+public enum TypesOfActivityEnum implements TSEnum {
 
     TIME_OFF_FOR_OVERTIME( 24, "Отгул за переработки" ),
     VACATION( 16, "Отпуск" ),
@@ -26,7 +26,7 @@ public enum TypeOfActivity implements TSEnum {
     private int id;
     private String name;
 
-    private TypeOfActivity( int id, String name ) {
+    private TypesOfActivityEnum(int id, String name) {
         this.id = id;
         this.name = name;
     }
@@ -53,14 +53,14 @@ public enum TypeOfActivity implements TSEnum {
      * @param typeOfActivity тип работы
      * @return
      */
-    public static boolean isEfficientActivity( TypeOfActivity typeOfActivity ) {
+    public static boolean isEfficientActivity( TypesOfActivityEnum typeOfActivity ) {
         return  typeOfActivity == NON_PROJECT
                 || typeOfActivity == PRESALE
                 || typeOfActivity == PROJECT
                 || typeOfActivity == PROJECT_PRESALE;
     }
 
-    public static boolean isProjectActivity( TypeOfActivity typeOfActivity ) {
+    public static boolean isProjectActivity( TypesOfActivityEnum typeOfActivity ) {
         return     PROJECT == typeOfActivity
                 || PRESALE == typeOfActivity
                 || PROJECT_PRESALE == typeOfActivity;
@@ -70,15 +70,15 @@ public enum TypeOfActivity implements TSEnum {
         return ! isEfficientActivity( id );
     }
 
-    public static boolean isNotEfficientActivity( TypeOfActivity typeOfActivity ) {
+    public static boolean isNotEfficientActivity( TypesOfActivityEnum typeOfActivity ) {
         return ! isEfficientActivity( typeOfActivity );
     }
 
-    public static TypeOfActivity getById( final Integer id ) {
+    public static TypesOfActivityEnum getById( final Integer id ) {
         if (id == null) {return null;}
-        return Iterables.tryFind(Arrays.asList(TypeOfActivity.values()), new Predicate<TypeOfActivity>() {
+        return Iterables.tryFind(Arrays.asList(TypesOfActivityEnum.values()), new Predicate<TypesOfActivityEnum>() {
             @Override
-            public boolean apply(@Nullable TypeOfActivity input) {
+            public boolean apply(@Nullable TypesOfActivityEnum input) {
                 return input.getId() == id;
             }
         }).orNull();

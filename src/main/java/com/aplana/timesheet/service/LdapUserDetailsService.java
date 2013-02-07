@@ -5,12 +5,8 @@ import com.aplana.timesheet.dao.EmployeeDAO;
 import com.aplana.timesheet.dao.EmployeePermissionsDAO;
 import com.aplana.timesheet.dao.entity.Employee;
 import com.aplana.timesheet.dao.entity.Permission;
-import com.aplana.timesheet.enums.Permissions;
+import com.aplana.timesheet.enums.PermissionsEnum;
 import com.aplana.timesheet.util.TimeSheetUser;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +21,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.ldap.userdetails.UserDetailsContextMapper;
 import org.springframework.stereotype.Service;
 
-import static com.aplana.timesheet.enums.Permissions.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 @Service("myLdapUserDetailsService")
 public class LdapUserDetailsService implements UserDetailsContextMapper {
@@ -46,7 +44,7 @@ public class LdapUserDetailsService implements UserDetailsContextMapper {
         List<Permission> permissionList = employeePermissonsDAO.getEmployeePermissions(employee.getId());
         if (permissionList == null) {return;}
         for (Permission permission : permissionList){
-            switch ( Permissions.getById( permission.getId() )) {
+            switch ( PermissionsEnum.getById(permission.getId())) {
                 case RERPORTS_PERMISSION: {
                     list.add( new SimpleGrantedAuthority( "ROLE_MANAGER" ) );
                     list.add( new SimpleGrantedAuthority( "ROLE_USER" ) );

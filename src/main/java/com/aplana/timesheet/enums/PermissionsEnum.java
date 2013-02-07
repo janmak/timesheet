@@ -4,7 +4,7 @@ package com.aplana.timesheet.enums;
  * @author iziyangirov
  * @version 1.0
  */
-public enum Permissions {
+public enum PermissionsEnum {
 
     PLAIN_PERMISSION(1, "Обычные права сотрудника"),
     RERPORTS_PERMISSION(2, "Формирование отчетов"),
@@ -15,7 +15,7 @@ public enum Permissions {
     private int id;
     private String name;
 
-    private Permissions( int id, String name) {
+    private PermissionsEnum(int id, String name) {
         this.id = id;
         this.name = name;
     }
@@ -36,8 +36,8 @@ public enum Permissions {
         this.name = name;
     }
 
-    public static Permissions getById( int id ) {
-        for ( Permissions permission : Permissions.values() ) {
+    public static PermissionsEnum getById( int id ) {
+        for ( PermissionsEnum permission : PermissionsEnum.values() ) {
             if ( permission.getId() == id ) {
                 return permission;
             }

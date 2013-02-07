@@ -1,15 +1,12 @@
 package com.aplana.timesheet.dao;
 
-import com.aplana.timesheet.dao.entity.Division;
-import com.aplana.timesheet.enums.Regions;
+import com.aplana.timesheet.enums.RegionsEnum;
 import com.aplana.timesheet.reports.BaseReport;
 import com.aplana.timesheet.reports.OverTimeCategory;
 import com.aplana.timesheet.reports.Report01;
 import com.aplana.timesheet.reports.Report06;
-import com.aplana.timesheet.service.DivisionService;
 import com.aplana.timesheet.util.DateTimeUtil;
 import org.apache.commons.lang.time.DateUtils;
-import org.apache.poi.ss.formula.functions.T;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,8 +44,8 @@ public class JasperReportDAOTest {
     private <T extends BaseReport> T getPrefilledBaseReport(final T report) {
         report.setBeginDate(DateTimeUtil.dateToString(DateUtils.addDays(new Date(), -120)));
         report.setEndDate(DateTimeUtil.dateToString(DateUtils.addDays(new Date(), -90)));
-        report.setRegionIds(Arrays.asList(Regions.UFA.getId()));
-        report.setRegionNames(Arrays.asList(Regions.UFA.getName()));
+        report.setRegionIds(Arrays.asList(RegionsEnum.UFA.getId()));
+        report.setRegionNames(Arrays.asList(RegionsEnum.UFA.getName()));
         report.setAllRegions(false);
 
         return report;

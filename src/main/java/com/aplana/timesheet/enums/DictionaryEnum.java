@@ -4,7 +4,7 @@ package com.aplana.timesheet.enums;
  * @author eshangareev
  * @version 1.0
  */
-public enum Dictionary implements TSEnum {
+public enum DictionaryEnum implements TSEnum {
     CATEGORY_OF_ACTIVITY(1, "Категория активности"),
     TYPES_OF_ACTIVITY(2, "Тип активности"),
     WORKPLACE(5, "Место работы"),
@@ -23,7 +23,7 @@ public enum Dictionary implements TSEnum {
         return name;
     }
 
-    private Dictionary(int id, String name) {
+    private DictionaryEnum(int id, String name) {
         this.id = id;
         this.name = name;
     }

@@ -6,7 +6,7 @@ import com.aplana.timesheet.dao.entity.DictionaryItem;
 import com.aplana.timesheet.dao.entity.Employee;
 import com.aplana.timesheet.dao.entity.Holiday;
 import com.aplana.timesheet.dao.entity.Vacation;
-import com.aplana.timesheet.enums.VacationStatus;
+import com.aplana.timesheet.enums.VacationStatusEnum;
 import com.aplana.timesheet.form.VacationsForm;
 import com.aplana.timesheet.form.validator.VacationsFormValidator;
 import com.aplana.timesheet.service.SendMailService;
@@ -128,10 +128,10 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
 
                 workDays.add(workDaysCount);
 
-                final VacationStatus vacationStatus =
-                        EnumsUtils.getEnumById(vacation.getStatus().getId(), VacationStatus.class);
+                final VacationStatusEnum vacationStatus =
+                        EnumsUtils.getEnumById(vacation.getStatus().getId(), VacationStatusEnum.class);
 
-                if (vacationStatus == VacationStatus.APPROVED) {
+                if (vacationStatus == VacationStatusEnum.APPROVED) {
                     beginDate = vacation.getBeginDate();
                     endDate = vacation.getEndDate();
 
@@ -162,7 +162,7 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
                     summaryApproved++;
                 }
 
-                if (vacationStatus == VacationStatus.REJECTED) {
+                if (vacationStatus == VacationStatusEnum.REJECTED) {
                     summaryRejected++;
                 }
             }
@@ -215,15 +215,15 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
             final boolean isAdmin = employeeService.isEmployeeAdmin(employee.getId());
 
             final DictionaryItem statusDictionaryItem = vacation.getStatus();
-            final VacationStatus vacationStatus =
-                    EnumsUtils.getEnumById(statusDictionaryItem.getId(), VacationStatus.class);
+            final VacationStatusEnum vacationStatus =
+                    EnumsUtils.getEnumById(statusDictionaryItem.getId(), VacationStatusEnum.class);
 
             if (
                     employee.equals(vacation.getEmployee()) ||
                     employee.equals(vacation.getAuthor()) ||
                     isAdmin
             ) {
-                if (!isAdmin && (vacationStatus == VacationStatus.REJECTED || vacationStatus == VacationStatus.APPROVED)) {
+                if (!isAdmin && (vacationStatus == VacationStatusEnum.REJECTED || vacationStatus == VacationStatusEnum.APPROVED)) {
                     return String.format(
                             "Нельзя удалить заявление на отпуск в статусе \"%s\". Для удаления данного заявления " +
                                     "необходимо написать на timesheet@aplana.com",

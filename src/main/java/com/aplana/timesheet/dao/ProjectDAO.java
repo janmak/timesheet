@@ -4,7 +4,7 @@ import com.aplana.timesheet.dao.entity.DictionaryItem;
 import com.aplana.timesheet.dao.entity.Employee;
 import com.aplana.timesheet.dao.entity.Project;
 import com.aplana.timesheet.dao.entity.ProjectParticipant;
-import com.aplana.timesheet.enums.TypeOfActivity;
+import com.aplana.timesheet.enums.TypesOfActivityEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +18,7 @@ import javax.persistence.Query;
 import java.util.Date;
 import java.util.List;
 
-import static com.aplana.timesheet.enums.TypeOfActivity.PRESALE;
+import static com.aplana.timesheet.enums.TypesOfActivityEnum.PRESALE;
 
 @Repository
 @SuppressWarnings("unchecked")
@@ -44,7 +44,7 @@ public class ProjectDAO {
     public List<Project> getAll() {
         Query query = entityManager.createQuery(
                 "from Project as p where p.active=:active"
-        ).setParameter( "active", true );
+        ).setParameter("active", true);
 
         return query.getResultList();
     }
@@ -57,7 +57,7 @@ public class ProjectDAO {
     public List<Project> getProjects() {
         Query query = entityManager.createQuery(
                 "from Project as p where p.state=:state and p.active=:active ORDER BY name"
-        ).setParameter("state", dictionaryItemDAO.find(TypeOfActivity.PROJECT.getId())).setParameter("active", true);
+        ).setParameter("state", dictionaryItemDAO.find(TypesOfActivityEnum.PROJECT.getId())).setParameter("active", true);
 
         return query.getResultList();
     }
@@ -130,7 +130,7 @@ public class ProjectDAO {
     public List<ProjectParticipant> getParticipants(Project project) {
         Query query = entityManager.createQuery(
                 "from ProjectParticipant as pp where pp.active=:active and pp.project=:project"
-        ).setParameter( "active", true ).setParameter( "project", project );
+        ).setParameter("active", true).setParameter( "project", project );
 
         return query.getResultList();
     }
@@ -145,7 +145,7 @@ public class ProjectDAO {
     public List<ProjectParticipant> getEmployeeProjectRoles(Project project, Employee employee) {
         Query query = entityManager.createQuery(
                 "from ProjectParticipant as pp where pp.active=:active and pp.project=:project and pp.employee=:employee"
-        ).setParameter( "active", true ).setParameter( "project", project ).setParameter( "employee", employee );
+        ).setParameter("active", true).setParameter( "project", project ).setParameter("employee", employee);
 
         return query.getResultList();
     }
@@ -154,7 +154,7 @@ public class ProjectDAO {
     public Project findByName(String name) {
         Query query = entityManager.createQuery(
                 "from Project as p where p.name=:name"
-        ).setParameter( "name", name );
+        ).setParameter("name", name);
 
         List resultList = query.getResultList();
         return resultList.isEmpty()? null : (Project) resultList.get( 0 );

@@ -1,6 +1,6 @@
 package com.aplana.timesheet.form;
 
-import com.aplana.timesheet.enums.QuickReportTypes;
+import com.aplana.timesheet.enums.QuickReportTypesEnum;
 
 import java.util.Arrays;
 import java.util.List;
@@ -15,14 +15,14 @@ public class BusinessTripsAndIllnessForm {
     private Integer employeeId;
     private Integer year;
     private Integer month;
-    private List<QuickReportTypes> reportTypes = Arrays.asList(QuickReportTypes.values());
-    private Integer reportType = QuickReportTypes.ILLNESS.getId();
+    private List<QuickReportTypesEnum> reportTypes = Arrays.asList(QuickReportTypesEnum.values());
+    private Integer reportType = QuickReportTypesEnum.ILLNESS.getId();
 
-    public List<QuickReportTypes> getReportTypes() {
+    public List<QuickReportTypesEnum> getReportTypes() {
         return reportTypes;
     }
 
-    public void setReportTypes(List<QuickReportTypes> reportTypes) {
+    public void setReportTypes(List<QuickReportTypesEnum> reportTypes) {
         this.reportTypes = reportTypes;
     }
 
