@@ -15,10 +15,7 @@ import com.aplana.timesheet.exception.controller.BusinessTripsAndIllnessControll
 import com.aplana.timesheet.form.BusinessTripsAndIllnessForm;
 import com.aplana.timesheet.properties.TSPropertyProvider;
 import com.aplana.timesheet.service.*;
-import com.aplana.timesheet.util.DateTimeUtil;
-import com.aplana.timesheet.util.EmployeeHelper;
-import com.aplana.timesheet.util.EnumsUtils;
-import com.aplana.timesheet.util.TimeSheetUser;
+import com.aplana.timesheet.util.*;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import org.apache.commons.lang.StringUtils;
@@ -59,15 +56,14 @@ public class BusinessTripsAndIllnessController extends AbstractController{
     private static final String NO_PRINTTYPE_FINDED_ERROR_MESSAGE = "Ошибка: не удалось получить тип отчета!";
     private static final String ACCESS_ERROR_MESSAGE = "Не удается считать права на формирование отчетов!";
     private static final String ACCESS_DENIED_ERROR_MESSAGE = "У Вас недостаточно прав для просмотра отчетов других сотрудников!";
-    private static final int DEFAULT_MOSCOW_YEAR_BEGIN_MONTH = 4;
-    private static final int DEFAULT_MOSCOW_YEAR_BEGIN_DAY = 1;
     private static final String UNCNOWN_REGION_EXCEPTION_MESSAGE = "Сотрудник имеет неизвестный регион!";
     private static final String INVALID_DATES_IN_SETTINGS_EXCEPTION_MESSAGE = "В файле настроек указаны неверные даты для региона!";
 
-    private static class YearStarts {
-        private Integer yearBeginDay;
-        private Integer yearBeginMonth;
-    }
+    //дефолтные дни начала года для регионов и Москвы
+    private static final int DEFAULT_MOSCOW_YEAR_BEGIN_MONTH = java.util.Calendar.APRIL;
+    private static final int DEFAULT_MOSCOW_YEAR_BEGIN_DAY = 1;
+    private static final Integer DEFAULT_REGION_YEAR_BEGIN_MONTH = java.util.Calendar.SEPTEMBER;
+    private static final Integer DEFAULT_REGION_YEAR_BEGIN_DAY = 1;
 
     private static final Logger logger = LoggerFactory.getLogger(BusinessTripsAndIllnessController.class);
 
@@ -305,22 +301,22 @@ public class BusinessTripsAndIllnessController extends AbstractController{
      * даты начала/конца ОТЧЕТНЫХ годов берутся либо из дефолтных значений, либо из файла настроек таймшита
      */
     private Date getYearBeginDate(Employee employee, Integer month, Integer year) throws BusinessTripsAndIllnessControllerException {
-        YearStarts yearStarts = getYearPeriodForEmployyesRegion(employee);
-        return generateYearBeginDate(yearStarts, month, year);
+        DateNumbers dateNumbers = getYearPeriodForEmployyesRegion(employee);
+        return generateYearBeginDate(dateNumbers, month, year);
     }
 
     /**
-     * Превращаем YearStarts в Date попутно проверяя, в какой год попадает отчетный месяц.
+     * Превращаем DateNumbers в Date попутно проверяя, в какой год попадает отчетный месяц.
      * Если отчетный месяц меньше месяца начала периода - значит период начался в предыдущем году относительно года отчетного месяца.
      * Год нужно уменьшить.
      */
-    private Date generateYearBeginDate(YearStarts yearStarts, Integer month, Integer year) throws BusinessTripsAndIllnessControllerException {
+    private Date generateYearBeginDate(DateNumbers dateNumbers, Integer month, Integer year) throws BusinessTripsAndIllnessControllerException {
         try {
-            if (month < yearStarts.yearBeginMonth) {
+            if (month < dateNumbers.getDatabaseMonth()) {
                 year -= 1;
             }
 
-            return format.parse(String.format("%s.%s.%s", yearStarts.yearBeginDay, yearStarts.yearBeginMonth, year));
+            return format.parse(String.format("%s.%s.%s", dateNumbers.getDay(), dateNumbers.getDatabaseMonth(), year));
         } catch (ParseException e) {
             throw new BusinessTripsAndIllnessControllerException(INVALID_DATES_IN_SETTINGS_EXCEPTION_MESSAGE);
         }
@@ -331,22 +327,22 @@ public class BusinessTripsAndIllnessController extends AbstractController{
      * Дата начала либо считывается из файла настроек таймшита, либо выставляется по умолчанию
      * (1.04 для Москвы или 1.09 для регионов)
      */
-    private YearStarts getYearPeriodForEmployyesRegion(Employee employee) throws BusinessTripsAndIllnessControllerException {
-        YearStarts yearStarts = new YearStarts();
+    private DateNumbers getYearPeriodForEmployyesRegion(Employee employee) throws BusinessTripsAndIllnessControllerException {
+        DateNumbers dateNumbers = new DateNumbers();
 
         RegionsEnum regionEnum = EnumsUtils.getEnumById(employee.getRegion().getId(), RegionsEnum.class);
 
         switch (regionEnum) {
             case MOSCOW: {
                 try {
-                    yearStarts.yearBeginDay = propertyProvider.getQuickreportMoskowBeginDay();
-                    yearStarts.yearBeginMonth = propertyProvider.getQuickreportMoskowBeginMonth();
+                    dateNumbers.setDay(propertyProvider.getQuickreportMoskowBeginDay());
+                    dateNumbers.setMonth(propertyProvider.getQuickreportMoskowBeginMonth());
                 } catch (NumberFormatException ex) {
                     logger.error(INVALID_YEAR_BEGIN_DATE_ERROR_MESSAGE);
-                    yearStarts.yearBeginMonth = DEFAULT_MOSCOW_YEAR_BEGIN_MONTH;
-                    yearStarts.yearBeginDay = DEFAULT_MOSCOW_YEAR_BEGIN_DAY;
+                    dateNumbers.setMonth(DEFAULT_MOSCOW_YEAR_BEGIN_MONTH);
+                    dateNumbers.setDay(DEFAULT_MOSCOW_YEAR_BEGIN_DAY);
                 } finally {
-                    return yearStarts;
+                    return dateNumbers;
                 }
             }
             case OTHERS:
@@ -354,14 +350,14 @@ public class BusinessTripsAndIllnessController extends AbstractController{
             case NIJNIY_NOVGOROD:
             case PERM: {
                 try {
-                    yearStarts.yearBeginDay = propertyProvider.getQuickreportRegionsBeginDay();
-                    yearStarts.yearBeginMonth = propertyProvider.getQuickreportRegionsBeginMonth();
+                    dateNumbers.setDay(propertyProvider.getQuickreportRegionsBeginDay());
+                    dateNumbers.setMonth(propertyProvider.getQuickreportRegionsBeginMonth());
                 } catch (NumberFormatException ex) {
                     logger.error(INVALID_YEAR_BEGIN_DATE_ERROR_MESSAGE);
-                    yearStarts.yearBeginMonth = DEFAULT_MOSCOW_YEAR_BEGIN_MONTH;
-                    yearStarts.yearBeginDay = DEFAULT_MOSCOW_YEAR_BEGIN_DAY;
+                    dateNumbers.setMonth(DEFAULT_REGION_YEAR_BEGIN_MONTH);
+                    dateNumbers.setDay(DEFAULT_REGION_YEAR_BEGIN_DAY);
                 } finally {
-                    return yearStarts;
+                    return dateNumbers;
                 }
             }
             default:

@@ -88,7 +88,11 @@
                 handleAs: "text",
 
                 load: function(data) {
-                    exitToWorkElement.innerHTML = data;
+                    if (data.size != 0) {
+                        exitToWorkElement.innerHTML = data;
+                    } else {
+                        exitToWorkElement.innerHTML = "Не удалось получить дату выхода из отпуска!";
+                    }
                 },
 
                 error: function(error) {

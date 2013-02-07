@@ -233,7 +233,7 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
 
                 vacationDAO.delete(vacation);
 
-                sendMailService.performVacationMailing(vacation);
+                sendMailService.performVacationDeletedMailing(vacation);
 
                 return StringUtils.EMPTY;
             }

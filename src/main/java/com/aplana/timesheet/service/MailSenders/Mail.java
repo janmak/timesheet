@@ -113,4 +113,9 @@ public class Mail {
     public Table<Integer, String, String> getParamsForGenerateBody() {
         return paramsForGenerateBody;
     }
+
+    public void setToEmails(List<String> emailsToAdd) {
+        this.toEmails = emailsToAdd;
+    }
+
 }

@@ -106,6 +106,9 @@ public class TSPropertyProvider {
         return new Double(getProperties().getProperty("overtime.threshold"));
     }
 
+    public Integer getBeforeVacationDays() {
+        return Integer.parseInt(getProperties().getProperty("vacations.before.vacation.days"));
+    }
 
     /**
      * Единый метод для загрузки почтовых настроек
