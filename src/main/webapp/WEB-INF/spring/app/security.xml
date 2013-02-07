@@ -17,6 +17,8 @@
     <security:http pattern="/report/*" security="none"/>
     <security:http pattern="/showReport*" security="none"/>
     <security:http pattern="/temp/*" security="none"/>
+    <security:http pattern="/vacation_approval/**" security="none"/>
+    <security:http pattern="/vacation_approval*" security="none"/>
 
 <!-- 
     <security:http use-expressions="true"  entry-point-ref="spnegoEntryPoint">

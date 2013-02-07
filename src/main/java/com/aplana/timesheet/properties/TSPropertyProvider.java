@@ -106,6 +106,11 @@ public class TSPropertyProvider {
         return new Double(getProperties().getProperty("overtime.threshold"));
     }
 
+    public Integer getVacationApprovalErrorThreshold(){
+        String result = getProperties().getProperty("vacation.approval.error.threshold");
+        return result == null || result == "" ? null : new Integer(result);
+    }
+
     public Integer getBeforeVacationDays() {
         return Integer.parseInt(getProperties().getProperty("vacations.before.vacation.days"));
     }

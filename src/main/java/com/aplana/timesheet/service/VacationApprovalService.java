@@ -10,21 +10,29 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 /**
- * User: vsergeev
- * Date: 06.02.13
+ * @author iziyangirov
  */
 @Service
 public class VacationApprovalService {
 
     @Autowired
-    VacationApprovalDAO vacationApprovalDAO;
+    private VacationApprovalDAO vacationApprovalDAO;
 
-    public void store(VacationApproval vacationApproval) {
+    public VacationApproval getVacationApproval(String uid){
+        return vacationApprovalDAO.findVacationApproval(uid);
+    }
+
+    public void store(VacationApproval vacationApproval){
         vacationApprovalDAO.store(vacationApproval);
     }
 
+    public List<String> getVacationApprovalEmailList(Integer vacationId){
+        return vacationApprovalDAO.getVacationApprovalEmailList(vacationId);
+    }
+
     public List<String> getEmailAddressesOfManagersThatDoesntApproveVacation(List<Integer> projectRolesIds, Project project, Vacation vacation) {
-        return vacationApprovalDAO.getEmailAddressesOfManagersThatDoesntApproveVacation(projectRolesIds, project, vacation);
+        return vacationApprovalDAO.getEmailAddressesOfManagersThatDoesntApproveVacation(projectRolesIds, project,
+                vacation);
     }
 
 }
