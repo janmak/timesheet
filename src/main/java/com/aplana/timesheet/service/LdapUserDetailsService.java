@@ -42,7 +42,9 @@ public class LdapUserDetailsService implements UserDetailsContextMapper {
     private EmployeeLdapService employeeLdapService;
 
     public void fillAuthority(Employee employee, List<GrantedAuthority> list) {
+        list.add( new SimpleGrantedAuthority( "ROLE_USER" ) ); // права обычного пользователя в любом случае
         List<Permission> permissionList = employeePermissonsDAO.getEmployeePermissions(employee.getId());
+        if (permissionList == null) {return;}
         for (Permission permission : permissionList){
             switch ( Permissions.getById( permission.getId() )) {
                 case RERPORTS_PERMISSION: {
@@ -55,8 +57,6 @@ public class LdapUserDetailsService implements UserDetailsContextMapper {
                     list.add( new SimpleGrantedAuthority( "ROLE_USER" ) );
                     break;
                 }
-                default:
-                    list.add( new SimpleGrantedAuthority( "ROLE_USER" ) );
             }
         }
     }
