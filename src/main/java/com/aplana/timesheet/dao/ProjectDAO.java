@@ -15,8 +15,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import static com.aplana.timesheet.enums.TypesOfActivityEnum.PRESALE;
 
@@ -44,7 +43,7 @@ public class ProjectDAO {
     public List<Project> getAll() {
         Query query = entityManager.createQuery(
                 "from Project as p where p.active=:active"
-        ).setParameter("active", true);
+        ).setParameter( "active", true );
 
         return query.getResultList();
     }
@@ -71,9 +70,9 @@ public class ProjectDAO {
         final Integer ANACCOUNTED_PRESALE_ID = 18;
         Query query = entityManager.createQuery(
                 "from Project as p where p.state=:state and p.active=:active and p.id<>:anaccounted_presale" )
-                .setParameter( "state", dictionaryItemDAO.find( PRESALE.getId() ) )
-                .setParameter( "active", true )
-                .setParameter( "anaccounted_presale", ANACCOUNTED_PRESALE_ID );
+                .setParameter("state", dictionaryItemDAO.find(PRESALE.getId()))
+                .setParameter("active", true)
+                .setParameter("anaccounted_presale", ANACCOUNTED_PRESALE_ID);
 
         return query.getResultList();
     }
@@ -130,7 +129,7 @@ public class ProjectDAO {
     public List<ProjectParticipant> getParticipants(Project project) {
         Query query = entityManager.createQuery(
                 "from ProjectParticipant as pp where pp.active=:active and pp.project=:project"
-        ).setParameter("active", true).setParameter( "project", project );
+        ).setParameter( "active", true ).setParameter( "project", project );
 
         return query.getResultList();
     }
@@ -145,7 +144,7 @@ public class ProjectDAO {
     public List<ProjectParticipant> getEmployeeProjectRoles(Project project, Employee employee) {
         Query query = entityManager.createQuery(
                 "from ProjectParticipant as pp where pp.active=:active and pp.project=:project and pp.employee=:employee"
-        ).setParameter("active", true).setParameter( "project", project ).setParameter("employee", employee);
+        ).setParameter( "active", true ).setParameter("project", project).setParameter( "employee", employee );
 
         return query.getResultList();
     }
@@ -154,7 +153,7 @@ public class ProjectDAO {
     public Project findByName(String name) {
         Query query = entityManager.createQuery(
                 "from Project as p where p.name=:name"
-        ).setParameter("name", name);
+        ).setParameter( "name", name );
 
         List resultList = query.getResultList();
         return resultList.isEmpty()? null : (Project) resultList.get( 0 );
@@ -164,7 +163,7 @@ public class ProjectDAO {
     public Project findByProjectId(String projectId) {
         Query query = entityManager.createQuery(
                 "select p from Project p where p.projectId=:projectId"
-        ).setParameter( "projectId", projectId ).setMaxResults( 1 );
+        ).setParameter("projectId", projectId).setMaxResults(1);
 
         List result = query.getResultList();
         return result.isEmpty() ? null : (Project) result.get(0);
@@ -207,6 +206,29 @@ public class ProjectDAO {
         Query query = entityManager.createQuery("from Project p where p.startDate <= :endDate and p.endDate >= :startDate");
         query.setParameter("startDate", beginDate);
         query.setParameter("endDate", endDate);
+
+        return query.getResultList();
+    }
+
+    public List<Project> getEmployeeProjectPlanByDates(Employee employee, HashMap<Integer, Set<Integer>> dates) {
+        List<Project> projects = new ArrayList<Project>();
+        for (Integer year : dates.keySet()) {
+            Query query = entityManager.createQuery("select epp.project from EmployeeProjectPlan as epp where epp.employee = :employee and epp.year = :year and epp.month in :monthList")
+                    .setParameter("employee", employee)
+                    .setParameter("year", year)
+                    .setParameter("monthList", dates.get(year));
+            projects.addAll(query.getResultList());
+        }
+
+        return projects;
+    }
+
+    public List<Project> getEmployeeProjectsByDates(Date beginDate, Date endDate, Employee employee) {
+        Query query = entityManager.createQuery("select tsd.project from TimeSheetDetail as tsd " +
+                "where tsd.timeSheet.employee = :employee and tsd.timeSheet.creationDate between :beginDate and :endDate")
+                .setParameter("employee", employee)
+                .setParameter("endDate", beginDate)
+                .setParameter("endDate", endDate);
 
         return query.getResultList();
     }

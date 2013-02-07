@@ -18,13 +18,9 @@ import java.util.List;
  * @author rshamsutdinov
  * @version 1.0
  */
-public class VacationSender extends MailSender<Vacation> {
+public class VacationDeletedSender extends MailSender<Vacation> {
 
-    private static final String MAIL_BODY = "mail_body";
-    private static final String DATE_FORMAT = "dd.MM.yyyy";
-    private static final int FIRST = 0;
-
-    public VacationSender(SendMailService sendMailService, TSPropertyProvider propertyProvider) {
+    public VacationDeletedSender(SendMailService sendMailService, TSPropertyProvider propertyProvider) {
         super(sendMailService, propertyProvider);
     }
 

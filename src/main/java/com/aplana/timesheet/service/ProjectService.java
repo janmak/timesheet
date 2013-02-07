@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
@@ -213,4 +214,11 @@ public class ProjectService {
         return sb.toString();
     }
 
+    public List<Project> getEmployeeProjectPlanByDates(Employee employee, HashMap<Integer, Set<Integer>> dates) {
+        return projectDAO.getEmployeeProjectPlanByDates(employee, dates);
+    }
+
+    public List<Project> getEmployeeProjectsByDates(Date beginDate, Date endDate, Employee employee) {
+        return projectDAO.getEmployeeProjectsByDates(beginDate, endDate, employee);
+    }
 }

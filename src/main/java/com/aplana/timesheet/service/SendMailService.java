@@ -4,6 +4,7 @@ import com.aplana.timesheet.dao.VacationDAO;
 import com.aplana.timesheet.dao.entity.*;
 import com.aplana.timesheet.enums.ProjectRolesEnum;
 import com.aplana.timesheet.enums.TypesOfActivityEnum;
+import com.aplana.timesheet.exception.service.CalendarServiceException;
 import com.aplana.timesheet.form.AdminMessageForm;
 import com.aplana.timesheet.form.FeedbackForm;
 import com.aplana.timesheet.form.TimeSheetForm;
@@ -27,10 +28,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.ui.velocity.VelocityEngineUtils;
 
 import javax.annotation.Nullable;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.aplana.timesheet.enums.ProjectRolesEnum.*;
 
@@ -99,6 +97,10 @@ public class SendMailService{
     private OvertimeCauseService overtimeCauseService;
     @Autowired
     private VacationDAO vacationDAO;
+    @Autowired
+    private CalendarService calendarService;
+    @Autowired
+    private VacationApprovalService vacationApprovalService;
 
 
     /**
@@ -149,7 +151,8 @@ public class SendMailService{
         return Joiner.on(",").join(Iterables.transform(
                 Iterables.filter(transformTimeSheetTableRowForm(tsRows), LEAVE_PRESALE_AND_PROJECTS_ONLY),
                 new Function<RenameMe, String>() {
-                    @Nullable @Override
+                    @Nullable
+                    @Override
                     public String apply(@Nullable RenameMe input) {
                         return getEmployeeEmail(projectService.find(input.getProjectId()).getManager().getId());
                     }
@@ -221,8 +224,12 @@ public class SendMailService{
         new TimeSheetDeletedSender(this, propertyProvider).sendMessage(timeSheet);
     }
 
-    public void performVacationMailing(Vacation vacation) {
-        new VacationSender(this, propertyProvider).sendMessage(vacation);
+    public void performVacationDeletedMailing(Vacation vacation) {
+        new VacationDeletedSender(this, propertyProvider).sendMessage(vacation);
+    }
+
+    public void performVacationConfirmMailService(VacationApproval vacationApproval) {
+        new VacationApproveSender(this, propertyProvider).sendMessage(vacationApproval);
     }
 
     public void performExceptionSender(String problem){
@@ -264,6 +271,10 @@ public class SendMailService{
 
     public List<String> getVacationApprovalEmailList(Integer vacationId) {
         return vacationDAO.getVacationApprovalEmailList(vacationId);
+    }
+
+    public List<String> getEmailAddressesOfManagersThatDoesntApproveVacation(List<Integer> projectRolesIds, Project project, Vacation vacation) {
+        return vacationApprovalService.getEmailAddressesOfManagersThatDoesntApproveVacation(projectRolesIds, project, vacation);
     }
 
     interface RenameMe {
@@ -320,5 +331,22 @@ public class SendMailService{
                 };
             }
         });
+    }
+
+    /**
+     * получаем проекты, участие в которых запланировано у сотрудника, по датам
+     */
+    public List<Project> getEmployeeProjectPlanByDates(Date beginDate, Date endDate, Employee employee) throws CalendarServiceException {
+        //некоторых месяцев может не быть - поэтому получаем список доступных месяцев из БД
+        HashMap<Integer, Set<Integer>> dates = calendarService.getMonthsAndYearsNumbers(beginDate, endDate);
+
+        return projectService.getEmployeeProjectPlanByDates(employee, dates);
+    }
+
+    /**
+     * получаем проекты, по которым сотрудник списывал отчеты, по датам отчетов
+     */
+    public List<Project> getEmployeeProjectsByDates(Date beginDate, Date endDate, Employee employee) {
+        return projectService.getEmployeeProjectsByDates(beginDate, endDate, employee);
     }
 }

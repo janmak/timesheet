@@ -3,16 +3,20 @@ package com.aplana.timesheet.service;
 import com.aplana.timesheet.dao.CalendarDAO;
 import com.aplana.timesheet.dao.entity.Calendar;
 import com.aplana.timesheet.dao.entity.Region;
+import com.aplana.timesheet.exception.service.CalendarServiceException;
+import com.aplana.timesheet.util.DateNumbers;
 import com.aplana.timesheet.util.DateTimeUtil;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Sets;
 import org.apache.commons.lang.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Nullable;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class CalendarService
@@ -138,4 +142,43 @@ public class CalendarService
 
         return daysToLastDate - daysToFirstDate + 1;
     }
+
+    /**
+     * получаем мапу для периода
+     * ключ - год в периоде
+     * значения - месяцы, соответствующие году (ключу), попадающие в заданный период
+     */
+    public HashMap<Integer, Set<Integer>> getMonthsAndYearsNumbers(Date beginDate, Date endDate) throws CalendarServiceException {
+        final DateNumbers startDateNumbers = new DateNumbers(beginDate);
+        final DateNumbers endDateNumbers = new DateNumbers(endDate);
+        HashMap<Integer, Set<Integer>> result = new HashMap<Integer, Set<Integer>>();
+
+        for (int year = startDateNumbers.getYear(); year<= endDateNumbers.getYear(); year++) {
+            Set<Integer> monthsInYear = Sets.newHashSet(calendarDAO.getMonth(year));
+            if (monthsInYear.isEmpty()) {
+                throw new CalendarServiceException("Попытка получения месяцев из года, который еще не занесен в БД!");
+            }
+
+            if (startDateNumbers.getYear() == year) {
+                monthsInYear = Sets.newHashSet(Iterables.filter(monthsInYear, new Predicate<Integer>() {
+                    @Override
+                    public boolean apply(@Nullable Integer input) {
+                        return input >= startDateNumbers.getDatabaseMonth();
+                    }
+                }));
+            }
+            if (endDateNumbers.getYear() == year) {
+                monthsInYear = Sets.newHashSet(Iterables.filter(monthsInYear, new Predicate<Integer>() {
+                    @Override
+                    public boolean apply(@Nullable Integer input) {
+                        return input <= endDateNumbers.getDatabaseMonth();
+                    }
+                }));
+            }
+            result.put(year, monthsInYear);
+        }
+
+        return result;
+    }
+
 }
