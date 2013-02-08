@@ -50,6 +50,10 @@ public class TSPropertyProvider {
         return getProperties().getProperty("mail.send.enable");
     }
 
+    public String getMailDebugAddress() {
+        return  getProperties().getProperty("mail.debug.address");
+    }
+
     public String getMailSmtpPort() {
         return getProperties().getProperty("mail.smtp.port");
     }

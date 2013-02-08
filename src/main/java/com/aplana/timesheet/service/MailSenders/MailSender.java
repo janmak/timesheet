@@ -13,6 +13,8 @@ import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 
@@ -62,6 +64,15 @@ public class MailSender<T> {
                 } else {
                     try {
                         logger.info("Message is formed, but the sending off in the options. Message text: " + message.getContent().toString());
+                        String mailDebugAddress = propertyProvider.getMailDebugAddress();
+                        if (mailDebugAddress != null && mailDebugAddress != ""){
+                            prepareMailToDebugSend(mail, mailDebugAddress);
+                            MimeMessage debugMessage = new MimeMessage(session);
+                            initMessageHead(mail, debugMessage);
+                            initMessageBody(mail, debugMessage);
+                            transport.sendMessage(debugMessage, debugMessage.getAllRecipients());
+                            logger.info("Message sended on debug address: " + mailDebugAddress);
+                        }
                     } catch (IOException e) {
                         logger.debug("Sending error", e);
                     }
@@ -76,6 +87,22 @@ public class MailSender<T> {
                 logger.error("Error while closing transport.", e);
             }
         }
+    }
+
+    private void prepareMailToDebugSend(Mail mail, String mailDebugAddress){
+        StringBuilder newMessageBody = new StringBuilder();
+        newMessageBody.append("DEBUG INFORMATION:");
+        newMessageBody.append("<br>Email from: " + mail.getFromEmail());
+        newMessageBody.append("<br>Email to: " + mail.getToEmails().toString());
+        newMessageBody.append("<br>Email cc: " + mail.getCcEmail());
+        newMessageBody.append("<br>END DEBUG INFORMATION<br><br>");
+        newMessageBody.append(mail.getPreconstructedMessageBody());
+
+        List<String> toEmail = new ArrayList<String>();
+        toEmail.add(mailDebugAddress);
+        mail.setToEmails(toEmail);
+        mail.setCcEmail("");
+        mail.setPreconstructedMessageBody(newMessageBody.toString());
     }
 
     private void initMessageHead(Mail mail, MimeMessage message) {
