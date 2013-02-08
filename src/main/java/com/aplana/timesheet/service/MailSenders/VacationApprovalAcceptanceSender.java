@@ -17,6 +17,7 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 import javax.mail.util.ByteArrayDataSource;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -57,7 +58,9 @@ public class VacationApprovalAcceptanceSender extends MailSender<VacationApprova
         mail.setFromEmail(propertyProvider.getMailFromAddress());
         mail.setSubject(propertyProvider.getVacationMailMarker() + " " + subject); // APLANATS-573
         mail.setPreconstructedMessageBody(text);
-        mail.setToEmails( sendMailService.getVacationApprovalEmailList(vacationId));
+        mail.setToEmails( Arrays.asList(params.getVacation().getEmployee().getEmail()) );
+        mail.setCcEmails(sendMailService.getVacationApprovalEmailList(vacationId));
+
         return Arrays.asList(mail);
     }
 

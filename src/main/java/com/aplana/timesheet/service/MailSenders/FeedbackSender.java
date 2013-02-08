@@ -52,13 +52,13 @@ public class FeedbackSender extends MailSender<FeedbackForm> {
         String employeeName = sendMailService.getEmployeeFIO(params.getEmployeeId());
         String employeeEmail = sendMailService.getEmployeeEmail(params.getEmployeeId());
 
-        mail.setCcEmail(employeeEmail);
         mail.setFromEmail(employeeEmail);
+        mail.setToEmails(Arrays.asList(propertyProvider.getMailProblemsAndProposalsCoaddress()));
+        mail.setCcEmails(Arrays.asList(employeeEmail));
         mail.setSubject(params.getFeedbackTypeName());
         mail.setFilePahts(Arrays.asList(params.getFile1Path(), params.getFile2Path()));
         mail.setPreconstructedMessageBody(
                 getMessageBody(employeeName, employeeEmail, params.getFeedbackDescription()) );
-        mail.setToEmails(Arrays.asList(propertyProvider.getMailProblemsAndProposalsCoaddress()));
 
         return Arrays.asList(mail);
     }

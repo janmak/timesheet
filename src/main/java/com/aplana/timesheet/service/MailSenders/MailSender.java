@@ -4,6 +4,7 @@ import com.aplana.timesheet.properties.TSPropertyProvider;
 import com.aplana.timesheet.service.SendMailService;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
+import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -94,21 +95,21 @@ public class MailSender<T> {
         newMessageBody.append("DEBUG INFORMATION:");
         newMessageBody.append("<br>Email from: " + mail.getFromEmail());
         newMessageBody.append("<br>Email to: " + mail.getToEmails().toString());
-        newMessageBody.append("<br>Email cc: " + mail.getCcEmail());
+        newMessageBody.append("<br>Email cc: " + (mail.getCcEmails().iterator().hasNext() ? mail.getCcEmails() : ""));
         newMessageBody.append("<br>END DEBUG INFORMATION<br><br>");
         newMessageBody.append(mail.getPreconstructedMessageBody());
 
         List<String> toEmail = new ArrayList<String>();
         toEmail.add(mailDebugAddress);
         mail.setToEmails(toEmail);
-        mail.setCcEmail("");
+        mail.setCcEmails(null);
         mail.setPreconstructedMessageBody(newMessageBody.toString());
     }
 
     private void initMessageHead(Mail mail, MimeMessage message) {
         InternetAddress fromAddr = initFromAddresses(mail);
-        InternetAddress[] ccAddresses = initCcAddresses(mail);
-        InternetAddress[] toAddresses = initToAddresses(mail);
+        InternetAddress[] ccAddresses = initAddresses(mail.getCcEmails());
+        InternetAddress[] toAddresses = initAddresses(mail.getToEmails());
         logger.debug("CC Addresses: {}", toAddresses.toString());
 
         try {
@@ -125,6 +126,18 @@ public class MailSender<T> {
     }
 
     @VisibleForTesting
+    InternetAddress[] initAddresses(Iterable<String> emails){
+        try {
+            if (emails == null) {return null;}
+            InternetAddress[] toAddresses = InternetAddress.parse(Joiner.on(",").join(emails));
+            logger.debug("Email Address = {}", toAddresses);
+            return toAddresses;
+        } catch (AddressException e) {
+            throw new IllegalArgumentException("Email address has wrong format.", e);
+        }
+    }
+
+    @VisibleForTesting
     InternetAddress initFromAddresses(Mail mail) {
         String employeeEmail = mail.getFromEmail();
         logger.debug("From Address = {}", employeeEmail);
@@ -134,27 +147,7 @@ public class MailSender<T> {
             throw new IllegalArgumentException(String.format("Email address %s has wrong format.", employeeEmail), e);
         }
     }
-    @VisibleForTesting
-    InternetAddress[] initCcAddresses(Mail mail) {
-        if (StringUtils.isNotBlank(mail.getCcEmail())) {
-            try {
-                return InternetAddress.parse(mail.getCcEmail());
-            } catch (MessagingException e) {
-                logger.error("Employee email address has wrong format.", e);
-            }
-        }
-        return null;
-    }
-    @VisibleForTesting
-    InternetAddress[] initToAddresses(Mail mail) {
-        try {
-            InternetAddress[] toAddresses = InternetAddress.parse(Joiner.on(",").join(mail.getToEmails()));
-            logger.debug("To Address = {}", toAddresses);
-            return toAddresses;
-        } catch (AddressException e) {
-            throw new IllegalArgumentException("Email address has wrong format.", e);
-        }
-    }
+
     @VisibleForTesting
     void initMessageSubject(Mail mail, MimeMessage message) throws MessagingException {
         String messageSubject = mail.getSubject();

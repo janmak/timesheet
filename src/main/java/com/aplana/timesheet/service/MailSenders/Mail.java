@@ -17,7 +17,7 @@ import java.util.Map;
  */
 public class Mail {
     private Division division;
-    private String ccEmail;
+    private Iterable<String> ccEmails = new ArrayList<String>();
     private String fromEmail;
     private String subject;
     private Iterable<String> toEmails = new ArrayList<String>();
@@ -54,12 +54,12 @@ public class Mail {
         this.division = division;
     }
 
-    public String getCcEmail() {
-        return ccEmail;
+    public Iterable<String> getCcEmails() {
+        return ccEmails;
     }
 
-    public void setCcEmail(String ccEmail) {
-        this.ccEmail = ccEmail;
+    public void setCcEmails(Iterable<String> ccEmails) {
+        this.ccEmails = ccEmails;
     }
 
     public Iterable<Employee> getEmployeeList() {
