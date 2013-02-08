@@ -15,6 +15,7 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
@@ -99,9 +100,7 @@ public class MailSender<T> {
         newMessageBody.append("<br>END DEBUG INFORMATION<br><br>");
         newMessageBody.append(mail.getPreconstructedMessageBody());
 
-        List<String> toEmail = new ArrayList<String>();
-        toEmail.add(mailDebugAddress);
-        mail.setToEmails(toEmail);
+        mail.setToEmails(Arrays.asList(mailDebugAddress));
         mail.setCcEmails(null);
         mail.setPreconstructedMessageBody(newMessageBody.toString());
     }
