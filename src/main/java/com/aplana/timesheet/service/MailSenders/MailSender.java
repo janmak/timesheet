@@ -68,10 +68,10 @@ public class MailSender<T> {
                         logger.info("Message is formed, but the sending off in the options. Message text: " + message.getContent().toString());
                         String mailDebugAddress = propertyProvider.getMailDebugAddress();
                         if (mailDebugAddress != null && mailDebugAddress != ""){
-                            prepareMailToDebugSend(mail, mailDebugAddress);
                             MimeMessage debugMessage = new MimeMessage(session);
                             initMessageHead(mail, debugMessage);
                             initMessageBody(mail, debugMessage);
+                            addDebugInfoAndChangeReceiver(debugMessage, getDebugInfo(mail), mailDebugAddress);
                             transport.sendMessage(debugMessage, debugMessage.getAllRecipients());
                             logger.info("Message sended on debug address: " + mailDebugAddress);
                         }
@@ -91,18 +91,26 @@ public class MailSender<T> {
         }
     }
 
-    private void prepareMailToDebugSend(Mail mail, String mailDebugAddress){
+    private String getDebugInfo(Mail mail){
         StringBuilder newMessageBody = new StringBuilder();
         newMessageBody.append("DEBUG INFORMATION:");
         newMessageBody.append("<br>Email from: " + mail.getFromEmail());
         newMessageBody.append("<br>Email to: " + mail.getToEmails().toString());
         newMessageBody.append("<br>Email cc: " + (mail.getCcEmails().iterator().hasNext() ? mail.getCcEmails() : ""));
         newMessageBody.append("<br>END DEBUG INFORMATION<br><br>");
-        newMessageBody.append(mail.getPreconstructedMessageBody());
+        return newMessageBody.toString();
+    }
 
-        mail.setToEmails(Arrays.asList(mailDebugAddress));
-        mail.setCcEmails(null);
-        mail.setPreconstructedMessageBody(newMessageBody.toString());
+    private void addDebugInfoAndChangeReceiver(MimeMessage message, String debugInfo, String mailDebugAddress){
+        try{
+            message.setRecipients(MimeMessage.RecipientType.TO, InternetAddress.parse(mailDebugAddress));
+            message.setRecipients(MimeMessage.RecipientType.CC, "");
+            message.setText(debugInfo + (String)message.getContent(), "UTF-8", "html");
+        }catch (MessagingException ex){
+            logger.error("Error while init message recipients.", ex);
+        }catch (IOException ex){
+            logger.error("Error get message content.", ex);
+        }
     }
 
     private void initMessageHead(Mail mail, MimeMessage message) {
