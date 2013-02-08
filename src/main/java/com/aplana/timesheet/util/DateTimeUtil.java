@@ -1,7 +1,9 @@
 package com.aplana.timesheet.util;
 
+import com.aplana.timesheet.exception.TSRuntimeException;
 import com.aplana.timesheet.service.CalendarService;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.time.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -265,31 +267,24 @@ public class DateTimeUtil {
     }
 
     public static String decreaseDay(String day) {
-        SimpleDateFormat sdf = new SimpleDateFormat(DATE_PATTERN);
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(DateTimeUtil.stringToTimestamp(day));
-
-        if (calendar.get(Calendar.DAY_OF_YEAR) == 1) {
-            calendar.add(Calendar.YEAR, -1);
-            calendar.set(Calendar.DAY_OF_YEAR, calendar.getActualMaximum(Calendar.DAY_OF_YEAR));
-        } else
-            calendar.add(Calendar.DAY_OF_YEAR, -1);
-
-        return sdf.format(calendar.getTime());
+        return addDaysToStringDate(day, -1);
     }
 
     public static String increaseDay(String day) {
+        return addDaysToStringDate(day, 1);
+    }
+
+    private static String addDaysToStringDate(String dateStr, int daysCount) {
+        try {
         SimpleDateFormat sdf = new SimpleDateFormat(DATE_PATTERN);
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(DateTimeUtil.stringToTimestamp(day));
+        Date date = sdf.parse(dateStr);
+        DateUtils.addDays(date, daysCount);
 
-        if (calendar.get(Calendar.DAY_OF_YEAR) == calendar.getActualMaximum(calendar.DAY_OF_YEAR)) {
-            calendar.add(Calendar.YEAR, 1);
-            calendar.set(Calendar.DAY_OF_YEAR, 1);
-        } else
-            calendar.add(Calendar.DAY_OF_YEAR, 1);
+        return sdf.format(date);
 
-        return sdf.format(calendar.getTime());
+        } catch (ParseException ex) {
+            throw new TSRuntimeException(ex);
+        }
     }
 
     public static String formatDate(Timestamp timestamp) {
