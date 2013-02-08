@@ -68,10 +68,4 @@ public class VacationDAO {
         return (Vacation) query.getSingleResult();
     }
 
-    public List<String> getVacationApprovalEmailList(Integer vacationId) {
-        final Query query = entityManager.createQuery("select va.manager.email from VacationApproval va where va.vacation.id = :vac_id")
-                .setParameter("vac_id", vacationId);
-
-        return query.getResultList();
-    }
 }

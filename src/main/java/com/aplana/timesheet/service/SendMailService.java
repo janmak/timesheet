@@ -236,6 +236,14 @@ public class SendMailService{
         new ExceptionSender(this, propertyProvider).sendMessage(problem);
     }
 
+    public void performVacationApprovalErrorThresholdMailing(){
+        new VacationApprovalErrorThresholdSender(this, propertyProvider).sendMessage("");
+    }
+
+    public void performVacationAcceptanceMailing(VacationApproval vacationApproval){
+        new VacationApprovalAcceptanceSender(this, propertyProvider).sendMessage(vacationApproval);
+    }
+
     public String initMessageBodyForReport(TimeSheet timeSheet) {
         Map<String, Object> model1 = new HashMap<String, Object>();
 
@@ -270,7 +278,7 @@ public class SendMailService{
     }
 
     public List<String> getVacationApprovalEmailList(Integer vacationId) {
-        return vacationDAO.getVacationApprovalEmailList(vacationId);
+        return vacationApprovalService.getVacationApprovalEmailList(vacationId);
     }
 
     public List<String> getEmailAddressesOfManagersThatDoesntApproveVacation(List<Integer> projectRolesIds, Project project, Vacation vacation) {

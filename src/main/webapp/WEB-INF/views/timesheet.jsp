@@ -347,6 +347,8 @@
 </head>
 <body>
 
+<a href="/vacation_approval?uid=123456789123456789123456789123456789"> Нажми на ссылку - получишь результат</a>
+
 <div class="maskable" id="maskDiv"></div>
 
 <h1><fmt:message key="title.timesheet"/></h1>

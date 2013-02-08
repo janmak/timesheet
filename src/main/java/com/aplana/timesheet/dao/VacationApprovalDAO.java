@@ -12,19 +12,43 @@ import javax.persistence.Query;
 import java.util.List;
 
 /**
- * User: vsergeev
- * Date: 06.02.13
+ * @author iziyangirov
  */
+
 @Repository
 public class VacationApprovalDAO {
 
     @PersistenceContext
     private EntityManager entityManager;
 
+    /**
+     * Согласование на отпуск по переданному uid
+     * @param uid
+     * @return
+     */
+    public VacationApproval findVacationApproval(String uid) {
+        final Query query =
+                entityManager.createQuery("from VacationApproval va where va.uid = :uid")
+                        .setParameter("uid", uid);
+
+        if (query.getResultList().isEmpty()){
+            return null;
+        }
+
+        return (VacationApproval)query.getSingleResult();
+    }
+
     @Transactional
-    public void store(VacationApproval vacationApproval) {
+    public void store(VacationApproval vacationApproval){
         entityManager.merge(vacationApproval);
         entityManager.flush();
+    }
+
+    public List<String> getVacationApprovalEmailList(Integer vacationId) {
+        final Query query = entityManager.createQuery("select va.manager.email from VacationApproval va where va.vacation.id = :vac_id")
+                .setParameter("vac_id", vacationId);
+
+        return query.getResultList();
     }
 
     /**
@@ -40,4 +64,5 @@ public class VacationApprovalDAO {
 
         return query.getResultList();
     }
+
 }

@@ -23,6 +23,17 @@ public class Region implements Identifiable {
     @OneToMany(mappedBy = "region", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<Holiday> holidays;
 
+    @Column(name = "additional_emails")
+    private String additionalEmails;
+
+    public String getAdditionalEmails() {
+        return additionalEmails;
+    }
+
+    public void setAdditionalEmails(String additionalEmails) {
+        this.additionalEmails = additionalEmails;
+    }
+
     public Set<Holiday> getHolidays() {
         return holidays;
     }
