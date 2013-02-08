@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.activation.DataHandler;
+import javax.annotation.PostConstruct;
 import javax.mail.Multipart;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
@@ -26,6 +27,7 @@ import java.util.List;
 public class VacationApprovalAcceptanceSender extends MailSender<VacationApproval> {
 
     @Autowired
+    private TSPropertyProvider propertyProvider;
 
     final String DATE_FORMAT = "dd.MM.yyyy";
     final String MAIL_ACCEPT_SUBJECT = "Согласование \"%s\" сотрудника %s на период с %s - %s";
@@ -56,9 +58,9 @@ public class VacationApprovalAcceptanceSender extends MailSender<VacationApprova
                 String.format(MAIL_REFUSE_BODY, matchingFIO, vacationType, employeeFIO, region, dateBegin, dateEnd);
 
         mail.setFromEmail(propertyProvider.getMailFromAddress());
-        mail.setSubject(subject);
+        mail.setSubject(propertyProvider.getVacationMailMarker() + " " + subject); // APLANATS-573
         mail.setPreconstructedMessageBody(text);
-        mail.setToEmails( sendMailService.getVacationApprovalEmailList( vacationId ));
+        mail.setToEmails( sendMailService.getVacationApprovalEmailList(vacationId));
         return Arrays.asList(mail);
     }
 

@@ -13,6 +13,7 @@ import net.sf.cglib.core.Transformer;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateFormatUtils;
 import org.apache.commons.lang.time.DateUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
@@ -24,6 +25,9 @@ import java.util.*;
  */
 public class VacationApproveSender extends MailSender<VacationApproval> {
 
+    @Autowired
+    private TSPropertyProvider propertyProvider;
+
     private static final Integer BEFORE_VACATION_DAYS_DEFAULT = 14;
     private static final String WRONG_BEFORE_VACATION_DAYS_ERROR = "В настройках указано неверное количество дней до отпуска, по которым будем формировать рассылку!";
 
@@ -34,7 +38,7 @@ public class VacationApproveSender extends MailSender<VacationApproval> {
 
         mail.setFromEmail(sendMailService.getEmployeeEmail(vacation.getEmployee().getId()));
         mail.setToEmails(Arrays.asList(vacationApproval.getManager().getEmail()));
-        mail.setSubject(getSubject(vacation));
+        mail.setSubject(propertyProvider.getVacationMailMarker() + " " + getSubject(vacation)); // APLANATS-573
         mail.setParamsForGenerateBody(getParamsForGenerateBody(vacationApproval));
 
         return Arrays.asList(mail);

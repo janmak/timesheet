@@ -55,14 +55,7 @@ public class VacationApprovalController {
     final String REFUSE_ANSWER = "%s, Вы не согласовали \"%s\" сотрудника %s из г. %s на период с %s - %s.";
     final String ACCEPT_ANSWER = "%s, Вы согласовали \"%s\" сотрудника %s из г. %s на период с %s - %s.";
 
-    final private AtomicInteger GLOBAL_WRONG_REQUEST_COUNTER = new AtomicInteger(100);
-
-    @PostConstruct
-    private void init(){
-        if (propertyProvider.getVacationApprovalErrorThreshold() != null) {
-            GLOBAL_WRONG_REQUEST_COUNTER.set(propertyProvider.getVacationApprovalErrorThreshold());
-        }
-    }
+    final private AtomicInteger GLOBAL_WRONG_REQUEST_COUNTER = new AtomicInteger(0);
 
     @RequestMapping(value = "/vacation_approval", method = RequestMethod.GET)
     public ModelAndView vacationApprovalShow(
@@ -157,8 +150,8 @@ public class VacationApprovalController {
         logger.warn("Somebody try to get vacation approval service by wrong UID number: {}",
                 String.format(LOGGER_MESSAGE, request.getRemoteAddr(), userID, userFIO));
 
-        // если счетчик неудачных попыток превысил лимит
-        if (GLOBAL_WRONG_REQUEST_COUNTER.getAndDecrement() == 0){
+        // если счетчик неудачных попыток кратен лимиту из настроек
+        if (GLOBAL_WRONG_REQUEST_COUNTER.getAndIncrement() % propertyProvider.getVacationApprovalErrorThreshold() == 0){
             // Отправим сообщение админам
             sendMailService.performVacationApprovalErrorThresholdMailing();
         }
