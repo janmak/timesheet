@@ -26,9 +26,6 @@ import java.util.List;
 
 public class VacationApprovalAcceptanceSender extends MailSender<VacationApproval> {
 
-    @Autowired
-    private TSPropertyProvider propertyProvider;
-
     final String DATE_FORMAT = "dd.MM.yyyy";
     final String MAIL_ACCEPT_SUBJECT = "Согласование \"%s\" сотрудника %s на период с %s - %s";
     final String MAIL_ACCEPT_BODY = "%s согласовал \"%s\" сотрудника %s из г. %s на период с %s - %s.";

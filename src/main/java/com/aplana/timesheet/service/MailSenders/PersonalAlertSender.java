@@ -18,9 +18,6 @@ import java.util.*;
 
 public class PersonalAlertSender extends MailSender<List<ReportCheck>> {
 
-    @Autowired
-    private TSPropertyProvider propertyProvider;
-
     public PersonalAlertSender(SendMailService sendMailService, TSPropertyProvider propertyProvider) {
         super(sendMailService, propertyProvider);
     }

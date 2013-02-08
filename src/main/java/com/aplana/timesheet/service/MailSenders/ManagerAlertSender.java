@@ -19,9 +19,6 @@ import java.util.*;
 
 public class ManagerAlertSender extends MailSender<List<ReportCheck>> {
 
-    @Autowired
-    private TSPropertyProvider propertyProvider;
-
     public ManagerAlertSender(SendMailService sendMailService, TSPropertyProvider propertyProvider) {
         super(sendMailService, propertyProvider);
     }

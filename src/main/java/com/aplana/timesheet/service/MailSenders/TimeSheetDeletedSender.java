@@ -18,9 +18,6 @@ import java.util.*;
 
 public class TimeSheetDeletedSender extends MailSender<TimeSheet> {
 
-    @Autowired
-    private TSPropertyProvider propertyProvider;
-
     public TimeSheetDeletedSender(SendMailService sendMailService, TSPropertyProvider propertyProvider) {
         super(sendMailService, propertyProvider);
     }

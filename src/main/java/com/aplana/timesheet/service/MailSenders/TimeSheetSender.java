@@ -25,9 +25,6 @@ import java.util.*;
 
 public class TimeSheetSender extends MailSender<TimeSheetForm> {
 
-    @Autowired
-    private TSPropertyProvider propertyProvider;
-
     public static final String WORK_PLACE = "workPlace";
     public static final String ACT_TYPE = "actType";
     public static final String PROJECT_NAME = "projectName";

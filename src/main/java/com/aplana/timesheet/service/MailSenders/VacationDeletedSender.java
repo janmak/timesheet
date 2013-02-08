@@ -72,7 +72,8 @@ public class VacationDeletedSender extends MailSender<Vacation> {
     }
 
     private String getSubject(Vacation params) {
-        return String.format("Заявление на отпуск сотрудника \"%s\" удалено", params.getEmployee().getName());
+        return  propertyProvider.getVacationMailMarker() +
+                String.format(" Заявление на отпуск сотрудника \"%s\" удалено", params.getEmployee().getName());
     }
 
     private Iterable<String> getToEmails(Vacation params) {

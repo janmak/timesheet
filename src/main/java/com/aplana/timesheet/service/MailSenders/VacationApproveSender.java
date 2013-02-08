@@ -25,9 +25,6 @@ import java.util.*;
  */
 public class VacationApproveSender extends MailSender<VacationApproval> {
 
-    @Autowired
-    private TSPropertyProvider propertyProvider;
-
     private static final Integer BEFORE_VACATION_DAYS_DEFAULT = 14;
     private static final String WRONG_BEFORE_VACATION_DAYS_ERROR = "В настройках указано неверное количество дней до отпуска, по которым будем формировать рассылку!";
 
