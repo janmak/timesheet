@@ -38,7 +38,7 @@ public class VacationApproveSender extends MailSender<VacationApproval> {
 
         mail.setFromEmail(sendMailService.getEmployeeEmail(vacation.getEmployee().getId()));
         mail.setToEmails(Arrays.asList(vacationApproval.getManager().getEmail()));
-        mail.setSubject(propertyProvider.getVacationMailMarker() + " " + getSubject(vacation)); // APLANATS-573
+        mail.setSubject(getSubject(vacation));
         mail.setParamsForGenerateBody(getParamsForGenerateBody(vacationApproval));
 
         return Arrays.asList(mail);
@@ -81,7 +81,9 @@ public class VacationApproveSender extends MailSender<VacationApproval> {
         String beginDateStr = DateFormatUtils.format(vacation.getBeginDate(), DATE_FORMAT);
         String endDateStr = DateFormatUtils.format(vacation.getEndDate(), DATE_FORMAT);
 
-        return String.format("Запрос согласования отпуска %s %s - %s", vacation.getEmployee().getName(), beginDateStr, endDateStr);
+        return  propertyProvider.getVacationMailMarker() +   // APLANATS-573
+                String.format(" Запрос согласования отпуска %s %s - %s", vacation.getEmployee().getName(),
+                        beginDateStr, endDateStr);
     }
 
     @Override

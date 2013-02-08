@@ -8,6 +8,7 @@ import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.velocity.VelocityEngineUtils;
 
 import javax.annotation.Nullable;
@@ -16,6 +17,9 @@ import javax.mail.internet.MimeMessage;
 import java.util.*;
 
 public class PersonalAlertSender extends MailSender<List<ReportCheck>> {
+
+    @Autowired
+    private TSPropertyProvider propertyProvider;
 
     public PersonalAlertSender(SendMailService sendMailService, TSPropertyProvider propertyProvider) {
         super(sendMailService, propertyProvider);
@@ -57,7 +61,8 @@ public class PersonalAlertSender extends MailSender<List<ReportCheck>> {
     }
 
     private String getSubject(ReportCheck currentReportCheck) {
-        return "Cрочно списать занятость за " + Joiner.on(", ").join(
+        return  propertyProvider.getTimesheetMailMarker() + // APLANATS-571
+                " Cрочно списать занятость за " + Joiner.on(", ").join(
                 Sets.newHashSet(Iterables.transform(currentReportCheck.getPassedDays(), new Function<String, String>() {
                     @Nullable @Override
                     public String apply(@Nullable String input) {

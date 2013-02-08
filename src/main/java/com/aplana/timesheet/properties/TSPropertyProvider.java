@@ -112,6 +112,12 @@ public class TSPropertyProvider {
         return (result == null || result == "") ? DEFAULT_VACATION_MAIL_MARKER : result;
     }
 
+    final String DEFAULT_TIMESHEET_MAIL_MARKER = "[TIMESHEET]";
+    public String getTimesheetMailMarker() {
+        String result = getProperties().getProperty("ts.mail.marker=");
+        return (result == null || result == "") ? DEFAULT_TIMESHEET_MAIL_MARKER : result;
+    }
+
     final Integer DEFAULT_VACATION_APPROVAL_ERROR_THRESHOLD = 100;
     public Integer getVacationApprovalErrorThreshold(){
         String result = getProperties().getProperty("vacation.approval.error.threshold");

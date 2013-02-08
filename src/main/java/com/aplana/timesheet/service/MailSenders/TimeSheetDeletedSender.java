@@ -8,6 +8,7 @@ import com.aplana.timesheet.util.DateTimeUtil;
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.velocity.VelocityEngineUtils;
 
 import javax.annotation.Nullable;
@@ -16,6 +17,9 @@ import javax.mail.internet.MimeMessage;
 import java.util.*;
 
 public class TimeSheetDeletedSender extends MailSender<TimeSheet> {
+
+    @Autowired
+    private TSPropertyProvider propertyProvider;
 
     public TimeSheetDeletedSender(SendMailService sendMailService, TSPropertyProvider propertyProvider) {
         super(sendMailService, propertyProvider);
@@ -55,7 +59,8 @@ public class TimeSheetDeletedSender extends MailSender<TimeSheet> {
     }
 
     private String getSubject(Employee employee, String date) {
-        return String.format("Удален отчет сотрудника %s за %s", employee.getName(), date);
+        return  propertyProvider.getTimesheetMailMarker() + // APLANATS-571
+                String.format(" Удален отчет сотрудника %s за %s", employee.getName(), date);
     }
 
     private Collection<String> getToEmails(TimeSheet input) {

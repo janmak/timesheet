@@ -9,6 +9,7 @@ import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.velocity.VelocityEngineUtils;
 
 import javax.annotation.Nullable;
@@ -17,6 +18,9 @@ import javax.mail.internet.MimeMessage;
 import java.util.*;
 
 public class ManagerAlertSender extends MailSender<List<ReportCheck>> {
+
+    @Autowired
+    private TSPropertyProvider propertyProvider;
 
     public ManagerAlertSender(SendMailService sendMailService, TSPropertyProvider propertyProvider) {
         super(sendMailService, propertyProvider);
@@ -120,7 +124,8 @@ public class ManagerAlertSender extends MailSender<List<ReportCheck>> {
             }
         }));
 
-        return "Отчет по списанию занятости за " + Joiner.on(", ").join(
+        return  propertyProvider.getTimesheetMailMarker() + // APLANATS-571
+                " Отчет по списанию занятости за " + Joiner.on(", ").join(
                 Sets.newHashSet(Iterables.transform(concat, new Function<String, String>() {
                     @Nullable @Override
                     public String apply(@Nullable String params) {

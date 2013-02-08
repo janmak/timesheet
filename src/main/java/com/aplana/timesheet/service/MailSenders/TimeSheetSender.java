@@ -15,6 +15,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import com.google.common.collect.Table;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.velocity.VelocityEngineUtils;
 
 import javax.annotation.Nullable;
@@ -23,6 +24,9 @@ import javax.mail.internet.MimeMessage;
 import java.util.*;
 
 public class TimeSheetSender extends MailSender<TimeSheetForm> {
+
+    @Autowired
+    private TSPropertyProvider propertyProvider;
 
     public static final String WORK_PLACE = "workPlace";
     public static final String ACT_TYPE = "actType";
@@ -75,7 +79,8 @@ public class TimeSheetSender extends MailSender<TimeSheetForm> {
     }
 
     private String getSubject(TimeSheetForm params) {
-        return "Status report - " +
+        return  propertyProvider.getTimesheetMailMarker()+ //APLANATS-571
+                " Status report - " +
                 (!params.isLongIllness() && !params.isLongVacation()
                     ? params.getCalDate() : params.getBeginLongDate());
     }
