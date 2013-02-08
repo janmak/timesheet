@@ -81,7 +81,7 @@ public enum ProjectRolesEnum implements TSEnum {
         }).orNull();
     }
 
-    public static ProjectRolesEnum getById(final int id) {
+    public static ProjectRolesEnum getById(final Integer id) {
         return Iterables.tryFind(Arrays.asList(ProjectRolesEnum.values()), new Predicate<ProjectRolesEnum>() {
             @Override
             public boolean apply(ProjectRolesEnum input) {

@@ -33,7 +33,8 @@ public class TimeSheetDeletedSender extends MailSender<TimeSheet> {
         model.put("dateStr", mail.getDate());
 
         String messageBody = VelocityEngineUtils.mergeTemplateIntoString(
-                sendMailService.velocityEngine, "timesheetdeleted.vm", model);
+                sendMailService.velocityEngine, "timesheetdeleted.vm", model) +
+                mail.getPreconstructedMessageBody();
         logger.debug("Message Body: {}", messageBody);
         try {
             message.setText(messageBody, "UTF-8", "html");
@@ -52,6 +53,8 @@ public class TimeSheetDeletedSender extends MailSender<TimeSheet> {
         String date = DateTimeUtil.formatDate(params.getCalDate().getCalDate());
         mail.setDate(date);
         mail.setSubject(getSubject(params.getEmployee(), date ));
+        //APLANATS-574 дополняем бэкапом
+        mail.setPreconstructedMessageBody(sendMailService.initMessageBodyForReport(params));
         return Arrays.asList(mail);
     }
 

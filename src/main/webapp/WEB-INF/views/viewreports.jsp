@@ -100,8 +100,8 @@
                     insertEmptyOption(monthSelect);
                 }
             }
-            function deleteTimeSheet(id) {
-                if (confirm("Вы действительно хотите удалить отчет?")) {
+            function deleteTimeSheet(id, calDate) {
+                if (confirm("Вы действительно хотите удалить отчет за " + calDate.substring(0, 10))) {
                     dojo.byId("commandURL").value = window.location;
                     mainForm.action = "<%=request.getContextPath()%>/timesheetDel/" + id;
                     mainForm.submit();
@@ -197,9 +197,12 @@
                         <tr class="statusNormalDay toplan">
                             <td class="date"><fmt:formatDate value="${report.calDate}" pattern="yyyy.MM.dd"/></td>
                             <td>
-                                <a target="_blank" href="<%=request.getContextPath()%>/report/<fmt:formatDate value="${report.calDate}" pattern="/yyyy/MM/dd/"/>${report.timeSheet.employee.id}">Посмотреть отчёт</a>
+                                <a target="_blank" href="<%=request.getContextPath()%>/report<fmt:formatDate value="${report.calDate}" pattern="/yyyy/MM/dd/"/>${report.timeSheet.employee.id}">Посмотреть отчёт</a>
                                 <sec:authorize access="hasRole('ROLE_ADMIN')">
-                                    <a href="#" onclick="deleteTimeSheet(${report.timeSheet.id})"><img src="<c:url value="/resources/img/delete.png"/>" width="15px" title="Удалить"/></a>
+                                    <a href="#"
+                                       onclick="deleteTimeSheet(${report.timeSheet.id},'${report.calDate}')"><img
+                                            src="<c:url
+                                     value="/resources/img/delete.png"/>" width="15px" title="Удалить"/></a>
                                     </sec:authorize>
                             </td>
                             <td class="duration">${report.duration}</td>
@@ -209,9 +212,9 @@
                         <tr class="statusWorkOnHoliday">
                             <td class="date"><fmt:formatDate value="${report.calDate}" pattern="yyyy.MM.dd"/></td>
                             <td>
-                                Работа в выходной день <a target="_blank" href="<%=request.getContextPath()%>/report/<fmt:formatDate value="${report.calDate}" pattern="/yyyy/MM/dd/"/>${report.timeSheet.employee.id}">Посмотреть отчёт</a>
+                                Работа в выходной день <a target="_blank" href="<%=request.getContextPath()%>/report<fmt:formatDate value="${report.calDate}" pattern="/yyyy/MM/dd/"/>${report.timeSheet.employee.id}">Посмотреть отчёт</a>
                                 <sec:authorize access="hasRole('ROLE_ADMIN')">
-                                    <a href="#" onclick="deleteTimeSheet(${report.timeSheet.id})"><img src="<c:url value="/resources/img/delete.png"/>" width="15px" title="Удалить"/></a>
+                                    <a href="#" onclick="deleteTimeSheet(${report.timeSheet.id},'${report.calDate}')"><img src="<c:url value="/resources/img/delete.png"/>" width="15px" title="Удалить"/></a>
                                     </sec:authorize>
                             </td>
                             <td class="duration">${report.duration}</td>

@@ -59,7 +59,9 @@ public class Mail {
     }
 
     public void setCcEmails(Iterable<String> ccEmails) {
-        this.ccEmails = ccEmails;
+        if (ccEmails != null){
+            this.ccEmails = Sets.newHashSet(ccEmails); //удаляем дупликаты;
+        }
     }
 
     public Iterable<Employee> getEmployeeList() {

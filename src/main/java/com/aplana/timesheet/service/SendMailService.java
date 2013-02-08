@@ -329,7 +329,10 @@ public class SendMailService{
 
                     @Override
                     public ProjectRolesEnum getProjectRole() {
-                        return ProjectRolesEnum.getById(input.getProjectRole().getId());
+                        if (input.getProjectRole() != null){
+                            return ProjectRolesEnum.getById(input.getProjectRole().getId());
+                        }
+                        return null;
                     }
 
                     @Override
