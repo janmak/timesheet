@@ -98,14 +98,14 @@ public class PlanEditController {
 
     private static final String SEPARATOR = "~";
 
-    private static final JsonStringNode PROJECTS_PLANS_FIELD = string(PROJECTS_PLANS);
-    private static final JsonStringNode NON_PROJECT_PLAN_FIELD = string(NON_PROJECT_PLAN);
-    private static final JsonStringNode ILLNESS_PLAN_FIELD = string(ILLNESS_PLAN);
-    private static final JsonStringNode VACATION_PLAN_FIELD = string(VACATION_PLAN);
-    private static final JsonStringNode OTHER_PROJECTS_AND_PRESALES_PLAN_FIELD =
+    public static final JsonStringNode PROJECTS_PLANS_FIELD = string(PROJECTS_PLANS);
+    public static final JsonStringNode NON_PROJECT_PLAN_FIELD = string(NON_PROJECT_PLAN);
+    public static final JsonStringNode ILLNESS_PLAN_FIELD = string(ILLNESS_PLAN);
+    public static final JsonStringNode VACATION_PLAN_FIELD = string(VACATION_PLAN);
+    public static final JsonStringNode OTHER_PROJECTS_AND_PRESALES_PLAN_FIELD =
             string(OTHER_PROJECTS_AND_PRESALES_PLAN);
 
-    private static final Map<JsonStringNode, TSEnum> PLAN_TYPE_MAP = new HashMap<JsonStringNode, TSEnum>();
+    public static final Map<JsonStringNode, TSEnum> PLAN_TYPE_MAP = new HashMap<JsonStringNode, TSEnum>();
 
     static {
         PLAN_TYPE_MAP.put(NON_PROJECT_PLAN_FIELD, EmployeePlanType.NON_PROJECT);
@@ -196,7 +196,7 @@ public class PlanEditController {
     private EmployeePlanService employeePlanService;
 
     @Autowired
-    private DictionaryItemService dictionaryItemService;
+    private PlanEditService planEditService;
 
     @RequestMapping(PLAN_EDIT)
     public ModelAndView showForm(
@@ -562,17 +562,11 @@ public class PlanEditController {
             @ModelAttribute(PlanEditForm.FORM) PlanEditForm form
     ) {
         try {
-            final List<EmployeePlan> employeePlans = new ArrayList<EmployeePlan>();
-            final List<EmployeeProjectPlan> employeeProjectPlans = new ArrayList<EmployeeProjectPlan>();
             final JsonRootNode rootNode = JsonUtil.parse(form.getJsonData());
-
             final Integer year = JsonUtil.getDecNumberValue(rootNode, JSON_DATA_YEAR);
             final Integer month = JsonUtil.getDecNumberValue(rootNode, JSON_DATA_MONTH);
 
-            processJsonDataItems(employeePlans, employeeProjectPlans, rootNode, year, month);
-
-            employeePlanService.store(employeePlans);
-            employeeProjectPlanService.store(employeeProjectPlans);
+            planEditService.savePlans(rootNode, year, month);
         } catch (InvalidSyntaxException e) {
             LOGGER.error(e.getLocalizedMessage());
             throw new RuntimeException(e);
@@ -581,92 +575,4 @@ public class PlanEditController {
         return "redirect:" + PLAN_EDIT;
     }
 
-    private void processJsonDataItems(
-            List<EmployeePlan> employeePlans, List<EmployeeProjectPlan> employeeProjectPlans,
-            JsonRootNode rootNode, Integer year, Integer month
-    ) {
-        Integer employeeId;
-
-        for (JsonNode jsonNode : rootNode.getArrayNode(JSON_DATA_ITEMS)) {
-            employeeId = JsonUtil.getDecNumberValue(jsonNode, EMPLOYEE_ID);
-
-            final Employee employee = employeeService.find(employeeId);
-
-            addEmployeePlansAndRemoveIfNeed(employeePlans, year, month, employee, jsonNode);
-
-            addEmployeeProjectPlansAndRemoveOldEntries(employeeProjectPlans, year, month, employee, jsonNode);
-        }
-    }
-
-    private void addEmployeeProjectPlansAndRemoveOldEntries(List<EmployeeProjectPlan> employeeProjectPlans, Integer year, Integer month, Employee employee, JsonNode jsonNode) {
-        employeeProjectPlanService.remove(employee, year, month);
-
-        if (jsonNode.getFields().containsKey(PROJECTS_PLANS_FIELD)) {
-            for (JsonNode node : jsonNode.getArrayNode(PROJECTS_PLANS)) {
-                employeeProjectPlans.add(createEmployeeProjectPlanIfNeed(year, month, employee, node));
-            }
-        }
-    }
-
-    private void addEmployeePlansAndRemoveIfNeed(List<EmployeePlan> employeePlans, Integer year, Integer month, Employee employee, JsonNode jsonNode) {
-        final Map<JsonStringNode, JsonNode> fields = jsonNode.getFields();
-        final List<EmployeePlan> employeePlansToDelete = new ArrayList<EmployeePlan>();
-
-        JsonStringNode field;
-
-        for (Map.Entry<JsonStringNode, TSEnum> entry : PLAN_TYPE_MAP.entrySet()) {
-            field = entry.getKey();
-
-            final EmployeePlan employeePlan = createEmployeePlanIfNeed(
-                    year, month, employee,
-                    dictionaryItemService.find(entry.getValue().getId())
-            );
-
-            if (fields.containsKey(field)) {
-                employeePlan.setValue(JsonUtil.getFloatNumberValue(jsonNode, field.getText()));
-
-                employeePlans.add(employeePlan);
-            } else {
-                employeePlansToDelete.add(employeePlan);
-            }
-        }
-
-        employeePlanService.remove(employeePlansToDelete);
-    }
-
-    private EmployeePlan createEmployeePlanIfNeed(Integer year, Integer month, Employee employee, DictionaryItem dictionaryItem) {
-        EmployeePlan employeePlan = employeePlanService.tryFind(employee, year, month, dictionaryItem);
-
-        if (employeePlan == null) {
-            employeePlan = new EmployeePlan();
-
-            employeePlan.setType(dictionaryItem);
-            employeePlan.setEmployee(employee);
-            employeePlan.setYear(year);
-            employeePlan.setMonth(month);
-        }
-
-        return employeePlan;
-    }
-
-    private EmployeeProjectPlan createEmployeeProjectPlanIfNeed(Integer year, Integer month, Employee employee,
-                                                                JsonNode node
-    ) {
-        final Project project = projectService.find(JsonUtil.getDecNumberValue(node, PROJECT_ID));
-
-        EmployeeProjectPlan employeeProjectPlan = employeeProjectPlanService.tryFind(employee, year, month, project);
-
-        if (employeeProjectPlan == null) {
-            employeeProjectPlan = new EmployeeProjectPlan();
-
-            employeeProjectPlan.setEmployee(employee);
-            employeeProjectPlan.setProject(project);
-            employeeProjectPlan.setYear(year);
-            employeeProjectPlan.setMonth(month);
-        }
-
-        employeeProjectPlan.setValue(JsonUtil.getFloatNumberValue(node, _PLAN));
-
-        return employeeProjectPlan;
-    }
 }
