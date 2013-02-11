@@ -10,7 +10,7 @@ import com.aplana.timesheet.enums.UnfinishedDayCauses;
 import com.aplana.timesheet.form.TimeSheetForm;
 import com.aplana.timesheet.properties.TSPropertyProvider;
 import com.aplana.timesheet.util.EnumsUtils;
-import com.aplana.timesheet.util.TimeSheetConstans;
+import com.aplana.timesheet.util.TimeSheetConstants;
 import com.google.common.base.Preconditions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -57,6 +57,6 @@ public class OvertimeCauseService {
     }
 
     public boolean isOvertimeCauseNeeeded(double totalDuration) {
-        return Math.abs(totalDuration - TimeSheetConstans.WORK_DAY_DURATION) > propertyProvider.getOvertimeThreshold();
+        return Math.abs(totalDuration - TimeSheetConstants.WORK_DAY_DURATION) > propertyProvider.getOvertimeThreshold();
     }
 }

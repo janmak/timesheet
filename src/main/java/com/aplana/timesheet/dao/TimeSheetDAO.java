@@ -1,9 +1,10 @@
 package com.aplana.timesheet.dao;
 
-import com.aplana.timesheet.dao.entity.*;
 import com.aplana.timesheet.dao.entity.Calendar;
+import com.aplana.timesheet.dao.entity.DayTimeSheet;
+import com.aplana.timesheet.dao.entity.Employee;
+import com.aplana.timesheet.dao.entity.TimeSheet;
 import com.aplana.timesheet.enums.TypeOfActivity;
-import com.aplana.timesheet.util.TimeSheetConstans;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
@@ -15,7 +16,10 @@ import javax.persistence.Query;
 import java.math.BigDecimal;
 import java.sql.Date;
 import java.sql.Timestamp;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
 
 @Repository
 public class TimeSheetDAO {
@@ -39,7 +43,7 @@ public class TimeSheetDAO {
     public TimeSheet findForDateAndEmployee(Calendar date, Integer employeeId) {
         Query query = entityManager.createQuery(
                 "select ts from TimeSheet as ts where ts.calDate = :calDate and ts.employee.id = :employeeId"
-        ).setParameter( "calDate", date ).setParameter( "employeeId", employeeId );
+        ).setParameter( "calDate", date ).setParameter("employeeId", employeeId);
 
         List<TimeSheet> result = query.getResultList();
 
@@ -82,7 +86,7 @@ public class TimeSheetDAO {
                         "tsd.act_type "
                 + "order by c.calDate asc"
         )       .setParameter( "yearPar", year ).setParameter( "monthPar", month )
-                .setParameter( "region", region ).setParameter( "employeeId", employee.getId() );
+                .setParameter( "region", region ).setParameter("employeeId", employee.getId());
 
         List result = query.getResultList();
 
@@ -182,5 +186,13 @@ public class TimeSheetDAO {
     @Transactional
     public void delete(TimeSheet timeSheet) {
         entityManager.remove(timeSheet);
+    }
+
+    public List<TimeSheet> getTimeSheetsForEmployee(Employee employee, Integer year, Integer month) {
+        final Query query = entityManager.createQuery(
+                "from TimeSheet ts where ts.employee = :employee and YEAR(ts.calDate.calDate) = :year and MONTH(ts.calDate.calDate) = :month"
+        ).setParameter("employee", employee).setParameter("year", year).setParameter("month", month);
+
+        return query.getResultList();
     }
 }

@@ -138,4 +138,9 @@ public class CalendarService
 
         return daysToLastDate - daysToFirstDate + 1;
     }
+
+    public int getWorkDaysCountForRegion(Region region, Integer year, Integer month, Date fromDate) {
+        return calendarDAO.getWorkDaysCountForRegion(region, year, month, fromDate);
+    }
+
 }

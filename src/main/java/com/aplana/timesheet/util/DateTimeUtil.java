@@ -1,5 +1,6 @@
 package com.aplana.timesheet.util;
 
+import argo.jdom.JsonArrayNodeBuilder;
 import com.aplana.timesheet.service.CalendarService;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -12,6 +13,9 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+
+import static argo.jdom.JsonNodeBuilders.*;
+import static argo.jdom.JsonNodeFactories.string;
 
 public class DateTimeUtil {
     public static final long DAY_IN_MILLS = 86400000;
@@ -341,38 +345,51 @@ public class DateTimeUtil {
      * @return String
      */
     public static String getMonthListJson(List<com.aplana.timesheet.dao.entity.Calendar> years, CalendarService calendarService) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("[");
-        for (int i = 0; i < years.size(); i++) {
-            List<com.aplana.timesheet.dao.entity.Calendar> months = calendarService.getMonthList(years.get(i).getYear());
-            sb.append("{year:'");
-            sb.append(years.get(i).getYear());
-            sb.append("', months:[");
-            if (months.size() > 0) {
-                for (int j = 0; j < months.size(); j++) {
-                    sb.append("{number:'");
-                    sb.append(months.get(j).getMonth());
-                    sb.append("', name:'");
-                    sb.append(months.get(j).getMonthTxt());
-                    sb.append("'}");
-                    if (j < (months.size() - 1)) {
-                        sb.append(", ");
-                    }
-                }
-                sb.append("]}");
+        final JsonArrayNodeBuilder builder = anArrayBuilder();
+
+        for (com.aplana.timesheet.dao.entity.Calendar year : years) {
+            List<com.aplana.timesheet.dao.entity.Calendar> months = calendarService.getMonthList(year.getYear());
+
+            final JsonArrayNodeBuilder monthsBuilder = anArrayBuilder();
+
+            if (months.isEmpty()) {
+                monthsBuilder.withElement(
+                        anObjectBuilder().
+                                withField("number", JsonUtil.aNumberBuilder(0)).
+                                withField("value", string(StringUtils.EMPTY))
+                );
             } else {
-                sb.append("{year:'0', value:''}]}");
+                for (com.aplana.timesheet.dao.entity.Calendar month : months) {
+                    monthsBuilder.withElement(
+                            anObjectBuilder().
+                                    withField("number", JsonUtil.aNumberBuilder(month.getMonth())).
+                                    withField("name", aStringBuilder(month.getMonthTxt()))
+                    );
+                }
+
             }
 
-            if (i < (years.size() - 1)) {
-                sb.append(", ");
-            }
+            builder.withElement(
+                    anObjectBuilder().
+                            withField("year", JsonUtil.aNumberBuilder(year.getYear())).
+                            withField("months", monthsBuilder)
+            );
         }
-        sb.append("]");
-        return sb.toString();
+
+        return JsonUtil.format(builder);
     }
 
     public static String dateToString(Date date){
         return new SimpleDateFormat(DATE_PATTERN).format(date);
+    }
+
+    public static Date createDate(int year, int month) {
+        final Calendar calendar = Calendar.getInstance();
+
+        calendar.set(Calendar.DAY_OF_MONTH, 1);
+        calendar.set(Calendar.MONTH, month - 1);
+        calendar.set(Calendar.YEAR, year);
+
+        return calendar.getTime();
     }
 }

@@ -3,7 +3,7 @@ package com.aplana.timesheet.service;
 import com.aplana.timesheet.dao.EmployeeDAO;
 import com.aplana.timesheet.dao.entity.*;
 import com.aplana.timesheet.enums.Permissions;
-import com.aplana.timesheet.util.TimeSheetConstans;
+import com.aplana.timesheet.util.TimeSheetConstants;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import org.apache.velocity.app.VelocityEngine;
@@ -45,7 +45,7 @@ public class EmployeeService {
             Cookie[] cookies = request.getCookies();
             if (cookies != null) {
                 for (Cookie cookie : cookies) {
-                    if (cookie.getName().equals(TimeSheetConstans.COOKIE_SHOW_ALLUSER)) {
+                    if (cookie.getName().equals(TimeSheetConstants.COOKIE_SHOW_ALLUSER)) {
                         isShowAll = true;
                         break;
                     }
@@ -154,5 +154,9 @@ public class EmployeeService {
                 return permission.getId().equals(permissions.getId());
             }
         });
+    }
+
+    public List<Employee> getDivisionEmployees(Integer divisionId, Date date, List<Integer> regionIds, List<Integer> projectRoleIds) {
+        return employeeDAO.getDivisionEmployees(divisionId, date, regionIds, projectRoleIds);
     }
 }

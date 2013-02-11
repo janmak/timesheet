@@ -21,7 +21,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import static com.aplana.timesheet.enums.TypeOfActivity.*;
+import static com.aplana.timesheet.enums.TypeOfActivity.ILLNESS;
+import static com.aplana.timesheet.enums.TypeOfActivity.getById;
 
 @Service
 public class TimeSheetService {
@@ -275,5 +276,9 @@ public class TimeSheetService {
 
     public Date getEmployeeFirstWorkDay(Integer employeeId){
          return employeeDAO.getEmployeeFirstWorkDay(employeeId);
+    }
+
+    public List<TimeSheet> getTimeSheetsForEmployee(Employee employee, Integer year, Integer month) {
+        return timeSheetDAO.getTimeSheetsForEmployee(employee, year, month);
     }
 }

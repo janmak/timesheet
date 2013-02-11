@@ -214,7 +214,7 @@ div.menu_holder ul a:hover {
 #tt {
     position: absolute;
     display: block;
-
+    word-break: break-all;
 }
 
 #tttop {
