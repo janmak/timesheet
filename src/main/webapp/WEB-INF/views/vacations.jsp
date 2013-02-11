@@ -86,7 +86,7 @@
 
                 load: function(data) {
                     if (data.length == 0) {
-                        dojo.destroy(dojo.NodeList(parentElement).parents("tr")[0]);
+                        window.location.reload();
                     } else {
                         handleError(data);
                     }
@@ -155,6 +155,14 @@
     </tr>
     </thead>
     <tbody>
+    <c:choose>
+    <c:when test="${fn:length(vacationsList) == 0}">
+        <tr>
+            <td colspan="8">За выбранный год нет ни одного заявления на отпуск</td>
+        </tr>
+    </tbody>
+    </c:when>
+    <c:otherwise>
     <c:forEach var="vacation" items="${vacationsList}" varStatus="lp">
         <tr>
             <td>
@@ -205,6 +213,8 @@
             <td colspan="5">${summaryWorkDays}</td>
         </tr>
     </tfoot>
+    </c:otherwise>
+    </c:choose>
 </table>
 </body>
 </html>
