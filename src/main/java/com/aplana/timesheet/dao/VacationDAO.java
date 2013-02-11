@@ -1,5 +1,6 @@
 package com.aplana.timesheet.dao;
 
+import com.aplana.timesheet.dao.entity.Employee;
 import com.aplana.timesheet.dao.entity.Vacation;
 import com.aplana.timesheet.enums.VacationStatusEnum;
 import org.hibernate.Hibernate;
@@ -68,4 +69,14 @@ public class VacationDAO {
         return (Vacation) query.getSingleResult();
     }
 
+    @Transactional
+    public Boolean isDayVacation(Employee employee, Date date){
+        Query query = entityManager.createQuery(
+                "SELECT i FROM Vacation AS i WHERE i.employee = :employee AND :date BETWEEN i.beginDate AND i.endDate"
+        ).setParameter("employee", employee).setParameter("date", date);
+        if (query.getResultList().isEmpty()) {
+            return false;
+        }
+        return true;
+    }
 }
