@@ -1,10 +1,9 @@
 <%@page contentType="text/html" pageEncoding="UTF-8" %>
 
-<%@ page import="com.aplana.timesheet.constants.RoleConstants" %>
+<%@ page import="java.io.File" %>
 <%@ page import="static com.aplana.timesheet.constants.TimeSheetConstants.DOJO_PATH" %>
 <%@ page import="static com.aplana.timesheet.controller.PlanEditController.*" %>
 <%@ page import="static com.aplana.timesheet.form.PlanEditForm.*" %>
-<%@ page import="java.io.File" %>
 
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form" %>
@@ -179,7 +178,7 @@
                             field: field,
                             noresize: true,
                             width: "49px",
-                            <sec:authorize access="hasRole('<%= RoleConstants.ROLE_PLAN_EDIT %>')">
+                            <sec:authorize access="hasRole('ROLE_PLAN_EDIT')">
                             editable: dojo.some(modelFieldsForSave, function(fieldForSave) {
                                 return (field == fieldForSave);
                             })
@@ -479,7 +478,7 @@
         </tr>
     </table>
 
-    <sec:authorize access="hasRole('<%= RoleConstants.ROLE_PLAN_EDIT %>')">
+    <sec:authorize access="hasRole('ROLE_PLAN_EDIT')">
     <c:if test="${fn:length(jsonDataToShow) > 0}">
     <br/><button style="width:150px;vertical-align: middle;" onclick="save()" type="button">Сохранить
         планы</button>
