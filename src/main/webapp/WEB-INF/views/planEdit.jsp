@@ -7,6 +7,7 @@
 
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form" %>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
 <%! private static final String GRID_JS_ID = "myGrid"; %>
@@ -162,6 +163,7 @@
                         name: project.<%= PROJECT_NAME %>,
                         field: projectId
                     });
+
                     modelFieldsForSave.push(projectId + "<%= _PLAN %>");
                 });
 
@@ -176,9 +178,11 @@
                             field: field,
                             noresize: true,
                             width: "49px",
+                            <sec:authorize access="hasRole('ROLE_MANAGER')">
                             editable: dojo.some(modelFieldsForSave, function(fieldForSave) {
                                 return (field == fieldForSave);
                             })
+                            </sec:authorize>
                         };
                     }
 
@@ -474,10 +478,12 @@
         </tr>
     </table>
 
+    <sec:authorize access="hasRole('ROLE_MANAGER')">
     <c:if test="${fn:length(jsonDataToShow) > 0}">
     <br/><button style="width:150px;vertical-align: middle;" onclick="save()" type="button">Сохранить
         планы</button>
     </c:if>
+    </sec:authorize>
 </form:form>
 
 <br/>

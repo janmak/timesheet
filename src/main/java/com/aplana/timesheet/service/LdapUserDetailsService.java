@@ -5,6 +5,7 @@ import com.aplana.timesheet.dao.EmployeeDAO;
 import com.aplana.timesheet.dao.entity.Employee;
 import com.aplana.timesheet.dao.entity.Permission;
 import com.aplana.timesheet.enums.PermissionsEnum;
+import com.aplana.timesheet.util.EnumsUtils;
 import com.aplana.timesheet.util.TimeSheetUser;
 import com.google.common.collect.Lists;
 import org.slf4j.Logger;
@@ -41,7 +42,7 @@ public class LdapUserDetailsService implements UserDetailsContextMapper {
         List<Permission> permissionList = Lists.newArrayList(employee.getPermissions());
         if (permissionList == null) {return;}
         for (Permission permission : permissionList){
-            switch ( PermissionsEnum.getById(permission.getId())) {
+            switch ( EnumsUtils.getEnumById(permission.getId(), PermissionsEnum.class)) {
                 case RERPORTS_PERMISSION: {
                     list.add( new SimpleGrantedAuthority( "ROLE_MANAGER" ) );
                     list.add( new SimpleGrantedAuthority( "ROLE_USER" ) );

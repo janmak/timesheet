@@ -8,6 +8,7 @@ import argo.saj.InvalidSyntaxException;
 import com.aplana.timesheet.dao.EmployeeDAO;
 import com.aplana.timesheet.dao.entity.*;
 import com.aplana.timesheet.enums.EmployeePlanType;
+import com.aplana.timesheet.enums.PermissionsEnum;
 import com.aplana.timesheet.enums.TSEnum;
 import com.aplana.timesheet.enums.TypesOfActivityEnum;
 import com.aplana.timesheet.form.PlanEditForm;
@@ -561,15 +562,27 @@ public class PlanEditController {
     public String save(
             @ModelAttribute(PlanEditForm.FORM) PlanEditForm form
     ) {
-        try {
-            final JsonRootNode rootNode = JsonUtil.parse(form.getJsonData());
-            final Integer year = JsonUtil.getDecNumberValue(rootNode, JSON_DATA_YEAR);
-            final Integer month = JsonUtil.getDecNumberValue(rootNode, JSON_DATA_MONTH);
+        final Employee employee = employeeService.find(securityService.getSecurityPrincipal().getEmployee().getId());
+        boolean isHasccess = false;
 
-            planEditService.savePlans(rootNode, year, month);
-        } catch (InvalidSyntaxException e) {
-            LOGGER.error(e.getLocalizedMessage());
-            throw new RuntimeException(e);
+        for (Permission permission : employee.getPermissions()) {
+            if (EnumsUtils.getEnumById(permission.getId(), PermissionsEnum.class) == PermissionsEnum.EDIT_PLANS) {
+                isHasccess = true;
+                break;
+            }
+        }
+
+        if (isHasccess) {
+            try {
+                final JsonRootNode rootNode = JsonUtil.parse(form.getJsonData());
+                final Integer year = JsonUtil.getDecNumberValue(rootNode, JSON_DATA_YEAR);
+                final Integer month = JsonUtil.getDecNumberValue(rootNode, JSON_DATA_MONTH);
+
+                planEditService.savePlans(rootNode, year, month);
+            } catch (InvalidSyntaxException e) {
+                LOGGER.error(e.getLocalizedMessage());
+                throw new RuntimeException(e);
+            }
         }
 
         return "redirect:" + PLAN_EDIT;
