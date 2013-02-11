@@ -1,7 +1,5 @@
 package com.aplana.timesheet.controller;
 
-import com.aplana.timesheet.dao.DictionaryItemDAO;
-import com.aplana.timesheet.dao.VacationDAO;
 import com.aplana.timesheet.dao.entity.Calendar;
 import com.aplana.timesheet.dao.entity.Employee;
 import com.aplana.timesheet.dao.entity.Vacation;
@@ -9,9 +7,7 @@ import com.aplana.timesheet.enums.VacationStatus;
 import com.aplana.timesheet.enums.VacationType;
 import com.aplana.timesheet.form.CreateVacationForm;
 import com.aplana.timesheet.form.validator.CreateVacationFormValidator;
-import com.aplana.timesheet.service.CalendarService;
-import com.aplana.timesheet.service.EmployeeService;
-import com.aplana.timesheet.service.SecurityService;
+import com.aplana.timesheet.service.*;
 import com.aplana.timesheet.util.DateTimeUtil;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.time.DateFormatUtils;
@@ -45,10 +41,10 @@ public class CreateVacationController {
     private CalendarService calendarService;
 
     @Autowired
-    private DictionaryItemDAO dictionaryItemDAO;
+    private DictionaryItemService dictionaryItemService;
 
     @Autowired
-    private VacationDAO vacationDAO;
+    private VacationService vacationService;
 
     @RequestMapping(value = "/createVacation", method = RequestMethod.GET)
     public String prepareToCreateVacation() {
@@ -79,7 +75,7 @@ public class CreateVacationController {
     private ModelAndView getModelAndView(Employee employee) {
         final ModelAndView modelAndView = new ModelAndView("createVacation");
 
-        modelAndView.addObject("vacationTypes", dictionaryItemDAO.getItemsByDictionaryId(VacationType.DICT_ID));
+        modelAndView.addObject("vacationTypes", dictionaryItemService.getItemsByDictionaryId(VacationType.DICT_ID));
         modelAndView.addObject("employee", employee);
         modelAndView.addObject("typeWithRequiredComment", CreateVacationFormValidator.TYPE_WITH_REQUIRED_COMMENT);
 
@@ -134,18 +130,18 @@ public class CreateVacationController {
         vacation.setBeginDate(DateTimeUtil.stringToTimestamp(createVacationForm.getCalFromDate()));
         vacation.setEndDate(DateTimeUtil.stringToTimestamp(createVacationForm.getCalToDate()));
         vacation.setComment(createVacationForm.getComment().trim());
-        vacation.setType(dictionaryItemDAO.find(createVacationForm.getVacationType()));
+        vacation.setType(dictionaryItemService.find(createVacationForm.getVacationType()));
         vacation.setAuthor(curEmployee);
         vacation.setEmployee(employee);
 
         final boolean isApprovedVacation =
                 (employeeService.isEmployeeAdmin(curEmployee.getId()) && BooleanUtils.toBoolean(approved));
 
-        vacation.setStatus(dictionaryItemDAO.find(
+        vacation.setStatus(dictionaryItemService.find(
                 isApprovedVacation ? VacationStatus.APPROVED.getId() : VacationStatus.APPROVEMENT_WITH_PM.getId()
         ));
 
-        vacationDAO.store(vacation);
+        vacationService.store(vacation);
 
         return new ModelAndView("redirect:../");
     }

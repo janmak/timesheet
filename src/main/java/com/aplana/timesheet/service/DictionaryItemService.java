@@ -37,4 +37,8 @@ public class DictionaryItemService {
     public List<DictionaryItem> getUnfinishedDayCauses() {
         return dictionaryItemDAO.getItemsByDictionaryId(Dictionary.UNFINISHED_DAY_CAUSE.getId());
     }
+
+    public Object getItemsByDictionaryId(int dictId) {
+        return dictionaryItemDAO.getItemsByDictionaryId(dictId);
+    }
 }
