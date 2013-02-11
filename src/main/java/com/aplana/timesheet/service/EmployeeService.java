@@ -1,11 +1,11 @@
 package com.aplana.timesheet.service;
 
+import com.aplana.timesheet.constants.TimeSheetConstants;
 import com.aplana.timesheet.dao.EmployeeDAO;
 import com.aplana.timesheet.dao.entity.Division;
 import com.aplana.timesheet.dao.entity.Employee;
 import com.aplana.timesheet.dao.entity.Permission;
 import com.aplana.timesheet.enums.PermissionsEnum;
-import com.aplana.timesheet.util.TimeSheetConstants;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import org.apache.velocity.app.VelocityEngine;

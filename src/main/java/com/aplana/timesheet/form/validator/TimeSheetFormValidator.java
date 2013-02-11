@@ -26,8 +26,8 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.aplana.timesheet.constants.TimeSheetConstants.WORK_DAY_DURATION;
 import static com.aplana.timesheet.enums.ProjectRolesEnum.*;
-import static com.aplana.timesheet.util.TimeSheetConstants.WORK_DAY_DURATION;
 
 @Service
 public class TimeSheetFormValidator extends AbstractValidator {

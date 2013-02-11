@@ -5,10 +5,10 @@ import argo.jdom.JsonObjectNodeBuilder;
 import argo.jdom.JsonRootNode;
 import argo.jdom.JsonStringNode;
 import argo.saj.InvalidSyntaxException;
+import com.aplana.timesheet.constants.TimeSheetConstants;
 import com.aplana.timesheet.dao.EmployeeDAO;
 import com.aplana.timesheet.dao.entity.*;
 import com.aplana.timesheet.enums.EmployeePlanType;
-import com.aplana.timesheet.enums.PermissionsEnum;
 import com.aplana.timesheet.enums.TSEnum;
 import com.aplana.timesheet.enums.TypesOfActivityEnum;
 import com.aplana.timesheet.form.PlanEditForm;
@@ -17,7 +17,6 @@ import com.aplana.timesheet.service.*;
 import com.aplana.timesheet.util.DateTimeUtil;
 import com.aplana.timesheet.util.EnumsUtils;
 import com.aplana.timesheet.util.JsonUtil;
-import com.aplana.timesheet.util.TimeSheetConstants;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -562,27 +561,15 @@ public class PlanEditController {
     public String save(
             @ModelAttribute(PlanEditForm.FORM) PlanEditForm form
     ) {
-        final Employee employee = employeeService.find(securityService.getSecurityPrincipal().getEmployee().getId());
-        boolean isHasccess = false;
+        try {
+            final JsonRootNode rootNode = JsonUtil.parse(form.getJsonData());
+            final Integer year = JsonUtil.getDecNumberValue(rootNode, JSON_DATA_YEAR);
+            final Integer month = JsonUtil.getDecNumberValue(rootNode, JSON_DATA_MONTH);
 
-        for (Permission permission : employee.getPermissions()) {
-            if (EnumsUtils.getEnumById(permission.getId(), PermissionsEnum.class) == PermissionsEnum.EDIT_PLANS) {
-                isHasccess = true;
-                break;
-            }
-        }
-
-        if (isHasccess) {
-            try {
-                final JsonRootNode rootNode = JsonUtil.parse(form.getJsonData());
-                final Integer year = JsonUtil.getDecNumberValue(rootNode, JSON_DATA_YEAR);
-                final Integer month = JsonUtil.getDecNumberValue(rootNode, JSON_DATA_MONTH);
-
-                planEditService.savePlans(rootNode, year, month);
-            } catch (InvalidSyntaxException e) {
-                LOGGER.error(e.getLocalizedMessage());
-                throw new RuntimeException(e);
-            }
+            planEditService.savePlans(rootNode, year, month);
+        } catch (InvalidSyntaxException e) {
+            LOGGER.error(e.getLocalizedMessage());
+            throw new RuntimeException(e);
         }
 
         return "redirect:" + PLAN_EDIT;

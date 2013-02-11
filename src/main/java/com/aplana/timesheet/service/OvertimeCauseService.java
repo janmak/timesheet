@@ -1,5 +1,6 @@
 package com.aplana.timesheet.service;
 
+import com.aplana.timesheet.constants.TimeSheetConstants;
 import com.aplana.timesheet.dao.DictionaryItemDAO;
 import com.aplana.timesheet.dao.OvertimeCauseDAO;
 import com.aplana.timesheet.dao.entity.OvertimeCause;
@@ -11,7 +12,6 @@ import com.aplana.timesheet.form.TimeSheetForm;
 import com.aplana.timesheet.form.TimeSheetTableRowForm;
 import com.aplana.timesheet.properties.TSPropertyProvider;
 import com.aplana.timesheet.util.EnumsUtils;
-import com.aplana.timesheet.util.TimeSheetConstants;
 import com.google.common.base.Preconditions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

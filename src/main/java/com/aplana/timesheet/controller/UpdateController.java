@@ -1,5 +1,6 @@
 package com.aplana.timesheet.controller;
 
+import com.aplana.timesheet.constants.TimeSheetConstants;
 import com.aplana.timesheet.dao.DivisionDAO;
 import com.aplana.timesheet.dao.EmployeeDAO;
 import com.aplana.timesheet.dao.LdapDAO;
@@ -11,7 +12,6 @@ import com.aplana.timesheet.service.EmployeeLdapService;
 import com.aplana.timesheet.service.EmployeeService;
 import com.aplana.timesheet.service.OQProjectSyncService;
 import com.aplana.timesheet.service.ReportCheckService;
-import com.aplana.timesheet.util.TimeSheetConstants;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import org.apache.commons.lang3.StringUtils;

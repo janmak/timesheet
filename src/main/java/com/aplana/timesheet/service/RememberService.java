@@ -1,9 +1,9 @@
 package com.aplana.timesheet.service;
 
+import com.aplana.timesheet.constants.TimeSheetConstants;
 import com.aplana.timesheet.dao.EmployeeTokenDAO;
 import com.aplana.timesheet.dao.entity.EmployeeToken;
 import com.aplana.timesheet.util.RememberToken;
-import com.aplana.timesheet.util.TimeSheetConstants;
 import com.aplana.timesheet.util.TimeSheetUser;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.security.core.Authentication;
