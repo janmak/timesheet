@@ -232,4 +232,21 @@ public class ProjectDAO {
 
         return query.getResultList();
     }
+
+    public List<Project> getProjectsByStatesForDate(List<Integer> projectStates, Date date) {
+        final Calendar calendar = Calendar.getInstance();
+
+        calendar.setTime(date);
+
+        final Query query = entityManager.createQuery(
+                "from Project p" +
+                " where p.state.id in :states" +
+                " and ((:date_month >= MONTH(p.startDate) and :date_year = YEAR(p.startDate) or :date_year > YEAR(p.startDate))" +
+                        " and (p.endDate is null or :date_month <= MONTH(p.endDate) and :date_year = YEAR(p.endDate) or :date_year < YEAR(p.endDate)))" +
+                " order by p.name"
+        ).setParameter("states", projectStates).setParameter("date_month", calendar.get(Calendar.MONTH) + 1).
+                setParameter("date_year", calendar.get(Calendar.YEAR));
+
+        return query.getResultList();
+    }
 }

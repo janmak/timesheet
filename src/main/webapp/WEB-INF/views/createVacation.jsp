@@ -101,6 +101,10 @@
                 }
             });
         }
+
+        function cancel() {
+            window.location = "<%= request.getContextPath() %>/vacations";
+        }
     </script>
 </head>
 <body>
@@ -167,6 +171,7 @@
     <sec:authorize access="hasRole('ROLE_ADMIN')">
         <button type="button" onclick="createVacation(true)">Добавить утвержденное заявление на отпуск</button>
     </sec:authorize>
+    <button type="button" onclick="cancel()">Отмена</button>
 </form:form>
 </body>
 </html>

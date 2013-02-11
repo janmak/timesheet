@@ -181,4 +181,9 @@ public class CalendarService
         return result;
     }
 
+
+    public int getWorkDaysCountForRegion(Region region, Integer year, Integer month, Date fromDate) {
+        return calendarDAO.getWorkDaysCountForRegion(region, year, month, fromDate);
+    }
+
 }

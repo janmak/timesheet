@@ -11,7 +11,7 @@ import com.aplana.timesheet.service.EmployeeLdapService;
 import com.aplana.timesheet.service.EmployeeService;
 import com.aplana.timesheet.service.OQProjectSyncService;
 import com.aplana.timesheet.service.ReportCheckService;
-import com.aplana.timesheet.util.TimeSheetConstans;
+import com.aplana.timesheet.util.TimeSheetConstants;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import org.apache.commons.lang3.StringUtils;
@@ -87,7 +87,7 @@ public class UpdateController {
 
     @RequestMapping(value = "/update/showalluser")
     public String showAllUser(HttpServletRequest request, HttpServletResponse response) {
-        Cookie cookie = new Cookie(TimeSheetConstans.COOKIE_SHOW_ALLUSER, "active");
+        Cookie cookie = new Cookie(TimeSheetConstants.COOKIE_SHOW_ALLUSER, "active");
         cookie.setPath("/");
         cookie.setMaxAge(24 * 60 * 60);
         response.addCookie(cookie);
@@ -97,7 +97,7 @@ public class UpdateController {
     @RequestMapping(value = "/update/hidealluser")
     public String hideAllUser(HttpServletRequest request, HttpServletResponse response) {
         if (employeeService.isShowAll(request)) {
-            Cookie cookie = new Cookie(TimeSheetConstans.COOKIE_SHOW_ALLUSER, "deactive");
+            Cookie cookie = new Cookie(TimeSheetConstants.COOKIE_SHOW_ALLUSER, "deactive");
             cookie.setPath("/");
             cookie.setMaxAge(0);
             response.addCookie(cookie);

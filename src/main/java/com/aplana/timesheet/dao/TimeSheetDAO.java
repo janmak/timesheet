@@ -190,4 +190,12 @@ public class TimeSheetDAO {
     public void delete(TimeSheet timeSheet) {
         entityManager.remove(timeSheet);
     }
+
+    public List<TimeSheet> getTimeSheetsForEmployee(Employee employee, Integer year, Integer month) {
+        final Query query = entityManager.createQuery(
+                "from TimeSheet ts where ts.employee = :employee and YEAR(ts.calDate.calDate) = :year and MONTH(ts.calDate.calDate) = :month"
+        ).setParameter("employee", employee).setParameter("year", year).setParameter("month", month);
+
+        return query.getResultList();
+    }
 }

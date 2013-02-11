@@ -1,0 +1,62 @@
+td {
+    border: none;
+}
+
+th {
+    height: auto;
+}
+
+.dojoxGridHeader th, td.dojoxGridCell, td.dojoxGridCell span {
+    word-break: break-all;
+    text-align: center !important;
+}
+
+.dojoxGrid table {
+    margin: 0;
+}
+
+.tundra .dojoxGridCellFocus {
+    border: 1px solid #5EB55E !important;
+}
+
+.dojoxGridMasterHeader .dojoxGridRowTable {
+    height: 88px !important;
+}
+
+.dojoxGridMasterHeader .dojoxGridCell {
+    text-align: center !important;
+    vertical-align: middle !important;
+}
+
+.colContainer {
+    position: relative;
+    width: 100%;
+    height: 40px !important;
+    vertical-align: middle;
+}
+
+.colContainer table {
+    width: 100%;
+    height: 100%;
+}
+
+.colContainer td {
+    font-weight: bold;
+    text-align: center;
+    vertical-align: middle;
+}
+
+.hide_button {
+    position: absolute;
+    float: left;
+    z-index: 2;
+}
+
+.show_button {
+    margin: 50% 0;
+}
+
+.show_button, .hide_button {
+    width: 16px;
+    height: 16px;
+}

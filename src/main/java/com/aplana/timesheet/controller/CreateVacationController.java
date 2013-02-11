@@ -1,7 +1,5 @@
 package com.aplana.timesheet.controller;
 
-import com.aplana.timesheet.dao.DictionaryItemDAO;
-import com.aplana.timesheet.dao.VacationDAO;
 import com.aplana.timesheet.dao.entity.Calendar;
 import com.aplana.timesheet.dao.entity.Employee;
 import com.aplana.timesheet.dao.entity.Vacation;
@@ -61,10 +59,10 @@ public class CreateVacationController {
     private CalendarService calendarService;
 
     @Autowired
-    private DictionaryItemDAO dictionaryItemDAO;
+    private DictionaryItemService dictionaryItemService;
 
     @Autowired
-    private VacationDAO vacationDAO;
+    private VacationService vacationService;
 
     @Autowired
     private SendMailService sendMailService;
@@ -104,7 +102,7 @@ public class CreateVacationController {
     private ModelAndView getModelAndView(Employee employee) {
         final ModelAndView modelAndView = new ModelAndView("createVacation");
 
-        modelAndView.addObject("vacationTypes", dictionaryItemDAO.getItemsByDictionaryId(VacationTypesEnum.DICT_ID));
+        modelAndView.addObject("vacationTypes", dictionaryItemService.getItemsByDictionaryId(VacationTypesEnum.DICT_ID));
         modelAndView.addObject("employee", employee);
         modelAndView.addObject("typeWithRequiredComment", CreateVacationFormValidator.TYPE_WITH_REQUIRED_COMMENT);
 
@@ -165,18 +163,18 @@ public class CreateVacationController {
         vacation.setBeginDate(DateTimeUtil.stringToTimestamp(createVacationForm.getCalFromDate()));
         vacation.setEndDate(DateTimeUtil.stringToTimestamp(createVacationForm.getCalToDate()));
         vacation.setComment(createVacationForm.getComment().trim());
-        vacation.setType(dictionaryItemDAO.find(createVacationForm.getVacationType()));
+        vacation.setType(dictionaryItemService.find(createVacationForm.getVacationType()));
         vacation.setAuthor(curEmployee);
         vacation.setEmployee(employee);
 
         final boolean isApprovedVacation =
                 (employeeService.isEmployeeAdmin(curEmployee.getId()) && BooleanUtils.toBoolean(approved));
 
-        vacation.setStatus(dictionaryItemDAO.find(
+        vacation.setStatus(dictionaryItemService.find(
                 isApprovedVacation ? VacationStatusEnum.APPROVED.getId() : VacationStatusEnum.APPROVEMENT_WITH_PM.getId()
         ));
 
-        vacationDAO.store(vacation);
+        vacationService.store(vacation);
 
         if ( needsToBeApproved(vacation )) {
             prepareVacationApprovement(vacation);
