@@ -89,7 +89,7 @@ public class UpdateController {
     public String showAllUser(HttpServletRequest request, HttpServletResponse response) {
         Cookie cookie = new Cookie(TimeSheetConstants.COOKIE_SHOW_ALLUSER, "active");
         cookie.setPath("/");
-        cookie.setMaxAge(24 * 60 * 60);
+        cookie.setMaxAge(99999999);
         response.addCookie(cookie);
         return "redirect:/admin";
     }
