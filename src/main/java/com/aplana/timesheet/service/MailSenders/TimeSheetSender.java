@@ -15,7 +15,6 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import com.google.common.collect.Table;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.velocity.VelocityEngineUtils;
 
 import javax.annotation.Nullable;
@@ -131,8 +130,8 @@ public class TimeSheetSender extends MailSender<TimeSheetForm> {
                 }
                 putIfIsNotBlank(i, result, CQ_ID, tsRow.getCqId());
                 putIfIsNotBlank(i, result, DURATION, tsRow.getDuration());
-                putIfIsNotBlank(i, result, DESCRIPTION_STRINGS, tsRow.getDescriptionEscaped());
-                putIfIsNotBlank(i, result, PROBLEM_STRINGS, tsRow.getProblemEscaped());
+                putIfIsNotBlank(i, result, DESCRIPTION_STRINGS, tsRow.getDescription());
+                putIfIsNotBlank(i, result, PROBLEM_STRINGS, tsRow.getProblem());
 
             }
             putIfIsNotBlank(FIRST, result, PLAN_STRINGS, tsForm.getPlanEscaped());

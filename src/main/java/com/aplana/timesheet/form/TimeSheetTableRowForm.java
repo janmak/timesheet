@@ -1,7 +1,5 @@
 package com.aplana.timesheet.form;
 
-import org.apache.commons.lang3.StringEscapeUtils;
-
 public class TimeSheetTableRowForm {
 	private String cqId;
 	private String description;
@@ -85,16 +83,6 @@ public class TimeSheetTableRowForm {
 	public void setActivityCategoryId(Integer activityCategoryId) {
 		this.activityCategoryId = activityCategoryId;
 	}
-
-    public String getDescriptionEscaped()
-    {
-        return StringEscapeUtils.escapeHtml4(this.description);
-    }
-
-    public String getProblemEscaped()
-    {
-        return StringEscapeUtils.escapeHtml4(this.problem);
-    }
 
     public Integer getWorkplaceId() {
         return workplaceId;
