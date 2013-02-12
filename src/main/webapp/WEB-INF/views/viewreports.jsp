@@ -246,7 +246,7 @@
                             <tr class="statusNoReport toplan">
                                 <td class="date"><fmt:formatDate value="${report.calDate}" pattern="yyyy.MM.dd"/></td>
                                 <td>Отчёта нет <a href="<%=request.getContextPath()%>/timesheet?date=<fmt:formatDate value="${report.calDate}" pattern="yyyy-MM-dd"/>&id=${employeeId}">(Создать)</a></td>
-                                <td class="duration">${report.duration}</td>
+                                <td></td>
                                 <td></td>
                             </tr>
                         </c:when>
@@ -265,17 +265,14 @@
                 <tr>
                     <td colspan="2">Всего(факт):</td>
                     <td id="durationall">JavaScript is disabled</td>
-                    <td></td>
                 </tr>
                 <tr>
                     <td colspan="2">Всего(план):</td>
                     <td id="durationplan">JavaScript is disabled</td>
-                    <td></td>
                 </tr>
                 <tr>
                     <td colspan="2">Норма (часов) в неделю:</td>
                     <td><input type="text" id="normaInWeek"></td>
-                    <td></td>
                 </tr>
             </thead>
         </table>
