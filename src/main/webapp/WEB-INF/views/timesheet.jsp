@@ -9,7 +9,6 @@
 <html>
 <head>
     <title><fmt:message key="title.timesheet"/></title>
-    <script type="text/javascript" src="<c:url value="/resources/js/Calendar.ext.js" />"></script>
 
     <script type="text/javascript">
         dojo.require("dijit.form.DateTextBox");
@@ -47,15 +46,12 @@
         var root = window.addEventListener || window.attachEvent ? window : document.addEventListener ? document : null;
         var month = correctLength(new Date().getMonth() + 1);
 
-        initCurrentDateInfo("<%= request.getContextPath() %>", '${timeSheetForm.employeeId}');
+        // инициализация данных по выходным и отчетам для текущей даты
+        initCurrentDateInfo('${timeSheetForm.employeeId}');
 
         dojo.declare("Calendar", com.aplana.dijit.ext.Calendar, {
             getEmployeeId: function() {
                 return dojo.byId("employeeId").value;
-            },
-
-            getContextPath: function() {
-                return "${pageContext.request.contextPath}";
             },
 
             getClassForDateInfo: function(dateInfo, date) {
@@ -274,10 +270,6 @@
 
         .classDateGreen {
             background-color: #97e68d !important;
-        }
-
-        .classDateRedText {
-            color: #f58383;
         }
         .classDateRedBack{
             background-color: #f58383 !important;

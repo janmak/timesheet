@@ -9,7 +9,7 @@ dojo.declare(CALENDAR_EXT_PATH + ".Calendar", dijit.Calendar, {
     constructor: function() {
         if (dateInfoHolder.length == 0) {
             colorDayWithReportFromThreeMonth(
-                    new Date().getFullYear(), correctLength(new Date().getMonth() + 1), this.getEmployeeId(), this.getContextPath()
+                    new Date().getFullYear(), correctLength(new Date().getMonth() + 1), this.getEmployeeId()
             );
         }
     },
@@ -24,7 +24,7 @@ dojo.declare(CALENDAR_EXT_PATH + ".Calendar", dijit.Calendar, {
         var dateInfo;
         if (info == null) {
             dateInfoHolder[year + "-" + month + ":" + employeeId] = {}; //Создаем пустой объект, чтобы показать, что за этот месяц запрос уже отправлен
-            colorDayWithReportFromThreeMonth(year, month, employeeId, this.getContextPath())
+            colorDayWithReportFromThreeMonth(year, month, employeeId)
         }
         info = dateInfoHolder[year + "-" + month  + ":" + employeeId];
         dateInfo = info[year + "-" + month + "-" + day];
@@ -34,8 +34,6 @@ dojo.declare(CALENDAR_EXT_PATH + ".Calendar", dijit.Calendar, {
 });
 
 dojo.declare(CALENDAR_EXT_PATH + ".SimpleCalendar", com.aplana.dijit.ext.Calendar, {
-    getEmployeeId: function() {},
-    getContextPath: function() {},
     getClassForDateInfo: function(dateInfo, date) {
         switch (dateInfo) {
             case "2":   //выходной или праздничный день
@@ -49,14 +47,14 @@ dojo.declare(CALENDAR_EXT_PATH + ".SimpleCalendar", com.aplana.dijit.ext.Calenda
     }
 });
 
-function initCurrentDateInfo(/* string */ contextPath, employeeId) {
+function initCurrentDateInfo(employeeId) {
     var date = new Date();
 
-    colorDayWithReportFromThreeMonth(date.getFullYear(), correctLength(date.getMonth() + 1), employeeId, contextPath);
+    colorDayWithReportFromThreeMonth(date.getFullYear(), correctLength(date.getMonth() + 1), employeeId);
 }
 
-function colorDayWithReportFromThreeMonth(/* int */ year, /* int */ month, /* int */ employeeId, /* string */ contextPath) {
-    loadCalendarColors(year, month, employeeId, contextPath);
+function colorDayWithReportFromThreeMonth(/* int */ year, /* int */ month, /* int */ employeeId) {
+    loadCalendarColors(year, month, employeeId);
     var monthPrev =  parseInt(month, 10) - 1;
     var yearPrev = year;
     if (monthPrev <= 0){
@@ -64,7 +62,7 @@ function colorDayWithReportFromThreeMonth(/* int */ year, /* int */ month, /* in
         yearPrev = parseInt(year, 10) - 1;
     }
     if (dateInfoHolder[yearPrev + "-" + correctLength(monthPrev) + ":" + employeeId] == null)
-        loadCalendarColors(yearPrev, correctLength(monthPrev), employeeId, contextPath);
+        loadCalendarColors(yearPrev, correctLength(monthPrev), employeeId);
     var monthNext =  parseInt(month, 10) + 1;
     var yearNext = year;
     if (monthNext > 12){
@@ -72,13 +70,13 @@ function colorDayWithReportFromThreeMonth(/* int */ year, /* int */ month, /* in
         yearNext = parseInt(year, 10) + 1;
     }
     if (dateInfoHolder[yearNext + "-" + correctLength(monthNext) + ":" + employeeId] == null)
-        loadCalendarColors(yearNext, correctLength(monthNext), employeeId, contextPath);
+        loadCalendarColors(yearNext, correctLength(monthNext), employeeId);
 }
 
 //загружает список дней с раскраской календаря за месяц
-function loadCalendarColors(/* int */ year, /* int */ month, /* int */ employeeId, /* string */ contextPath) {
+function loadCalendarColors(/* int */ year, /* int */ month, /* int */ employeeId) {
     dojo.xhrGet({
-        url: contextPath + "/calendar/dates",
+        url: getContextPath() + "/calendar/dates",
         headers: {
             "If-Modified-Since":"Sat, 1 Jan 2000 00:00:00 GMT"
         },

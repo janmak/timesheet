@@ -384,3 +384,7 @@ table.report_params td {
 .auto_height {
 	height: auto;
 }
+
+.classDateRedText {
+    color: #f58383;
+}

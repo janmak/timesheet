@@ -14,6 +14,7 @@
         dojo.require("dijit.form.Select");
         dojo.require("dijit.form.DateTextBox");
         dojo.require("dijit.form.TextBox");
+        dojo.require(CALENDAR_EXT_PATH);
 
         var illnessReportType = 6;
         var businessTripReportType = 7;
@@ -25,10 +26,14 @@
 
         var errors;
 
-        dojo.declare("Calendar", dijit.Calendar, {
-            getClassForDate: function (date) {
-                return '';
-            }
+        function getEmployeeId() {
+            return "${employeeId}";
+        }
+
+        initCurrentDateInfo(getEmployeeId());
+
+        dojo.declare("Calendar", com.aplana.dijit.ext.SimpleCalendar, {
+            getEmployeeId: getEmployeeId
         });
 
         dojo.declare("DateTextBox", dijit.form.DateTextBox, {
