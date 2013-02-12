@@ -1,4 +1,4 @@
-const CALENDAR_EXT_PATH = "com.aplana.dijit.ext";
+var CALENDAR_EXT_PATH = "com.aplana.dijit.ext";
 
 dojo.require("dijit.Calendar");
 dojo.provide(CALENDAR_EXT_PATH);
