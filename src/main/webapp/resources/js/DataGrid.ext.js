@@ -4,11 +4,11 @@ dojo.require("dojo.parser");
 dojo.require("dojo.NodeList-traverse");
 dojo.require("dojo.cookie");
 
-const hideButtonUrl = "/resources/img/hide.png";
-const showButtonUrl = "/resources/img/show.png";
+var hideButtonUrl = "/resources/img/hide.png";
+var showButtonUrl = "/resources/img/show.png";
 
-const COOKIE_PREFIX = "datagrid_hide_";
-const HIDE_BUTTON_ID_PREFIX = "hide_button_";
+var COOKIE_PREFIX = "datagrid_hide_";
+var HIDE_BUTTON_ID_PREFIX = "hide_button_";
 
 function appendChildsRecursively(/* HTMLElement */ parent) {
     for (var i = 1; i < arguments.length; i++) {

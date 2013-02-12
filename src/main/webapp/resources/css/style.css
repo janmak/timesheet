@@ -28,7 +28,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 #header {
-    /*height: 105px;*/
+    min-height: 105px;
     background: url("../img/header_bg.png") repeat-x;
 }
 
