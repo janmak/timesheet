@@ -16,6 +16,7 @@ public class AssignmentLeadersTableRowForm {
     String region;
 
     Integer leaderId;
+    String leader;
     List<Employee> regionDivisionEmployees;
 
     public AssignmentLeadersTableRowForm(){
@@ -78,5 +79,13 @@ public class AssignmentLeadersTableRowForm {
 
     public void setLeaderId(Integer leaderId) {
         this.leaderId = leaderId;
+    }
+
+    public String getLeader() {
+        return leader;
+    }
+
+    public void setLeader(String leader) {
+        this.leader = leader;
     }
 }

@@ -35,7 +35,18 @@
         var divisionId = obj.value;
         mainForm.action = "<%=request.getContextPath()%>/admin/update/assignmentleaders/save/" + divisionId;
         mainForm.submit();
-        alert("Изменения успешно сохранены");
+    }
+
+    function edit(obj){
+        var divisionId = obj.value;
+        mainForm.action = "<%=request.getContextPath()%>/admin/update/assignmentleaders/" + divisionId +"/true";
+        mainForm.submit();
+    }
+
+    function cancel(obj){
+        var divisionId = obj.value;
+        mainForm.action = "<%=request.getContextPath()%>/admin/update/assignmentleaders/" + divisionId +"/false";
+        mainForm.submit();
     }
 
 </script>
@@ -68,40 +79,56 @@
                     <tr class="assignment_row" id="assignment_row_${row.index}">
                         <td class="text_center_align row_number"><c:out value="${row.index + 1}"/></td>
                         <!-- Подразделение -->
-                        <td class="top_align">
+                        <td class="top_align" valign="middle">
                             <form:label path="tableRows[${row.index}].division">
                                 <c:out value="${assignmentLeadersForm.tableRows[row.index].division}"/>
                             </form:label>
                             <form:hidden id="division_id_${row.index}" path="tableRows[${row.index}].divisionId"/>
                         </td>
                         <!-- Регион -->
-                        <td class="top_align">
+                        <td class="top_align" valign="middle">
                             <form:label path="tableRows[${row.index}].region">
                                 <c:out value="${assignmentLeadersForm.tableRows[row.index].region}"/>
                             </form:label>
                             <form:hidden id="region_id_${row.index}" path="tableRows[${row.index}].regionId"/>
                         </td>
                         <!-- Руководитель -->
-                        <td class="top_align">
-                            <form:select path="tableRows[${row.index}].leaderId" id="leader_id_${row.index}"
-                                         onmouseover="tooltip.show(getTitle(this));" onmouseout="tooltip.hide();">
-                                <form:option label="" value="0"/>
-                                <form:options items="${assignmentLeadersForm.tableRows[row.index].regionDivisionEmployees}"
-                                              itemLabel="name" itemValue="id"/>
-                            </form:select>
-                        </td>
+                        <c:if test="${editable == true}">
+                            <td class="top_align">
+                                <form:select cssStyle="border: none" path="tableRows[${row.index}].leaderId" id="leader_id_${row.index}"
+                                             onmouseover="tooltip.show(getTitle(this));" onmouseout="tooltip.hide();">
+                                    <form:option label="" value="0"/>
+                                    <form:options items="${assignmentLeadersForm.tableRows[row.index].regionDivisionEmployees}"
+                                                  itemLabel="name" itemValue="id"/>
+                                </form:select>
+                            </td>
+                        </c:if>
+                        <c:if test="${editable == false}">
+                            <td class="top_align" valign="middle">
+                                <form:label path="tableRows[${row.index}].leaderId">
+                                    <c:out value="${assignmentLeadersForm.tableRows[row.index].leader}"/>
+                                </form:label>
+                            <td>
+                        </c:if>
                     </tr>
                 </c:forEach>
             </c:if>
         </table>
     </div>
     <div>
-        <button id="submit_button" style="width:210px" onclick="saveResult(filter)" type="button">
-            Сохранить
-        </button>
-        <button id="cancel_button" style="width:210px" onclick="cancel()" type="button">
-            Отмена
-        </button>
+        <c:if test="${editable == true}">
+            <button id="submit_button" style="width:210px" onclick="saveResult(filter)" type="button">
+                Сохранить
+            </button>
+            <button id="cancel_button" style="width:210px" onclick="cancel(filter)" type="button">
+                Отмена
+            </button>
+        </c:if>
+        <c:if test="${editable == false}">
+            <button id="edit_button" style="width:210px" onclick="edit(filter)" type="button">
+                Редактировать
+            </button>
+        </c:if>
     </div>
 </form:form>
 

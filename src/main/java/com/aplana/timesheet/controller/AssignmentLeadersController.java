@@ -46,19 +46,21 @@ public class AssignmentLeadersController {
 
     @RequestMapping(value = "/admin/update/assignmentleaders", method = RequestMethod.GET)
     public String leadersAssignment() {
-        return String.format("redirect:/admin/update/assignmentleaders/%s",
-                securityService.getSecurityPrincipal().getEmployee().getDivision().getId());
+        return String.format("redirect:/admin/update/assignmentleaders/%s/%s",
+                securityService.getSecurityPrincipal().getEmployee().getDivision().getId(), false);
     }
 
-    @RequestMapping(value = "/admin/update/assignmentleaders/{divisionId}")
+    @RequestMapping(value = "/admin/update/assignmentleaders/{divisionId}/{editable}")
     public ModelAndView leadersAssignmentWithFilter(
             @PathVariable("divisionId") Integer filterDivisionId,
+            @PathVariable("editable") Boolean editable,
             @ModelAttribute("assignmentLeadersForm") AssignmentLeadersForm alForm
     ) {
         ModelAndView mav = new ModelAndView("assignmentLeaders");
         alForm.setTableRows(getFilledTableRows(filterDivisionId));
         mav.addObject("divisionList", divisionService.getDivisions() );
         mav.addObject("currentUserDivisionId", filterDivisionId);
+        mav.addObject("editable", editable);
         return mav;
     }
 
@@ -105,7 +107,7 @@ public class AssignmentLeadersController {
         }
 
         // вызовем уже имеющийся контроллер и отобразим форму заново с сохраненными изменениями
-        return leadersAssignmentWithFilter( filterDivisionId, alForm );
+        return leadersAssignmentWithFilter( filterDivisionId, false, alForm );
     }
 
     private List<AssignmentLeadersTableRowForm> getFilledTableRows(Integer filterDivisionId){
@@ -126,6 +128,7 @@ public class AssignmentLeadersController {
                     Manager manager = managerService.getManagerByDevisionAndRegion(division, region);
                     if (manager != null){
                         tableRow.setLeaderId(manager.getEmployee().getId());
+                        tableRow.setLeader(manager.getEmployee().getName());
                     }
 
                     if (tableRow.getRegionDivisionEmployees().size() != 0){
