@@ -284,12 +284,14 @@
 <h1><fmt:message key="title.timesheet"/></h1>
 
 <div id="dialogOne" data-dojo-type="dijit.Dialog" title="" display:none>
-    <div data-dojo-type="dijit.layout.TabContainer" style="width: 450px; height: 200px;">
+    <div data-dojo-type="dijit.layout.TabContainer" style="width: 500px; height: 200px;">
         <div data-dojo-type="dijit.layout.ContentPane">
             <span>Выберите причину</span>
-            <select id="overtimeCause" onchange="overtimeCauseChange(this)" data-dojo-type="dijit.form.Select" />
+            <select id="overtimeCause" onchange="overtimeCauseChange(this)">
+                <option label="" value="0"/>
+            </select>
             <textarea data-dojo-type="dijit.form.Textarea" disabled="true"
-                      wrap="soft" id="overtimeCauseComment" rows="10" cols="59"
+                      wrap="soft" id="overtimeCauseComment" rows="10"
                       placeholder="Напишите причину, если нет подходящей в списке"></textarea>
             <button id="confirmOvertimeCauseButton" style="margin-top: 10px; margin-left: -1px"
                     onclick="submitWithOvertimeCauseSet()">
