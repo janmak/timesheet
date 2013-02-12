@@ -51,8 +51,13 @@ public class ExceptionHandler implements HandlerExceptionResolver {
             FIO = employeeService.find(employeeId).getName();
         }
         // Отправим сообщение админам
-        sendMailService.performExceptionSender("У пользователя " + FIO + " произошла следующая ошибка:\n" + exception
-                .getMessage() + "\n" + exception.getStackTrace());
+        StringBuilder sb = new StringBuilder();
+        sb.append("У пользователя " + FIO + " произошла следующая ошибка:<br>");
+        sb.append(exception.getMessage() != null ? exception.getMessage() : "");
+        sb.append("<br><br>");
+        sb.append("Stack trace: <br>");
+        sb.append(Arrays.toString(exception.getStackTrace()));
+        sendMailService.performExceptionSender( sb.toString() );
         // Выведем в лог
         logger.error("Произошла неожиданная ошибка:", exception);
         return new ModelAndView("exception", model);
