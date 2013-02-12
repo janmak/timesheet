@@ -101,7 +101,9 @@
                 }
             }
             function deleteTimeSheet(id, calDate) {
-                if (confirm("Вы действительно хотите удалить отчет за " + calDate.substring(0, 10))) {
+                var tmp = calDate.substring(0, 10).split('-');
+                var date = new Date(tmp[0], tmp[1]-1, tmp[2]);
+                if (confirm("Вы действительно хотите удалить отчет за " + date.format("dd.mm.yyyy"))) {
                     dojo.byId("commandURL").value = window.location;
                     mainForm.action = "<%=request.getContextPath()%>/timesheetDel/" + id;
                     mainForm.submit();
@@ -171,69 +173,94 @@
         <table id="viewreports">
             <thead>
                 <tr>
-                    <th width="120">Дата</th>
-                    <th width="160">Статус</th>
-                    <th width="130">Часы</th>
+                    <th width="150">Дата</th>
+                    <th width="150">Статус</th>
+                    <th width="150">Часы</th>
+                    <th width="150">Отсутствие</th>
                 </tr>
             </thead>
             <tbody>
                 <%-- <% for(DayTimeSheet report : request.getAttribute("reports")) { %> --%>
                 <c:forEach var="report" items="${reports}">
-                    <c:if test="${report.statusHoliday}">
-                        <tr class="statusHoliday">
-                            <td class="date"><fmt:formatDate value="${report.calDate}" pattern="yyyy.MM.dd"/></td>
-                            <td>Выходной</td>
-                            <td></td>
-                        </tr>
-                    </c:if>
-                    <c:if test="${report.statusNotStart}">
-                        <tr class="statusNotStart">
-                            <td class="date"><fmt:formatDate value="${report.calDate}" pattern="yyyy.MM.dd"/></td>
-                            <td>Ещё не принят на работу</td>
-                            <td></td>
-                        </tr>
-                    </c:if>
-                    <c:if test="${report.statusNormalDay}">
-                        <tr class="statusNormalDay toplan">
-                            <td class="date"><fmt:formatDate value="${report.calDate}" pattern="yyyy.MM.dd"/></td>
-                            <td>
-                                <a target="_blank" href="<%=request.getContextPath()%>/report<fmt:formatDate value="${report.calDate}" pattern="/yyyy/MM/dd/"/>${report.timeSheet.employee.id}">Посмотреть отчёт</a>
-                                <sec:authorize access="hasRole('ROLE_ADMIN')">
-                                    <a href="#"
-                                       onclick="deleteTimeSheet(${report.timeSheet.id},'${report.calDate}')"><img
-                                            src="<c:url
-                                     value="/resources/img/delete.png"/>" width="15px" title="Удалить"/></a>
-                                    </sec:authorize>
-                            </td>
-                            <td class="duration">${report.duration}</td>
-                        </tr>
-                    </c:if>
-                    <c:if test="${report.statusWorkOnHoliday}">
-                        <tr class="statusWorkOnHoliday">
-                            <td class="date"><fmt:formatDate value="${report.calDate}" pattern="yyyy.MM.dd"/></td>
-                            <td>
-                                Работа в выходной день <a target="_blank" href="<%=request.getContextPath()%>/report<fmt:formatDate value="${report.calDate}" pattern="/yyyy/MM/dd/"/>${report.timeSheet.employee.id}">Посмотреть отчёт</a>
-                                <sec:authorize access="hasRole('ROLE_ADMIN')">
-                                    <a href="#" onclick="deleteTimeSheet(${report.timeSheet.id},'${report.calDate}')"><img src="<c:url value="/resources/img/delete.png"/>" width="15px" title="Удалить"/></a>
-                                    </sec:authorize>
-                            </td>
-                            <td class="duration">${report.duration}</td>
-                        </tr>
-                    </c:if>
-                    <c:if test="${report.statusNoReport}">
-                        <tr class="statusNoReport toplan">
-                            <td class="date"><fmt:formatDate value="${report.calDate}" pattern="yyyy.MM.dd"/></td>
-                            <td>Отчёта нет <a href="<%=request.getContextPath()%>/timesheet?date=<fmt:formatDate value="${report.calDate}" pattern="yyyy-MM-dd"/>&id=${employeeId}">(Создать)</a></td>
-                            <td class="duration">${report.duration}</td>
-                        </tr>
-                    </c:if>
-                    <c:if test="${report.statusNotCome}">
-                        <tr class="statusNotCome">
-                            <td class="date"><fmt:formatDate value="${report.calDate}" pattern="yyyy.MM.dd"/></td>
-                            <td></td>
-                            <td></td>
-                        </tr>
-                    </c:if>
+                    <c:choose>
+                        <c:when test="${report.illnessDay}">
+                            <tr class="illnessDay">
+                                <td class="date"><fmt:formatDate value="${report.calDate}" pattern="dd.MM.yyyy"/></td>
+                                <td></td>
+                                <td></td>
+                                <td>Болезнь</td>
+                            </tr>
+                        </c:when>
+                        <c:when test="${report.vacationDay}">
+                            <tr class="illnessDay">
+                                <td class="date"><fmt:formatDate value="${report.calDate}" pattern="dd.MM.yyyy"/></td>
+                                <td></td>
+                                <td></td>
+                                <td>Отпуск</td>
+                            </tr>
+                        </c:when>
+                        <c:when test="${report.statusHoliday}">
+                            <tr class="statusHoliday">
+                                <td class="date"><fmt:formatDate value="${report.calDate}" pattern="dd.MM.yyyy"/></td>
+                                <td>Выходной</td>
+                                <td></i></td>
+                                <td></td>
+                            </tr>
+                        </c:when>
+                        <c:when test="${report.statusNotStart}">
+                            <tr class="statusNotStart">
+                                <td class="date"><fmt:formatDate value="${report.calDate}" pattern="dd.MM.yyyy"/></td>
+                                <td>Ещё не принят на работу</td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                        </c:when>
+                        <c:when test="${report.statusNormalDay}">
+                            <tr class="statusNormalDay toplan">
+                                <td class="date"><fmt:formatDate value="${report.calDate}" pattern="dd.MM.yyyy"/></td>
+                                <td>
+                                    <a target="_blank" href="<%=request.getContextPath()%>/report<fmt:formatDate value="${report.calDate}" pattern="/yyyy/MM/dd/"/>${report.timeSheet.employee.id}">Посмотреть отчёт</a>
+                                    <sec:authorize access="hasRole('ROLE_ADMIN')">
+                                        <a href="#"
+                                           onclick="deleteTimeSheet(${report.timeSheet.id},'${report.calDate}')"><img
+                                                src="<c:url
+                                         value="/resources/img/delete.png"/>" width="15px" title="Удалить"/></a>
+                                        </sec:authorize>
+                                </td>
+                                <td class="duration">${report.duration}</td>
+                                <td></td>
+                            </tr>
+                        </c:when>
+                        <c:when test="${report.statusWorkOnHoliday}">
+                            <tr class="statusWorkOnHoliday">
+                                <td class="date"><fmt:formatDate value="${report.calDate}" pattern="dd.MM.yyyy"/></td>
+                                <td>
+                                    Работа в выходной день <a target="_blank" href="<%=request.getContextPath()%>/report<fmt:formatDate value="${report.calDate}" pattern="/yyyy/MM/dd/"/>${report.timeSheet.employee.id}">Посмотреть отчёт</a>
+                                    <sec:authorize access="hasRole('ROLE_ADMIN')">
+                                        <a href="#" onclick="deleteTimeSheet(${report.timeSheet.id},'${report.calDate}')"><img src="<c:url value="/resources/img/delete.png"/>" width="15px" title="Удалить"/></a>
+                                        </sec:authorize>
+                                </td>
+                                <td class="duration">${report.duration}</td>
+                                <td></td>
+                            </tr>
+                        </c:when>
+                        <c:when test="${report.statusNoReport}">
+                            <tr class="statusNoReport toplan">
+                                <td class="date"><fmt:formatDate value="${report.calDate}" pattern="dd.MM.yyyy"/></td>
+                                <td>Отчёта нет <a href="<%=request.getContextPath()%>/timesheet?date=<fmt:formatDate value="${report.calDate}" pattern="yyyy-MM-dd"/>&id=${employeeId}">(Создать)</a></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                        </c:when>
+                        <c:when test="${report.statusNotCome}">
+                            <tr class="statusNotCome">
+                                <td class="date"><fmt:formatDate value="${report.calDate}" pattern="dd.MM.yyyy"/></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                        </c:when>
+                    </c:choose>
                 </c:forEach>
             </tbody>
             <thead>

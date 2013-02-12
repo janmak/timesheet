@@ -1,6 +1,6 @@
 package com.aplana.timesheet.util;
 
-import com.aplana.timesheet.dao.entity.DayTimeSheet;
+import com.aplana.timesheet.form.entity.DayTimeSheet;
 import com.aplana.timesheet.service.TimeSheetService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

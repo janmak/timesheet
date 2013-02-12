@@ -7,6 +7,7 @@ import com.aplana.timesheet.dao.entity.*;
 import com.aplana.timesheet.enums.TypesOfActivityEnum;
 import com.aplana.timesheet.form.TimeSheetForm;
 import com.aplana.timesheet.form.TimeSheetTableRowForm;
+import com.aplana.timesheet.form.entity.DayTimeSheet;
 import com.aplana.timesheet.util.DateTimeUtil;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.time.DateUtils;
