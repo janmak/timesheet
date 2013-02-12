@@ -9,7 +9,6 @@ import com.aplana.timesheet.service.*;
 import com.aplana.timesheet.util.DateTimeUtil;
 import com.aplana.timesheet.util.EmployeeHelper;
 import com.aplana.timesheet.util.TimeSheetUser;
-import com.aplana.timesheet.util.ViewReportHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,8 +59,6 @@ public class TimeSheetController {
     private SecurityService securityService;
     @Autowired
     private EmployeeHelper employeeHelper;
-    @Autowired
-    private ViewReportHelper viewReportHelper;
     @Autowired
     private TSPropertyProvider propertyProvider;
     @Autowired
@@ -500,10 +497,6 @@ public class TimeSheetController {
         return sb.toString();
     }
 
-    @RequestMapping(value = "/timesheet/dates", headers = "Accept=application/json")
-    public @ResponseBody String reportDates(@RequestParam("queryYear") Integer queryYear, @RequestParam("queryMonth") Integer queryMonth, @RequestParam("employeeId") Integer employeeId) {
-        return viewReportHelper.getDateReportsListJson(queryYear, queryMonth, employeeId);
-    }
     /**
      * Возвращает планы предыдущего дня и на следующего дня
      * @param date (2012-11-25)

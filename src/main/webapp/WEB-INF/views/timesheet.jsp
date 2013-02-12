@@ -9,17 +9,16 @@
 <html>
 <head>
     <title><fmt:message key="title.timesheet"/></title>
+    <script type="text/javascript" src="<c:url value="/resources/js/Calendar.ext.js" />"></script>
 
     <script type="text/javascript">
         dojo.require("dijit.form.DateTextBox");
-        dojo.require("dijit.Calendar");
         dojo.require("dijit.Dialog");
         dojo.require("dijit.form.Textarea");
         dojo.require("dijit.form.Select");
         dojo.require("dijit.layout.TabContainer");
         dojo.require("dijit.layout.ContentPane");
-
-
+        dojo.require(CALENDAR_EXT_PATH);
 
         var unfinishedDayCauseList = ${unfinishedDayCauseJson};
         var overtimeCauseList = ${overtimeCauseJson};
@@ -46,28 +45,20 @@
                 var firstWorkDate = new Date(date[2], date[1]-1, date[0]);
             }
         var root = window.addEventListener || window.attachEvent ? window : document.addEventListener ? document : null;
-        var dateInfoHolder = [];
         var month = correctLength(new Date().getMonth() + 1);
 
-        // Первоначальная установка дат
-        colorDayWithReportFromThreeMonth(dateInfoHolder, new Date().getFullYear(), month, ${timeSheetForm.employeeId});
+        initCurrentDateInfo("<%= request.getContextPath() %>", '${timeSheetForm.employeeId}');
 
-        dojo.declare("Calendar", dijit.Calendar, {
-            getClassForDate:function (date) {
-                var employeeId = dojo.byId("employeeId").value;
-                var month = correctLength(date.getMonth() + 1);
-                var year = date.getFullYear();
-                var day = correctLength(date.getDate());
+        dojo.declare("Calendar", com.aplana.dijit.ext.Calendar, {
+            getEmployeeId: function() {
+                return dojo.byId("employeeId").value;
+            },
 
-                var info = dateInfoHolder[year + "-" + month + ":" + employeeId];
-                var dateInfo;
-                if (info == null) {
-                    dateInfoHolder[year + "-" + month + ":" + employeeId] = {}; //Создаем пустой объект, чтобы показать, что за этот месяц запрос уже отправлен
-                    colorDayWithReportFromThreeMonth(dateInfoHolder, year, month, employeeId)
-                }
-                info = dateInfoHolder[year + "-" + month  + ":" + employeeId];
-                dateInfo = info[year + "-" + month + "-" + day];
+            getContextPath: function() {
+                return "${pageContext.request.contextPath}";
+            },
 
+            getClassForDateInfo: function(dateInfo, date) {
                 switch (dateInfo) {
                     case "1":// в этот день имеется отчет
                         return 'classDateGreen';
@@ -85,12 +76,11 @@
                         return '';
                         break;
                 }
-
             }
         });
 
         dojo.declare("DateTextBox", dijit.form.DateTextBox, {
-            popupClass:"Calendar"
+            popupClass: "Calendar"
         });
 
         dojo.ready(function () {
@@ -144,56 +134,6 @@
             recalculateDuration();
             refreshPlans(dijit.byId('calDate').value, dojo.byId('employeeId').value);
         });
-
-        function colorDayWithReportFromThreeMonth(dateInfoHolder, year, month, employeeId){
-            loadCalendarColors(dateInfoHolder, year, month, employeeId);
-            var monthPrev =  parseInt(month, 10) - 1;
-            var yearPrev = year;
-            if (monthPrev <= 0){
-                monthPrev = 12;
-                yearPrev = parseInt(year, 10) - 1;
-            }
-            if (dateInfoHolder[yearPrev + "-" + correctLength(monthPrev) + ":" + employeeId] == null)
-                loadCalendarColors(dateInfoHolder, yearPrev, correctLength(monthPrev), employeeId);
-            var monthNext =  parseInt(month, 10) + 1;
-            var yearNext = year;
-            if (monthNext > 12){
-                monthNext = 1;
-                yearNext = parseInt(year, 10) + 1;
-            }
-            if (dateInfoHolder[yearNext + "-" + correctLength(monthNext) + ":" + employeeId] == null)
-                loadCalendarColors(dateInfoHolder, yearNext, correctLength(monthNext), employeeId);
-        }
-
-        //загружает список дней с раскраской календаря за месяц
-        function loadCalendarColors(dateInfoHolder, year, month, employeeId){
-            dojo.xhrGet({
-                url: "${pageContext.request.contextPath}" + "/timesheet/dates",
-				headers: {
-					"If-Modified-Since":"Sat, 1 Jan 2000 00:00:00 GMT"
-				},
-                handleAs:"json",
-                timeout:1000,
-                content:{queryYear:year, queryMonth:month, employeeId:employeeId},
-                load:function (data, ioArgs) {
-                    if (data && ioArgs && ioArgs.args && ioArgs.args.content) {
-                        dateInfoHolder[ioArgs.args.content.queryYear + "-" + ioArgs.args.content.queryMonth  + ":" + ioArgs.args.content.employeeId] = data;
-                    }
-                },
-                error:function (err, ioArgs) {
-                    if (err && ioArgs && ioArgs.args && ioArgs.args.content) {
-                        // Если ошибка - не будем ничего рисовать. При следующем запросе на отрисовку - снова будет сделана попытка получения данных за этот месяц
-                        dateInfoHolder[ioArgs.args.content.queryYear + "-" + ioArgs.args.content.queryMonth  + ":" + ioArgs.args.content.employeeId] = null;
-                    }
-                }
-            });
-        }
-
-        function correctLength(dayOrMonth){
-            if (dayOrMonth < 10)
-                return '0' + dayOrMonth;
-            return dayOrMonth;
-        }
 
         function refreshPlans(date, employeeId){
             var month = correctLength(date.getMonth() + 1);
