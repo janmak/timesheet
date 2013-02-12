@@ -18,8 +18,7 @@
     <div class="employee_name">Сотрудник: <sec:authentication property="principal.employee.name"/></div>
 
     <div class="menu_holder">
-
-        <ul style="list-style-type: none;">
+        <ul style="list-style-type: none; max-width: 960px; float: left">
             <li><a href="<c:url value='/'/>"><fmt:message key="menu.main"/></a></li>
             <li><a href="<c:url value='/viewreports'/>"><fmt:message key="title.viewreports"/></a></li>
             <sec:authorize access="hasAnyRole('ROLE_PLAN_EDIT', 'ROLE_PLAN_VIEW')">
@@ -33,10 +32,9 @@
             <sec:authorize access="hasRole('ROLE_ADMIN')">
                 <li><a href="<c:url value='/admin'/>"><fmt:message key="title.admin"/></a></li>
             </sec:authorize>
-            <li>
-                <a href="<c:url value='/feedback'/>"><fmt:message key="menu.feedback"/></a></li>
-            <li style="float: right"><a href="<c:url value='/logout'/>">Выйти из системы</a></li>
+            <li><a href="<c:url value='/feedback'/>"><fmt:message key="menu.feedback"/></a></li>
         </ul>
+        <span style="float: right"><a href="<c:url value='/logout'/>">Выйти из системы</a></span>
     </div>
 </sec:authorize>
 
