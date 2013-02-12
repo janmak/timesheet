@@ -31,11 +31,11 @@ public class DictionaryItemService {
     }
 
     public List<DictionaryItem> getOvertimeCauses() {
-        return dictionaryItemDAO.getItemsByDictionaryId(DictionaryEnum.OVERTIME_CAUSE.getId());
+        return dictionaryItemDAO.getItemsByDictionaryIdAndOrderById(DictionaryEnum.OVERTIME_CAUSE.getId());
     }
 
     public List<DictionaryItem> getUnfinishedDayCauses() {
-        return dictionaryItemDAO.getItemsByDictionaryId(DictionaryEnum.UNFINISHED_DAY_CAUSE.getId());
+        return dictionaryItemDAO.getItemsByDictionaryIdAndOrderById(DictionaryEnum.UNFINISHED_DAY_CAUSE.getId());
     }
 
     public Object getItemsByDictionaryId(int dictId) {

@@ -22,14 +22,24 @@ public class DictionaryItemDAO {
 	@Transactional(readOnly = true)
 	@SuppressWarnings("unchecked")
 	public List<DictionaryItem> getItemsByDictionaryId(Integer dictionaryId) {
-		Query query = entityManager.createQuery( 
-                "from DictionaryItem as di where di.dictionary = :dictionary order by di.value desc"
-        ).setParameter("dictionary", dictionaryDAO.find(dictionaryId));
-        
-        return query.getResultList();
+        return getDictionaryItemsByDictId(dictionaryId, "value desc");
 	}
 
-	@Transactional(readOnly = true)
+    @Transactional(readOnly = true)
+    @SuppressWarnings("unchecked")
+    public List<DictionaryItem> getItemsByDictionaryIdAndOrderById(Integer dictionaryId) {
+        return getDictionaryItemsByDictId(dictionaryId, "id asc");
+    }
+
+    private List<DictionaryItem> getDictionaryItemsByDictId(Integer dictionaryId, String orderComponent) {
+        Query query = entityManager.createQuery(
+            "from DictionaryItem as di where di.dictionary = :dictionary order by di." + orderComponent
+        ).setParameter("dictionary", dictionaryDAO.find(dictionaryId));
+
+        return query.getResultList();
+    }
+
+    @Transactional(readOnly = true)
 	public DictionaryItem find(Integer id) {
         return entityManager.find(DictionaryItem.class, id);
 	}

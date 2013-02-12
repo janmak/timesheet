@@ -8,8 +8,8 @@ public enum DictionaryEnum implements TSEnum {
     CATEGORY_OF_ACTIVITY(1, "Категория активности"),
     TYPES_OF_ACTIVITY(2, "Тип активности"),
     WORKPLACE(5, "Место работы"),
-    OVERTIME_CAUSE(10, "Причины переработок"),
-    UNFINISHED_DAY_CAUSE(11, "Причины недоработок");
+    UNFINISHED_DAY_CAUSE(10, "Причины недоработок"),
+    OVERTIME_CAUSE(11, "Причины переработок");
 
 
     private int id;
