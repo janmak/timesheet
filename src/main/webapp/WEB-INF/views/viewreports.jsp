@@ -101,7 +101,9 @@
                 }
             }
             function deleteTimeSheet(id, calDate) {
-                if (confirm("Вы действительно хотите удалить отчет за " + calDate.substring(0, 10))) {
+                var tmp = calDate.substring(0, 10).split('-');
+                var date = new Date(tmp[0], tmp[1]-1, tmp[2]);
+                if (confirm("Вы действительно хотите удалить отчет за " + date.format("dd.mm.yyyy"))) {
                     dojo.byId("commandURL").value = window.location;
                     mainForm.action = "<%=request.getContextPath()%>/timesheetDel/" + id;
                     mainForm.submit();
@@ -183,7 +185,7 @@
                     <c:choose>
                         <c:when test="${report.illnessDay}">
                             <tr class="illnessDay">
-                                <td class="date"><fmt:formatDate value="${report.calDate}" pattern="yyyy.MM.dd"/></td>
+                                <td class="date"><fmt:formatDate value="${report.calDate}" pattern="dd.MM.yyyy"/></td>
                                 <td></td>
                                 <td></td>
                                 <td>Болезнь</td>
@@ -191,7 +193,7 @@
                         </c:when>
                         <c:when test="${report.vacationDay}">
                             <tr class="illnessDay">
-                                <td class="date"><fmt:formatDate value="${report.calDate}" pattern="yyyy.MM.dd"/></td>
+                                <td class="date"><fmt:formatDate value="${report.calDate}" pattern="dd.MM.yyyy"/></td>
                                 <td></td>
                                 <td></td>
                                 <td>Отпуск</td>
@@ -199,7 +201,7 @@
                         </c:when>
                         <c:when test="${report.statusHoliday}">
                             <tr class="statusHoliday">
-                                <td class="date"><fmt:formatDate value="${report.calDate}" pattern="yyyy.MM.dd"/></td>
+                                <td class="date"><fmt:formatDate value="${report.calDate}" pattern="dd.MM.yyyy"/></td>
                                 <td>Выходной</td>
                                 <td></i></td>
                                 <td></td>
@@ -207,7 +209,7 @@
                         </c:when>
                         <c:when test="${report.statusNotStart}">
                             <tr class="statusNotStart">
-                                <td class="date"><fmt:formatDate value="${report.calDate}" pattern="yyyy.MM.dd"/></td>
+                                <td class="date"><fmt:formatDate value="${report.calDate}" pattern="dd.MM.yyyy"/></td>
                                 <td>Ещё не принят на работу</td>
                                 <td></td>
                                 <td></td>
@@ -215,7 +217,7 @@
                         </c:when>
                         <c:when test="${report.statusNormalDay}">
                             <tr class="statusNormalDay toplan">
-                                <td class="date"><fmt:formatDate value="${report.calDate}" pattern="yyyy.MM.dd"/></td>
+                                <td class="date"><fmt:formatDate value="${report.calDate}" pattern="dd.MM.yyyy"/></td>
                                 <td>
                                     <a target="_blank" href="<%=request.getContextPath()%>/report<fmt:formatDate value="${report.calDate}" pattern="/yyyy/MM/dd/"/>${report.timeSheet.employee.id}">Посмотреть отчёт</a>
                                     <sec:authorize access="hasRole('ROLE_ADMIN')">
@@ -231,7 +233,7 @@
                         </c:when>
                         <c:when test="${report.statusWorkOnHoliday}">
                             <tr class="statusWorkOnHoliday">
-                                <td class="date"><fmt:formatDate value="${report.calDate}" pattern="yyyy.MM.dd"/></td>
+                                <td class="date"><fmt:formatDate value="${report.calDate}" pattern="dd.MM.yyyy"/></td>
                                 <td>
                                     Работа в выходной день <a target="_blank" href="<%=request.getContextPath()%>/report<fmt:formatDate value="${report.calDate}" pattern="/yyyy/MM/dd/"/>${report.timeSheet.employee.id}">Посмотреть отчёт</a>
                                     <sec:authorize access="hasRole('ROLE_ADMIN')">
@@ -244,7 +246,7 @@
                         </c:when>
                         <c:when test="${report.statusNoReport}">
                             <tr class="statusNoReport toplan">
-                                <td class="date"><fmt:formatDate value="${report.calDate}" pattern="yyyy.MM.dd"/></td>
+                                <td class="date"><fmt:formatDate value="${report.calDate}" pattern="dd.MM.yyyy"/></td>
                                 <td>Отчёта нет <a href="<%=request.getContextPath()%>/timesheet?date=<fmt:formatDate value="${report.calDate}" pattern="yyyy-MM-dd"/>&id=${employeeId}">(Создать)</a></td>
                                 <td></td>
                                 <td></td>
@@ -252,7 +254,7 @@
                         </c:when>
                         <c:when test="${report.statusNotCome}">
                             <tr class="statusNotCome">
-                                <td class="date"><fmt:formatDate value="${report.calDate}" pattern="yyyy.MM.dd"/></td>
+                                <td class="date"><fmt:formatDate value="${report.calDate}" pattern="dd.MM.yyyy"/></td>
                                 <td></td>
                                 <td></td>
                                 <td></td>
