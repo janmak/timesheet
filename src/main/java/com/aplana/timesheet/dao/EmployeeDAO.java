@@ -11,12 +11,17 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
 @Service
 @Transactional
 public class EmployeeDAO {
+
+    public static final int ALL_REGIONS = -1;
+    public static final int ALL_PROJECT_ROLES = -1;
+
 	private static final Logger logger = LoggerFactory.getLogger(EmployeeDAO.class);
 
 	@PersistenceContext
@@ -315,5 +320,24 @@ public class EmployeeDAO {
                         "AND emp.endDate >= :curDate) " +
                         "OR (emp.endDate IS NULL) AND emp.id NOT IN :ids"
         ).setParameter("curDate", new Date()).setParameter("ids", syncedEmployees).getResultList();
+    }
+
+    public List<Employee> getDivisionEmployees(Integer divisionId, Date date, List<Integer> regionIds, List<Integer> projectRoleIds) {
+        final Calendar calendar = Calendar.getInstance();
+
+        calendar.setTime(date);
+
+        final Query query = entityManager.createQuery(
+                "from Employee e where e.division.id = :div_id" +
+                        " and ((:date_month >= MONTH(e.startDate) and :date_year = YEAR(e.startDate) or :date_year > YEAR(e.startDate))" +
+                        "       and (e.endDate is null or :date_month <= MONTH(e.endDate) and :date_year = YEAR(e.endDate) or :date_year < YEAR(e.endDate)))" +
+                        " and (e.region.id in :region_ids or " + ALL_REGIONS + " in (:region_ids))" +
+                        " and (e.job.id in :project_role_ids or " + ALL_PROJECT_ROLES + " in (:project_role_ids))" +
+                        " order by e.name"
+        ).setParameter("div_id", divisionId).setParameter("date_month", calendar.get(Calendar.MONTH) + 1).
+                setParameter("date_year", calendar.get(Calendar.YEAR)).
+                setParameter("region_ids", regionIds).setParameter("project_role_ids", projectRoleIds);
+
+        return query.getResultList();
     }
 }

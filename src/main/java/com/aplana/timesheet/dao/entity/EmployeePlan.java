@@ -10,14 +10,14 @@ import javax.persistence.*;
  */
 @Entity
 @Table(
-        name = "employee_project_plan",
-        uniqueConstraints = @UniqueConstraint(columnNames = { "employee_id", "project_id", "year", "month" })
+        name = "employee_plan",
+        uniqueConstraints = @UniqueConstraint(columnNames = {"employee_id", "item_id", "year", "month"})
 )
-public class EmployeeProjectPlan {
+public class EmployeePlan {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "empl_prj_plan_seq")
-    @SequenceGenerator(name = "empl_prj_plan_seq", sequenceName = "empl_prj_plan_seq", allocationSize = 10)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "empl_plan_seq")
+    @SequenceGenerator(name = "empl_plan_seq", sequenceName = "empl_plan_seq", allocationSize = 10)
     @Column(name = "id", columnDefinition = "integer")
     private Integer id;
 
@@ -27,9 +27,9 @@ public class EmployeeProjectPlan {
     private Employee employee;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "project_id", nullable = false)
-    @ForeignKey(name = "fk_project")
-    private Project project;
+    @JoinColumn(name = "item_id", nullable = false)
+    @ForeignKey(name = "fk_dic_item")
+    private DictionaryItem type;
 
     @Column(name = "year", columnDefinition = "integer", nullable = false)
     private Integer year;
@@ -40,7 +40,7 @@ public class EmployeeProjectPlan {
     @Column(name = "value", columnDefinition = "double precision", nullable = false)
     private Double value;
 
-    public EmployeeProjectPlan() {
+    public EmployeePlan() {
     }
 
     public Integer getId() {
@@ -59,12 +59,12 @@ public class EmployeeProjectPlan {
         this.employee = employee;
     }
 
-    public Project getProject() {
-        return project;
+    public DictionaryItem getType() {
+        return type;
     }
 
-    public void setProject(Project project) {
-        this.project = project;
+    public void setType(DictionaryItem type) {
+        this.type = type;
     }
 
     public Integer getYear() {
@@ -94,10 +94,10 @@ public class EmployeeProjectPlan {
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder();
-        sb.append("EmployeeProjectPlan");
+        sb.append("EmployeePlan");
         sb.append("{id=").append(id);
         sb.append(", employee=").append(getEmployee());
-        sb.append(", project=").append(getProject());
+        sb.append(", type=").append(getType());
         sb.append(", year=").append(year);
         sb.append(", month=").append(month);
         sb.append(", value=").append(value);

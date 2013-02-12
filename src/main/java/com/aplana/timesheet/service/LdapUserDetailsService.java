@@ -1,12 +1,13 @@
 package com.aplana.timesheet.service;
 
+import com.aplana.timesheet.constants.RoleConstants;
 import com.aplana.timesheet.controller.TimeSheetController;
 import com.aplana.timesheet.dao.EmployeeDAO;
 import com.aplana.timesheet.dao.entity.Employee;
 import com.aplana.timesheet.dao.entity.Permission;
 import com.aplana.timesheet.enums.PermissionsEnum;
+import com.aplana.timesheet.util.EnumsUtils;
 import com.aplana.timesheet.util.TimeSheetUser;
-import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,19 +38,34 @@ public class LdapUserDetailsService implements UserDetailsContextMapper {
     private EmployeeLdapService employeeLdapService;
 
     public void fillAuthority(Employee employee, List<GrantedAuthority> list) {
-        list.add( new SimpleGrantedAuthority( "ROLE_USER" ) ); // права обычного пользователя в любом случае
-        List<Permission> permissionList = Lists.newArrayList(employee.getPermissions());
-        if (permissionList == null) {return;}
-        for (Permission permission : permissionList){
-            switch ( PermissionsEnum.getById(permission.getId())) {
-                case RERPORTS_PERMISSION: {
-                    list.add( new SimpleGrantedAuthority( "ROLE_MANAGER" ) );
-                    list.add( new SimpleGrantedAuthority( "ROLE_USER" ) );
+        list.add( new SimpleGrantedAuthority(RoleConstants.ROLE_USER) ); // права обычного пользователя в любом случае
+
+        Collection<Permission> permissions = employee.getPermissions();
+
+        if (permissions == null) {
+            return;
+        }
+
+        for (Permission permission : permissions){
+            switch ( EnumsUtils.getEnumById(permission.getId(), PermissionsEnum.class)) {
+                case REPORTS_PERMISSION: {
+                    list.add( new SimpleGrantedAuthority(RoleConstants.ROLE_MANAGER) );
                     break;
                 }
+
                 case ADMIN_PERMISSION: {
-                    list.add( new SimpleGrantedAuthority( "ROLE_ADMIN" ) );
-                    list.add( new SimpleGrantedAuthority( "ROLE_USER" ) );
+                    list.add( new SimpleGrantedAuthority(RoleConstants.ROLE_ADMIN) );
+                    break;
+                }
+
+                case VIEW_PLANS: {
+                    list.add(new SimpleGrantedAuthority(RoleConstants.ROLE_PLAN_VIEW));
+                    break;
+                }
+
+                case EDIT_PLANS: {
+                    list.add(new SimpleGrantedAuthority(RoleConstants.ROLE_PLAN_VIEW));
+                    list.add(new SimpleGrantedAuthority(RoleConstants.ROLE_PLAN_EDIT));
                     break;
                 }
             }

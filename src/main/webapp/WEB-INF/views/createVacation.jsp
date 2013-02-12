@@ -11,8 +11,20 @@
     <title><fmt:message key="title.createVacation"/></title>
     <link rel="stylesheet" type="text/css" href="<%= request.getContextPath()%>/resources/css/vacations.css" />
     <script type="text/javascript" src="<%= request.getContextPath()%>/resources/js/vacations.js"></script>
-    <script type="text/javascript" src="<%= request.getContextPath()%>/resources/js/createVacation.js"></script>
     <script type="text/javascript">
+        dojo.require("dijit.form.DateTextBox");
+        dojo.require(CALENDAR_EXT_PATH);
+
+        function getEmployeeId() {
+            return "${employee.id}";
+        }
+
+        initCurrentDateInfo(getEmployeeId());
+
+        dojo.declare("Calendar", com.aplana.dijit.ext.SimpleCalendar, {
+            getEmployeeId: getEmployeeId
+        });
+
         dojo.declare("DateTextBox", dijit.form.DateTextBox, {
             popupClass: "Calendar"
             <sec:authorize access="not hasRole('ROLE_ADMIN')">
@@ -29,6 +41,10 @@
                 }
             </sec:authorize>
         });
+
+        function setDate(date_picker, date) {
+            date_picker.set("displayedValue", date);
+        }
 
         function createVacation(approved) {
             if (validate()) {
@@ -101,6 +117,10 @@
                 }
             });
         }
+
+        function cancel() {
+            window.location = "<%= request.getContextPath() %>/vacations";
+        }
     </script>
 </head>
 <body>
@@ -167,6 +187,7 @@
     <sec:authorize access="hasRole('ROLE_ADMIN')">
         <button type="button" onclick="createVacation(true)">Добавить утвержденное заявление на отпуск</button>
     </sec:authorize>
+    <button type="button" onclick="cancel()">Отмена</button>
 </form:form>
 </body>
 </html>

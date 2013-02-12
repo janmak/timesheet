@@ -221,4 +221,7 @@ public class ProjectService {
     public List<Project> getEmployeeProjectsByDates(Date beginDate, Date endDate, Employee employee) {
         return projectDAO.getEmployeeProjectsByDates(beginDate, endDate, employee);
     }
+    public List<Project> getProjectsByStatesForDate(List<Integer> projectStates, Date date) {
+        return projectDAO.getProjectsByStatesForDate(projectStates, date);
+    }
 }

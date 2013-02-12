@@ -1,21 +1,21 @@
 package com.aplana.timesheet.service;
 
+import com.aplana.timesheet.constants.TimeSheetConstants;
 import com.aplana.timesheet.dao.EmployeeTokenDAO;
 import com.aplana.timesheet.dao.entity.EmployeeToken;
 import com.aplana.timesheet.util.RememberToken;
-import com.aplana.timesheet.util.TimeSheetConstans;
 import com.aplana.timesheet.util.TimeSheetUser;
-import java.util.ArrayList;
-import java.util.List;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
+
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.ArrayList;
+import java.util.List;
 
 public class RememberService implements RememberMeServices, InitializingBean, LogoutHandler {
 
@@ -64,7 +64,7 @@ public class RememberService implements RememberMeServices, InitializingBean, Lo
 
     @Override
     public final void loginSuccess(HttpServletRequest request, HttpServletResponse response, Authentication successfulAuthentication) {
-        String value = request.getParameter(TimeSheetConstans.POST_REMEMBER);
+        String value = request.getParameter(TimeSheetConstants.POST_REMEMBER);
         if (value == null) {
             return;
         }
@@ -102,7 +102,7 @@ public class RememberService implements RememberMeServices, InitializingBean, Lo
             return null;
         }
         for (Cookie cookie : cookies) {
-            if (cookie.getName().equals(TimeSheetConstans.COOKIE_REMEMBER)) {
+            if (cookie.getName().equals(TimeSheetConstants.COOKIE_REMEMBER)) {
                 return cookie;
             }
         }
@@ -115,7 +115,7 @@ public class RememberService implements RememberMeServices, InitializingBean, Lo
     }
 
     private void setCookie(String key, HttpServletResponse response) {
-        Cookie cookie = new Cookie(TimeSheetConstans.COOKIE_REMEMBER, key);
+        Cookie cookie = new Cookie(TimeSheetConstants.COOKIE_REMEMBER, key);
         cookie.setMaxAge(999999999);
         response.addCookie(cookie);
     }

@@ -219,7 +219,7 @@ div.menu_holder ul a:hover {
 #tt {
     position: absolute;
     display: block;
-
+    word-break: break-all;
 }
 
 #tttop {
@@ -383,4 +383,8 @@ table.report_params td {
 
 .auto_height {
 	height: auto;
+}
+
+.classDateRedText {
+    color: #f58383;
 }

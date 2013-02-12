@@ -278,4 +278,8 @@ public class TimeSheetService {
     public Date getEmployeeFirstWorkDay(Integer employeeId){
          return employeeDAO.getEmployeeFirstWorkDay(employeeId);
     }
+
+    public List<TimeSheet> getTimeSheetsForEmployee(Employee employee, Integer year, Integer month) {
+        return timeSheetDAO.getTimeSheetsForEmployee(employee, year, month);
+    }
 }

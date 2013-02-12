@@ -1,5 +1,6 @@
 package com.aplana.timesheet.util;
 
+import com.aplana.timesheet.dao.entity.DictionaryItem;
 import com.aplana.timesheet.enums.TSEnum;
 
 import java.util.NoSuchElementException;
@@ -9,6 +10,10 @@ import java.util.NoSuchElementException;
  * Date: 22.01.13
  */
 public class EnumsUtils {
+
+    public static <T extends TSEnum> T getEnumById(DictionaryItem dictionaryItem, Class<T> aClass) {
+        return getEnumById(dictionaryItem.getId(), aClass);
+    }
 
     public static <T extends TSEnum> T getEnumById(int id, Class<T> aClass) {
         T result = tryFindById(id, aClass);
