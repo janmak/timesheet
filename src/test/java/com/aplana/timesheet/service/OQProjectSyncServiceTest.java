@@ -2,6 +2,7 @@ package com.aplana.timesheet.service;
 
 import com.aplana.timesheet.dao.ProjectDAO;
 import com.aplana.timesheet.dao.entity.Project;
+import com.aplana.timesheet.enums.TypesOfActivityEnum;
 import junit.framework.TestCase;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -30,6 +31,9 @@ public class OQProjectSyncServiceTest extends TestCase {
 
     @Autowired
     OQProjectSyncService oqProjectSyncService;
+
+    @Autowired
+    private DictionaryItemService dictionaryItemService;
 
     @Test
     public void testSync() throws Exception {
@@ -63,6 +67,9 @@ public class OQProjectSyncServiceTest extends TestCase {
             }})
             .when(dao).store((Project) anyObject());
 
-        oqProjectSyncService.createOrUpdateProject(nodeList.item(checkingNode).getAttributes(), dao);
+        oqProjectSyncService.createOrUpdateProject(
+                nodeList.item(checkingNode).getAttributes(), dao,
+                dictionaryItemService.find(TypesOfActivityEnum.PROJECT.getId())
+        );
     }
 }

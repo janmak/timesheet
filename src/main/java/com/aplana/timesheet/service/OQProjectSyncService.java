@@ -2,9 +2,11 @@ package com.aplana.timesheet.service;
 
 import com.aplana.timesheet.dao.EmployeeDAO;
 import com.aplana.timesheet.dao.ProjectDAO;
+import com.aplana.timesheet.dao.entity.DictionaryItem;
 import com.aplana.timesheet.dao.entity.Division;
 import com.aplana.timesheet.dao.entity.Employee;
 import com.aplana.timesheet.dao.entity.Project;
+import com.aplana.timesheet.enums.TypesOfActivityEnum;
 import com.aplana.timesheet.properties.TSPropertyProvider;
 import com.aplana.timesheet.util.DateTimeUtil;
 import org.slf4j.Logger;
@@ -58,6 +60,9 @@ public class OQProjectSyncService {
     @Autowired
     private TSPropertyProvider propertyProvider;
 
+    @Autowired
+    private DictionaryItemService dictionaryItemService;
+
     private URL oqUrl;
 
     @PostConstruct
@@ -94,8 +99,10 @@ public class OQProjectSyncService {
             NodeList nodes = getOQasNodeList();
             trace.append("В файле синхронизации найдено: ").append(nodes.getLength()).append(" проектов\n");
 
+            final DictionaryItem projectState = getProjectState();
+
             for (int i = 0; i < nodes.getLength(); i++) {
-                createOrUpdateProject(nodes.item(i).getAttributes(), projectDAO);
+                createOrUpdateProject(nodes.item(i).getAttributes(), projectDAO, projectState);
             }
             trace.append("Синхронизация завершена\n");
         } catch (Exception e) {
@@ -104,7 +111,7 @@ public class OQProjectSyncService {
         }
     }
 
-    public void createOrUpdateProject(NamedNodeMap nodeMap, ProjectDAO dao) {
+    public void createOrUpdateProject(NamedNodeMap nodeMap, ProjectDAO dao, DictionaryItem state) {
         Project project = new Project();      // проект из БД
 
         // поля синхронизации
@@ -128,6 +135,7 @@ public class OQProjectSyncService {
         project.setProjectId(idProject);
         project.setStartDate(DateTimeUtil.stringToDate(nodeMap.getNamedItem("begining").getNodeValue(), DATE_FORMAT));
         project.setEndDate(DateTimeUtil.stringToDate(nodeMap.getNamedItem("ending").getNodeValue(), DATE_FORMAT));
+        project.setState(state);
 
         if (project.isActive()) {
             if (!setPM(project, pmLdap)){
@@ -136,6 +144,10 @@ public class OQProjectSyncService {
             setDivision(project, hcLdap);  // установим подразделение пользователя
         }
         dao.store(project); // запишем в БД
+    }
+
+    private DictionaryItem getProjectState() {
+        return dictionaryItemService.find(TypesOfActivityEnum.PROJECT.getId());
     }
 
     private boolean setPM(Project project, String pmLdap){

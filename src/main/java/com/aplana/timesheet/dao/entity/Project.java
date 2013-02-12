@@ -27,7 +27,7 @@ public class Project {
 	private Employee manager;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "state")
+	@JoinColumn(name = "state", nullable = false)
 	@ForeignKey(name = "FK_PROJECT_STATE")
 	private DictionaryItem state;
 
