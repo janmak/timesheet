@@ -4,6 +4,7 @@
 <%@ page import="static com.aplana.timesheet.constants.TimeSheetConstants.DOJO_PATH" %>
 <%@ page import="static com.aplana.timesheet.controller.PlanEditController.*" %>
 <%@ page import="static com.aplana.timesheet.form.PlanEditForm.*" %>
+<%@ page import="static com.aplana.timesheet.controller.PlanEditController.PERCENT_OF_CHARGE" %>
 
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form" %>
@@ -146,6 +147,25 @@
 
                 firstView.groups = [
                     { name: "Итог", field: "<%= SUMMARY %>" },
+                    {
+                        name: "Процент загрузки",
+                        field: "<%= PERCENT_OF_CHARGE %>",
+                        cellsFormatter: function(text) {
+                            var number = parseFloat(replacePeriodsWithDots(text));
+
+                            if (number > 100) {
+                                return dojo.create(
+                                    "span",
+                                    {
+                                        innerHTML: text,
+                                        style: "color: red; font-weight: bold"
+                                    }
+                                ).outerHTML;
+                            }
+
+                            return text;
+                        }
+                    },
                     { name: "Проекты центра", field: "<%= CENTER_PROJECTS %>" },
                     { name: "Пресейлы центра", field: "<%= CENTER_PRESALES %>" },
                     { name: "Проекты/Пресейлы других центров", field: "<%= OTHER_PROJECTS_AND_PRESALES %>" },

@@ -61,6 +61,7 @@ public class PlanEditController {
     public static final String VACATION = "vacation";
     public static final String EMPLOYEE = "employee";
     public static final String EMPLOYEE_ID = "employee_id";
+    public static final String PERCENT_OF_CHARGE = "percent_of_charge";
 
     public static final String PROJECT_ID = "id";
     public static final String PROJECT_NAME = "name";
@@ -80,6 +81,9 @@ public class PlanEditController {
     public static final String ILLNESS_FACT = ILLNESS + _FACT;
     public static final String VACATION_PLAN = VACATION + _PLAN;
     public static final String VACATION_FACT = VACATION + _FACT;
+    public static final String PERCENT_OF_CHARGE_PLAN = PERCENT_OF_CHARGE + _PLAN;
+    public static final String PERCENT_OF_CHARGE_FACT = PERCENT_OF_CHARGE + _FACT;
+
     public static final String JSON_DATA_YEAR = "year";
     public static final String JSON_DATA_MONTH = "month";
     public static final String JSON_DATA_ITEMS = "items";
@@ -95,6 +99,7 @@ public class PlanEditController {
     private static final String COOKIE_SHOW_FACTS = "cookie_show_facts";
     private static final String COOKIE_SHOW_PROJECTS = "cookie_show_projects";
     private static final String COOKIE_SHOW_PRESALES = "cookie_show_presales";
+    public  static final int    COOKIE_MAX_AGE = 999999999;
 
     private static final String SEPARATOR = "~";
 
@@ -159,7 +164,16 @@ public class PlanEditController {
     }
 
     private static void addCookie(HttpServletResponse response, String name, Object value) {
-        response.addCookie(new Cookie(name, String.valueOf(value)));
+        final String valueStr = String.valueOf(value);
+
+        final Cookie cookieToDelete = new Cookie(name, valueStr);
+        final Cookie cookie = new Cookie(name, valueStr);
+
+        cookieToDelete.setMaxAge(0);
+        cookie.setMaxAge(COOKIE_MAX_AGE);
+
+        response.addCookie(cookieToDelete);
+        response.addCookie(cookie);
     }
 
     @Autowired
@@ -405,14 +419,17 @@ public class PlanEditController {
 
             workDaysCount = calendarService.getWorkDaysCountForRegion(region, year, month, employee.getStartDate());
 
+            final double summaryPlan = TimeSheetConstants.WORK_DAY_DURATION * workDaysCount;
+
             if (showPlans) {
                 builder.withField(
                         SUMMARY_PLAN,
-                        JsonUtil.aNumberBuilder(TimeSheetConstants.WORK_DAY_DURATION * workDaysCount)
+                        JsonUtil.aNumberBuilder(summaryPlan)
                 );
 
                 Double centerProjectsPlan = null;
                 Double centerPresalesPlan = null;
+                double sumOfPlanCharge = 0;
 
                 for (EmployeeProjectPlan employeeProjectPlan : employeeProjectPlanService.find(employee, year, month)) {
                     final Project project = employeeProjectPlan.getProject();
@@ -434,13 +451,25 @@ public class PlanEditController {
                     );
                 }
 
+                sumOfPlanCharge += nilIfNull(centerProjectsPlan) + nilIfNull(centerPresalesPlan);
+
                 appendNumberField(builder, CENTER_PROJECTS_PLAN, centerProjectsPlan);
                 appendNumberField(builder, CENTER_PRESALES_PLAN, centerPresalesPlan);
 
+                Double value;
 
                 for (EmployeePlan employeePlan : employeePlanService.find(employee, year, month)) {
-                    appendNumberField(builder, getFieldNameForEmployeePlan(employeePlan), employeePlan.getValue());
+                    value = employeePlan.getValue();
+
+                    sumOfPlanCharge += nilIfNull(value);
+
+                    appendNumberField(builder, getFieldNameForEmployeePlan(employeePlan), value);
                 }
+
+                builder.withField(
+                        PERCENT_OF_CHARGE_PLAN,
+                        aStringBuilder(formatPercentOfCharge(sumOfPlanCharge / summaryPlan))
+                );
             }
 
             if (showFacts) {
@@ -495,6 +524,7 @@ public class PlanEditController {
 
                 builder.
                     withField(SUMMARY_FACT, JsonUtil.aNumberBuilder(summaryFact)).
+                    withField(PERCENT_OF_CHARGE_FACT, aStringBuilder(formatPercentOfCharge(summaryFact / summaryPlan))).
                     withField(CENTER_PROJECTS_FACT, JsonUtil.aNumberBuilder(centerProjectsFact)).
                     withField(CENTER_PRESALES_FACT, JsonUtil.aNumberBuilder(centerPresalesFact)).
                     withField(OTHER_PROJECTS_AND_PRESALES_FACT, JsonUtil.aNumberBuilder(otherProjectsFact)).
@@ -514,6 +544,10 @@ public class PlanEditController {
         }
 
         return JsonUtil.format(array(nodes));
+    }
+
+    private String formatPercentOfCharge(double normalizedValueOfCharge) {
+        return String.format(JsonUtil.NUMBER_FORMAT + "%%", normalizedValueOfCharge * 100);
     }
 
     private String getFieldNameForEmployeePlan(EmployeePlan employeePlan) {

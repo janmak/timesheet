@@ -84,7 +84,8 @@ function createNameWithHideButton(/* String */ name, /* String */ field) {
  *      groups(optional): [<{
  *          name: <String>,
  *          colSpan: <int>,
- *          expand: <boolean> (expand from view will be ignored)
+ *          expand: <boolean> (expand from view will be ignored),
+ *          cellsFormatter: <function>
  *      }>]
  * }
  *
@@ -118,21 +119,27 @@ function createLayout(/* Array */ headerViews) {
                 headerStyles: "width: " + cell.width,
                 cellStyles: cellStyles,
                 formatter: function(text) {
-                    var span = document.createElement("span");
+                    var div = document.createElement("div");
 
-                    if (!(this.parentCol && this.parentCol.isHidden)) {
-                        span.innerHTML = (text.length != 0) ? text : '-';
+                    var parentCol = this.parentCol;
+
+                    if (!(parentCol && parentCol.isHidden)) {
+                        div.innerHTML = (text.length != 0) ? text : '-';
+
+                        if (parentCol && typeof parentCol.cellsFormatter == "function") {
+                            div.innerHTML = parentCol.cellsFormatter(div.innerHTML);
+                        }
 
                         var colElement = dojo.byId(this.id);
 
                         if (colElement) {
                             dojo.query(".colContainer .colTextHolder", colElement).forEach(function(item) {
-                                span.style.display = item.style.display;
+                                div.style.display = item.style.display;
                             });
                         }
                     }
 
-                    return span.outerHTML;
+                    return div.outerHTML;
                 }
             });
         });
@@ -154,6 +161,7 @@ function createLayout(/* Array */ headerViews) {
                     colSpan: colSpan,
                     childs: [],
                     isHidden: false,
+                    cellsFormatter: group.cellsFormatter,
                     updateWidth: function() {
                         var width = 0;
 
@@ -256,7 +264,8 @@ function switchColDisplay(button, colField, hide) {
         });
     });
 
-    dojo.cookie(COOKIE_PREFIX + colField, hide);
+    dojo.cookie(COOKIE_PREFIX + colField, hide, { expire: -1 });
+    dojo.cookie(COOKIE_PREFIX + colField, hide, { expire: 999999999 });
 
     grid.setStructure(grid.structure);
 }

@@ -16,6 +16,8 @@ import static argo.jdom.JsonNodeBuilders.anArrayBuilder;
  */
 public class JsonUtil {
 
+    public static final String NUMBER_FORMAT = "%.2f";
+
     private final static JsonFormatter JSON_FORMATTER = new CompactJsonFormatter();
     private final static JdomParser JDOM_PARSER = new JdomParser();
 
@@ -38,7 +40,7 @@ public class JsonUtil {
 
     private static String formatNumber(Number i) {
         if (i.getClass() == Double.class || i.getClass() == Float.class) {
-            return String.format(Locale.ROOT, "%.2f", i.doubleValue());
+            return String.format(Locale.ROOT, NUMBER_FORMAT, i.doubleValue());
         }
 
         return String.valueOf(i);
