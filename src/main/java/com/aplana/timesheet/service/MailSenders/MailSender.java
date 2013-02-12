@@ -70,7 +70,7 @@ public class MailSender<T> {
                         logger.info("Message is formed, but the sending off in the options. Message text: " + message.getContent().toString());
                         String mailDebugAddress = propertyProvider.getMailDebugAddress();
                         if (mailDebugAddress != null && mailDebugAddress != ""){
-                            addDebugInfoAndChangeReceiver(message, getDebugInfo(mail), mailDebugAddress);
+                            addDebugInfoAndChangeReceiver(message, mailDebugAddress);
                             transport.sendMessage(message, message.getAllRecipients());
                             logger.info("Message sended on debug address: " + mailDebugAddress);
                         }
@@ -90,26 +90,36 @@ public class MailSender<T> {
         }
     }
 
-    private String getDebugInfo(Mail mail){
+    private String getDebugInfo(Message message){
         StringBuilder additionalMessageBody = new StringBuilder();
-        additionalMessageBody.append("DEBUG INFORMATION:");
-        additionalMessageBody.append("<br>Email from: " + mail.getFromEmail());
-        additionalMessageBody.append("<br>Email to: " + mail.getToEmails().toString());
-        additionalMessageBody.append("<br>Email cc: " + (mail.getCcEmails().iterator().hasNext() ? mail.getCcEmails() : ""));
-        additionalMessageBody.append("<br>END DEBUG INFORMATION<br><br>");
+        try{
+            additionalMessageBody.append("DEBUG INFORMATION:");
+            additionalMessageBody.append("<br>Email from: " + Arrays.toString(message.getFrom()));
+            additionalMessageBody.append("<br>Email to: " + Arrays.toString(message.getRecipients(MimeMessage.RecipientType.TO)));
+            additionalMessageBody.append("<br>Email cc: ");
+            additionalMessageBody.append(
+                    message.getRecipients(MimeMessage.RecipientType.CC) != null ?
+                    Arrays.toString(message.getRecipients(MimeMessage.RecipientType.CC)) :
+                    ""
+            );
+            additionalMessageBody.append("<br>END DEBUG INFORMATION<br><br>");
+        }catch(MessagingException ex){
+            logger.error("Error while init debug info:", ex);
+        }
         return additionalMessageBody.toString();
     }
 
-    private void addDebugInfoAndChangeReceiver(MimeMessage message, String debugInfo, String mailDebugAddress){
+    private void addDebugInfoAndChangeReceiver(MimeMessage message, String mailDebugAddress){
         try{
+            String debugInfo = getDebugInfo(message);
             message.setSubject("[TSDEBUG] " + message.getSubject());
             message.setRecipients(MimeMessage.RecipientType.TO, InternetAddress.parse(mailDebugAddress));
             message.setRecipients(MimeMessage.RecipientType.CC, "");
-            if (message.getContent() instanceof MimeMultipart){
+            if (message.getContent() instanceof MimeMultipart){   // если это сложное письмо (напр, с вл. файлами)
                 message.setText(
                         debugInfo + ((Multipart) message.getContent()).getBodyPart(0).getDataHandler().getContent(),
                         "UTF-8", "html");
-            } else{
+            } else{                                               // обычный текст
                 message.setText(debugInfo + message.getContent(), "UTF-8", "html");
             }
         }catch (MessagingException ex){
@@ -123,8 +133,8 @@ public class MailSender<T> {
         InternetAddress fromAddr = initFromAddresses(mail);
         InternetAddress[] ccAddresses = initAddresses(mail.getCcEmails());
         InternetAddress[] toAddresses = initAddresses(mail.getToEmails());
-        logger.debug("CC Addresses: {}", ccAddresses.toString());
-        logger.debug("TO Addresses: {}", toAddresses.toString());
+        logger.debug("CC Addresses: {}", Arrays.toString(ccAddresses));
+        logger.debug("TO Addresses: {}", Arrays.toString(toAddresses));
 
         try {
             initMessageSubject(mail, message);
