@@ -1136,7 +1136,7 @@ function overtimeCauseChange(obj){
     var select = obj.target === null || obj.target === undefined ? obj : obj.target;
     var selectId = dojo.attr(select, "value");
     //Если выбрано "Другое", то надо ввести комментарий
-    dojo.byId("overtimeCauseComment").disabled = !(selectId == 105 || selectId == 114);
+    dojo.byId("overtimeCauseComment").disabled = !(selectId == 105 || selectId == 110);
 }
 
 function checkDurationThenSendForm(){
@@ -1163,13 +1163,23 @@ function checkDurationThenSendForm(){
         && !oob
     ) {
         var select_box = dojo.byId("overtimeCause");
-        select_box.innerHTML = '<option value="0"></option>';
-        var evald_json = totalDuration < 8 ? unfinishedDayCauseList : overtimeCauseList;
 
+        select_box.options.length=0;
+
+        insertEmptyOption(select_box)
+
+        var evald_json = totalDuration < 8 ? unfinishedDayCauseList : overtimeCauseList;
 
         for (var key in evald_json) {
             var row = evald_json[key];
-            dojo.create('option', { value: row.id, innerHTML: row.value }, select_box);
+
+            var option = dojo.doc.createElement("option");
+            dojo.attr(option, {
+                value: row.id
+            });
+            option.innerHTML = row.value;
+            select_box.appendChild(option);
+
         }
 
         var dialog = dijit.byId("dialogOne");

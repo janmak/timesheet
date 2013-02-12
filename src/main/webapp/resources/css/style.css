@@ -28,7 +28,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 #header {
-    height: 105px;
+    min-height: 105px;
     background: url("../img/header_bg.png") repeat-x;
 }
 
@@ -61,9 +61,10 @@ div.menu_holder ul {
 
 div.menu_holder li {
     float: left;
+    width: 240px;
 }
 
-div.menu_holder ul a{
+div.menu_holder ul a, div.menu_holder span a {
     padding-right: 32px;
     padding-left: 32px;
     display: block;
@@ -72,7 +73,7 @@ div.menu_holder ul a{
     color: #371C1C;
 }
 
-div.menu_holder ul a:hover {
+div.menu_holder ul a:hover, div.menu_holder span a:hover {
     text-decoration: none;
 }
 
@@ -385,6 +386,3 @@ table.report_params td {
 	height: auto;
 }
 
-.classDateRedText {
-    color: #f58383;
-}

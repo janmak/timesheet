@@ -171,35 +171,27 @@ public class ProjectDAO {
 
     @Transactional
     public void store(Project project) {
-        DictionaryItem item = dictionaryItemDAO.find(12); // Проект
-        Project exProject = findByProjectId(project.getProjectId());
-        if (exProject != null) {
-            fillProject( exProject, project, item );
-            entityManager.merge(exProject);
-        } else {
-            Project existingProject = findByName(project.getName());
-            if (existingProject != null) {
-                fillProject( existingProject, project, item );
-                existingProject.setProjectId( project.getProjectId() );
-                if (trace != null) trace.append("Обновлен проект: ").append(project).append("\n");
-                entityManager.merge(existingProject);
-            } else {
-                if (project.isActive()) {
-                    project.setCqRequired(false);
-                    project.setState(item);
-                    entityManager.merge(project);
-                    if (trace != null) trace.append("Создан новый проект: ").append(project).append("\n");
-                }
+        final DictionaryItem item = dictionaryItemDAO.find(TypesOfActivityEnum.PROJECT.getId()); // Проект
+        final Project existingProject = findByName(project.getName());
+
+        if (existingProject != null) {
+            project.setId(existingProject.getId());
+
+            entityManager.merge(project);
+
+            if (trace != null) {
+                trace.append("Обновлен проект: ").append(project).append("\n");
+            }
+        } else if (project.isActive()) {
+            project.setCqRequired(false);
+            project.setState(item);
+
+            entityManager.merge(project);
+
+            if (trace != null) {
+                trace.append("Создан новый проект: ").append(project).append("\n");
             }
         }
-    }
-
-    private void fillProject( Project exProject, Project project, DictionaryItem item ) {
-        exProject.setActive(project.isActive());
-        exProject.setManager(project.getManager());
-        if (project.getDivisions() != null)
-            exProject.getDivisions().addAll(project.getDivisions());
-        exProject.setState(item);
     }
 
     public List<Project> getProjectsByDates(Date beginDate, Date endDate) {
