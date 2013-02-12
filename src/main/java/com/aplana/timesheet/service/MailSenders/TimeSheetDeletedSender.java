@@ -16,6 +16,8 @@ import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import java.util.*;
 
+import static com.aplana.timesheet.util.DateTimeUtil.*;
+
 public class TimeSheetDeletedSender extends MailSender<TimeSheet> {
 
     public TimeSheetDeletedSender(SendMailService sendMailService, TSPropertyProvider propertyProvider) {
@@ -30,7 +32,7 @@ public class TimeSheetDeletedSender extends MailSender<TimeSheet> {
 
         model.put("managerName", sendMailService.getSecurityPrincipal().getEmployee().getName());
         model.put("employee", Iterables.getFirst(mail.getEmployeeList(), null));
-        model.put("dateStr", mail.getDate());
+        model.put("dateStr", formatDateString(mail.getDate()));
 
         String messageBody = VelocityEngineUtils.mergeTemplateIntoString(
                 sendMailService.velocityEngine, "timesheetdeleted.vm", model) +
