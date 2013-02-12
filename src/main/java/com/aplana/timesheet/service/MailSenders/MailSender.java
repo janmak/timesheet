@@ -12,7 +12,9 @@ import org.slf4j.LoggerFactory;
 import javax.mail.*;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -103,7 +105,13 @@ public class MailSender<T> {
             message.setSubject("[TSDEBUG] " + message.getSubject());
             message.setRecipients(MimeMessage.RecipientType.TO, InternetAddress.parse(mailDebugAddress));
             message.setRecipients(MimeMessage.RecipientType.CC, "");
-            message.setText(debugInfo + message.getContent(), "UTF-8", "html");
+            if (message.getContent() instanceof MimeMultipart){
+                message.setText(
+                        debugInfo + ((Multipart) message.getContent()).getBodyPart(0).getDataHandler().getContent(),
+                        "UTF-8", "html");
+            } else{
+                message.setText(debugInfo + message.getContent(), "UTF-8", "html");
+            }
         }catch (MessagingException ex){
             logger.error("Error while init message recipients.", ex);
         }catch (IOException ex){
@@ -115,7 +123,8 @@ public class MailSender<T> {
         InternetAddress fromAddr = initFromAddresses(mail);
         InternetAddress[] ccAddresses = initAddresses(mail.getCcEmails());
         InternetAddress[] toAddresses = initAddresses(mail.getToEmails());
-        logger.debug("CC Addresses: {}", toAddresses.toString());
+        logger.debug("CC Addresses: {}", ccAddresses.toString());
+        logger.debug("TO Addresses: {}", toAddresses.toString());
 
         try {
             initMessageSubject(mail, message);
