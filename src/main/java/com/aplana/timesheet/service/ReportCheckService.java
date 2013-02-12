@@ -17,7 +17,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+
+import static com.aplana.timesheet.util.DateTimeUtil.*;
 
 @Service
 @Transactional
@@ -48,6 +51,12 @@ public class ReportCheckService {
 
     @Autowired
     private HolidayDAO holidayDAO;
+
+    @Autowired
+    private IllnessService illnessService;
+
+    @Autowired
+    private VacationService vacationService;
 
     @Autowired
     private RegionDAO regionDAO;
@@ -148,7 +157,10 @@ public class ReportCheckService {
                         //если день после устройства на работу включительно
                         if ( ! calendar.getCalDate().before( emp.getStartDate() ) ) {
                             //если сотрудник не списал рабочее время за этот день
-                            if (timeSheetService.findForDateAndEmployee(day, emp.getId()) == null) {
+                            if (timeSheetService.findForDateAndEmployee(day, emp.getId()) == null &&
+                                !vacationService.isDayVacation(emp, stringToDate(day, DATE_PATTERN)) && // не был в отпуске
+                                !illnessService.isDayIllness(emp, stringToDate(day, DATE_PATTERN)))     // и не болел
+                            {
                                 reportsNotSendNumber++;
                                 logger.info("Passed day added");
                                 passedDays.add(day);

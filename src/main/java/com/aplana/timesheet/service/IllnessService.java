@@ -6,6 +6,7 @@ import com.aplana.timesheet.dao.entity.Illness;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -37,4 +38,9 @@ public class IllnessService {
     public Illness find(Integer reportId) {
         return illnessDAO.find(reportId);
     }
+
+    public  Boolean isDayIllness(Employee employee, Date date){
+        return illnessDAO.isDayIllness(employee, date);
+    }
+
 }
