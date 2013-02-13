@@ -5,11 +5,11 @@ package com.aplana.timesheet.enums;
  * @version 1.0
  */
 public enum OvertimeCausesEnum implements TSEnum {
-    A_LOT_OF_WORK(110, "У меня большой объем задач, не успеваю справляться в рабочее время"),
-    OWN_INITIATIVE(111, "Моя собственная инициатива"),
-    MANAGER_REQUEST(112, "Просьба руководителя"),
-    WORKING_OFF(113, "Отрабатываю время за предыдущие (последующие) дни"),
-    OTHER(114, "Другое");
+    A_LOT_OF_WORK(106, "У меня большой объем задач, не успеваю справляться в рабочее время"),
+    OWN_INITIATIVE(107, "Моя собственная инициатива"),
+    MANAGER_REQUEST(108, "Просьба руководителя"),
+    WORKING_OFF(109, "Отрабатываю время за предыдущие (последующие) дни"),
+    OTHER(110, "Другое");
 
     private int id;
 

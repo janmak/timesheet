@@ -6,13 +6,7 @@ import com.aplana.timesheet.dao.entity.Manager;
 import com.aplana.timesheet.dao.entity.Region;
 import com.aplana.timesheet.form.AssignmentLeadersForm;
 import com.aplana.timesheet.form.AssignmentLeadersTableRowForm;
-import com.aplana.timesheet.service.DivisionService;
-import com.aplana.timesheet.service.EmployeeService;
-import com.aplana.timesheet.service.ManagerService;
-import com.aplana.timesheet.service.RegionService;
-import com.aplana.timesheet.service.SecurityService;
-import com.aplana.timesheet.util.EmployeeHelper;
-import org.eclipse.jdt.internal.compiler.ast.AND_AND_Expression;
+import com.aplana.timesheet.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -58,7 +52,7 @@ public class AssignmentLeadersController {
     ) {
         ModelAndView mav = new ModelAndView("assignmentLeaders");
         alForm.setTableRows(getFilledTableRows(filterDivisionId));
-        mav.addObject("divisionList", divisionService.getDivisions() );
+        mav.addObject("divisionList", divisionService.getDivisions());
         mav.addObject("currentUserDivisionId", filterDivisionId);
         if (editable.equals("edit")){
             mav.addObject("editable", true);
