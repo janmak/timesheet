@@ -1,7 +1,6 @@
 package com.aplana.timesheet.controller;
 
 import com.aplana.timesheet.service.EmployeeService;
-import com.aplana.timesheet.service.MailSenders.Mail;
 import com.aplana.timesheet.service.SecurityService;
 import com.aplana.timesheet.service.SendMailService;
 import com.aplana.timesheet.util.TimeSheetUser;

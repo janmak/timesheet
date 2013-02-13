@@ -297,7 +297,7 @@
         </button>
     </div>
 </div>
-<form:form method="post"  modelAttribute="timeSheetForm" cssClass="noborder">
+<form:form method="post" commandName="timeSheetForm" cssClass="noborder">
 
     <%-- Костыль для диалога --%>
     <form:textarea path="overtimeCauseComment" id="overtimeCauseComment_hidden" style="display: none;" />

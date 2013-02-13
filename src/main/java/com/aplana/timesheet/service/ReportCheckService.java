@@ -17,10 +17,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
-import static com.aplana.timesheet.util.DateTimeUtil.*;
+import static com.aplana.timesheet.util.DateTimeUtil.DATE_PATTERN;
+import static com.aplana.timesheet.util.DateTimeUtil.stringToDate;
 
 @Service
 @Transactional

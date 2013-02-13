@@ -12,6 +12,18 @@ function al() {
 }
 
 /* Добавляет новую строку в табличную часть отчёта. */
+function fillWorkplaceSelect(workplaceSelect) {
+    for (var i = 0; i < workplaceList.length; i++) {
+        var workplaceOption = dojo.doc.createElement("option");
+        dojo.attr(workplaceOption, {
+            value: workplaceList[i].id
+        });
+        workplaceOption.title = workplaceList[i].value;
+
+        workplaceOption.innerHTML = workplaceList[i].value;
+        workplaceSelect.appendChild(workplaceOption);
+    }
+}
 function addNewRow() {
     var tsTable = dojo.byId("time_sheet_table");
     var tsRows = dojo.query(".time_sheet_row");
@@ -84,16 +96,7 @@ function addNewRow() {
     });
     dojo.addClass(workplaceSelect, "workplace");
     insertEmptyOption(workplaceSelect);
-    for (var i = 0; i < workplaceList.length; i++) {
-        var workplaceOption = dojo.doc.createElement("option");
-        dojo.attr(workplaceOption, {
-            value:workplaceList[i].id
-        });
-        workplaceOption.title = workplaceList[i].value;
-
-        workplaceOption.innerHTML = workplaceList[i].value;
-        workplaceSelect.appendChild(workplaceOption);
-    }
+    fillWorkplaceSelect(workplaceSelect);
     workplaceCell.appendChild(workplaceSelect);
     // Ячейка с типами активности
     var actTypeCell = newTsRow.insertCell(3);
@@ -771,9 +774,14 @@ function reloadRowsState() {
         var projectSelect = dojo.byId("project_id_" + i);
 
         var workplaceSelect = dojo.byId("workplace_id_" + i);
+
+        if (workplaceSelect.options.length < 2) {
+            fillWorkplaceSelect(workplaceSelect);
+        }
+
         for (var l = 0; l < selectedWorkplace.length; l++) {
             if (selectedWorkplace[l].row == i) {
-                dojo.attr(projectSelect, { value:selectedProjects[l].project });
+                dojo.attr(workplaceSelect, { value:selectedWorkplace[l].workplace });
             }
         }
         workplaceChange(workplaceSelect);

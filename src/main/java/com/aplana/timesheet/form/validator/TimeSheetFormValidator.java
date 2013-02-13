@@ -412,10 +412,10 @@ public class TimeSheetFormValidator extends AbstractValidator {
                     errors.rejectValue("overtimeCause", "error.tsform.overtimecause.notchoosed", "Не указана причина " + concreteName);
                 }
                 if (isOvertime) {
-                    UnfinishedDayCausesEnum cause = EnumsUtils.tryFindById(tsForm.getOvertimeCause(), UnfinishedDayCausesEnum.class);
+                    OvertimeCausesEnum cause = EnumsUtils.tryFindById(tsForm.getOvertimeCause(), OvertimeCausesEnum.class);
                     checkCause(cause, tsForm.getOvertimeCauseComment(), concreteName, errors);
                 } else {
-                    OvertimeCausesEnum cause = EnumsUtils.tryFindById(tsForm.getOvertimeCause(), OvertimeCausesEnum.class);
+                    UnfinishedDayCausesEnum cause = EnumsUtils.tryFindById(tsForm.getOvertimeCause(), UnfinishedDayCausesEnum.class);
                     checkCause(cause, tsForm.getOvertimeCauseComment(), concreteName, errors);
                 }
             }
@@ -436,8 +436,8 @@ public class TimeSheetFormValidator extends AbstractValidator {
                 && (StringUtils.isBlank(overtimeCauseComment)
                     || !overtimeCauseComment.matches(inStringMoreThanTwoWordsRegex))
         ){
-            errors.rejectValue("getOvertimeCauseComment", "error.tsform.overtimecause.wrongcommentformat",
-                    "Не правильна указана причина "+ concreteName + "(должно быть больше 2 слов)");
+            errors.rejectValue("overtimeCauseComment", "error.tsform.overtimecause.wrongcommentformat",
+                    "Не правильна указана причина "+ concreteName + "(должно быть не менее 2 слов)");
         }
     }
 
