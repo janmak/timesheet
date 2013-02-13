@@ -221,6 +221,7 @@ div.menu_holder ul a:hover, div.menu_holder span a:hover {
     position: absolute;
     display: block;
     word-break: break-all;
+    z-index: 9999;
 }
 
 #tttop {

@@ -1134,9 +1134,9 @@ function fillAvailableActivityCategoryList(rowIndex) {
 
 function overtimeCauseChange(obj){
     var select = obj.target === null || obj.target === undefined ? obj : obj.target;
-    var selectId = dojo.attr(select, "value");
+    var selectId = dijit.byId(select.id).get('value');
     //Если выбрано "Другое", то надо ввести комментарий
-    dojo.byId("overtimeCauseComment").disabled = !(selectId == 105 || selectId == 110);
+    dijit.byId("overtimeCauseComment").set('disabled', !(selectId == 105 || selectId == 110));
 }
 
 function checkDurationThenSendForm(){
@@ -1162,24 +1162,26 @@ function checkDurationThenSendForm(){
         && (vacation.checked != true && illness.checked != true)
         && !oob
     ) {
-        var select_box = dojo.byId("overtimeCause");
+        var comment = dijit.byId("overtimeCauseComment");
 
-        select_box.options.length=0;
+        comment.on("mouseover", function() {
+            tooltip.show(this.tooltip);
+        });
 
-        insertEmptyOption(select_box)
+        comment.on("mouseout", function() {
+            tooltip.hide();
+        });
+
+        var select_box = dijit.byId("overtimeCause");
+
+        select_box.removeOption(select_box.getOptions());
+        select_box.addOption({ value: 0, label: "<div style='visibility: hidden;'>some invisible text, don't remove me!</div>" });
 
         var evald_json = totalDuration < 8 ? unfinishedDayCauseList : overtimeCauseList;
 
         for (var key in evald_json) {
             var row = evald_json[key];
-
-            var option = dojo.doc.createElement("option");
-            dojo.attr(option, {
-                value: row.id
-            });
-            option.innerHTML = row.value;
-            select_box.appendChild(option);
-
+            select_box.addOption({ value: row.id, label: row.value });
         }
 
         var dialog = dijit.byId("dialogOne");
@@ -1192,8 +1194,8 @@ function checkDurationThenSendForm(){
 
 
 function submitWithOvertimeCauseSet(){
-    dojo.byId("overtimeCauseComment_hidden").value = dojo.byId("overtimeCauseComment").value;
-    dojo.byId("overtimeCause_hidden").value = dojo.byId("overtimeCause").value;
+    dojo.byId("overtimeCauseComment_hidden").value = dijit.byId("overtimeCauseComment").get('value');
+    dojo.byId("overtimeCause_hidden").value = dijit.byId("overtimeCause").get('value');
     dijit.byId('dialogOne').hide();
     submitform('send');
 }
