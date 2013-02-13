@@ -6,7 +6,6 @@ import com.aplana.timesheet.dao.entity.Illness;
 import com.aplana.timesheet.dao.entity.Project;
 import com.aplana.timesheet.enums.BusinessTripTypesEnum;
 import com.aplana.timesheet.enums.QuickReportTypesEnum;
-import com.aplana.timesheet.exception.TSRuntimeException;
 import com.aplana.timesheet.exception.controller.BusinessTripsAndIllnessAddException;
 import com.aplana.timesheet.form.BusinessTripsAndIllnessAddForm;
 import com.aplana.timesheet.form.validator.BusinessTripsAndIllnessAddFormValidator;
@@ -28,7 +27,6 @@ import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.zip.DataFormatException;
 
 import static com.aplana.timesheet.enums.QuickReportTypesEnum.BUSINESS_TRIP;
 import static com.aplana.timesheet.enums.QuickReportTypesEnum.ILLNESS;
@@ -73,17 +71,22 @@ public class BusinessTripsAndIllnessAddController extends AbstractController{
         }
     }
 
+    /**
+     * возвращает форму для создания больничного/командировки
+     */
     @RequestMapping(value = "/businesstripsandillnessadd/{employeeId}")
     public ModelAndView showCreateBusinessTripOrIllnessForm (
             @PathVariable("employeeId") Integer employeeId,
             @ModelAttribute("businesstripsandillnessadd") BusinessTripsAndIllnessAddForm tsForm,
             BindingResult result){
-        if (true) throw new TSRuntimeException(new DataFormatException());
         Employee employee = employeeService.find(employeeId);
 
         return getModelAndViewCreation(employee);
     }
 
+    /**
+     * пытаемя добавить новый больничный/командировку
+     */
     @RequestMapping(value = "/businesstripsandillnessadd/tryAdd/{employeeId}")
     public ModelAndView validateAndAddBusinessTripOrIllness(
             @ModelAttribute("businesstripsandillnessadd") BusinessTripsAndIllnessAddForm tsForm,
@@ -106,6 +109,9 @@ public class BusinessTripsAndIllnessAddController extends AbstractController{
         }
     }
 
+    /**
+     * сохраняем измененный больничный/командировку
+     */
     @RequestMapping(value = "/businesstripsandillnessadd/trySave/{reportId}")
     public ModelAndView validateAndSaveBusinessTripOrIllness(
             @ModelAttribute("businesstripsandillnessadd") BusinessTripsAndIllnessAddForm tsForm,
@@ -123,6 +129,7 @@ public class BusinessTripsAndIllnessAddController extends AbstractController{
             default: throw new BusinessTripsAndIllnessAddException("Редактирование данных для такого типа отчета пока не реализовано!");
         }
     }
+
     @RequestMapping(value = "/businesstripsandillnessadd/resultsuccess")
     public ModelAndView businessTripOrIllnessAddedResultSuccess (){
         ModelAndView modelAndView = new ModelAndView("businesstripsandillnessaddresult");
