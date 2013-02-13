@@ -27,7 +27,11 @@
 
     function filterChange(obj){
         var divisionId = obj.value;
-        mainForm.action = "<%=request.getContextPath()%>/admin/update/assignmentleaders/" + divisionId;
+        if (${editable}) {
+            mainForm.action = "<%=request.getContextPath()%>/admin/update/assignmentleaders/" + divisionId + "/edit";
+        }else{
+            mainForm.action = "<%=request.getContextPath()%>/admin/update/assignmentleaders/" + divisionId + "/view";
+        }
         mainForm.submit();
     }
 
@@ -39,13 +43,13 @@
 
     function edit(obj){
         var divisionId = obj.value;
-        mainForm.action = "<%=request.getContextPath()%>/admin/update/assignmentleaders/" + divisionId +"/true";
+        mainForm.action = "<%=request.getContextPath()%>/admin/update/assignmentleaders/" + divisionId +"/edit";
         mainForm.submit();
     }
 
     function cancel(obj){
         var divisionId = obj.value;
-        mainForm.action = "<%=request.getContextPath()%>/admin/update/assignmentleaders/" + divisionId +"/false";
+        mainForm.action = "<%=request.getContextPath()%>/admin/update/assignmentleaders/" + divisionId +"/view";
         mainForm.submit();
     }
 
@@ -76,17 +80,17 @@
 
             <c:if test="${fn:length(assignmentLeadersForm.tableRows) > 0}">
                 <c:forEach items="${assignmentLeadersForm.tableRows}" varStatus="row">
-                    <tr class="assignment_row" id="assignment_row_${row.index}">
+                    <tr class="assignment_row" id="assignment_row_${row.index}" style="height: 20px">
                         <td class="text_center_align row_number"><c:out value="${row.index + 1}"/></td>
                         <!-- Подразделение -->
-                        <td class="top_align" valign="middle">
+                        <td>
                             <form:label path="tableRows[${row.index}].division">
                                 <c:out value="${assignmentLeadersForm.tableRows[row.index].division}"/>
                             </form:label>
                             <form:hidden id="division_id_${row.index}" path="tableRows[${row.index}].divisionId"/>
                         </td>
                         <!-- Регион -->
-                        <td class="top_align" valign="middle">
+                        <td>
                             <form:label path="tableRows[${row.index}].region">
                                 <c:out value="${assignmentLeadersForm.tableRows[row.index].region}"/>
                             </form:label>
@@ -94,7 +98,7 @@
                         </td>
                         <!-- Руководитель -->
                         <c:if test="${editable == true}">
-                            <td class="top_align">
+                            <td>
                                 <form:select cssStyle="border: none" path="tableRows[${row.index}].leaderId" id="leader_id_${row.index}"
                                              onmouseover="tooltip.show(getTitle(this));" onmouseout="tooltip.hide();">
                                     <form:option label="" value="0"/>
@@ -104,11 +108,11 @@
                             </td>
                         </c:if>
                         <c:if test="${editable == false}">
-                            <td class="top_align" valign="middle">
-                                <form:label path="tableRows[${row.index}].leaderId">
+                            <td>
+                                <form:label path="tableRows[${row.index}].leaderId" cssStyle="border: none">
                                     <c:out value="${assignmentLeadersForm.tableRows[row.index].leader}"/>
                                 </form:label>
-                            <td>
+                            </td>
                         </c:if>
                     </tr>
                 </c:forEach>
