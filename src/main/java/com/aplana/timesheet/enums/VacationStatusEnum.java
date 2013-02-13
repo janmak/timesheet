@@ -1,5 +1,8 @@
 package com.aplana.timesheet.enums;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * @author rshamsutdinov
  * @version 1.0
@@ -27,6 +30,13 @@ public enum VacationStatusEnum implements TSEnum {
     @Override
     public String getName() {
         return name;
+    }
+
+    /**
+     * возвращает список статусов для неутвержденных отпусков
+     */
+    public static List<Integer> getNotApprovedStatuses() {
+        return Arrays.asList(APPROVED_BY_PM.getId(), APPROVEMENT_WITH_LM.getId(), APPROVEMENT_WITH_PM.getId());
     }
 
 }

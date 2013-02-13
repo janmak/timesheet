@@ -1,10 +1,9 @@
 package com.aplana.timesheet.service;
 
 import com.aplana.timesheet.dao.ProjectDAO;
-import com.aplana.timesheet.dao.entity.Division;
-import com.aplana.timesheet.dao.entity.Employee;
-import com.aplana.timesheet.dao.entity.Project;
-import com.aplana.timesheet.dao.entity.ProjectParticipant;
+import com.aplana.timesheet.dao.entity.*;
+import com.aplana.timesheet.properties.TSPropertyProvider;
+import org.apache.commons.lang.time.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,10 +17,20 @@ import java.util.Set;
 
 @Service
 public class ProjectService {
+
+    private static final Integer BEFORE_VACATION_DAYS_DEFAULT = 14;
+    private static final String WRONG_BEFORE_VACATION_DAYS_ERROR = "В настройках указано неверное количество дней до отпуска, по которым будем формировать рассылку!";
+
     private static final Logger logger = LoggerFactory.getLogger(ProjectService.class);
 
-	@Autowired
+    @Autowired
 	private ProjectDAO projectDAO;
+    @Autowired
+    private CalendarService calendarService;
+    @Autowired
+    private TSPropertyProvider propertyProvider;
+
+
 
 	/**
 	 * Возвращает активные проекты без разделения по подразделениям.
@@ -218,10 +227,57 @@ public class ProjectService {
         return projectDAO.getEmployeeProjectPlanByDates(employee, dates);
     }
 
-    public List<Project> getEmployeeProjectsByDates(Date beginDate, Date endDate, Employee employee) {
-        return projectDAO.getEmployeeProjectsByDates(beginDate, endDate, employee);
+    public List<Project> getEmployeeProjectsFromTimeSheetByDates(Date beginDate, Date endDate, Employee employee) {
+        return projectDAO.getEmployeeProjectsFromTimeSheetByDates(beginDate, endDate, employee);
     }
+
+    /**
+     * получаем список проектов, менеджерам которых разосланы письма с просьбой согласовать данный отпуск
+     */
+    public List<Project> getProjectsAssignedToVacation(Vacation vacation) {
+        return projectDAO.getProjectsAssignedToVacation(vacation);
+    }
+
     public List<Project> getProjectsByStatesForDate(List<Integer> projectStates, Date date) {
         return projectDAO.getProjectsByStatesForDate(projectStates, date);
+    }
+
+    /**
+     * получаем проекты, участие в которых запланировано у сотрудника, по датам
+     */
+    public List<Project> getEmployeeProjectPlanByDates(Date beginDate, Date endDate, Employee employee) {
+        //некоторых месяцев может не быть - поэтому получаем список доступных месяцев из БД
+        HashMap<Integer, Set<Integer>> dates = calendarService.getMonthsAndYearsNumbers(beginDate, endDate);
+
+        return getEmployeeProjectPlanByDates(employee, dates);
+    }
+
+    /**
+     * получаем список проектов, с руководителями которых сотрудник будет согласовывать отпуск
+     */
+    public List<Project> getProjectsForVacation (Vacation vacation) {
+        List<Project> employeeProjects = getEmployeeProjectPlanByDates(vacation.getBeginDate(), vacation.getEndDate(), vacation.getEmployee());
+        if (employeeProjects.isEmpty()) {
+            Integer beforeVacationDays = getBeforeVacationDays();
+            Date periodBeginDate = DateUtils.addDays(vacation.getCreationDate(), 0 - beforeVacationDays);
+            employeeProjects = getEmployeeProjectsFromTimeSheetByDates(periodBeginDate, vacation.getCreationDate(), vacation.getEmployee());
+        }
+
+        return employeeProjects;
+    }
+
+    /**
+     * получаем количество дней, которое вычтем из даты создания заявления на отпуск и будем искать для утверждения
+     * заявления на отпуск менеджеров проектов, по которым сотрудник списывал занятость в этом промежутке времени
+     */
+    private Integer getBeforeVacationDays() {
+        try {
+            return propertyProvider.getBeforeVacationDays();
+        } catch (NullPointerException ex){
+            return BEFORE_VACATION_DAYS_DEFAULT;
+        } catch (NumberFormatException ex) {
+            logger.error(WRONG_BEFORE_VACATION_DAYS_ERROR);
+            return BEFORE_VACATION_DAYS_DEFAULT;
+        }
     }
 }

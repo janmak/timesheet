@@ -238,6 +238,7 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
                 return StringUtils.EMPTY;
             }
         } catch (Exception e) {
+            logger.error(e.getLocalizedMessage(), e);
             return e.getLocalizedMessage();
         }
 

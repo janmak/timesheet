@@ -131,6 +131,25 @@ public class TSPropertyProvider {
     public Integer getBeforeVacationDays() {
         return Integer.parseInt(getProperties().getProperty("vacations.before.vacation.days"));
     }
+    public Integer getVacationCreateThreshold() {
+        return Integer.parseInt(getProperties().getProperty("vacations.vacation.create.threshold"));
+    }
+
+    public Integer getVacationProjectManagerOverrideThreshold() {
+        return Integer.parseInt(getProperties().getProperty("vacations.vacation.project.manager.override.threshold"));
+    }
+
+    public Integer getVacationUrgentProjectManagerOverrideThreshold() {
+        return Integer.parseInt(getProperties().getProperty("vacations.vacation.urgent.project.manager.override.threshold"));
+    }
+
+    public Integer getVacationLineManagerOverrideThreshold() {
+        return Integer.parseInt(getProperties().getProperty("vacations.vacation.line.manager.override.threshold"));
+    }
+
+    public Integer getVacationUrgentLineManagerOverrideThreshold() {
+        return Integer.parseInt(getProperties().getProperty("vacations.vacation.urgent.manager.override.threshold"));
+    }
 
     /**
      * Единый метод для загрузки почтовых настроек

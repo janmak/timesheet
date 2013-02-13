@@ -9,6 +9,7 @@ import com.aplana.timesheet.service.BusinessTripService;
 import com.aplana.timesheet.service.CalendarService;
 import com.aplana.timesheet.service.EmployeeService;
 import com.aplana.timesheet.service.IllnessService;
+import com.aplana.timesheet.util.DateTimeUtil;
 import org.apache.commons.lang.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -96,7 +97,7 @@ public abstract class AbstractQuickReportGenerator <T extends QuickReport, K ext
     }
 
     private T addCommonPartOfPeriodicleToMounthStatistics(T report, K periodical) {
-        Long calendarDaysCount = calendarService.getAllDaysCount(periodical.getBeginDate(), periodical.getEndDate());
+        Long calendarDaysCount = DateTimeUtil.getAllDaysCount(periodical.getBeginDate(), periodical.getEndDate());
         Integer holidaysCount = calendarService.getHolidaysCounForRegion(periodical.getBeginDate(), periodical.getEndDate(), periodical.getEmployee().getRegion());
         Long workingDays = calendarDaysCount - holidaysCount;
         periodical.setWorkingDays(workingDays);

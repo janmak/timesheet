@@ -3,13 +3,13 @@ package com.aplana.timesheet.service;
 import com.aplana.timesheet.dao.CalendarDAO;
 import com.aplana.timesheet.dao.entity.Calendar;
 import com.aplana.timesheet.dao.entity.Region;
+import com.aplana.timesheet.exception.TSRuntimeException;
 import com.aplana.timesheet.exception.service.CalendarServiceException;
 import com.aplana.timesheet.util.DateNumbers;
 import com.aplana.timesheet.util.DateTimeUtil;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
-import org.apache.commons.lang.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -113,7 +113,7 @@ public class CalendarService
 	 * @return
 	 */
     public boolean monthValid( Integer year, Integer month ) {
-        return calendarDAO.monthValid( year, month );
+        return calendarDAO.monthValid(year, month);
     }
 
     public Calendar getLastWorkDay(Calendar day, Region region) {
@@ -132,23 +132,11 @@ public class CalendarService
     }
 
     /**
-     * Возвращает количетсов дней за период (даты должны быть из одного года. иначе может не работать, но
-     * для выполнения поставленной задачи такая проверка не требуется)
-     */
-    public Long getAllDaysCount(Date beginDate, Date endDate){
-        //при подсчете к каждой дате добавляем по одному дню, потому что ищется промужуток "до даты" - сама дата в него не входит
-        Long daysToLastDate = DateUtils.getFragmentInDays(DateUtils.addDays(endDate, 1), java.util.Calendar.YEAR);
-        Long daysToFirstDate = DateUtils.getFragmentInDays(DateUtils.addDays(beginDate, 1), java.util.Calendar.YEAR);
-
-        return daysToLastDate - daysToFirstDate + 1;
-    }
-
-    /**
      * получаем мапу для периода
      * ключ - год в периоде
      * значения - месяцы, соответствующие году (ключу), попадающие в заданный период
      */
-    public HashMap<Integer, Set<Integer>> getMonthsAndYearsNumbers(Date beginDate, Date endDate) throws CalendarServiceException {
+    public HashMap<Integer, Set<Integer>> getMonthsAndYearsNumbers(Date beginDate, Date endDate) {
         final DateNumbers startDateNumbers = new DateNumbers(beginDate);
         final DateNumbers endDateNumbers = new DateNumbers(endDate);
         HashMap<Integer, Set<Integer>> result = new HashMap<Integer, Set<Integer>>();
@@ -156,7 +144,7 @@ public class CalendarService
         for (int year = startDateNumbers.getYear(); year<= endDateNumbers.getYear(); year++) {
             Set<Integer> monthsInYear = Sets.newHashSet(calendarDAO.getMonth(year));
             if (monthsInYear.isEmpty()) {
-                throw new CalendarServiceException("Попытка получения месяцев из года, который еще не занесен в БД!");
+                throw new TSRuntimeException(new CalendarServiceException("Попытка получения месяцев из года, который еще не занесен в БД!"));
             }
 
             if (startDateNumbers.getYear() == year) {

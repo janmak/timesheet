@@ -387,4 +387,16 @@ public class DateTimeUtil {
 
         return calendar.getTime();
     }
+
+    /**
+     * Возвращает количетсов дней за период (даты должны быть из одного года. иначе может не работать, но
+     * для выполнения поставленной задачи такая проверка не требуется)
+     */
+    public static Long getAllDaysCount(Date beginDate, Date endDate){                        //todo переделать, чтобы работало на несколько лет тоже
+        //при подсчете к каждой дате добавляем по одному дню, потому что ищется промужуток "до даты" - сама дата в него не входит
+        Long daysToLastDate = DateUtils.getFragmentInDays(DateUtils.addDays(endDate, 1), Calendar.YEAR);
+        Long daysToFirstDate = DateUtils.getFragmentInDays(DateUtils.addDays(beginDate, 1), Calendar.YEAR);
+
+        return daysToLastDate - daysToFirstDate + 1;
+    }
 }

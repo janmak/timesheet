@@ -1,23 +1,10 @@
 package com.aplana.timesheet.service.MailSenders;
 
 import com.aplana.timesheet.dao.entity.VacationApproval;
-import com.aplana.timesheet.form.FeedbackForm;
 import com.aplana.timesheet.properties.TSPropertyProvider;
 import com.aplana.timesheet.service.SendMailService;
 import org.apache.commons.lang.time.DateFormatUtils;
-import org.apache.commons.lang3.StringEscapeUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.multipart.MultipartFile;
 
-import javax.activation.DataHandler;
-import javax.annotation.PostConstruct;
-import javax.mail.Multipart;
-import javax.mail.internet.MimeBodyPart;
-import javax.mail.internet.MimeMessage;
-import javax.mail.internet.MimeMultipart;
-import javax.mail.util.ByteArrayDataSource;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -38,17 +25,17 @@ public class VacationApprovalAcceptanceSender extends MailSender<VacationApprova
     }
 
     @Override
-    protected List<Mail> getMailList(VacationApproval params) {
+    protected List<Mail> getMailList(VacationApproval vacationApproval) {
         Mail mail = new Mail();
 
-        Integer vacationId = params.getVacation().getId();
-        String matchingFIO = params.getManager().getName();
-        String vacationType = params.getVacation().getType().getValue();
-        String employeeFIO = params.getVacation().getEmployee().getName();
-        String region = params.getVacation().getEmployee().getRegion().getName();
-        String dateBegin = DateFormatUtils.format(params.getVacation().getBeginDate(), DATE_FORMAT);
-        String dateEnd = DateFormatUtils.format(params.getVacation().getEndDate(), DATE_FORMAT);
-        Boolean result = params.getResult();
+        Integer vacationId = vacationApproval.getVacation().getId();
+        String matchingFIO = vacationApproval.getManager().getName();
+        String vacationType = vacationApproval.getVacation().getType().getValue();
+        String employeeFIO = vacationApproval.getVacation().getEmployee().getName();
+        String region = vacationApproval.getVacation().getEmployee().getRegion().getName();
+        String dateBegin = DateFormatUtils.format(vacationApproval.getVacation().getBeginDate(), DATE_FORMAT);
+        String dateEnd = DateFormatUtils.format(vacationApproval.getVacation().getEndDate(), DATE_FORMAT);
+        Boolean result = vacationApproval.getResult();
 
         String subject = result ? String.format(MAIL_ACCEPT_SUBJECT, vacationType, employeeFIO, dateBegin, dateEnd) :
                 String.format(MAIL_REFUSE_SUBJECT, vacationType, employeeFIO, dateBegin, dateEnd);
@@ -58,7 +45,7 @@ public class VacationApprovalAcceptanceSender extends MailSender<VacationApprova
         mail.setFromEmail(propertyProvider.getMailFromAddress());
         mail.setSubject(propertyProvider.getVacationMailMarker() + " " + subject); // APLANATS-573
         mail.setPreconstructedMessageBody(text);
-        mail.setToEmails( Arrays.asList(params.getVacation().getEmployee().getEmail()) );
+        mail.setToEmails( Arrays.asList(vacationApproval.getVacation().getEmployee().getEmail()) );
         mail.setCcEmails(sendMailService.getVacationApprovalEmailList(vacationId));
 
         return Arrays.asList(mail);

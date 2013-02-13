@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author rshamsutdinov
@@ -24,5 +25,9 @@ public class VacationService {
 
     public Boolean isDayVacation(Employee employee, Date date){
         return vacationDAO.isDayVacation(employee, date);
+    }
+
+    public List<Vacation> getAllNotApprovedVacations() {
+        return vacationDAO.getAllNotApprovedVacations();
     }
 }

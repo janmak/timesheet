@@ -6,6 +6,7 @@ import com.aplana.timesheet.dao.entity.Illness;
 import com.aplana.timesheet.dao.entity.Project;
 import com.aplana.timesheet.enums.BusinessTripTypesEnum;
 import com.aplana.timesheet.enums.QuickReportTypesEnum;
+import com.aplana.timesheet.exception.TSRuntimeException;
 import com.aplana.timesheet.exception.controller.BusinessTripsAndIllnessAddException;
 import com.aplana.timesheet.form.BusinessTripsAndIllnessAddForm;
 import com.aplana.timesheet.form.validator.BusinessTripsAndIllnessAddFormValidator;
@@ -27,6 +28,7 @@ import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.zip.DataFormatException;
 
 import static com.aplana.timesheet.enums.QuickReportTypesEnum.BUSINESS_TRIP;
 import static com.aplana.timesheet.enums.QuickReportTypesEnum.ILLNESS;
@@ -76,6 +78,7 @@ public class BusinessTripsAndIllnessAddController extends AbstractController{
             @PathVariable("employeeId") Integer employeeId,
             @ModelAttribute("businesstripsandillnessadd") BusinessTripsAndIllnessAddForm tsForm,
             BindingResult result){
+        if (true) throw new TSRuntimeException(new DataFormatException());
         Employee employee = employeeService.find(employeeId);
 
         return getModelAndViewCreation(employee);

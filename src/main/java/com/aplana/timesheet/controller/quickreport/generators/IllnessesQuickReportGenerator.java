@@ -4,6 +4,7 @@ import com.aplana.timesheet.constants.TimeSheetConstants;
 import com.aplana.timesheet.controller.quickreport.IllnessesQuickReport;
 import com.aplana.timesheet.dao.entity.Employee;
 import com.aplana.timesheet.dao.entity.Illness;
+import com.aplana.timesheet.util.DateTimeUtil;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
@@ -54,7 +55,7 @@ public class IllnessesQuickReportGenerator extends AbstractQuickReportGenerator<
     }
 
     private IllnessesQuickReport addIllnessToYearStatistics(IllnessesQuickReport report, Illness illness) {
-        Long calendarDaysCount = calendarService.getAllDaysCount(illness.getBeginDate(), illness.getEndDate());
+        Long calendarDaysCount = DateTimeUtil.getAllDaysCount(illness.getBeginDate(), illness.getEndDate());
         Integer holidaysCount = calendarService.getHolidaysCounForRegion(illness.getBeginDate(), illness.getEndDate(), illness.getEmployee().getRegion());
         Long workingDays = calendarDaysCount - holidaysCount;
         double workDaysOnIllnessWorked =

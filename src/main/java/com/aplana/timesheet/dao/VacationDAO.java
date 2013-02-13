@@ -25,8 +25,6 @@ public class VacationDAO {
 
     /**
      * Список заявлений на отпуск для конкретного сотрудника
-     * @param employeeId
-     * @return
      */
     public List<Vacation> findVacations(Integer employeeId, Integer year) {
         final Query query =
@@ -79,5 +77,9 @@ public class VacationDAO {
             return false;
         }
         return true;
+    }
+    public List<Vacation> getAllNotApprovedVacations() {
+        return entityManager.createQuery("from Vacation as v where v.status.id not in :notApprovedStatuses")
+                .setParameter("notApprovedStatuses", VacationStatusEnum.getNotApprovedStatuses()).getResultList();
     }
 }
