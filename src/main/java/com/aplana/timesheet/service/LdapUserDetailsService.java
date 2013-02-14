@@ -68,6 +68,16 @@ public class LdapUserDetailsService implements UserDetailsContextMapper {
                     list.add(new SimpleGrantedAuthority(RoleConstants.ROLE_PLAN_EDIT));
                     break;
                 }
+
+                case VIEW_ILLNESS_BUSINESS_TRIP: {
+                    list.add(new SimpleGrantedAuthority(RoleConstants.VIEW_ILLNESS_BUSINESS_TRIP));
+                    break;
+                }
+
+                case CHANGE_ILLNESS_BUSINESS_TRIP: {
+                    list.add(new SimpleGrantedAuthority(RoleConstants.CHANGE_ILLNESS_BUSINESS_TRIP));
+                    list.add(new SimpleGrantedAuthority(RoleConstants.VIEW_ILLNESS_BUSINESS_TRIP));
+                }
             }
         }
     }
