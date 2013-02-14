@@ -144,8 +144,10 @@ public class BusinessTripsAndIllnessController extends AbstractController{
         List<Calendar> years = DateTimeUtil.getYearsList(calendarService);
         List<Division> divisionList = divisionService.getDivisions();
         PermissionsEnum recipientPermission = getRecipientPermission(employee);
+        if (recipientPermission == null) { //сотрудник запрашивает отчет другого сотрудника (не свой), но нет прав на просмотр чужих отчетов
+            employee = getTimeSheetUser();    //формируем отчет для него
+        }
         QuickReport report = getReport(printtype, employee, month, year);
-
         return  fillResponseModel(divisionId, year, month, printtype, employee, years, divisionList, report, recipientPermission);
     }
 
@@ -161,7 +163,6 @@ public class BusinessTripsAndIllnessController extends AbstractController{
         tsForm.setReportType(reportTypeId);
 
         return showBusinessTripsAndIllness(divisionId, employeeId, year, month, tsForm, result);
-//        return new ModelAndView(String.format("redirect:/businesstripsandillness/%s/%s/%s/%s", divisionId, employeeId, year, month));
     }
 
     /**
@@ -193,19 +194,29 @@ public class BusinessTripsAndIllnessController extends AbstractController{
      * наивысшим приоритетом.
      */
     private PermissionsEnum getRecipientPermission(Employee employee) throws BusinessTripsAndIllnessControllerException {
-        TimeSheetUser securityUser = securityService.getSecurityPrincipal();
-        if (securityUser == null) {
-            throw new BusinessTripsAndIllnessControllerException(ACCESS_ERROR_MESSAGE);
-        }
-        Employee reportRecipient = employeeService.find(securityUser.getEmployee().getId()); //из-за lazy loading приходится занова получать сотрудника для начала транзакции
+        Employee reportRecipient = getTimeSheetUser();
         Set<Permission> recipientPermissions = reportRecipient.getPermissions();
         if (recipientCanChangeReports(recipientPermissions)) {
             return CHANGE_ILLNESS_BUSINESS_TRIP;
         } else if (recipientRequiresOwnReports(employee, reportRecipient) || recipientCanViewAllReports(recipientPermissions)) {
             return VIEW_ILLNESS_BUSINESS_TRIP;
         } else {
-            throw new BusinessTripsAndIllnessControllerException(ACCESS_DENIED_ERROR_MESSAGE);
+            logger.error(ACCESS_DENIED_ERROR_MESSAGE, new BusinessTripsAndIllnessControllerException(ACCESS_DENIED_ERROR_MESSAGE));
+            return null;
         }
+    }
+
+    /**
+     * Получаем пользователя из спринга
+     */
+    private Employee getTimeSheetUser() throws BusinessTripsAndIllnessControllerException {
+        TimeSheetUser securityUser = securityService.getSecurityPrincipal();
+        if (securityUser == null) {
+            throw new BusinessTripsAndIllnessControllerException(ACCESS_ERROR_MESSAGE);
+        }
+        Employee employee = employeeService.find(securityUser.getEmployee().getId());  //из-за lazy loading приходится занова получать сотрудника для начала транзакции
+
+        return employee;
     }
 
     /**
