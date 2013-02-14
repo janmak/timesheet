@@ -144,8 +144,10 @@ public class BusinessTripsAndIllnessController extends AbstractController{
         List<Calendar> years = DateTimeUtil.getYearsList(calendarService);
         List<Division> divisionList = divisionService.getDivisions();
         PermissionsEnum recipientPermission = getRecipientPermission(employee);
+        if (recipientPermission == null) { //сотрудник запрашивает отчет другого сотрудника (не свой), но нет прав на просмотр чужих отчетов
+            employee = getTimeSheetUser();    //формируем отчет для него
+        }
         QuickReport report = getReport(printtype, employee, month, year);
-
         return  fillResponseModel(divisionId, year, month, printtype, employee, years, divisionList, report, recipientPermission);
     }
 
@@ -161,7 +163,6 @@ public class BusinessTripsAndIllnessController extends AbstractController{
         tsForm.setReportType(reportTypeId);
 
         return showBusinessTripsAndIllness(divisionId, employeeId, year, month, tsForm, result);
-//        return new ModelAndView(String.format("redirect:/businesstripsandillness/%s/%s/%s/%s", divisionId, employeeId, year, month));
     }
 
     /**
@@ -193,19 +194,29 @@ public class BusinessTripsAndIllnessController extends AbstractController{
      * наивысшим приоритетом.
      */
     private PermissionsEnum getRecipientPermission(Employee employee) throws BusinessTripsAndIllnessControllerException {
-        TimeSheetUser securityUser = securityService.getSecurityPrincipal();
-        if (securityUser == null) {
-            throw new BusinessTripsAndIllnessControllerException(ACCESS_ERROR_MESSAGE);
-        }
-        Employee reportRecipient = employeeService.find(securityUser.getEmployee().getId()); //из-за lazy loading приходится занова получать сотрудника для начала транзакции
+        Employee reportRecipient = getTimeSheetUser();
         Set<Permission> recipientPermissions = reportRecipient.getPermissions();
         if (recipientCanChangeReports(recipientPermissions)) {
             return CHANGE_ILLNESS_BUSINESS_TRIP;
         } else if (recipientRequiresOwnReports(employee, reportRecipient) || recipientCanViewAllReports(recipientPermissions)) {
             return VIEW_ILLNESS_BUSINESS_TRIP;
         } else {
-            throw new BusinessTripsAndIllnessControllerException(ACCESS_DENIED_ERROR_MESSAGE);
+            logger.error(ACCESS_DENIED_ERROR_MESSAGE, new BusinessTripsAndIllnessControllerException(ACCESS_DENIED_ERROR_MESSAGE));
+            return null;
         }
+    }
+
+    /**
+     * Получаем пользователя из спринга
+     */
+    private Employee getTimeSheetUser() throws BusinessTripsAndIllnessControllerException {
+        TimeSheetUser securityUser = securityService.getSecurityPrincipal();
+        if (securityUser == null) {
+            throw new BusinessTripsAndIllnessControllerException(ACCESS_ERROR_MESSAGE);
+        }
+        Employee employee = employeeService.find(securityUser.getEmployee().getId());  //из-за lazy loading приходится занова получать сотрудника для начала транзакции
+
+        return employee;
     }
 
     /**
@@ -328,21 +339,17 @@ public class BusinessTripsAndIllnessController extends AbstractController{
      * (1.04 для Москвы или 1.09 для регионов)
      */
     private DateNumbers getYearPeriodForEmployyesRegion(Employee employee) throws BusinessTripsAndIllnessControllerException {
-        DateNumbers dateNumbers = new DateNumbers();
-
         RegionsEnum regionEnum = EnumsUtils.getEnumById(employee.getRegion().getId(), RegionsEnum.class);
 
         switch (regionEnum) {
             case MOSCOW: {
                 try {
-                    dateNumbers.setDay(propertyProvider.getQuickreportMoskowBeginDay());
-                    dateNumbers.setMonth(propertyProvider.getQuickreportMoskowBeginMonth());
+                    return getMoskowYearBeginDates();
                 } catch (NumberFormatException ex) {
                     logger.error(INVALID_YEAR_BEGIN_DATE_ERROR_MESSAGE);
-                    dateNumbers.setMonth(DEFAULT_MOSCOW_YEAR_BEGIN_MONTH);
-                    dateNumbers.setDay(DEFAULT_MOSCOW_YEAR_BEGIN_DAY);
-                } finally {
-                    return dateNumbers;
+                    return getDefaultMoskowYearBeginDates();
+                } catch (NullPointerException ex) {
+                    return getDefaultMoskowYearBeginDates();
                 }
             }
             case OTHERS:
@@ -350,19 +357,62 @@ public class BusinessTripsAndIllnessController extends AbstractController{
             case NIJNIY_NOVGOROD:
             case PERM: {
                 try {
-                    dateNumbers.setDay(propertyProvider.getQuickreportRegionsBeginDay());
-                    dateNumbers.setMonth(propertyProvider.getQuickreportRegionsBeginMonth());
+                    return getRegionsYearBeginDates();
                 } catch (NumberFormatException ex) {
                     logger.error(INVALID_YEAR_BEGIN_DATE_ERROR_MESSAGE);
-                    dateNumbers.setMonth(DEFAULT_REGION_YEAR_BEGIN_MONTH);
-                    dateNumbers.setDay(DEFAULT_REGION_YEAR_BEGIN_DAY);
-                } finally {
-                    return dateNumbers;
+                    return getDefaultRegionsYearBeginDates();
+                } catch (NullPointerException ex) {
+                    return getDefaultMoskowYearBeginDates();
                 }
             }
             default:
                 throw new BusinessTripsAndIllnessControllerException(UNCNOWN_REGION_EXCEPTION_MESSAGE);
         }
+    }
+
+    /**
+     * возвращает даты начала ОТЧЕТНОГО года для Москвы
+     */
+    private DateNumbers getMoskowYearBeginDates() {
+        DateNumbers dateNumbers = new DateNumbers();
+        dateNumbers.setDay(propertyProvider.getQuickreportMoskowBeginDay());
+        dateNumbers.setMonth(propertyProvider.getQuickreportMoskowBeginMonth());
+
+        return dateNumbers;
+    }
+
+
+    /**
+     * возвращает даты начала ОТЧЕТНОГО года для регионов
+     */
+    private DateNumbers getRegionsYearBeginDates() {
+        DateNumbers dateNumbers = new DateNumbers();
+        dateNumbers.setDay(propertyProvider.getQuickreportRegionsBeginDay());
+        dateNumbers.setMonth(propertyProvider.getQuickreportRegionsBeginMonth());
+
+        return dateNumbers;
+    }
+
+    /**
+     * Возвращает дефолтные даты начала ОТЧЕТНОГО года для регионов
+     */
+    private DateNumbers getDefaultRegionsYearBeginDates() {
+        DateNumbers dateNumbers = new DateNumbers();
+        dateNumbers.setMonth(DEFAULT_REGION_YEAR_BEGIN_MONTH);
+        dateNumbers.setDay(DEFAULT_REGION_YEAR_BEGIN_DAY);
+
+        return dateNumbers;
+    }
+
+    /**
+     * возвращает дефолтные даты начала ОТЧЕТНОГО года для Москвы
+     */
+    private DateNumbers getDefaultMoskowYearBeginDates() {
+        DateNumbers dateNumbers = new DateNumbers();
+        dateNumbers.setMonth(DEFAULT_MOSCOW_YEAR_BEGIN_MONTH);
+        dateNumbers.setDay(DEFAULT_MOSCOW_YEAR_BEGIN_DAY);
+
+        return dateNumbers;
     }
 
     /**

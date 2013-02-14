@@ -15,16 +15,14 @@
         var illnessReportType = 6;
         var businessTripReportType = 7;
 
-//        права сотрудников
-        var viewIllnessBusinessTrip = 4;
-        var changeIllnessBusinessTrip = 5;
-
         dojo.ready(function () {
             window.focus();
             reloadViewReportsState();
-            dojo.byId("divisionId").value = ${divisionId};
-            divisionChange(dojo.byId("divisionId"));
-            dojo.byId("employeeId").value = ${employeeId};
+            <sec:authorize access="hasAnyRole('VIEW_ILLNESS_BUSINESS_TRIP', 'CHANGE_ILLNESS_BUSINESS_TRIP')">
+                dojo.byId("divisionId").value = ${divisionId};
+                divisionChange(dojo.byId("divisionId"));
+                dojo.byId("employeeId").value = ${employeeId};
+            </sec:authorize>
         });
 
         dojo.require("dijit.form.DateTextBox");
@@ -50,10 +48,17 @@
             }
         }
 
-        function showDates() {
-            var empId = dojo.byId("employeeId").value;
+        function showBusinessTripsAndIllnessReport() {
+            var empId = ${employeeId};
+            var divisionId = ${divisionId};
+
+            <sec:authorize access="hasAnyRole('VIEW_ILLNESS_BUSINESS_TRIP', 'CHANGE_ILLNESS_BUSINESS_TRIP')">
+                var empId = dojo.byId("employeeId").value;
+                var divisionId = dojo.byId("divisionId").value;
+            </sec:authorize>
+
+
             var year = dojo.byId("year").value;
-            var divisionId = dojo.byId("divisionId").value;
             var month = dojo.byId("month").value;
             if (year != null && year != 0 && month != null && month != 0 && divisionId != null && divisionId != 0 && empId != null && empId != 0) {
                 businesstripsandillness.action = "<%=request.getContextPath()%>/businesstripsandillness/" + divisionId + "/" + empId + "/" + year + "/" + month;
@@ -77,7 +82,10 @@
         }
 
         function createBusinessTripOrIllness() {
-            var empId = dojo.byId("employeeId").value;
+            var empId = ${employeeId};
+            <sec:authorize access="hasAnyRole('VIEW_ILLNESS_BUSINESS_TRIP', 'CHANGE_ILLNESS_BUSINESS_TRIP')">
+                var empId = dojo.byId("employeeId").value;
+            </sec:authorize>
             if (empId != null && empId != 0) {
                 businesstripsandillness.action = "<%=request.getContextPath()%>/businesstripsandillnessadd/" + empId;
                 businesstripsandillness.submit();
@@ -191,20 +199,23 @@
     <br/>
     <form:form method="post" commandName="businesstripsandillness" name="mainForm">
 
-        <span class="label">Подразделение</span>
-        <form:select path="divisionId" id="divisionId" onchange="divisionChange(this)" class="without_dojo"
-                     onmouseover="tooltip.show(getTitle(this));" onmouseout="tooltip.hide();">
-            <form:option label="" value="0"/>
-            <form:options items="${divisionList}" itemLabel="name" itemValue="id"/>
-        </form:select>
+        <sec:authorize access="hasAnyRole('VIEW_ILLNESS_BUSINESS_TRIP', 'CHANGE_ILLNESS_BUSINESS_TRIP')">
 
-        <span class="label">Отчет сотрудника</span>
-        <form:select path="employeeId" id="employeeId" class="without_dojo" onmouseover="tooltip.show(getTitle(this));"
-                     onmouseout="tooltip.hide();" onchange="setDefaultEmployeeJob(-1);">
-            <form:option items="${employeeList}" label="" value="0"/>
-        </form:select>
-        <br><br>
+            <span class="label">Подразделение</span>
+            <form:select path="divisionId" id="divisionId" onchange="divisionChange(this)" class="without_dojo"
+                         onmouseover="tooltip.show(getTitle(this));" onmouseout="tooltip.hide();">
+                <form:option label="" value="0"/>
+                <form:options items="${divisionList}" itemLabel="name" itemValue="id"/>
+            </form:select>
 
+            <span class="label">Отчет сотрудника</span>
+            <form:select path="employeeId" id="employeeId" class="without_dojo" onmouseover="tooltip.show(getTitle(this));"
+                         onmouseout="tooltip.hide();" onchange="setDefaultEmployeeJob(-1);">
+                <form:option items="${employeeList}" label="" value="0"/>
+            </form:select>
+            <br><br>
+
+       </sec:authorize>
         Год:
         <form:select path="year" id="year" class="without_dojo" onchange="yearChange(this)"
                      onmouseover="tooltip.show(getTitle(this));" onmouseout="tooltip.hide();">
@@ -229,7 +240,7 @@
 
         <br><br>
 
-        <button id="show" class="button" type="button" onclick="showDates()">
+        <button id="show" class="button" type="button" onclick="showBusinessTripsAndIllnessReport()">
             Сформировать
         </button>
         <button id="create" class="button" type="button" onclick="createBusinessTripOrIllness()">
@@ -316,10 +327,10 @@
                         <table id="illness">
                             <thead>
                                 <tr>
-                                    <c:if test="${recipientPermission.id == 5}">
+                                    <sec:authorize access="hasRole('CHANGE_ILLNESS_BUSINESS_TRIP')">
                                         <th class="tight"/>
                                         <th class="tight"/>
-                                    </c:if>
+                                    </sec:authorize>
                                     <th width="120">Дата с</th>
                                     <th width="120">Дата по</th>
                                     <th width="160">Кол-во календарных дней</th>
@@ -331,7 +342,7 @@
                             <tbody>
                                 <c:forEach var="report" items="${reports.periodicalsList}">
                                     <tr>
-                                        <c:if test="${recipientPermission.id == 5}">
+                                        <sec:authorize access="hasRole('CHANGE_ILLNESS_BUSINESS_TRIP')">
                                             <td>
                                                 <div class="iconbutton">
                                                     <img src="<c:url value="/resources/img/edit.png"/>" title="Редактировать"
@@ -344,7 +355,7 @@
                                                          onclick="deleteReport(this.parentElement, ${report.id}, ${report.calendarDays}, ${report.workingDays}, ${report.workDaysOnIllnessWorked});" />
                                                 </div>
                                             </td>
-                                        </c:if>
+                                        </sec:authorize>
                                         <td><fmt:formatDate value="${report.beginDate}" pattern="dd.MM.yyyy"/></td>
                                         <td><fmt:formatDate value="${report.endDate}" pattern="dd.MM.yyyy"/></td>
                                         <td>${report.calendarDays}</td>
