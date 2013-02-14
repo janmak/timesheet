@@ -144,6 +144,9 @@
 </head>
 <body>
 
+<h1><fmt:message key="title.createPlanForPeriod"/></h1>
+<br/>
+
 <form:form commandName="<%= CreatePlanForPeriodContoller.FORM %>" method="post" cssStyle="margin: 10px 0;">
     <form:errors path="*" cssClass="errors_box" delimiter="<br/><br/>" />
 

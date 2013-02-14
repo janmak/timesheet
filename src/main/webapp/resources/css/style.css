@@ -203,6 +203,10 @@ div.menu_holder ul a:hover, div.menu_holder span a:hover {
     height: 22px;
 }
 
+.tundra .date_picker.dijitvalidationtextboxerror .dijitvalidationicon {
+    line-height: 22px;
+}
+
 .tundra .dijitArrowButtonInner {
     margin: 5px;
 }
@@ -388,5 +392,9 @@ table.report_params td {
 
 .auto_height {
 	height: auto;
+}
+
+.classDateRedText {
+    color: #f58383;
 }
 
