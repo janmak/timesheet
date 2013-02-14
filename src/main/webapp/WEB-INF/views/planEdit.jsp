@@ -74,7 +74,7 @@
             }
 
             setTimeout(function() {
-                restoreHiddenStateFromCookie("<%= GRID_JS_ID %>");
+                restoreHiddenStateFromCookie(<%= GRID_JS_ID %>);
             }, 1);
         });
 
@@ -94,7 +94,7 @@
 
         var dataJson = '${jsonDataToShow}';
         var projectListJson = '${projectListJson}';
-        const projectList = (projectListJson.length > 0) ? dojo.fromJson(projectListJson) : [];
+        var projectList = (projectListJson.length > 0) ? dojo.fromJson(projectListJson) : [];
 
         if (dataJson.length > 0) {
             dojo.require("dojox.layout.ContentPane");
@@ -350,6 +350,10 @@
                 for (var field in item) {
                     var value = item[field];
 
+                    if (field == "<%= PROJECTS_PLANS %>") {
+                        continue;
+                    }
+
                     if ((value || "").length == 0) {
                         delete item[field];
                     } else {
@@ -386,6 +390,8 @@
                     "<%= JSON_DATA_MONTH %>": ${planEditForm.month},
                     "<%= JSON_DATA_ITEMS %>": items
                 }
+
+                hasChanges = false;
 
                 var form = dojo.byId("<%= FORM %>");
 
