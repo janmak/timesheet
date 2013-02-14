@@ -74,7 +74,7 @@
             }
 
             setTimeout(function() {
-                restoreHiddenStateFromCookie("<%= GRID_JS_ID %>");
+                restoreHiddenStateFromCookie(<%= GRID_JS_ID %>);
             }, 1);
         });
 
