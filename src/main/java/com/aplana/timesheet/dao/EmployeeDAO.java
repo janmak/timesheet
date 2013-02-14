@@ -340,4 +340,10 @@ public class EmployeeDAO {
 
         return query.getResultList();
     }
+
+    public List<Employee> getEmployees() {
+        final Query query = entityManager.createQuery("from Employee e where e.endDate is null order by e.name");
+
+        return query.getResultList();
+    }
 }

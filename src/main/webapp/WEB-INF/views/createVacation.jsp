@@ -28,17 +28,9 @@
         dojo.declare("DateTextBox", dijit.form.DateTextBox, {
             popupClass: "Calendar"
             <sec:authorize access="not hasRole('ROLE_ADMIN')">
-                ,
-
-                openDropDown: function() {
-                    this.inherited(arguments);
-
-                    this.dropDown.isDisabledDate = function(date) {
-                        return (date <= new Date());
-                    };
-
-                    this.dropDown._populateGrid();
-                }
+            , isDisabledDate: function(date) {
+                return (date <= new Date());
+            }
             </sec:authorize>
         });
 

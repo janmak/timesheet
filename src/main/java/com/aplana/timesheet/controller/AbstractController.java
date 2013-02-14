@@ -1,15 +1,14 @@
 package com.aplana.timesheet.controller;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
-import javax.servlet.http.HttpServletRequest;
-import org.springframework.beans.factory.annotation.Autowired;
 
+import javax.servlet.http.HttpServletRequest;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import javax.servlet.http.HttpServletRequest;
 
 /**
  * User: vsergeev
@@ -17,6 +16,7 @@ import javax.servlet.http.HttpServletRequest;
  */
 public abstract class AbstractController {
 
+    public static final String DATE_FORMAT = "yyyy-MM-dd";
     @Autowired
     protected HttpServletRequest request;
 
@@ -26,7 +26,7 @@ public abstract class AbstractController {
     @InitBinder
     public void initBinder(WebDataBinder binder) {
         binder.initDirectFieldAccess();
-        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         dateFormat.setLenient(false);
         binder.registerCustomEditor(Date.class, new CustomDateEditor(dateFormat, false));
     }

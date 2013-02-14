@@ -53,7 +53,11 @@ function initCurrentDateInfo(employeeId) {
     colorDayWithReportFromThreeMonth(date.getFullYear(), correctLength(date.getMonth() + 1), employeeId);
 }
 
-function colorDayWithReportFromThreeMonth(/* int */ year, /* int */ month, /* int */ employeeId) {
+function colorDayWithReportFromThreeMonth(/* int */ year, /* int */ month, employeeId) {
+    if (typeof employeeId == typeof undefined || employeeId == null || employeeId == 0) {
+        return;
+    }
+
     loadCalendarColors(year, month, employeeId);
     var monthPrev =  parseInt(month, 10) - 1;
     var yearPrev = year;
@@ -71,31 +75,31 @@ function colorDayWithReportFromThreeMonth(/* int */ year, /* int */ month, /* in
     }
     if (dateInfoHolder[yearNext + "-" + correctLength(monthNext) + ":" + employeeId] == null)
         loadCalendarColors(yearNext, correctLength(monthNext), employeeId);
-}
 
-//загружает список дней с раскраской календаря за месяц
-function loadCalendarColors(/* int */ year, /* int */ month, /* int */ employeeId) {
-    dojo.xhrGet({
-        url: getContextPath() + "/calendar/dates",
-        headers: {
-            "If-Modified-Since":"Sat, 1 Jan 2000 00:00:00 GMT"
-        },
-        handleAs:"json",
-        timeout:1000,
-        content:{queryYear:year, queryMonth:month, employeeId:employeeId},
-        sync: (dateInfoHolder.length == 0),
-        load:function (data, ioArgs) {
-            if (data && ioArgs && ioArgs.args && ioArgs.args.content) {
-                dateInfoHolder[ioArgs.args.content.queryYear + "-" + ioArgs.args.content.queryMonth  + ":" + ioArgs.args.content.employeeId] = data;
+    //загружает список дней с раскраской календаря за месяц
+    function loadCalendarColors(/* int */ year, /* int */ month, /* int */ employeeId) {
+        dojo.xhrGet({
+            url: getContextPath() + "/calendar/dates",
+            headers: {
+                "If-Modified-Since":"Sat, 1 Jan 2000 00:00:00 GMT"
+            },
+            handleAs:"json",
+            timeout:1000,
+            content:{queryYear:year, queryMonth:month, employeeId:employeeId},
+            sync: (dateInfoHolder.length == 0),
+            load:function (data, ioArgs) {
+                if (data && ioArgs && ioArgs.args && ioArgs.args.content) {
+                    dateInfoHolder[ioArgs.args.content.queryYear + "-" + ioArgs.args.content.queryMonth  + ":" + ioArgs.args.content.employeeId] = data;
+                }
+            },
+            error:function (err, ioArgs) {
+                if (err && ioArgs && ioArgs.args && ioArgs.args.content) {
+                    // Если ошибка - не будем ничего рисовать. При следующем запросе на отрисовку - снова будет сделана попытка получения данных за этот месяц
+                    dateInfoHolder[ioArgs.args.content.queryYear + "-" + ioArgs.args.content.queryMonth  + ":" + ioArgs.args.content.employeeId] = null;
+                }
             }
-        },
-        error:function (err, ioArgs) {
-            if (err && ioArgs && ioArgs.args && ioArgs.args.content) {
-                // Если ошибка - не будем ничего рисовать. При следующем запросе на отрисовку - снова будет сделана попытка получения данных за этот месяц
-                dateInfoHolder[ioArgs.args.content.queryYear + "-" + ioArgs.args.content.queryMonth  + ":" + ioArgs.args.content.employeeId] = null;
-            }
-        }
-    });
+        });
+    }
 }
 
 function correctLength(dayOrMonth){

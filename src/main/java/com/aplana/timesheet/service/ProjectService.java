@@ -224,4 +224,8 @@ public class ProjectService {
     public List<Project> getProjectsByStatesForDate(List<Integer> projectStates, Date date) {
         return projectDAO.getProjectsByStatesForDate(projectStates, date);
     }
+
+    public List<Project> getProjectsForPeriod(Date fromDate, Date toDate) {
+        return projectDAO.getProjectsForPeriod(fromDate, toDate);
+    }
 }

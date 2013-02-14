@@ -32,6 +32,21 @@ public class CalendarDAO {
             REGION
     );
 
+    private static final String YEAR = "year";
+    private static final String MONTH = "month";
+
+    private static final String GET_WORK_DAYS_FROM_DATE = String.format(
+            "select count(c) - count(h)" +
+            " from Calendar c" +
+            " left outer join c.holidays h" +
+            " where YEAR(c.calDate) = :%s and MONTH(c.calDate) = :%s" +
+                    " and (h.region is null or h.region = :%s) and c.calDate >= :%s",
+            YEAR,
+            MONTH,
+            REGION,
+            BEGIN_DATE
+    );
+
     @PersistenceContext
 	private EntityManager entityManager;
 
@@ -180,14 +195,19 @@ public class CalendarDAO {
 
     public int getWorkDaysCountForRegion(Region region, Integer year, Integer month, Date fromDate) {
         final Query query = entityManager.createQuery(
-                "select count(c) - count(h)" +
-                " from Calendar c" +
-                " left outer join c.holidays h" +
-                " where YEAR(c.calDate) = :year and MONTH(c.calDate) = :month and (h.region is null or h.region = :region) and c.calDate >= :from_date"
-        ).setParameter("region", region).setParameter("year", year).
-                setParameter("month", month).setParameter("from_date", fromDate);
+                GET_WORK_DAYS_FROM_DATE
+        ).setParameter(REGION, region).setParameter(YEAR, year).
+                setParameter(MONTH, month).setParameter(BEGIN_DATE, fromDate);
 
         return ((Long) query.getSingleResult()).intValue();
     }
 
+    public int getWorkDaysCountForRegion(Region region, Integer year, Integer month, Date fromDate, Date toDate) {
+        final Query query = entityManager.createQuery(
+                GET_WORK_DAYS_FROM_DATE + " and c.calDate <= :to_date"
+        ).setParameter(REGION, region).setParameter(YEAR, year).
+                setParameter(MONTH, month).setParameter(BEGIN_DATE, fromDate).setParameter("to_date", toDate);
+
+        return ((Long) query.getSingleResult()).intValue();
+    }
 }

@@ -31,6 +31,10 @@ public class EmployeeProjectPlanService {
 
     }
 
+    public void store(EmployeeProjectPlan employeeProjectPlan) {
+        employeeProjectPlanDAO.store(employeeProjectPlan);
+    }
+
     public EmployeeProjectPlan tryFind(Employee employee, Integer year, Integer month, Project project) {
         try {
             return employeeProjectPlanDAO.find(employee, year, month, project);

@@ -148,4 +148,8 @@ public class EmployeeService {
     public List<Employee> getDivisionEmployees(Integer divisionId, Date date, List<Integer> regionIds, List<Integer> projectRoleIds) {
         return employeeDAO.getDivisionEmployees(divisionId, date, regionIds, projectRoleIds);
     }
+
+    public List<Employee> getEmployees() {
+        return employeeDAO.getEmployees();
+    }
 }

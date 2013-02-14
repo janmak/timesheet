@@ -15,6 +15,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import javax.persistence.criteria.*;
 import java.util.*;
 
 import static com.aplana.timesheet.enums.TypesOfActivityEnum.PRESALE;
@@ -172,7 +173,7 @@ public class ProjectDAO {
     @Transactional
     public void store(Project project) {
         final DictionaryItem item = dictionaryItemDAO.find(TypesOfActivityEnum.PROJECT.getId()); // Проект
-        final Project existingProject = findByName(project.getName());
+        final Project existingProject = findByProjectId(project.getProjectId());
 
         if (existingProject != null) {
             project.setId(existingProject.getId());
@@ -240,5 +241,35 @@ public class ProjectDAO {
                 setParameter("date_year", calendar.get(Calendar.YEAR));
 
         return query.getResultList();
+    }
+
+    public List<Project> getProjectsForPeriod(Date fromDate, Date toDate) {
+        final CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        final CriteriaQuery query = criteriaBuilder.createQuery();
+        final Root<Project> from = query.from(Project.class);
+        final CriteriaQuery select = query.select(from);
+        final List<Predicate> predicates = new ArrayList<Predicate>();
+
+        if (fromDate != null) {
+            predicates.add(criteriaBuilder.lessThanOrEqualTo(from.<Date>get("startDate"), fromDate));
+        }
+
+        if (toDate != null) {
+            final Path<Date> endDatePath = from.get("endDate");
+
+            predicates.add(
+                    criteriaBuilder.or(
+                            endDatePath.isNull(),
+                            criteriaBuilder.greaterThanOrEqualTo(endDatePath, toDate)
+                    )
+            );
+        }
+
+        predicates.add(criteriaBuilder.isTrue(from.<Boolean>get("active")));
+
+        select.where(predicates.toArray(new Predicate[predicates.size()]));
+        select.orderBy(criteriaBuilder.asc(from.get("name")));
+
+        return entityManager.createQuery(query).getResultList();
     }
 }
