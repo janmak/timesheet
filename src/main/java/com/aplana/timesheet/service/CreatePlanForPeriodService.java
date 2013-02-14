@@ -31,8 +31,9 @@ public class CreatePlanForPeriodService {
     private EmployeeProjectPlanService employeeProjectPlanService;
 
     @Transactional
-    public void createPlans(Project project, Employee employee, Region region, Date fromDate, Date toDate,
+    public void createPlans(Project project, Employee employee, Date fromDate, Date toDate,
                             Byte percentOfCharge) {
+        final Region region = employee.getRegion();
         final Calendar date = DateUtils.toCalendar(DateUtils.setDays(fromDate, 1));
         int workdaysCount;
 
