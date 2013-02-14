@@ -48,7 +48,6 @@ function createNameWithHideButton(/* String */ name, /* String */ field) {
     showButton.src = showButtonUrl;
     showButton.className = "show_button";
     showButton.setAttribute("onclick", "showCol(this, '" + field + "')");
-    showButton.style.display = "none";
     showButton.setAttribute(
             "onmouseover",
             "tooltip.show('развернуть &quot;' + dojo.query('.colTextHolder', this.parentNode)[0].innerHTML + '&quot;')"
