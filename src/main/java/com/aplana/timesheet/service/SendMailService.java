@@ -4,7 +4,6 @@ import com.aplana.timesheet.dao.VacationDAO;
 import com.aplana.timesheet.dao.entity.*;
 import com.aplana.timesheet.enums.ProjectRolesEnum;
 import com.aplana.timesheet.enums.TypesOfActivityEnum;
-import com.aplana.timesheet.exception.service.CalendarServiceException;
 import com.aplana.timesheet.form.AdminMessageForm;
 import com.aplana.timesheet.form.FeedbackForm;
 import com.aplana.timesheet.form.TimeSheetForm;
@@ -101,6 +100,8 @@ public class SendMailService{
     private CalendarService calendarService;
     @Autowired
     private VacationApprovalService vacationApprovalService;
+    @Autowired
+    private ProjectParticipantService projectParticipantService;
 
 
     /**
@@ -120,9 +121,6 @@ public class SendMailService{
 
     /**
      * Возвращает email сотрудника
-     *
-     * @param Id сотрудника
-     * @return email сотрудника
      */
     public String getEmployeeEmail(Integer empId) {
         return empId == null ? null : employeeService.find(empId).getEmail();
@@ -130,8 +128,6 @@ public class SendMailService{
 
     /**
      * Возвращает ФИО сотрудника
-     * @param Id сотрудника
-     * @return ФИО сотрудника
      */
     public String getEmployeeFIO(Integer empId){
         return empId == null ? null : employeeService.find(empId).getName();
@@ -165,9 +161,6 @@ public class SendMailService{
      * Руководителю группы разработки - конструктор, разработчик, системный инженер, тестировщик.
      * Ведущему аналитику - аналитик и технический писатель.
      *
-     *
-     * @param empId - идентификатор сотрудника, пославшего отчет
-     * @param tsForm
      * @return emails - строка с emailАМИ
      */
     public String getProjectParticipantsEmails(TimeSheetForm tsForm) {
@@ -228,8 +221,12 @@ public class SendMailService{
         new VacationDeletedSender(this, propertyProvider).sendMessage(vacation);
     }
 
-    public void performVacationConfirmMailService(VacationApproval vacationApproval) {
-        new VacationApproveSender(this, propertyProvider).sendMessage(vacationApproval);
+    public void performVacationApproveRequestSender(VacationApproval vacationApproval) {
+        new VacationApproveRequestSender(this, propertyProvider).sendMessage(vacationApproval);
+    }
+
+    public void performVacationApprovedSender (VacationApproval vacationApproval) {
+        new VacationApprovedSender(this, propertyProvider).sendMessage(vacationApproval);
     }
 
     public void performExceptionSender(String problem){
@@ -281,8 +278,8 @@ public class SendMailService{
         return vacationApprovalService.getVacationApprovalEmailList(vacationId);
     }
 
-    public List<String> getEmailAddressesOfManagersThatDoesntApproveVacation(List<Integer> projectRolesIds, Project project, Vacation vacation) {
-        return vacationApprovalService.getEmailAddressesOfManagersThatDoesntApproveVacation(projectRolesIds, project, vacation);
+    public List<ProjectParticipant> getProjectParticipantsOfManagersThatDoesntApproveVacation(List<Integer> projectRolesIds, Project project, Vacation vacation) {
+        return projectParticipantService.getProjectParticipantsOfManagersThatDoesntApproveVacation(projectRolesIds, project, vacation);
     }
 
     interface RenameMe {
@@ -329,7 +326,7 @@ public class SendMailService{
 
                     @Override
                     public ProjectRolesEnum getProjectRole() {
-                        if (input.getProjectRole() != null){
+                        if (input.getProjectRole() != null) {
                             return ProjectRolesEnum.getById(input.getProjectRole().getId());
                         }
                         return null;
@@ -345,19 +342,9 @@ public class SendMailService{
     }
 
     /**
-     * получаем проекты, участие в которых запланировано у сотрудника, по датам
-     */
-    public List<Project> getEmployeeProjectPlanByDates(Date beginDate, Date endDate, Employee employee) throws CalendarServiceException {
-        //некоторых месяцев может не быть - поэтому получаем список доступных месяцев из БД
-        HashMap<Integer, Set<Integer>> dates = calendarService.getMonthsAndYearsNumbers(beginDate, endDate);
-
-        return projectService.getEmployeeProjectPlanByDates(employee, dates);
-    }
-
-    /**
      * получаем проекты, по которым сотрудник списывал отчеты, по датам отчетов
      */
     public List<Project> getEmployeeProjectsByDates(Date beginDate, Date endDate, Employee employee) {
-        return projectService.getEmployeeProjectsByDates(beginDate, endDate, employee);
+        return projectService.getEmployeeProjectsFromTimeSheetByDates(beginDate, endDate, employee);
     }
 }

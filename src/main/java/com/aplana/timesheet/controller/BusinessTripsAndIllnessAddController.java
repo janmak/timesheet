@@ -71,6 +71,9 @@ public class BusinessTripsAndIllnessAddController extends AbstractController{
         }
     }
 
+    /**
+     * возвращает форму для создания больничного/командировки
+     */
     @RequestMapping(value = "/businesstripsandillnessadd/{employeeId}")
     public ModelAndView showCreateBusinessTripOrIllnessForm (
             @PathVariable("employeeId") Integer employeeId,
@@ -81,6 +84,9 @@ public class BusinessTripsAndIllnessAddController extends AbstractController{
         return getModelAndViewCreation(employee);
     }
 
+    /**
+     * пытаемя добавить новый больничный/командировку
+     */
     @RequestMapping(value = "/businesstripsandillnessadd/tryAdd/{employeeId}")
     public ModelAndView validateAndAddBusinessTripOrIllness(
             @ModelAttribute("businesstripsandillnessadd") BusinessTripsAndIllnessAddForm tsForm,
@@ -103,6 +109,9 @@ public class BusinessTripsAndIllnessAddController extends AbstractController{
         }
     }
 
+    /**
+     * сохраняем измененный больничный/командировку
+     */
     @RequestMapping(value = "/businesstripsandillnessadd/trySave/{reportId}")
     public ModelAndView validateAndSaveBusinessTripOrIllness(
             @ModelAttribute("businesstripsandillnessadd") BusinessTripsAndIllnessAddForm tsForm,
@@ -120,6 +129,7 @@ public class BusinessTripsAndIllnessAddController extends AbstractController{
             default: throw new BusinessTripsAndIllnessAddException("Редактирование данных для такого типа отчета пока не реализовано!");
         }
     }
+
     @RequestMapping(value = "/businesstripsandillnessadd/resultsuccess")
     public ModelAndView businessTripOrIllnessAddedResultSuccess (){
         ModelAndView modelAndView = new ModelAndView("businesstripsandillnessaddresult");

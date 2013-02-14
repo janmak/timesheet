@@ -1,9 +1,6 @@
 package com.aplana.timesheet.dao;
 
-import com.aplana.timesheet.dao.entity.DictionaryItem;
-import com.aplana.timesheet.dao.entity.Employee;
-import com.aplana.timesheet.dao.entity.Project;
-import com.aplana.timesheet.dao.entity.ProjectParticipant;
+import com.aplana.timesheet.dao.entity.*;
 import com.aplana.timesheet.enums.TypesOfActivityEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +14,7 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.persistence.criteria.*;
 import java.util.*;
+import java.util.Calendar;
 
 import static com.aplana.timesheet.enums.TypesOfActivityEnum.PRESALE;
 
@@ -216,12 +214,23 @@ public class ProjectDAO {
         return projects;
     }
 
-    public List<Project> getEmployeeProjectsByDates(Date beginDate, Date endDate, Employee employee) {
+    public List<Project> getEmployeeProjectsFromTimeSheetByDates(Date beginDate, Date endDate, Employee employee) {
         Query query = entityManager.createQuery("select tsd.project from TimeSheetDetail as tsd " +
                 "where tsd.timeSheet.employee = :employee and tsd.timeSheet.creationDate between :beginDate and :endDate")
                 .setParameter("employee", employee)
                 .setParameter("endDate", beginDate)
                 .setParameter("endDate", endDate);
+
+        return query.getResultList();
+    }
+
+    /**
+     * получаем список проектов пользователя, руководители которых должны подтвердить заявление на отпуск
+     */
+    public List<Project> getProjectsAssignedToVacation(Vacation vacation) {
+        Query query = entityManager.createQuery("select distinct var.projectParticipant.project from VacationApprovalResult as var " +
+                "where var.vacationApproval.vacation = :vacation")
+                .setParameter("vacation", vacation);
 
         return query.getResultList();
     }

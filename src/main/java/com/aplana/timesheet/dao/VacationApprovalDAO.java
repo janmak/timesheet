@@ -1,5 +1,6 @@
 package com.aplana.timesheet.dao;
 
+import com.aplana.timesheet.dao.entity.Employee;
 import com.aplana.timesheet.dao.entity.Project;
 import com.aplana.timesheet.dao.entity.Vacation;
 import com.aplana.timesheet.dao.entity.VacationApproval;
@@ -7,6 +8,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import java.util.List;
@@ -39,9 +41,11 @@ public class VacationApprovalDAO {
     }
 
     @Transactional
-    public void store(VacationApproval vacationApproval){
-        entityManager.merge(vacationApproval);
+    public VacationApproval store(VacationApproval vacationApproval){
+        vacationApproval = entityManager.merge(vacationApproval);
         entityManager.flush();
+
+        return vacationApproval;
     }
 
     public List<String> getVacationApprovalEmailList(Integer vacationId) {
@@ -52,17 +56,48 @@ public class VacationApprovalDAO {
     }
 
     /**
-     * Получаем электронные адреса РП, которые еще не ответили на письмо о согласовании отпуска, по ID их ролей на проекте
+     * получаем данные о согласовании отпуска конкретным менеджером
      */
-    public List<String> getEmailAddressesOfManagersThatDoesntApproveVacation(List<Integer> projectRolesIds, Project project, Vacation vacation) {
-        Query query = entityManager.createQuery("select pp.employee.email from ProjectParticipant as pp " +
-                "where pp.project = :project and pp.projectRole.id in (:roleIds) and pp.employee not in " +
-                "(select va.manager from VacationApproval as va where va.vacation = :vacation and va.result is not null)")
+    public VacationApproval getManagerApproval(Vacation vacation, Employee manager) {
+        try {
+            Query query = entityManager.createQuery("from VacationApproval as va " +
+                    "where va.manager = :manager and va.vacation = :vacation")
+                    .setParameter("manager", manager)
+                    .setParameter("vacation", vacation);
+
+            return (VacationApproval) query.getSingleResult();
+        } catch (NoResultException ex) {
+            return null;
+        }
+    }
+
+    public VacationApproval tryGetManagerApproval(Vacation vacation, Employee manager) {
+        try {
+            Query query = entityManager.createQuery("from VacationApproval as va " +
+                    "where va.vacation = :vacation and va.manager = :manager")
+                    .setParameter("vacation", vacation)
+                    .setParameter("manager", manager);
+
+            return (VacationApproval) query.getSingleResult();
+        } catch (NoResultException ex) {
+            return null;
+        }
+    }
+
+    public List<VacationApproval> getProjectManagerApprovalsForVacationByProject(Vacation vacation, Project project) {
+        Query query = entityManager.createQuery("select va from VacationApproval as va " +
+                "left outer join va.vacationApprovalResults as var " +
+                "left outer join var.projectParticipant as pp " +
+                "where (va.vacation = :vacation) and (pp.project = :project or va.manager = :manager)")
                 .setParameter("project", project)
-                .setParameter("roleIds", projectRolesIds)
+                .setParameter("manager", project.getManager())
                 .setParameter("vacation", vacation);
 
         return query.getResultList();
     }
 
+    public List<VacationApproval> getAllApprovalsForVacation(Vacation vacation) {
+        return entityManager.createQuery("from VacationApprovals as va where va.vacation = :vacation")
+                .setParameter("vacation", vacation).getResultList();
+    }
 }

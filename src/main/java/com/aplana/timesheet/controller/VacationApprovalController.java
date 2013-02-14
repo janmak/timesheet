@@ -1,26 +1,20 @@
 package com.aplana.timesheet.controller;
 
 import com.aplana.timesheet.dao.entity.VacationApproval;
+import com.aplana.timesheet.exception.service.VacationApprovalServiceException;
 import com.aplana.timesheet.form.VacationApprovalForm;
 import com.aplana.timesheet.properties.TSPropertyProvider;
 import com.aplana.timesheet.service.SecurityService;
 import com.aplana.timesheet.service.SendMailService;
 import com.aplana.timesheet.service.VacationApprovalService;
 import com.aplana.timesheet.util.TimeSheetUser;
-import javassist.bytecode.annotation.BooleanMemberValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
-import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -91,7 +85,6 @@ public class VacationApprovalController {
            vaForm.setIsAllButtonsVisible(false);
         }
 
-
         return mav;
     }
 
@@ -101,7 +94,7 @@ public class VacationApprovalController {
             @PathVariable ("acceptance") Boolean acceptance,
             @ModelAttribute("vacationApprovalForm") VacationApprovalForm vaForm,
             HttpServletRequest request
-    ) {
+    ) throws VacationApprovalServiceException {
         ModelAndView mav = new ModelAndView("vacation_approval");
 
         VacationApproval vacationApproval = vacationApprovalService.getVacationApproval(uid);
@@ -129,9 +122,11 @@ public class VacationApprovalController {
             vaForm.setMessage(String.format(REFUSE_ANSWER, matchingFIO, vacationType, employeeFIO, region, dateBegin, dateEnd));
         }
 
+        vacationApprovalService.store(vacationApproval);
+
         sendMailService.performVacationAcceptanceMailing(vacationApproval);
 
-        vacationApprovalService.store(vacationApproval);
+        vacationApprovalService.checkVacationIsApproved(vacationApproval.getVacation());
 
         return mav;
     }

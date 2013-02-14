@@ -41,20 +41,25 @@ public class AssignmentLeadersController {
     @RequestMapping(value = "/admin/update/assignmentleaders", method = RequestMethod.GET)
     public String leadersAssignment() {
         return String.format("redirect:/admin/update/assignmentleaders/%s/%s",
-                securityService.getSecurityPrincipal().getEmployee().getDivision().getId(), false);
+                securityService.getSecurityPrincipal().getEmployee().getDivision().getId(), "view");
     }
 
     @RequestMapping(value = "/admin/update/assignmentleaders/{divisionId}/{editable}")
     public ModelAndView leadersAssignmentWithFilter(
             @PathVariable("divisionId") Integer filterDivisionId,
-            @PathVariable("editable") Boolean editable,
+            @PathVariable("editable") String editable,
             @ModelAttribute("assignmentLeadersForm") AssignmentLeadersForm alForm
     ) {
         ModelAndView mav = new ModelAndView("assignmentLeaders");
         alForm.setTableRows(getFilledTableRows(filterDivisionId));
         mav.addObject("divisionList", divisionService.getDivisions());
         mav.addObject("currentUserDivisionId", filterDivisionId);
-        mav.addObject("editable", editable);
+        if (editable.equals("edit")){
+            mav.addObject("editable", true);
+        }else{
+            mav.addObject("editable", false);
+        }
+
         return mav;
     }
 
@@ -101,7 +106,7 @@ public class AssignmentLeadersController {
         }
 
         // вызовем уже имеющийся контроллер и отобразим форму заново с сохраненными изменениями
-        return leadersAssignmentWithFilter( filterDivisionId, false, alForm );
+        return leadersAssignmentWithFilter( filterDivisionId, "view", alForm );
     }
 
     private List<AssignmentLeadersTableRowForm> getFilledTableRows(Integer filterDivisionId){
