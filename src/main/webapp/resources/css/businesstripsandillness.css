@@ -1,4 +1,5 @@
 .radiobuttons{
+    float: left;
     max-width: 150;
     text-align: left;
 }
@@ -26,7 +27,16 @@
     padding-top: 10;
     padding-bottom: 2;
 }
-.button{
+.butt{
     width: 150px;
     vertical-align: middle;
+}
+.floatleft{
+    float: left;
+}
+.block {
+    display: block;
+}
+.lowspace {
+    margin: 6px;
 }
