@@ -37,10 +37,11 @@ h1, h2, h3, h4, h5, h6 {
     padding-top: 3px;
     font-size: 24px;
     color: #888;
+    height: 72px;
 }
 
 div.menu_holder {
-    padding-top: 40px;
+    /*padding-top: 40px;*/
 }
 
 div.menu_holder ul {
@@ -57,6 +58,8 @@ div.menu_holder ul {
     line-height: 35px;
     font-size: 14px;
     color: #371C1C;
+    position: relative;
+    top: -35px;
 }
 
 div.menu_holder li {

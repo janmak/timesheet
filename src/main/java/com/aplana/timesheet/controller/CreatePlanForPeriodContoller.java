@@ -3,7 +3,6 @@ package com.aplana.timesheet.controller;
 import argo.jdom.JsonArrayNodeBuilder;
 import com.aplana.timesheet.dao.entity.Employee;
 import com.aplana.timesheet.dao.entity.Project;
-import com.aplana.timesheet.dao.entity.Region;
 import com.aplana.timesheet.form.CreatePlanForPeriodForm;
 import com.aplana.timesheet.form.validator.CreatePlanForPeriodFormValidator;
 import com.aplana.timesheet.service.CreatePlanForPeriodService;
@@ -85,12 +84,11 @@ public class CreatePlanForPeriodContoller extends AbstractController {
 
         final Project project = projectService.find(createPlanForPeriodForm.getProjectId());
         final Employee employee = employeeService.find(createPlanForPeriodForm.getEmployeeId());
-        final Region region = employee.getRegion();
         final Date fromDate = createPlanForPeriodForm.getFromDate();
         final Date toDate = createPlanForPeriodForm.getToDate();
         final Byte percentOfCharge = createPlanForPeriodForm.getPercentOfCharge();
 
-        createPlanForPeriodService.createPlans(project, employee, region, fromDate, toDate, percentOfCharge);
+        createPlanForPeriodService.createPlans(project, employee, fromDate, toDate, percentOfCharge);
 
         return new ModelAndView("redirect:" + PlanEditController.PLAN_EDIT_URL);
     }
