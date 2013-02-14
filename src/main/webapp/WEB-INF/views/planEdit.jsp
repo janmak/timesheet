@@ -197,11 +197,16 @@
                     }
 
                     function createCell(name, field) {
+                        var scale = 2;
+                        <c:if test="${planEditForm.showPlans and planEditForm.showFacts}">
+                        scale = 1;
+                        </c:if>
                         return {
                             name: name,
                             field: field,
                             noresize: true,
-                            width: "49px",
+
+                            width: (49 * scale) + "px",
                             <sec:authorize access="hasRole('ROLE_PLAN_EDIT')">
                             editable: dojo.some(modelFieldsForSave, function(fieldForSave) {
                                 return (field == fieldForSave);
