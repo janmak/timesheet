@@ -118,8 +118,15 @@ function createLayout(/* Array */ headerViews) {
                 editable: cell.editable,
                 headerStyles: "width: " + cell.width,
                 cellStyles: cellStyles,
-                formatter: function(text) {
+                hasBeenChanged: {},
+                formatter: function(text, rowIndex, cell) {
                     var div = document.createElement("div");
+
+                    if (!this.editable) {
+                        cell.customClasses.push("uneditableCell");
+                    } else if (this.hasBeenChanged[rowIndex]) {
+                        div.className = "editedCell";
+                    }
 
                     var parentCol = this.parentCol;
 
@@ -327,4 +334,16 @@ function restoreHiddenStateFromCookie(grid) {
             }
         });
     });
+}
+
+function cellHasBeenEdited(grid, field, row) {
+    dojo.forEach(grid.structure, function(structure) {
+        dojo.forEach(structure.cells[0], function(item) {
+            dojo.forEach(item.childs || [item], function(child) {
+                child.hasBeenChanged[row] |= (child.field == field);
+            });
+        });
+    });
+
+    grid.setStructure(grid.structure);
 }

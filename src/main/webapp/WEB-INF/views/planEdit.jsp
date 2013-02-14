@@ -46,9 +46,17 @@
     </style>
 
     <script type="text/javascript">
+        var hasChanges = false;
+
         dojo.addOnLoad(function() {
             updateMultipleForSelect(dojo.byId("<%= REGIONS %>"));
             updateMultipleForSelect(dojo.byId("<%= PROJECT_ROLES %>"));
+
+            var prevValue;
+
+            <%= GRID_JS_ID %>.onStartEdit = function(inCell, inRowIndex) {
+                prevValue = myStoreObject.items[inRowIndex][inCell.field][0];
+            }
 
             <%= GRID_JS_ID %>.onApplyCellEdit = function(inValue, inRowIndex, inFieldIndex) {
                 var newValue = replacePeriodsWithDots(inValue);
@@ -58,11 +66,22 @@
                 }
 
                 myStoreObject.items[inRowIndex][inFieldIndex][0] = newValue;
+
+                if (prevValue != newValue) {
+                    hasChanges = true;
+                    cellHasBeenEdited(<%= GRID_JS_ID %>, inFieldIndex, inRowIndex);
+                }
             }
 
             setTimeout(function() {
-                restoreHiddenStateFromCookie(<%= GRID_JS_ID %>);
+                restoreHiddenStateFromCookie("<%= GRID_JS_ID %>");
             }, 1);
+        });
+
+        dojo.addOnUnload(function() {
+            if (hasChanges) {
+                return "Изменения не были сохранены.";
+            }
         });
 
         function replacePeriodsWithDots(value) {
@@ -501,9 +520,9 @@
 <br/>
 
 <c:if test="${fn:length(jsonDataToShow) > 0}">
-<div dojoType="dojox.layout.ContentPane" style="width: 100%; min-width: 1260px">
+<div dojoType="dojox.layout.ContentPane" style="width: 100%; min-width: 1260px;">
     <div id="myTable" jsId="<%= GRID_JS_ID %>" dojoType="dojox.grid.DataGrid" store="myStore"
-           selectionMode="none" canSort="false" query="myQuery" autoHeight="true"
+           selectionMode="none" canSort="false" query="myQuery" <%--autoHeight="true"--%> style="height: 435px;"
            structure="myLayout"></div>
 </div>
 </c:if>
