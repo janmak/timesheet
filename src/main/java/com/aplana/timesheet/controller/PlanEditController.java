@@ -88,8 +88,8 @@ public class PlanEditController {
     public static final String JSON_DATA_MONTH = "month";
     public static final String JSON_DATA_ITEMS = "items";
 
-    public static final String PLAN_SAVE = "/planSave";
-    private static final String PLAN_EDIT = "/planEdit";
+    public static final String PLAN_SAVE_URL = "/planSave";
+    public static final String PLAN_EDIT_URL = "/planEdit";
     private static final String COOKIE_DIVISION_ID = "cookie_division_id";
 
     private static final String COOKIE_REGIONS = "cookie_regions";
@@ -212,7 +212,7 @@ public class PlanEditController {
     @Autowired
     private PlanEditService planEditService;
 
-    @RequestMapping(PLAN_EDIT)
+    @RequestMapping(PLAN_EDIT_URL)
     public ModelAndView showForm(
             @ModelAttribute(PlanEditForm.FORM) PlanEditForm form,
             BindingResult bindingResult,
@@ -295,7 +295,7 @@ public class PlanEditController {
         return DateTimeUtil.getMonthListJson(yearList, calendarService);
     }
 
-    @RequestMapping(value = PLAN_EDIT, method = RequestMethod.POST)
+    @RequestMapping(value = PLAN_EDIT_URL, method = RequestMethod.POST)
     public ModelAndView showTable(
             @ModelAttribute(PlanEditForm.FORM) PlanEditForm form,
             BindingResult bindingResult,
@@ -590,7 +590,7 @@ public class PlanEditController {
         return projectRoles;
     }
 
-    @RequestMapping(value = PLAN_SAVE, method = RequestMethod.POST)
+    @RequestMapping(value = PLAN_SAVE_URL, method = RequestMethod.POST)
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public String save(
             @ModelAttribute(PlanEditForm.FORM) PlanEditForm form
@@ -606,7 +606,7 @@ public class PlanEditController {
             throw new RuntimeException(e);
         }
 
-        return "redirect:" + PLAN_EDIT;
+        return "redirect:" + PLAN_EDIT_URL;
     }
 
 }

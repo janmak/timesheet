@@ -1,29 +1,31 @@
 <%@page contentType="text/html" pageEncoding="UTF-8" %>
 
-<%@ page import="java.io.File" %>
+<%@ page import="com.aplana.timesheet.controller.CreatePlanForPeriodContoller" %>
 <%@ page import="static com.aplana.timesheet.constants.TimeSheetConstants.DOJO_PATH" %>
 <%@ page import="static com.aplana.timesheet.controller.PlanEditController.*" %>
 <%@ page import="static com.aplana.timesheet.form.PlanEditForm.*" %>
 <%@ page import="static com.aplana.timesheet.controller.PlanEditController.PERCENT_OF_CHARGE" %>
+<%@ page import="static com.aplana.timesheet.util.ResourceUtils.getResRealPath" %>
 
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form" %>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 
 <%! private static final String GRID_JS_ID = "myGrid"; %>
-<% final long scriptModified = new File(application.getRealPath("/resources/js/DataGrid.ext.js")).lastModified(); %>
-<% final long styleModified = new File(application.getRealPath("/resources/css/DataGrid.ext.css")).lastModified(); %>
 
 <html>
 <head>
-    <script src="<c:url value="/resources/js/DataGrid.ext.js?" /><%= scriptModified %>" type="text/javascript"></script>
+    <title><fmt:message key="title.planEdit" /></title>
+    <script src="<%= getResRealPath("/resources/js/DataGrid.ext.js", application) %>" type="text/javascript"></script>
+    <script src="<%= getResRealPath("/resources/js/utils.js", application) %>" type="text/javascript"></script>
 
     <style type="text/css">
         /* REQUIRED STYLES!!! */
         @import "<%= DOJO_PATH %>/dojox/grid/resources/Grid.css";
         @import "<%= DOJO_PATH %>/dojox/grid/resources/tundraGrid.css";
-        @import "<c:url value="/resources/css/DataGrid.ext.css?" /><%= styleModified %>";
+        @import "<%= getResRealPath("/resources/css/DataGrid.ext.css", application) %>";
 
         #planEditForm > table {
             margin-bottom: 10px;
@@ -62,25 +64,6 @@
                 restoreHiddenStateFromCookie(<%= GRID_JS_ID %>);
             }, 1);
         });
-
-        function isNumber(n) {
-            return (typeof n != typeof undefined) && !isNaN(parseFloat(n)) && isFinite(n);
-        }
-
-        function showErrors(errors) {
-            var errorsStr = '';
-
-            dojo.forEach(errors, function (error) {
-                errorsStr += error + "\n\n";
-            });
-
-            if (errorsStr.length == 0) {
-                return false;
-            }
-
-            alert(errorsStr);
-            return true;
-        }
 
         function replacePeriodsWithDots(value) {
             if (typeof value == "string") {
@@ -124,10 +107,12 @@
 
             function createHeaderViewsAndFillModelFields() {
                 var firstView = {
-                    noscroll: true
+                    noscroll: true,
+                    expand: true
                 };
 
                 var secondView = {
+                    expand: true
                 };
 
                 var views = [
@@ -380,10 +365,14 @@
 
                 var form = dojo.byId("<%= FORM %>");
 
-                form.action = "<%= PLAN_SAVE %>";
+                form.action = "<%= PLAN_SAVE_URL %>";
                 form.<%= JSON_DATA %>.value = dojo.toJson(object);
                 form.submit();
             }
+        }
+
+        function createPlanForPeriod() {
+            window.location = getContextPath() + "<%= CreatePlanForPeriodContoller.CREATE_PLAN_FOR_PERIOD_URL %>";
         }
 
     </script>
@@ -500,8 +489,11 @@
 
     <sec:authorize access="hasRole('ROLE_PLAN_EDIT')">
     <c:if test="${fn:length(jsonDataToShow) > 0}">
-    <br/><button style="width:150px;vertical-align: middle;" onclick="save()" type="button">Сохранить
-        планы</button>
+    <br/>
+    <button style="width:150px;vertical-align: middle;" onclick="save()" type="button">Сохранить планы</button>
+    <button style="vertical-align: middle;" onclick="createPlanForPeriod()" type="button">
+        Запланировать на период
+    </button>
     </c:if>
     </sec:authorize>
 </form:form>
