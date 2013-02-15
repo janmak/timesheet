@@ -7,12 +7,11 @@ import com.aplana.timesheet.properties.TSPropertyProvider;
 import com.aplana.timesheet.service.SendMailService;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateFormatUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.mail.MessagingException;
-import javax.mail.internet.MimeMessage;
 import java.util.Arrays;
 import java.util.List;
 
@@ -20,7 +19,7 @@ import java.util.List;
  * User: vsergeev
  * Date: 13.02.13
  */
-public class VacationApprovedSender extends MailSender<VacationApproval> {
+public class VacationApprovedSender extends AbstractVacationApprovalSender {
 
     protected static final Logger logger = LoggerFactory.getLogger(VacationApprovedSender.class);
 
@@ -36,14 +35,16 @@ public class VacationApprovedSender extends MailSender<VacationApproval> {
         mail.setFromEmail(sendMailService.getEmployeeEmail(vacation.getEmployee().getId()));
         mail.setToEmails(Arrays.asList(vacationApproval.getManager().getEmail()));
         mail.setCcEmails(getAdditionalEmailsForRegion(vacation.getEmployee().getRegion()));
-        mail.setSubject(propertyProvider.getVacationMailMarker() + " " + getSubject(vacation));
+        mail.setSubject(getSubject(vacation));
         mail.setParamsForGenerateBody(getParamsForGenerateBody(vacationApproval));
 
         return Arrays.asList(mail);
     }
 
     private Iterable<String> getAdditionalEmailsForRegion(Region region) {
-        return Arrays.asList(region.getAdditionalEmails().split("\\s*,\\s*"));
+        String additionalEmails = region.getAdditionalEmails();
+
+        return  (StringUtils.isNotBlank(additionalEmails)) ? Arrays.asList(additionalEmails.split("\\s*,\\s*")) : Arrays.asList(StringUtils.EMPTY);
     }
 
     private Table<Integer, String, String> getParamsForGenerateBody(VacationApproval vacationApproval) {
@@ -67,18 +68,8 @@ public class VacationApprovedSender extends MailSender<VacationApproval> {
         String beginDateStr = DateFormatUtils.format(vacation.getBeginDate(), DATE_FORMAT);
         String endDateStr = DateFormatUtils.format(vacation.getEndDate(), DATE_FORMAT);
 
-        return  propertyProvider.getVacationMailMarker() +
-                String.format("[VACATION REQUEST] Согласование %s сотрудника %s на период с %s - %s", vacation.getStatus().getValue(), vacation.getEmployee().getName(),
+        return  String.format("Согласование %s сотрудника %s на период с %s - %s", vacation.getStatus().getValue(), vacation.getEmployee().getName(),
                         beginDateStr, endDateStr);
-    }
-
-    @Override
-    protected void initMessageBody(Mail mail, MimeMessage message) throws MessagingException {
-        try {
-            message.setText(mail.getParamsForGenerateBody().get(FIRST, MAIL_BODY), "UTF-8", "plain");
-        } catch (MessagingException e) {
-            logger.error("Error while init message body.", e);
-        }
     }
 
 }
