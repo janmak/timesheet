@@ -218,7 +218,7 @@ public class ProjectDAO {
         Query query = entityManager.createQuery("select tsd.project from TimeSheetDetail as tsd " +
                 "where tsd.timeSheet.employee = :employee and tsd.timeSheet.creationDate between :beginDate and :endDate")
                 .setParameter("employee", employee)
-                .setParameter("endDate", beginDate)
+                .setParameter("beginDate", beginDate)
                 .setParameter("endDate", endDate);
 
         return query.getResultList();

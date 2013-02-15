@@ -210,22 +210,25 @@ function addNewRow() {
     // Помещаем новую строку в конец таблицы
     recalculateRowNumbers();
     resetRowState(newRowIndex, true);
-    /*подключаем функции показа тултипов для селктов */
+
+    /*подключаем функции показа тултипов и регистрации изменений для селктов */
+    setDefaultSelectEvents(workplaceSelect);
     //для типа активности
-    dojo.connect(actTypeSelect, "onmouseover", actTypeSelect, showTooltip);
-    dojo.connect(actTypeSelect, "onmouseout", actTypeSelect, hideTooltip);
+    setDefaultSelectEvents(actTypeSelect);
     //для проекта
-    dojo.connect(projectSelect, "onmouseover", projectSelect, showTooltip);
-    dojo.connect(projectSelect, "onmouseout", projectSelect, hideTooltip);
+    setDefaultSelectEvents(projectSelect);
     //для проектной роли
-    dojo.connect(projectRoleSelect, "onmouseover", projectRoleSelect, showTooltip);
-    dojo.connect(projectRoleSelect, "onmouseout", projectRoleSelect, hideTooltip);
+    setDefaultSelectEvents(projectRoleSelect);
     //для категории активности
-    dojo.connect(actCatSelect, "onmouseover", actCatSelect, showTooltip);
-    dojo.connect(actCatSelect, "onmouseout", actCatSelect, hideTooltip);
+    setDefaultSelectEvents(actCatSelect);
     //для задачи
-    dojo.connect(projectTasksSelect, "onmouseover", projectTasksSelect, showTooltip);
-    dojo.connect(projectTasksSelect, "onmouseout", projectTasksSelect, hideTooltip);
+    setDefaultSelectEvents(projectTasksSelect);
+
+    /*для инпутов подключаем только регистрацию изменений по нажатию*/
+    dojo.connect(durationInput, "onkeyup", durationInput, somethingChanged);
+    dojo.connect(descriptionTextarea, "onkeyup", descriptionTextarea, somethingChanged);
+    dojo.connect(problemTextarea, "onkeyup", problemTextarea, somethingChanged);
+
     dojo.connect(workplaceSelect, "onchange", workplaceSelect, workplaceChange);
     dojo.connect(actTypeSelect, "onchange", actTypeSelect, typeActivityChange);
     dojo.connect(projectSelect, "onchange", projectSelect, projectChange);
@@ -233,6 +236,13 @@ function addNewRow() {
     dojo.connect(durationInput, "onchange", durationInput, checkDuration);
     dojo.connect(descriptionTextarea, "onkeyup", descriptionTextarea, textareaAutoGrow);
     dojo.connect(problemTextarea, "onkeyup", problemTextarea, textareaAutoGrow);
+}
+
+function setDefaultSelectEvents(obj) {
+    dojo.connect(obj, "onmouseover", obj, showTooltip);
+    dojo.connect(obj, "onmouseout", obj, hideTooltip);
+    dojo.connect(obj, "onmouseup", obj, somethingChanged);
+    dojo.connect(obj, "onkeyup", obj, somethingChanged);
 }
 
 function showTooltip(obj) {
@@ -492,6 +502,7 @@ function divisionChange(obj) {
 }
 
 function workplaceChange(obj) {
+
     if (obj.target == null) {
         select = obj;
     }
@@ -1315,6 +1326,10 @@ function openBusinessTripsAndIllnessWindow() {
 function maskBody() {
     dojo.query('#maskDiv').addClass("masked");
 
+}
+
+function somethingChanged(){
+    if (typeof(root.onbeforeunload) != "undefined") root.onbeforeunload = confirmTimeSheetCloseWindow;
 }
 
 /* объект подсказки */
