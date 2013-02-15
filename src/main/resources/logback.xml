@@ -69,7 +69,7 @@
 		<appender-ref ref="hibernate" />
 	</logger>
 	
-	<logger name="org.hibernate.tool" level="debug" additivity="false">
+	<logger name="org.hibernate.tool" level="info" additivity="false">
 		<appender-ref ref="hibernate" />
 	</logger>
 
