@@ -50,13 +50,14 @@ public class VacationDAO {
         entityManager.remove(vacation);
     }
 
-    public Long getIntersectVacationsCount(Date fromDate, Date toDate) {
+    public Long getIntersectVacationsCount(Integer employeeId, Date fromDate, Date toDate) {
         final Query query = entityManager.createQuery(
                 "select count(*) as c " +
                 "from Vacation v, DictionaryItem di " +
-                "where di.id = :status_id and ((:from_date between v.beginDate and v.endDate) or (:to_date between v.beginDate and v.endDate)) and not v.status = di"
+                "where di.id = :status_id and ((:from_date between v.beginDate and v.endDate) or (:to_date between v.beginDate and v.endDate))" +
+                        " and not v.status = di and v.employee.id = :emp_id"
         ).setParameter("from_date", fromDate).setParameter("to_date", toDate).
-                setParameter("status_id", VacationStatusEnum.REJECTED.getId());
+                setParameter("status_id", VacationStatusEnum.REJECTED.getId()).setParameter("emp_id", employeeId);
 
         return (Long) query.getSingleResult();
     }

@@ -74,6 +74,7 @@ public class CreateVacationController {
 
         createVacationForm.setCalFromDate(DateTimeUtil.formatDate(nextWorkDay));
         createVacationForm.setCalToDate(DateTimeUtil.formatDate(nextWorkDay));
+        createVacationForm.setEmployeeId(employee.getId());
 
         return getModelAndView(employee);
     }
@@ -161,7 +162,14 @@ public class CreateVacationController {
             vacationApprovalService.sendBackDateVacationApproved(vacation);
         }
 
-        return new ModelAndView("redirect:../");
+        return new ModelAndView(
+                String.format(
+                        "redirect:../../vacations/%s/%d/%d",
+                        employee.getDivision().getId(),
+                        employeeId,
+                        java.util.Calendar.getInstance().get(java.util.Calendar.YEAR)
+                )
+        );
     }
 
     private boolean needsToBeApproved(Vacation vacation) {
