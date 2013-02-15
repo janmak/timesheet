@@ -61,14 +61,14 @@ public class VacationApprovedSender extends AbstractVacationApprovalSender {
         String endDateStr = DateFormatUtils.format(vacation.getEndDate(), DATE_FORMAT);
 
         return String.format("Успешно согласован %s сотрудника %s из г. %s на период с %s - %s",
-                vacation.getType(), vacation.getEmployee().getName(), vacation.getEmployee().getRegion().getName(), beginDateStr, endDateStr);
+                vacation.getType().getValue(), vacation.getEmployee().getName(), vacation.getEmployee().getRegion().getName(), beginDateStr, endDateStr);
     }
 
     private String getSubject(Vacation vacation) {
         String beginDateStr = DateFormatUtils.format(vacation.getBeginDate(), DATE_FORMAT);
         String endDateStr = DateFormatUtils.format(vacation.getEndDate(), DATE_FORMAT);
 
-        return  String.format("Согласование %s сотрудника %s на период с %s - %s", vacation.getStatus().getValue(), vacation.getEmployee().getName(),
+        return  String.format("Согласование %s сотрудника %s на период с %s - %s", vacation.getType().getValue(), vacation.getEmployee().getName(),
                         beginDateStr, endDateStr);
     }
 
