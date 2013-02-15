@@ -16,17 +16,31 @@
 	<style name="Detail" style="Normal" backcolor="#FF0000"/>
 	<parameter name="reportParams" class="com.aplana.timesheet.reports.Report01" isForPrompting="false"/>
 	<field name="name" class="java.lang.String"/>
-	<field name="caldate" class="java.sql.Timestamp"/>
+	<field name="caldate" class="java.util.Date"/>
 	<field name="projnames" class="java.lang.String"/>
-	<field name="overtime" class="java.lang.Double"/>
-	<field name="duration" class="java.lang.Double"/>
+	<field name="overtime" class="java.math.BigDecimal"/>
+	<field name="duration" class="java.math.BigDecimal"/>
 	<field name="holiday" class="java.lang.Object"/>
 	<field name="region" class="java.lang.Integer"/>
 	<field name="projdetail" class="java.lang.String"/>
-	<field name="durationdetail" class="java.lang.Double"/>
+	<field name="durationdetail" class="java.lang.Float"/>
 	<field name="region_name" class="java.lang.String"/>
+	<field name="vacation" class="java.lang.Object"/>
+	<field name="illness" class="java.lang.Object"/>
+    <variable name="holVacIllDay" class="java.lang.Boolean" resetType="Group" resetGroup="GroupByOvertime" calculation="Variance">
+        <variableExpression><![CDATA[$F{holiday} != null || $F{vacation} != null || $F{illness} != null]]></variableExpression>
+        <initialValueExpression><![CDATA[$F{holiday} != null || $F{vacation} != null || $F{illness} != null]]></initialValueExpression>
+    </variable>
+    <variable name="kindOfDay" class="java.lang.Integer" resetType="Group" resetGroup="GroupByOvertime" calculation="Nothing">
+        		<variableExpression>
+        		    <![CDATA[$F{holiday} != null ? 1 : ($F{vacation} != null ? 2 : ($F{illness} != null ? 3 : 4))]]>
+        		</variableExpression>
+        		<initialValueExpression>
+        		    <![CDATA[$F{holiday} != null ? 1 : ($F{vacation} != null ? 2 : ($F{illness} != null ? 3 : 4))]]>
+                </initialValueExpression>
+    </variable>
 	<variable name="totalHours" class="java.lang.Double" resetType="Group" resetGroup="GroupByName" calculation="Sum">
-		<variableExpression><![CDATA[$F{holiday} == null ? $F{overtime} : $F{duration}]]></variableExpression>
+		<variableExpression><![CDATA[$V{holVacIllDay} ? $F{duration} : $F{overtime}]]></variableExpression>
 	</variable>
 	<group name="GroupByName">
 		<groupExpression><![CDATA[$F{name}]]></groupExpression>
@@ -56,7 +70,7 @@
 		</groupHeader>
 	</group>
 	<group name="GroupByOvertime">
-		<groupExpression><![CDATA[new Boolean($F{holiday}==null)]]></groupExpression>
+		<groupExpression><![CDATA[$V{kindOfDay}]]></groupExpression>
 	</group>
 	<group name="GroupByDate">
 		<groupExpression><![CDATA[new SimpleDateFormat("dd-MM-yyyy").format($F{caldate})]]></groupExpression>
@@ -117,7 +131,7 @@
 	</columnHeader>
 	<detail>
 		<band height="13">
-			<printWhenExpression><![CDATA[$F{holiday} == null ? Boolean.TRUE:Boolean.FALSE]]></printWhenExpression>
+			<printWhenExpression><![CDATA[!$V{holVacIllDay}]]></printWhenExpression>
 			<textField>
 				<reportElement uuid="b1f611cf-8131-4840-8eb7-a6f13faf1aba" style="Detail" x="0" y="0" width="146" height="13"/>
 				<textElement/>
@@ -149,8 +163,8 @@
 				<textFieldExpression><![CDATA[$F{region_name}]]></textFieldExpression>
 			</textField>
 		</band>
-		<band height="22">
-			<printWhenExpression><![CDATA[$F{holiday} != null ? Boolean.TRUE:Boolean.FALSE]]></printWhenExpression>
+		<band height="13">
+			<printWhenExpression><![CDATA[$V{holVacIllDay}]]></printWhenExpression>
 			<textField>
 				<reportElement uuid="3c0aefb9-174b-4fda-9595-fc361254eed8" style="Detail" x="0" y="0" width="146" height="13"/>
 				<textElement/>
@@ -174,7 +188,10 @@
 			<textField>
 				<reportElement uuid="5971c534-816b-4fff-b8c0-a8e7032f9965" style="Detail" x="643" y="0" width="90" height="13"/>
 				<textElement/>
-				<textFieldExpression><![CDATA[$F{region} == null?"Общий выходной":"Региональный выходной"]]></textFieldExpression>
+                <textFieldExpression><![CDATA[ $F{holiday} != null && $F{region} == null ? "Общий выходной" :
+                                               $F{holiday} != null && $F{region} != null ? "Региональный выходной" :
+                                               $F{vacation} != null ? "Отпуск" :
+                                               $F{illness} != null  ? "Болезнь" : "<НЕ ОПРЕДЕЛЕНО>"]]></textFieldExpression>
 			</textField>
 			<textField>
 				<reportElement uuid="5971c534-816b-4fff-b8c0-a8e7032f9965" style="Detail" x="146" y="0" width="90" height="13"/>
