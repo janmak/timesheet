@@ -280,4 +280,8 @@ public class ProjectService {
             return BEFORE_VACATION_DAYS_DEFAULT;
         }
     }
+
+    public List<Project> getProjectsForPeriod(Date fromDate, Date toDate) {
+        return projectDAO.getProjectsForPeriod(fromDate, toDate);
+    }
 }

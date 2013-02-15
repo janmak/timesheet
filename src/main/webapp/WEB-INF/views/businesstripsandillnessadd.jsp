@@ -7,7 +7,17 @@
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 <html>
 <head>
-    <title><fmt:message key="businesstripsandillness"/>employee.name</title>
+    <title>
+        <c:choose>
+                <c:when test="${reportId == null}">
+                    <fmt:message key="businesstripsandillnessadd"/>
+                </c:when>
+            <c:when test="${reportId != null}">
+                <fmt:message key="businesstripsandillnessedit"/>
+            </c:when>
+        </c:choose>
+
+    </title>
     <link rel="stylesheet" type="text/css" href="<%= request.getContextPath()%>/resources/css/businesstripsandillnessadd.css">
     <script type="text/javascript">
 
@@ -62,6 +72,16 @@
             else if (willBeDisplayedId == illnessReportType){
                 showIllnesses();
             }
+            document.getElementById("headerName").innerHTML = getHeader(willBeDisplayedId);
+        }
+
+        function getHeader(willBeDisplayedId) {
+            if (${reportId == null}) {
+                return "Создание " + getReportName();
+            } else {
+                document.getElementById("reportType").addAttribute("disabled", "disabled");
+                return "Редактирование " + getReportName();
+            }
         }
 
         function showBusinessTrips(){
@@ -94,9 +114,10 @@
             delete errors;
             errors = new Array();
             if (checkRequired() && checkDates()){
-                return confirm("Вы действительно хотите сохранить данные?");
+                return true;
             } else {
                 showErrors();
+                return false;
             }
         }
 
@@ -169,13 +190,24 @@
             var beginDate = parseDate(document.getElementById("beginDate").value);
             var endDate = parseDate(document.getElementById("endDate").value);
 
-            if (endDate > beginDate){
+            if (endDate >= beginDate){
                 return true;
             } else {
-                errors.push("Дата начала должна быть меньше даты конца!");
+                var reportName = getReportName();
+                errors.push("Дата окончания " + reportName + " не может быть раньше даты начала!");
                 return false;
             }
 
+        }
+
+        function getReportName(){
+            var reportType = dojo.byId("reportType").value;
+            reportType = parseInt(reportType);
+            switch (reportType) {
+                case illnessReportType: return"больничного";
+                case businessTripReportType : return "командировки";
+                default: return "";
+            }
         }
 
         function parseDate(dateString){
@@ -232,7 +264,7 @@
     </script>
 </head>
 <body>
-<h1><fmt:message key="businesstripsandillness"/></h1>
+<h1><div id="headerName"></div></h1>
     <br/>
     <form:form method="post" id="mainForm" commandName="businesstripsandillnessadd" name="mainForm" cssClass="chooseform">
 
@@ -244,23 +276,36 @@
             ${employeeName}
         </div>
 
-        <div class="checkboxeslabel lowspace">Создать:</div>
-        <div class="checkboxesselect lowspace">
-            <form:select path="reportType" id="reportType" onchange="updateView(this)"
-                         onmouseover="tooltip.show(getTitle(this));" onmouseout="tooltip.hide();" required="true">
-                <form:options items="${businesstripsandillnessadd.reportTypes}" itemLabel="name" itemValue="id" required="true"/>
-            </form:select>
-        </div>
+        <c:choose>
+            <c:when test="${reportId == null}">
+                <div class="checkboxeslabel lowspace">Создать:</div>
+                <div class="checkboxesselect lowspace">
+                    <form:select path="reportType" id="reportType" onchange="updateView(this)"
+                                 onmouseover="tooltip.show(getTitle(this));" onmouseout="tooltip.hide();" required="true">
+                        <form:options items="${businesstripsandillnessadd.reportTypes}" itemLabel="name" itemValue="id" required="true" cssClass="date_picker"/>
+                    </form:select>
+                </div>
+            </c:when>
+            <c:when test="${reportId != null}">
+                <div class="checkboxeslabel lowspace">Редактируется:</div>
+                <div class="checkboxesselect lowspace">
+                    <form:select path="reportType" id="reportType" onchange="updateView(this)"
+                                 onmouseover="tooltip.show(getTitle(this));" onmouseout="tooltip.hide();" required="true"  disabled="true">
+                        <form:options items="${businesstripsandillnessadd.reportTypes}" itemLabel="name" itemValue="id" required="true" cssClass="date_picker"/>
+                    </form:select>
+                </div>
+            </c:when>
+        </c:choose>
 
         <div class="checkboxeslabel lowspace">Дата с:</div>
         <div class="checkboxesselect lowspace">
-            <form:input path="beginDate" id="beginDate" class="date_picker" cssClass="fullwidth" data-dojo-type="DateTextBox" required="true"
+            <form:input path="beginDate" id="beginDate" class="date_picker" cssClass="fullwidth date_picker" data-dojo-type="DateTextBox" required="true"
                         onMouseOver="tooltip.show(getTitle(this));" onMouseOut="tooltip.hide();" onchange="updateProject()"/>
         </div>
 
         <div class="checkboxeslabel lowspace">Дата по:</div>
         <div class="checkboxesselect lowspace">
-            <form:input path="endDate" id="endDate" class="date_picker" cssClass="fullwidth" data-dojo-type="DateTextBox" required="true"
+            <form:input path="endDate" id="endDate" class="date_picker" cssClass="fullwidth date_picker" data-dojo-type="DateTextBox" required="true"
                         onMouseOver="tooltip.show(getTitle(this));" onMouseOut="tooltip.hide();" onchange="updateProject()"/>
         </div>
 
@@ -269,7 +314,7 @@
             <div class="checkboxeslabel lowspace">Основание:</div>
             <div class="checkboxesselect lowspace">
                 <form:select path="reason" id="reason" onMouseOver="tooltip.show(getTitle(this));"
-                             onMouseOut="tooltip.hide();" multiple="false">
+                             onMouseOut="tooltip.hide();" multiple="false" cssClass="date_picker">
                     <form:options items="${businesstripsandillnessadd.illnessTypes}" itemLabel="name" itemValue="id" required="true"/>
                 </form:select>
             </div>

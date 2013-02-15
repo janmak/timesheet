@@ -13,10 +13,19 @@ th {
 
 .dojoxGrid table {
     margin: 0;
+    font-size: 11px;
+}
+
+.dojoxGridMasterHeader table {
+    font-size: 100%;
 }
 
 .tundra .dojoxGridCellFocus {
     border: 1px solid #5EB55E !important;
+}
+
+.tundra .dojoxGridRowOver .dojoxGridCell {
+    background-color: #3C8CE6 !important;
 }
 
 .dojoxGridMasterHeader .dojoxGridRowTable {
@@ -33,6 +42,7 @@ th {
     width: 100%;
     height: 40px !important;
     vertical-align: middle;
+    min-width: 16px;
 }
 
 .colContainer table {
@@ -47,6 +57,8 @@ th {
 }
 
 .hide_button {
+    top: 0;
+    left: 0;
     position: absolute;
     float: left;
     z-index: 2;
@@ -59,4 +71,20 @@ th {
 .show_button, .hide_button {
     width: 16px;
     height: 16px;
+}
+
+.editedCell {
+    color: #FF8500;
+}
+
+.dojoxGridRowOver .editedCell {
+    color: #ffff00;
+}
+
+.uneditableCell {
+    background-color: #EFEFEF;
+}
+
+.dojoxGridRowOdd .uneditableCell {
+    background-color: #DBE4EE;
 }

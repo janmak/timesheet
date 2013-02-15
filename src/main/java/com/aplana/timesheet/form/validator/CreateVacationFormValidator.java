@@ -1,10 +1,10 @@
 package com.aplana.timesheet.form.validator;
 
-import com.aplana.timesheet.dao.VacationDAO;
 import com.aplana.timesheet.enums.VacationTypesEnum;
 import com.aplana.timesheet.form.CreateVacationForm;
 import com.aplana.timesheet.service.EmployeeService;
 import com.aplana.timesheet.service.SecurityService;
+import com.aplana.timesheet.service.VacationService;
 import com.aplana.timesheet.util.DateTimeUtil;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +27,7 @@ public class CreateVacationFormValidator extends AbstractValidator {
             String.format("Длина комментария превышает допустимые %d символов", MAX_COMMENT_LENGTH);
 
     @Autowired
-    private VacationDAO vacationDAO;
+    private VacationService vacationService;
 
     @Autowired
     private SecurityService securityService;
@@ -74,7 +74,8 @@ public class CreateVacationFormValidator extends AbstractValidator {
                 }
             }
 
-            final long intersectVacationsCount = vacationDAO.getIntersectVacationsCount(
+            final long intersectVacationsCount = vacationService.getIntersectVacationsCount(
+                    createVacationForm.getEmployeeId(),
                     fromDate,
                     toDate
             );

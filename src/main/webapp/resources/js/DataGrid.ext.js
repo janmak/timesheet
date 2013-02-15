@@ -48,7 +48,6 @@ function createNameWithHideButton(/* String */ name, /* String */ field) {
     showButton.src = showButtonUrl;
     showButton.className = "show_button";
     showButton.setAttribute("onclick", "showCol(this, '" + field + "')");
-    showButton.style.display = "none";
     showButton.setAttribute(
             "onmouseover",
             "tooltip.show('развернуть &quot;' + dojo.query('.colTextHolder', this.parentNode)[0].innerHTML + '&quot;')"
@@ -98,28 +97,35 @@ function createNameWithHideButton(/* String */ name, /* String */ field) {
 function createLayout(/* Array */ headerViews) {
     var layout = [];
 
-    dojo.forEach(headerViews, function(header) {
+    dojo.forEach(headerViews, function(headerView) {
         var view = {
-            noscroll: header.noscroll,
+            noscroll: headerView.noscroll,
             cells: []
         };
 
         layout.push(view);
 
-        var nogroups = (!dojo.isArray(header.groups) || header.groups.length === 0);
+        var nogroups = (!dojo.isArray(headerView.groups) || headerView.groups.length === 0);
         var cellStyles = (view.noscroll === true || nogroups) ? undefined : "padding-left: 1px; padding-right: 1px;";
 
-        dojo.forEach(header.cells, function(cell) {
+        dojo.forEach(headerView.cells, function(cell) {
             view.cells.push({
                 field: cell.field,
                 noresize: cell.noresize,
                 width: cell.width,
-                name: (nogroups && header.expand == true) ? createNameWithHideButton(cell.name, cell.field) : cell.name,
+                name: (nogroups && headerView.expand == true) ? createNameWithHideButton(cell.name, cell.field) : cell.name,
                 editable: cell.editable,
                 headerStyles: "width: " + cell.width,
                 cellStyles: cellStyles,
-                formatter: function(text) {
+                hasBeenChanged: {},
+                formatter: function(text, rowIndex, cell) {
                     var div = document.createElement("div");
+
+                    if (!this.editable) {
+                        cell.customClasses.push("uneditableCell");
+                    } else if (this.hasBeenChanged[rowIndex]) {
+                        div.className = "editedCell";
+                    }
 
                     var parentCol = this.parentCol;
 
@@ -144,14 +150,14 @@ function createLayout(/* Array */ headerViews) {
             });
         });
 
-        if (header.groups) {
+        if (headerView.groups) {
             var groups = [];
 
             var offset = 0;
             var endIndex;
 
-            dojo.forEach(header.groups, function(group) {
-                var firstCellInGroup = header.cells[offset];
+            dojo.forEach(headerView.groups, function(group) {
+                var firstCellInGroup = headerView.cells[offset];
                 var colSpan = group.colSpan;
                 var groupCell = {
                     field: firstCellInGroup.field,
@@ -226,12 +232,12 @@ function switchColDisplay(button, colField, hide) {
 
     dojo.forEach(grid.structure, function(structure) {
         dojo.forEach(structure.cells[0], function(item) {
-            var containsInChils = (item.childs && dojo.some(item.childs, function(child) {
+            var containsInChilds = (item.childs && dojo.some(item.childs, function(child) {
                 return (child.field == colField);
             }));
 
-            if (item.field == colField || containsInChils) {
-                if (containsInChils) {
+            if (item.field == colField || containsInChilds) {
+                if (containsInChilds) {
                     item.isHidden = hide;
 
                     var newWidth = (parseInt(buttonWidth) / item.childs.length) + "px";
@@ -327,4 +333,16 @@ function restoreHiddenStateFromCookie(grid) {
             }
         });
     });
+}
+
+function cellHasBeenEdited(grid, field, row) {
+    dojo.forEach(grid.structure, function(structure) {
+        dojo.forEach(structure.cells[0], function(item) {
+            dojo.forEach(item.childs || [item], function(child) {
+                child.hasBeenChanged[row] |= (child.field == field);
+            });
+        });
+    });
+
+    grid.setStructure(grid.structure);
 }

@@ -89,6 +89,9 @@ public class Employee implements Identifiable {
         this.illnesses = illnesses;
     }
 
+    @Column(name = "job_rate", columnDefinition = "") // TODO
+    private Float jobRate;
+
     public Set<Permission> getPermissions() {
         return permissions;
     }
@@ -193,6 +196,14 @@ public class Employee implements Identifiable {
         this.objectSid = objectSid;
     }
 
+    public Float getJobRate() {
+        return jobRate;
+    }
+
+    public void setJobRate(Float jobRate) {
+        this.jobRate = jobRate;
+    }
+
     //проверяем уволенный ли сотрудник
     //ts==null сравниваем с текущей датой
     public boolean isDisabled(Timestamp ts) {
@@ -226,17 +237,23 @@ public class Employee implements Identifiable {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder()
-                .append( " id=" ).append( id )
-                .append( " name=" ).append( name )
-                .append( " email=" ).append( email )
-                .append( " startDate=" ).append( startDate )
-                .append( " endDate=" ).append( endDate )
-                .append( " manager [" ).append( manager ).append( "]" )
-                .append( " division [" ).append( division ).append( "]" )
-                .append( " job [" ).append( job ).append( "]" )
-                .append( " region [" ).append( region.getLdapCity() ).append( ", " ).append( region.getName() ).append( "]" )
-                .append(" ldap=").append(ldap);
+        final StringBuilder sb = new StringBuilder();
+        sb.append("Employee");
+        sb.append("{id=").append(id);
+        sb.append(", name='").append(name).append('\'');
+        sb.append(", email='").append(email).append('\'');
+        sb.append(", startDate=").append(startDate);
+        sb.append(", ldap='").append(ldap).append('\'');
+        sb.append(", endDate=").append(endDate);
+        sb.append(", manager=").append(manager);
+        sb.append(", division=").append(division);
+        sb.append(", job=").append(job);
+        sb.append(", region=").append(region);
+        sb.append(", permissions=").append(permissions);
+        sb.append(", notToSync=").append(notToSync);
+        sb.append(", objectSid='").append(objectSid).append('\'');
+        sb.append(", jobRate=").append(jobRate);
+        sb.append('}');
         return sb.toString();
     }
 

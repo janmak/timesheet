@@ -59,8 +59,8 @@ public class OvertimeCauseService {
 
         OvertimeCausesEnum overtimeCause = EnumsUtils.tryFindById(overtimeCauseId, OvertimeCausesEnum.class);
         UnfinishedDayCausesEnum unfinishedDayCauses = EnumsUtils.tryFindById(overtimeCauseId, UnfinishedDayCausesEnum.class);
-        TSEnum cause = overtimeCause == null? unfinishedDayCauses : overtimeCause;
-        if (Preconditions.checkNotNull(cause).getName().equals("Другой")) {
+        TSEnum cause = Preconditions.checkNotNull(overtimeCause == null? unfinishedDayCauses : overtimeCause);
+        if (cause == OvertimeCausesEnum.OTHER || cause == UnfinishedDayCausesEnum.OTHER) {
             return Preconditions.checkNotNull(tsForm.getOvertimeCauseComment());
         } else {
             return dictionaryItemDAO.find(overtimeCauseId).getValue();

@@ -80,7 +80,6 @@
         });
 
         dojo.ready(function () {
-           if (typeof(root.onbeforeunload) != "undefined") root.onbeforeunload = confirmTimeSheetCloseWindow;
 
             //dojo.connect(dojo.byId("add_row_button"), "onclick", "addNewRow");
             dojo.connect(dojo.byId("plan"), "onkeyup", dojo.byId("plan"), textareaAutoGrow);
@@ -392,7 +391,7 @@
                             <form:select path="timeSheetTablePart[${row.index}].workplaceId"
                                          id="workplace_id_${row.index}" onchange="workplaceChange(this)"
                                          cssClass="workplaceType" onmouseover="tooltip.show(getTitle(this));"
-                                         onmouseout="tooltip.hide();">
+                                         onmouseout="tooltip.hide();" onkeyup="somethingChanged();" onmouseup="somethingChanged();">
                                 <form:option label="" value="0"/>
                                 <form:options items="${workplaceList}" itemLabel="value" itemValue="id"/>
                             </form:select>
@@ -401,7 +400,7 @@
                             <form:select path="timeSheetTablePart[${row.index}].activityTypeId"
                                          id="activity_type_id_${row.index}" onchange="typeActivityChange(this)"
                                          cssClass="activityType" onmouseover="tooltip.show(getTitle(this));"
-                                         onmouseout="tooltip.hide();">
+                                         onmouseout="tooltip.hide();" onkeyup="somethingChanged();" onmouseup="somethingChanged();">
                                 <form:option label="" value="0"/>
                                 <form:options items="${actTypeList}" itemLabel="value" itemValue="id"/>
                             </form:select>
@@ -409,14 +408,16 @@
                         <td class="top_align"> <!-- Название проекта/пресейла -->
                             <form:select path="timeSheetTablePart[${row.index}].projectId" id="project_id_${row.index}"
                                          onchange="projectChange(this)" cssClass="project"
-                                         onmouseover="tooltip.show(getTitle(this));" onmouseout="tooltip.hide();">
+                                         onmouseover="tooltip.show(getTitle(this));" onmouseout="tooltip.hide();"
+                                         onkeyup="somethingChanged();" onmouseup="somethingChanged();">
                                 <form:option label="" value="0"/>
                             </form:select>
                         </td>
                         <td class="top_align"> <!-- Проектная роль -->
                             <form:select path="timeSheetTablePart[${row.index}].projectRoleId"
                                          id="project_role_id_${row.index}" onchange="projectRoleChange(this)"
-                                         onmouseover="tooltip.show(getTitle(this));" onmouseout="tooltip.hide();">
+                                         onmouseover="tooltip.show(getTitle(this));" onmouseout="tooltip.hide();"
+                                         onkeyup="somethingChanged();" onmouseup="somethingChanged();">
                                 <form:option label="" value="0"/>
                                 <form:options items="${projectRoleList}" itemLabel="name" itemValue="id"/>
                             </form:select>
@@ -424,25 +425,27 @@
                         <td class="top_align"> <!-- Категория активности/название работы -->
                             <form:select path="timeSheetTablePart[${row.index}].activityCategoryId"
                                          id="activity_category_id_${row.index}"
-                                         onmouseover="tooltip.show(getTitle(this));" onmouseout="tooltip.hide();">
+                                         onmouseover="tooltip.show(getTitle(this));" onmouseout="tooltip.hide();"
+                                         onkeyup="somethingChanged();" onmouseup="somethingChanged();">
                                 <form:option label="" value="0"/>
                             </form:select>
                         </td>
                         <td class="top_align"> <!-- Проектная задача -->
                             <form:select path="timeSheetTablePart[${row.index}].cqId" id="cqId_id_${row.index}"
-                                         onmouseover="tooltip.show(getTitle(this));" onmouseout="tooltip.hide();">
+                                         onmouseover="tooltip.show(getTitle(this));" onmouseout="tooltip.hide();"
+                                         onkeyup="somethingChanged();" onmouseup="somethingChanged();">
                                 <form:option label="" value="0"/>
                             </form:select>
                         </td>
                         <td class="top_align"><form:input cssClass="text_right_align duration" type="text"
                                                           path="timeSheetTablePart[${row.index}].duration"
                                                           id="duration_id_${row.index}"
-                                                          onchange="checkDuration(this);"/></td>
+                                                          onchange="checkDuration(this);" onkeyup="somethingChanged();"/></td>
                         <td class="top_align"><form:textarea wrap="soft"
                                                              path="timeSheetTablePart[${row.index}].description"
-                                                             rows="4" cols="30" id="description_id_${row.index}"/></td>
+                                                             rows="4" cols="30" id="description_id_${row.index}" onkeyup="somethingChanged();"/></td>
                         <td class="top_align"><form:textarea wrap="soft" path="timeSheetTablePart[${row.index}].problem"
-                                                             rows="4" cols="30" id="problem_id_${row.index}"/></td>
+                                                             rows="4" cols="30" id="problem_id_${row.index}" onkeyup="somethingChanged();"/></td>
                     </tr>
                 </c:forEach>
             </c:if>

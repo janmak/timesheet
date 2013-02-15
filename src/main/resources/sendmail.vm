@@ -10,7 +10,7 @@
         <ol>
             #foreach($key in $paramsForGenerateBody.rowKeySet())
                 <li>
-                    <b> Место работы:$paramsForGenerateBody.get($key, "workPlace") <br/> </b>
+                    <b> Место работы: $paramsForGenerateBody.get($key, "workPlace") <br/> </b>
                     <b> $paramsForGenerateBody.get($key, "actType") </b>
                     #if ($paramsForGenerateBody.get($key, "projectName") != $null)
                         <b> $paramsForGenerateBody.get($key, "projectName") </b>

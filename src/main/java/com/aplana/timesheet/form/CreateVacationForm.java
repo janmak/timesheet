@@ -7,6 +7,8 @@ package com.aplana.timesheet.form;
 public class CreateVacationForm {
 
     public static final String DATE_FORMAT = "dd.MM.yyyy";
+
+    private Integer employeeId;
     private String calFromDate;
     private String calToDate;
     private String comment;
@@ -47,11 +49,20 @@ public class CreateVacationForm {
         this.vacationType = vacationType;
     }
 
+    public Integer getEmployeeId() {
+        return employeeId;
+    }
+
+    public void setEmployeeId(Integer employeeId) {
+        this.employeeId = employeeId;
+    }
+
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder();
         sb.append("CreateVacationForm");
-        sb.append("{calFromDate='").append(calFromDate).append('\'');
+        sb.append("{employeeId=").append(employeeId);
+        sb.append(", calFromDate='").append(calFromDate).append('\'');
         sb.append(", calToDate='").append(calToDate).append('\'');
         sb.append(", comment='").append(comment).append('\'');
         sb.append(", vacationType=").append(vacationType);

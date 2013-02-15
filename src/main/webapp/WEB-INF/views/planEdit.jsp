@@ -1,29 +1,31 @@
 <%@page contentType="text/html" pageEncoding="UTF-8" %>
 
-<%@ page import="java.io.File" %>
+<%@ page import="com.aplana.timesheet.controller.CreatePlanForPeriodContoller" %>
 <%@ page import="static com.aplana.timesheet.constants.TimeSheetConstants.DOJO_PATH" %>
 <%@ page import="static com.aplana.timesheet.controller.PlanEditController.*" %>
 <%@ page import="static com.aplana.timesheet.form.PlanEditForm.*" %>
 <%@ page import="static com.aplana.timesheet.controller.PlanEditController.PERCENT_OF_CHARGE" %>
+<%@ page import="static com.aplana.timesheet.util.ResourceUtils.getResRealPath" %>
 
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form" %>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 
 <%! private static final String GRID_JS_ID = "myGrid"; %>
-<% final long scriptModified = new File(application.getRealPath("/resources/js/DataGrid.ext.js")).lastModified(); %>
-<% final long styleModified = new File(application.getRealPath("/resources/css/DataGrid.ext.css")).lastModified(); %>
 
 <html>
 <head>
-    <script src="<c:url value="/resources/js/DataGrid.ext.js?" /><%= scriptModified %>" type="text/javascript"></script>
+    <title><fmt:message key="title.planEdit" /></title>
+    <script src="<%= getResRealPath("/resources/js/DataGrid.ext.js", application) %>" type="text/javascript"></script>
+    <script src="<%= getResRealPath("/resources/js/utils.js", application) %>" type="text/javascript"></script>
 
     <style type="text/css">
         /* REQUIRED STYLES!!! */
         @import "<%= DOJO_PATH %>/dojox/grid/resources/Grid.css";
         @import "<%= DOJO_PATH %>/dojox/grid/resources/tundraGrid.css";
-        @import "<c:url value="/resources/css/DataGrid.ext.css?" /><%= styleModified %>";
+        @import "<%= getResRealPath("/resources/css/DataGrid.ext.css", application) %>";
 
         #planEditForm > table {
             margin-bottom: 10px;
@@ -44,9 +46,17 @@
     </style>
 
     <script type="text/javascript">
+        var hasChanges = false;
+
         dojo.addOnLoad(function() {
             updateMultipleForSelect(dojo.byId("<%= REGIONS %>"));
             updateMultipleForSelect(dojo.byId("<%= PROJECT_ROLES %>"));
+
+            var prevValue;
+
+            <%= GRID_JS_ID %>.onStartEdit = function(inCell, inRowIndex) {
+                prevValue = myStoreObject.items[inRowIndex][inCell.field][0];
+            }
 
             <%= GRID_JS_ID %>.onApplyCellEdit = function(inValue, inRowIndex, inFieldIndex) {
                 var newValue = replacePeriodsWithDots(inValue);
@@ -56,6 +66,11 @@
                 }
 
                 myStoreObject.items[inRowIndex][inFieldIndex][0] = newValue;
+
+                if (prevValue != newValue) {
+                    hasChanges = true;
+                    cellHasBeenEdited(<%= GRID_JS_ID %>, inFieldIndex, inRowIndex);
+                }
             }
 
             setTimeout(function() {
@@ -63,24 +78,11 @@
             }, 1);
         });
 
-        function isNumber(n) {
-            return (typeof n != typeof undefined) && !isNaN(parseFloat(n)) && isFinite(n);
-        }
-
-        function showErrors(errors) {
-            var errorsStr = '';
-
-            dojo.forEach(errors, function (error) {
-                errorsStr += error + "\n\n";
-            });
-
-            if (errorsStr.length == 0) {
-                return false;
+        dojo.addOnUnload(function() {
+            if (hasChanges) {
+                return "Изменения не были сохранены.";
             }
-
-            alert(errorsStr);
-            return true;
-        }
+        });
 
         function replacePeriodsWithDots(value) {
             if (typeof value == "string") {
@@ -92,7 +94,7 @@
 
         var dataJson = '${jsonDataToShow}';
         var projectListJson = '${projectListJson}';
-        const projectList = (projectListJson.length > 0) ? dojo.fromJson(projectListJson) : [];
+        var projectList = (projectListJson.length > 0) ? dojo.fromJson(projectListJson) : [];
 
         if (dataJson.length > 0) {
             dojo.require("dojox.layout.ContentPane");
@@ -124,10 +126,12 @@
 
             function createHeaderViewsAndFillModelFields() {
                 var firstView = {
-                    noscroll: true
+                    noscroll: true,
+                    expand: true
                 };
 
                 var secondView = {
+                    expand: true
                 };
 
                 var views = [
@@ -193,11 +197,16 @@
                     }
 
                     function createCell(name, field) {
+                        var scale = 2;
+                        <c:if test="${planEditForm.showPlans and planEditForm.showFacts}">
+                        scale = 1;
+                        </c:if>
                         return {
                             name: name,
                             field: field,
                             noresize: true,
-                            width: "49px",
+
+                            width: (49 * scale) + "px",
                             <sec:authorize access="hasRole('ROLE_PLAN_EDIT')">
                             editable: dojo.some(modelFieldsForSave, function(fieldForSave) {
                                 return (field == fieldForSave);
@@ -341,6 +350,10 @@
                 for (var field in item) {
                     var value = item[field];
 
+                    if (field == "<%= PROJECTS_PLANS %>") {
+                        continue;
+                    }
+
                     if ((value || "").length == 0) {
                         delete item[field];
                     } else {
@@ -378,12 +391,18 @@
                     "<%= JSON_DATA_ITEMS %>": items
                 }
 
+                hasChanges = false;
+
                 var form = dojo.byId("<%= FORM %>");
 
-                form.action = "<%= PLAN_SAVE %>";
+                form.action = "<%= PLAN_SAVE_URL %>";
                 form.<%= JSON_DATA %>.value = dojo.toJson(object);
                 form.submit();
             }
+        }
+
+        function createPlanForPeriod() {
+            window.location = getContextPath() + "<%= CreatePlanForPeriodContoller.CREATE_PLAN_FOR_PERIOD_URL %>";
         }
 
     </script>
@@ -500,8 +519,11 @@
 
     <sec:authorize access="hasRole('ROLE_PLAN_EDIT')">
     <c:if test="${fn:length(jsonDataToShow) > 0}">
-    <br/><button style="width:150px;vertical-align: middle;" onclick="save()" type="button">Сохранить
-        планы</button>
+    <br/>
+    <button style="width:150px;vertical-align: middle;" onclick="save()" type="button">Сохранить планы</button>
+    <button style="vertical-align: middle;" onclick="createPlanForPeriod()" type="button">
+        Запланировать на период
+    </button>
     </c:if>
     </sec:authorize>
 </form:form>
@@ -509,9 +531,9 @@
 <br/>
 
 <c:if test="${fn:length(jsonDataToShow) > 0}">
-<div dojoType="dojox.layout.ContentPane" style="width: 100%; min-width: 1260px">
+<div dojoType="dojox.layout.ContentPane" style="width: 100%; min-width: 1260px;">
     <div id="myTable" jsId="<%= GRID_JS_ID %>" dojoType="dojox.grid.DataGrid" store="myStore"
-           selectionMode="none" canSort="false" query="myQuery" autoHeight="true"
+           selectionMode="none" canSort="false" query="myQuery" <%--autoHeight="true"--%> style="height: 435px;"
            structure="myLayout"></div>
 </div>
 </c:if>

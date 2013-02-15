@@ -10,10 +10,10 @@ import java.util.Arrays;
  * @version 1.0
  */
 public enum WorkPlacesEnum implements TSEnum {
-    OFFICE(42, "В офисе"),
-    HOME(43,"Дома"),
-    AT_CUSTOMERS_OFFICE(44, "У заказчика"),
-    OTHER(45, "Другое");
+    OFFICE(49, "В офисе"),
+    HOME(50,"Дома"),
+    AT_CUSTOMERS_OFFICE(51, "У заказчика"),
+    OTHER(52, "Другое");
 
     private int id;
     private String name;

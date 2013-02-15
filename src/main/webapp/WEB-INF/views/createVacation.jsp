@@ -28,17 +28,9 @@
         dojo.declare("DateTextBox", dijit.form.DateTextBox, {
             popupClass: "Calendar"
             <sec:authorize access="not hasRole('ROLE_ADMIN')">
-                ,
-
-                openDropDown: function() {
-                    this.inherited(arguments);
-
-                    this.dropDown.isDisabledDate = function(date) {
-                        return (date <= new Date());
-                    };
-
-                    this.dropDown._populateGrid();
-                }
+            , isDisabledDate: function(date) {
+                return (date <= new Date());
+            }
             </sec:authorize>
         });
 
@@ -56,8 +48,8 @@
         }
 
         function validate() {
-            var fromDate = dojo.byId("calFromDate").value;
-            var toDate = dojo.byId("calToDate").value;
+            var fromDate = dijit.byId("calFromDate").get('value');
+            var toDate = dijit.byId("calToDate").get('value');
             var type = dojo.byId("types").value;
             var comment = dojo.byId("comment").value;
 
@@ -72,7 +64,7 @@
             }
 
             if (fromDate > toDate) {
-                error += "Дата окончания отпуска не может быть больше даты начала\n";
+                error += "Дата начала отпуска не может быть больше даты окончания\n";
             }
 
             if (isNilOrNull(type)) {
@@ -132,6 +124,8 @@
 
 <form:form method="post" commandName="createVacationForm" name="mainForm">
     <form:errors path="*" cssClass="errors_box" delimiter="<br/><br/>" />
+
+    <form:hidden path="employeeId" />
 
     <table class="without_borders">
         <colgroup>

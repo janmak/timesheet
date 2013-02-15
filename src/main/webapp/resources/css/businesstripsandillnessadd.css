@@ -7,7 +7,6 @@
 .checkboxeslabel{
     float: left;
     width: 100px;
-    height: 20px;
 }
 .comment{
     float: left;
@@ -20,7 +19,6 @@
 
     text-wrap: normal;
     width: 200;
-    height: 20px;
 }
 .lowspace {
     margin: 6px;

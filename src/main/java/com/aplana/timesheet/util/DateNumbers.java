@@ -1,5 +1,7 @@
 package com.aplana.timesheet.util;
 
+import org.apache.commons.lang.time.DateUtils;
+
 import java.util.Calendar;
 import java.util.Date;
 
@@ -13,7 +15,9 @@ public class DateNumbers {
     private Integer month;
     private Integer year;
 
-    public DateNumbers(){};
+    public DateNumbers() {
+
+    }
 
     public DateNumbers(Integer day, Integer month, Integer year) {
         this.day = day;
@@ -22,8 +26,8 @@ public class DateNumbers {
     }
 
     public DateNumbers(Date date) {
-        Calendar beginCalendar = Calendar.getInstance();
-        beginCalendar.setTime(date);
+        final Calendar beginCalendar = DateUtils.toCalendar(date);
+
         this.year = beginCalendar.get(Calendar.YEAR);
         this.month = beginCalendar.get(Calendar.MONTH);
         this.day = beginCalendar.get(Calendar.DATE);

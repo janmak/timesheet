@@ -110,12 +110,17 @@ public class SendMailService{
      * @param empId
      */
     public String getEmployeesManagersEmails(Integer empId) {
-        StringBuilder chiefEmails = new StringBuilder();
-        chiefEmails.append(employeeService.find(empId).getEmail()).append(",");
-        Employee manager = employeeService.find(empId).getManager();
+        final StringBuilder chiefEmails = new StringBuilder();
+
+        final Employee employee = employeeService.find(empId);
+        final Employee manager = employee.getManager();
+
         if (manager != null) {
             chiefEmails.append(getEmployeesManagersEmails(manager.getId()));
+        } else {
+            chiefEmails.append(employee.getEmail()).append(",");
         }
+
         return chiefEmails.toString();
     }
 
@@ -279,7 +284,8 @@ public class SendMailService{
     }
 
     public List<ProjectParticipant> getProjectParticipantsOfManagersThatDoesntApproveVacation(List<Integer> projectRolesIds, Project project, Vacation vacation) {
-        return projectParticipantService.getProjectParticipantsOfManagersThatDoesntApproveVacation(projectRolesIds, project, vacation);
+        return projectParticipantService.getProjectParticipantsOfManagersThatDoesntApproveVacation(projectRolesIds,
+                project, vacation);
     }
 
     interface RenameMe {

@@ -37,10 +37,11 @@ h1, h2, h3, h4, h5, h6 {
     padding-top: 3px;
     font-size: 24px;
     color: #888;
+    height: 72px;
 }
 
 div.menu_holder {
-    padding-top: 40px;
+    /*padding-top: 40px;*/
 }
 
 div.menu_holder ul {
@@ -57,6 +58,9 @@ div.menu_holder ul {
     line-height: 35px;
     font-size: 14px;
     color: #371C1C;
+    position: absolute;
+    top: 35px;
+    right: 0;
 }
 
 div.menu_holder li {
@@ -77,6 +81,9 @@ div.menu_holder ul a:hover, div.menu_holder span a:hover {
     text-decoration: none;
 }
 
+div.menu_holder table td {
+    border: none;
+}
 
 #logo {
     position: absolute;
@@ -198,6 +205,10 @@ div.menu_holder ul a:hover, div.menu_holder span a:hover {
 
 .date_picker * {
     height: 22px;
+}
+
+.tundra .date_picker.dijitvalidationtextboxerror .dijitvalidationicon {
+    line-height: 22px;
 }
 
 .tundra .dijitArrowButtonInner {
@@ -385,5 +396,9 @@ table.report_params td {
 
 .auto_height {
 	height: auto;
+}
+
+.classDateRedText {
+    color: #f58383;
 }
 
