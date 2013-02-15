@@ -202,8 +202,7 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
     @RequestMapping(value = "/deleteVacation/{vac_id}", produces = "text/plain;charset=UTF-8")
     @ResponseBody
     public String deleteVacation(
-            @PathVariable("vac_id") Integer vacationId
-    ) {
+            @PathVariable("vac_id") Integer vacationId) {
         try {
             final Vacation vacation = vacationDAO.findVacation(vacationId);
 
@@ -231,9 +230,9 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
                     );
                 }
 
-                vacationDAO.delete(vacation);
+                sendMailService.performVacationDeletedMailing(vacation);    //todo переделать, чтобы рассылка все-таки была после удаления?
 
-                sendMailService.performVacationDeletedMailing(vacation);
+                vacationDAO.delete(vacation);
 
                 return StringUtils.EMPTY;
             }
