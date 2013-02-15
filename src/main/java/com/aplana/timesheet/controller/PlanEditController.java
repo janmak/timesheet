@@ -419,7 +419,7 @@ public class PlanEditController {
 
             workDaysCount = calendarService.getWorkDaysCountForRegion(region, year, month, employee.getStartDate());
 
-            final double summaryPlan = TimeSheetConstants.WORK_DAY_DURATION * workDaysCount;
+            final double summaryPlan = TimeSheetConstants.WORK_DAY_DURATION * workDaysCount * employee.getJobRate();
 
             if (showPlans) {
                 builder.withField(
