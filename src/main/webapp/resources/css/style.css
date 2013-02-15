@@ -58,8 +58,9 @@ div.menu_holder ul {
     line-height: 35px;
     font-size: 14px;
     color: #371C1C;
-    position: relative;
-    top: -35px;
+    position: absolute;
+    top: 35px;
+    right: 0;
 }
 
 div.menu_holder li {
@@ -80,6 +81,9 @@ div.menu_holder ul a:hover, div.menu_holder span a:hover {
     text-decoration: none;
 }
 
+div.menu_holder table td {
+    border: none;
+}
 
 #logo {
     position: absolute;
