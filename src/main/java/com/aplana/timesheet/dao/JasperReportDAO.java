@@ -23,6 +23,9 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+import static com.aplana.timesheet.enums.VacationStatusEnum.*;
+import static com.aplana.timesheet.enums.TypesOfActivityEnum.*;
+
 @Repository
 public class JasperReportDAO {
 
@@ -33,7 +36,7 @@ public class JasperReportDAO {
     static {
         //TODO может быть это вынести в сам класс Reports?
         fieldsMap.put( Report01.class, new String[] { "id", "name", "caldate", "projnames", "overtime", "duration",
-                "holiday", "region", "projdetail", "durationdetail", "region_name" } );
+                "holiday", "region", "projdetail", "durationdetail", "region_name", "vacation", "illness" } );
         fieldsMap.put( Report02.class, new String[] { "name", "empldivision", "project",
                 "taskname", "duration", "holiday", "region" } );
         fieldsMap.put( Report03.class, new String[] { "name", "empldivision", "project", "taskname",
@@ -153,53 +156,94 @@ public class JasperReportDAO {
     @VisibleForTesting
     List getResultList( Report01 report ) {
         boolean withRegionClause   = report.hasRegions()                && !report.isAllRegions();
-        String regionClause2 = withRegionClause ? "region.id in :regionIds and " : "";
         boolean withDivisionClause = ! report.getDivisionOwnerId().equals(0);
 
         String workDaySeparator = "";
 
         if(OverTimeCategory.Holiday.equals(report.getCategory())) {
-            workDaySeparator="and h.calDate is not null ";
+            workDaySeparator="and holidays.calDate is not null ";
         } else if(OverTimeCategory.Simple.equals(report.getCategory())) {
-            workDaySeparator="and h.calDate is null ";
+            workDaySeparator="and holidays.calDate is null ";
         }
 
-        Query query = entityManager.createQuery(
-                "select " +
-                        "em.id, " +
-                        "em.name, " +
-                        "ts.calDate.calDate, " +
-                        "cast('' as string), " +
-                        "sum(td.duration)-8, " +
-                        "sum(td.duration), " +
-                        "h.id, " +
-                        "h.region.id, " +
-						"(case when h is not null then " +
-                            "(case when project is not null then " +
-                                "project.name " +
-                            "else cast('Внепроектная деятельность' as string) " +
-                            "end) " +
-                        "else cast('%NO_GROUPING%' as string) end), " +
-                        "(case when h is not null then td.duration else cast(-1 as float) end)," +
-                        " region.name " +
-                    "from TimeSheetDetail td " +
-                    "inner join td.timeSheet ts " +
-                    "inner join ts.employee em " +
-                    "inner join em.region as region " +
-                    "left outer join ts.calDate.holidays h " +
-                    "left outer join td.project project " +
-                    "join em.division d " +
-                    "where " +
-                        (withDivisionClause ? DIVISION_CLAUSE : WITHOUT_CLAUSE) +
-                        // В этом отчете учитываются только следующие виды деятельности "Проектная", "Пресейловая", "Внепроектная" (соответсвенно)
-                        "td.actType.id in (12, 13, 14) " +
-                        "and " + regionClause2 +
-                        "ts.calDate.calDate between :beginDate and :endDate " +
-                        "and ((h.region.id is null) or (h.region.id=region.id)) " +
-						workDaySeparator +
-                    "group by em.id, em.name, ts.calDate.calDate, h, h.region.id, 9, 10, region.name " +
-                    "having (sum(td.duration) > 8) or (h is not null) " +
-                    "order by em.name, h.id desc, ts.calDate.calDate");
+        // Я не знаю как написать это на HQL, но на SQL пишется легко и непринужденно.
+        Query query = entityManager.createNativeQuery(
+                "SELECT\n" +
+                        "        employee.id AS col_0,\n" +
+                        "        employee.name AS col_1,\n" +
+                        "        timesheet.caldate AS col_2,\n" +
+                        "        cast('' AS varchar(255)) AS col_3,\n" +
+                        "        sum(timesheet_details.duration)-8 AS col_4,\n" +
+                        "        sum(timesheet_details.duration) AS col_5,\n" +
+                        "        holidays.id AS col_6,\n" +
+                        "        holidays.region AS col_7,\n" +
+                        "        CASE\n" +
+                        "            WHEN (holidays.id is not null OR" +
+                        "                  vacations.id is not null OR" +
+                        "                  illnesses.id is not null) " +
+                        "               THEN CASE\n" +
+                        "                   WHEN project.id is not null THEN project.name \n" +
+                        "                   ELSE cast('Внепроектная деятельность' AS varchar(255)) \n" +
+                        "            END\n" +
+                        "            ELSE cast('%NO_GROUPING%' AS varchar(255)) \n" +
+                        "        END AS col_8,\n" +
+                        "        CASE\n" +
+                        "            WHEN (holidays.id is not null OR" +
+                        "                  vacations.id is not null OR " +
+                        "                  illnesses.id is not null) " +
+                        "               THEN SUM(timesheet_details.duration) \n" +
+                        "            ELSE cast(-1 as float4) \n" +
+                        "        END AS col_9,\n" +
+                        "        region.name AS col_10,\n" +
+                        "        vacations.id AS col_11,\n" +
+                        "        illnesses.id AS col_12 \n" +
+                        "FROM\n" +
+                        "       time_sheet_detail timesheet_details \n" +
+                        "       INNER JOIN time_sheet timesheet ON timesheet_details.time_sheet_id=timesheet.id \n" +
+                        "       INNER JOIN employee employee    ON timesheet.emp_id=employee.id \n" +
+                        "       INNER JOIN region region        ON employee.region=region.id \n" +
+                        "       INNER JOIN division division    ON employee.division=division.id \n" +
+                        "       LEFT OUTER JOIN calendar calendar  ON timesheet.caldate=calendar.caldate \n" +
+                        "       LEFT OUTER JOIN holiday holidays   ON calendar.caldate=holidays.caldate \n" +
+                        "       LEFT OUTER JOIN project project    ON timesheet_details.proj_id=project.id \n" +
+                        "       LEFT OUTER JOIN project_role project_role ON timesheet_details.projectrole_id=project_role.id \n" +
+                        "       LEFT OUTER JOIN vacation vacations ON \n" +
+                        "               employee.id=vacations.employee_id AND \n" +
+                        "               timesheet.caldate BETWEEN vacations.begin_date AND vacations.end_date \n" +
+                        "               AND vacations.status_id=:status\n" +
+                        "       LEFT OUTER JOIN illness illnesses ON \n" +
+                        "               employee.id=illnesses.employee_id AND \n" +
+                        "               timesheet.caldate BETWEEN illnesses.begin_date AND illnesses.end_date\n" +
+                        "WHERE\n" +
+                                (withDivisionClause ? "division.id = :emplDivisionId AND " : "") +
+                                (withRegionClause ? "region.id in :regionIds AND " : "") +
+                                workDaySeparator +
+                        "        timesheet_details.act_type in :actTypes AND \n" +
+                        "        timesheet.caldate BETWEEN :beginDate AND :endDate AND \n" +
+                        "        (holidays.region is null OR holidays.region=region.id) \n" +
+                        "GROUP BY\n" +
+                        "        employee.id ,\n" +
+                        "        employee.name ,\n" +
+                        "        timesheet.caldate ,\n" +
+                        "        holidays.id ,\n" +
+                        "        holidays.region ,\n" +
+                        "        col_8 ,\n" +
+                        "        region.name ,\n" +
+                        "        vacations.id ,\n" +
+                        "        illnesses.id \n" +
+                        "HAVING\n" +
+                        "        sum(timesheet_details.duration) > 8 \n" +
+                        "        OR holidays.id is not null \n" +
+                        "        OR vacations.id is not null\n" +
+                        "        OR illnesses.id is not null\n" +
+                        "ORDER BY\n" +
+                        "        employee.name,\n" +
+                        "        holidays.id desc,\n" +
+                        "        vacations.id, \n" +
+                        "        illnesses.id, \n" +
+                        "        timesheet.caldate"
+        );
+
 
         if (withRegionClause) {
             query.setParameter("regionIds", report.getRegionIds());
@@ -209,7 +253,9 @@ public class JasperReportDAO {
         }
 
         query   .setParameter("beginDate", DateTimeUtil.stringToTimestamp(report.getBeginDate()))
-                .setParameter("endDate", DateTimeUtil.stringToTimestamp(report.getEndDate()));
+                .setParameter("endDate", DateTimeUtil.stringToTimestamp(report.getEndDate()))
+                .setParameter("status", APPROVED.getId())
+                .setParameter("actTypes", getProjectPresaleNonProjectActivityId()); // отчет только по этим типам активностей ( 12 , 13 , 14 )
 
         List resultList = query.getResultList();
         //TODO похоже это нужно вынести в запрос, и не делать этого в Java
@@ -222,7 +268,8 @@ public class JasperReportDAO {
             if ( next[ 6 ] != null ) continue;
 
             next[ 3 ] = getStringWithProjectNames(
-                    getProjectNamesList( projResultList, ( Integer ) next[ 0 ], ( Timestamp ) next[ 2 ] ) );
+                    getProjectNamesList( projResultList, ( Integer ) next[ 0 ], new Timestamp ( ((Date)next[ 2 ]).getTime() )
+            ) );
         }
         return resultList;
     }

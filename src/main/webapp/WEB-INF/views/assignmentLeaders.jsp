@@ -98,7 +98,7 @@
                         <!-- Руководитель -->
                         <c:if test="${editable == true}">
                             <td>
-                                <form:select cssStyle="border: none" path="tableRows[${row.index}].leaderId" id="leader_id_${row.index}"
+                                <form:select cssStyle="border: none; width: 300" path="tableRows[${row.index}].leaderId" id="leader_id_${row.index}"
                                              onmouseover="tooltip.show(getTitle(this));" onmouseout="tooltip.hide();">
                                     <form:option label="" value="0"/>
                                     <form:options items="${assignmentLeadersForm.tableRows[row.index].regionDivisionEmployees}"

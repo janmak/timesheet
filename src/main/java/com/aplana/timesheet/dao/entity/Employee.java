@@ -61,11 +61,33 @@ public class Employee implements Identifiable {
                        @JoinColumn(name = "permission_id", nullable = false) })
     private Set<Permission> permissions;
 
+    @OneToMany(mappedBy = "employee", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Set<Vacation> vacations;
+
+    @OneToMany(mappedBy = "employee", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Set<Illness> illnesses;
+
     @Column(name = "not_to_sync", columnDefinition = "bool not null default false")
     private boolean notToSync;
 
     @Column(length = 50, name = "ldap_object_sid")
     private String objectSid;
+
+    public Set<Vacation> getVacations() {
+        return vacations;
+    }
+
+    public void setVacations(Set<Vacation> vacations) {
+        this.vacations = vacations;
+    }
+
+    public Set<Illness> getIllnesses() {
+        return illnesses;
+    }
+
+    public void setIllnesses(Set<Illness> illnesses) {
+        this.illnesses = illnesses;
+    }
 
     @Column(name = "job_rate", columnDefinition = "") // TODO
     private Float jobRate;
