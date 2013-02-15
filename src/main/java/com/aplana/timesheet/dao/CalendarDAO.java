@@ -9,10 +9,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Nullable;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import javax.validation.constraints.NotNull;
 import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
@@ -193,7 +195,7 @@ public class CalendarDAO {
              .setParameter(REGION, region);
     }
 
-    public int getWorkDaysCountForRegion(Region region, Integer year, Integer month, Date fromDate) {
+    public int getWorkDaysCountForRegion(Region region, Integer year, Integer month, @NotNull Date fromDate) {
         final Query query = entityManager.createQuery(
                 GET_WORK_DAYS_FROM_DATE
         ).setParameter(REGION, region).setParameter(YEAR, year).
@@ -202,7 +204,8 @@ public class CalendarDAO {
         return ((Long) query.getSingleResult()).intValue();
     }
 
-    public int getWorkDaysCountForRegion(Region region, Integer year, Integer month, Date fromDate, Date toDate) {
+    public int getWorkDaysCountForRegion(Region region, Integer year, Integer month, @Nullable Date fromDate,
+                                         @Nullable Date toDate) {
         final Query query = entityManager.createQuery(
                 GET_WORK_DAYS_FROM_DATE + " and c.calDate <= :to_date"
         ).setParameter(REGION, region).setParameter(YEAR, year).

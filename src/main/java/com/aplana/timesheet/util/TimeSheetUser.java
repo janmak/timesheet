@@ -13,6 +13,10 @@ public class TimeSheetUser extends User {
     }
 
     public void setEmployee(Employee employee) {
+        if (employee != null) {
+            HibernateUtils.fetchAllFields(employee);
+        }
+
         this.employee = employee;
     }
 
@@ -20,6 +24,7 @@ public class TimeSheetUser extends User {
 
     public TimeSheetUser(Employee user, Collection<? extends GrantedAuthority> authorities) {
         super(user.getName(), "[PROTECTED]", authorities);
-        this.employee = user;
+
+        setEmployee(user);
     }
 }

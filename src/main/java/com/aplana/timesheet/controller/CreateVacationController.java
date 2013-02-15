@@ -3,8 +3,8 @@ package com.aplana.timesheet.controller;
 import com.aplana.timesheet.dao.entity.Calendar;
 import com.aplana.timesheet.dao.entity.Employee;
 import com.aplana.timesheet.dao.entity.Vacation;
+import com.aplana.timesheet.enums.DictionaryEnum;
 import com.aplana.timesheet.enums.VacationStatusEnum;
-import com.aplana.timesheet.enums.VacationTypesEnum;
 import com.aplana.timesheet.exception.service.VacationApprovalServiceException;
 import com.aplana.timesheet.form.CreateVacationForm;
 import com.aplana.timesheet.form.validator.CreateVacationFormValidator;
@@ -82,7 +82,10 @@ public class CreateVacationController {
     private ModelAndView getModelAndView(Employee employee) {
         final ModelAndView modelAndView = new ModelAndView("createVacation");
 
-        modelAndView.addObject("vacationTypes", dictionaryItemService.getItemsByDictionaryId(VacationTypesEnum.DICT_ID));
+        modelAndView.addObject(
+                "vacationTypes",
+                dictionaryItemService.getItemsByDictionaryId(DictionaryEnum.VACATION_TYPE.getId())
+        );
         modelAndView.addObject("employee", employee);
         modelAndView.addObject("typeWithRequiredComment", CreateVacationFormValidator.TYPE_WITH_REQUIRED_COMMENT);
 

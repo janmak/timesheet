@@ -4,7 +4,9 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * @author eshangareev
@@ -82,5 +84,13 @@ public enum TypesOfActivityEnum implements TSEnum {
                 return input.getId() == id;
             }
         }).orNull();
+    }
+
+    public static List<Integer> getProjectPresaleNonProjectActivityId(){
+        List<Integer> result = new ArrayList<Integer>();
+        result.add(PROJECT.getId());
+        result.add(PRESALE.getId());
+        result.add(NON_PROJECT.getId());
+        return result;
     }
 }
