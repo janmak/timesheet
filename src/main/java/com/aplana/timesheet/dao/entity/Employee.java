@@ -89,7 +89,7 @@ public class Employee implements Identifiable {
         this.illnesses = illnesses;
     }
 
-    @Column(name = "job_rate", columnDefinition = "") // TODO
+    @Column(name = "job_rate", columnDefinition = "default 1")
     private Float jobRate;
 
     public Set<Permission> getPermissions() {
