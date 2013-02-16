@@ -15,7 +15,7 @@
 	<style name="Column header" style="Normal" forecolor="#666666" isBold="true"/>
 	<style name="Detail" style="Normal" backcolor="#FF0000"/>
 	<parameter name="reportParams" class="com.aplana.timesheet.reports.Report04" isForPrompting="false"/>
-	<field name="date" class="java.sql.Timestamp"/>
+	<field name="date" class="java.sql.Date"/>
 	<field name="name" class="java.lang.String"/>
 	<field name="region_name" class="java.lang.String"/>
 	<group name="Group1">
