@@ -1,16 +1,20 @@
 <%@ page import="com.aplana.timesheet.util.DateTimeUtil" %>
 <%@ page import="java.io.FileInputStream" %>
 <%@ page import="java.util.Properties" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%
-    String version = "";
     Properties property = new Properties();
     try {
         property.load(new FileInputStream("./webapps/timesheet.properties"));
     } catch (Exception e) { }
-    String footer = property.getProperty("footer.text");
+    String version = property.getProperty("footer.text");
+    String help = property.getProperty("timesheet.help.url");
 %>
 <br/>
 <hr/>
 <br/>
 
-<p style="text-align: center"><%= footer %></p>
+<p style="text-align: center">
+    <%= version %> </br>
+    <a href=<%= help %>><fmt:message key="help.text"/></a>
+</p>
