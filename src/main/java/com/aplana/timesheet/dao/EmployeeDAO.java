@@ -229,10 +229,16 @@ public class EmployeeDAO {
 	}
 
     public boolean isNotToSync(Employee employee) {
+        final String email = employee.getEmail();
+
+        if (email == null) {
+            return true;
+        }
+
         Query query;
         query = entityManager.createQuery(
                 "FROM Employee AS e WHERE e.email=:email"
-        ).setParameter("email", employee.getEmail().trim());
+        ).setParameter("email", email.trim());
 
         List<Employee> result = query.getResultList();
 

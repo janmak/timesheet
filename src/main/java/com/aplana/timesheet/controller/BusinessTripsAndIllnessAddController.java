@@ -254,7 +254,7 @@ public class BusinessTripsAndIllnessAddController extends AbstractController{
             BusinessTrip businessTrip = businessTripService.find(reportId);
             businessTrip.setBeginDate(tsForm.getBeginDate());
             businessTrip.setEndDate(tsForm.getEndDate());
-            businessTrip.setType(dictionaryItemService.find(tsForm.getReportType()));
+            businessTrip.setType(dictionaryItemService.find(tsForm.getBusinessTripType()));
             if (tsForm.getReportType().equals(BusinessTripTypesEnum.PROJECT.getId())){
                 businessTrip.setProject(projectService.find(tsForm.getProjectId()));
             }
