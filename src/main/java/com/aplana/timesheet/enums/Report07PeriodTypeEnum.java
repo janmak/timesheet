@@ -17,13 +17,23 @@ public enum Report07PeriodTypeEnum {
 
 
     public static Report07PeriodTypeEnum getByMonthsCount(int monthsCount) {
+        final Report07PeriodTypeEnum report07PeriodTypeEnum = tryGetByMonthsCount(monthsCount);
+
+        if (report07PeriodTypeEnum == null) {
+            throw new NoSuchElementException();
+        }
+
+        return report07PeriodTypeEnum;
+    }
+
+    public static Report07PeriodTypeEnum tryGetByMonthsCount(Integer monthsCount) {
         for (Report07PeriodTypeEnum anEnum : Report07PeriodTypeEnum.values()) {
             if (anEnum.monthsCount == monthsCount) {
                 return anEnum;
             }
         }
 
-        throw new NoSuchElementException();
+        return null;
     }
 
     private final int monthsCount;

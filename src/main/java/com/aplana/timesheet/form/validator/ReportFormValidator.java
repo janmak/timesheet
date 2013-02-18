@@ -71,7 +71,7 @@ public class ReportFormValidator implements Validator {
         }
 
         final Report07PeriodTypeEnum periodType =
-                Report07PeriodTypeEnum.getByMonthsCount(report.getPeriodType());
+                Report07PeriodTypeEnum.tryGetByMonthsCount(report.getPeriodType());
 
         if (!ArrayUtils.contains(Report07PeriodTypeEnum.values(), periodType)) {
             errors.rejectValue("periodType", "error.reportform.wrongperiodtype");
