@@ -18,7 +18,7 @@
     <script type="text/javascript">
         var ua = navigator.userAgent.toLowerCase();
         // Определим Internet Explorer
-        if (ua.indexOf("msie") != -1) {
+        if (ua.indexOf("gecko") == -1 && ua.indexOf("chrome")) {
             document.write("<fmt:message key="recomendation.browser.using.text"/>" + "</br>");
         }
     </script>
