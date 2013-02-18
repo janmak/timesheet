@@ -152,4 +152,12 @@ public class EmployeeService {
     public List<Employee> getEmployees() {
         return employeeDAO.getEmployees();
     }
+
+    public Employee getEmployeeFromBusinessTrip(Integer reportId) {
+        return employeeDAO.tryGetEmployeeFromBusinessTrip(reportId);
+    }
+
+    public Employee getEmployeeFromIllness(Integer reportId) {
+        return employeeDAO.tryGetEmployeeFromIllness(reportId);
+    }
 }

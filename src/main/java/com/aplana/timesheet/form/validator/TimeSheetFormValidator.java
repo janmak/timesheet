@@ -72,11 +72,8 @@ public class TimeSheetFormValidator extends AbstractValidator {
         validateEmployee    ( selectedEmployeeId, errors );
         validateSelectedDate( tsForm, selectedEmployeeId, errors );
 
-        boolean longInactivity = tsForm.isLongVacation() || tsForm.isLongIllness();
-        logger.debug("longInactivity = {} .", longInactivity);
-        boolean planNecessary = !longInactivity;
+        boolean planNecessary = true;
 
-        validateLongInactivity( longInactivity, selectedEmployeeId, tsForm, errors );
         // Для табличной части (по строчно).
         List<TimeSheetTableRowForm> tsTablePart = filterTable(tsForm);// удалим пустые строки
         tsForm.setTimeSheetTablePart(tsTablePart);
@@ -87,9 +84,7 @@ public class TimeSheetFormValidator extends AbstractValidator {
 
             int notNullRowNumber = 0;
 
-            if(planNecessary){
-                validateDuration( tsForm, notNullRowNumber, errors );
-            }
+            validateDuration( tsForm, notNullRowNumber, errors );
 
             for (TimeSheetTableRowForm formRow : tsTablePart) {
                 TypesOfActivityEnum actType = TypesOfActivityEnum.getById(formRow.getActivityTypeId());
@@ -107,11 +102,11 @@ public class TimeSheetFormValidator extends AbstractValidator {
                 notNullRowNumber++;
             }
 
-            if ( !longInactivity && tsTablePart.isEmpty()) {
+            if ( tsTablePart.isEmpty()) {
                 errors.reject("error.tsform.tablepart.required",
                         "В отчёте должны быть записи.");
             }
-        } else if (!longInactivity ) {
+        } else {
             errors.reject("error.tsform.tablepart.required",
                     "В отчёте должны быть записи.");
         }
@@ -309,57 +304,6 @@ public class TimeSheetFormValidator extends AbstractValidator {
                             "Вы уже списывали занятость за " + DateTimeUtil.formatDateString( selectedDate ) );
                 }
             }
-        }
-    }
-
-    private void validateLongInactivity( boolean longInactivity, Integer selectedEmployeeId, TimeSheetForm tsForm, Errors errors ) {
-        //Если выбран долгий отпуск или долгая болезнь
-        if ( longInactivity ) {
-
-            String beginDate = tsForm.getBeginLongDate();
-            String endDate = tsForm.getEndLongDate();
-            //Не указана дата начала
-            ValidationUtils.rejectIfEmptyOrWhitespace( errors,
-                    "beginLongDate",
-                    "error.tsform.beginlongdate.required",
-                    "Необходимо выбрать дату начала отпуска\\болезни." );
-            //Не указана дата окончания
-            ValidationUtils.rejectIfEmptyOrWhitespace(errors,
-                    "endLongDate",
-                    "error.tsform.endlongdate.required",
-                    "Необходимо выбрать дату окончания отпуска\\болезни.");
-            //Дата окончания не может быть раньше даты начала
-            if ( ! DateTimeUtil.isPeriodValid( beginDate, endDate ) ) {
-                errors.rejectValue("beginLongDate",
-                        "error.tsform.datesegment.notvalid",
-                        "Дата окончания не может быть раньше даты начала.");
-            }
-            //Недопустимя дата начала
-            if ( StringUtils.isNotBlank( beginDate ) && ! isCaldateValid( beginDate ) ) {
-                errors.rejectValue( "beginLongDate",
-                        "error.tsform.beginlongdate.invalid",
-                        "Выбрана недопустимая дата начала отпуска\\болезни." );
-            }
-            //Недопустимая дата окончания
-            if ( StringUtils.isNotBlank( endDate ) && ! isCaldateValid( endDate ) ) {
-                errors.rejectValue( "endLongDate",
-                        "error.tsform.endlongdate.invalid",
-                        "Выбрана недопустимая дата окончания отпуска\\болезни." );
-            }
-            //Сотрудник уже отправлял отчёт за выбранную дату.
-            List<String> splittedDateRange = DateTimeUtil.splitDateRangeOnDays(beginDate, endDate);
-            for ( String dateInStr : splittedDateRange ) {
-                if ( ! isCaldateUniqueForCurrentEmployee( dateInStr, selectedEmployeeId ) ) {
-                    if ( ! ( "".equals( beginDate ) || "".equals( endDate ) ) ) {
-                        Object[] errorMessageArgs = { DateTimeUtil.formatDateString( dateInStr ) };
-                        errors.rejectValue( "calDate",
-                                "error.tsform.caldate.notuniq",
-                                errorMessageArgs,
-                                "Вы уже списывали занятость за " + DateTimeUtil.formatDateString( dateInStr ) );
-                    }
-                }
-            }
-
         }
     }
 

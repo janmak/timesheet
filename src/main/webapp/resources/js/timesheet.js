@@ -298,89 +298,6 @@ function planBoxNotEmpty() {
     else return !!planBox.value;
 }
 
-/*проверяет, выделен ли чекбокс отпуска
- * если да, то чекбокс болезни не выделяется
- * и вызывается диалог - стирать или нет строки отчета*/
-function checkLongVacation() {
-    var otp = document.getElementById('long_vacation');
-    var ill = document.getElementById('long_illness');
-    if (otp.checked == true) {
-        ill.checked = false;
-        if (tablePartNotEmpty()) {
-            if (confirm("Выбор списания занятости по отпуску/болезни удалит" +
-                " введенные вами выше данные! Очистить все поля?")) {
-                //По условию все поля табличной части должны быть очищены и недоступны.
-                disableRows();
-                dojo.attr("plan", { value:"" });
-            } else {
-                otp.checked = false;
-            }
-        } else {
-            disableRows();
-        }
-    } else {
-        enableRows();
-    }
-    showOrHideDatePickers();
-}
-/*проверяет, выделен ли чекбокс болезни
- * если да, то чекбокс отпуска не выделяется
- * и вызывается диалог - стирать или нет строки отчета*/
-function checkLongIllness() {
-    var otp = document.getElementById('long_vacation');
-    var ill = document.getElementById('long_illness');
-    if (ill.checked == true) {
-        otp.checked = false;
-        if (tablePartNotEmpty()) {
-            if (confirm("Выбор списания занятости по отпуску/болезни удалит" +
-                " введенные вами выше данные! Очистить все поля?")) {
-                disableRows();
-                dojo.attr("plan", { value:"" });
-            } else {
-                ill.checked = false;
-            }
-        } else {
-            disableRows();
-        }
-    } else {
-        enableRows();
-    }
-    showOrHideDatePickers();
-}
-
-/*проверяет, выделены ли чекбоксы если нет
- * то дизейблит выбор дат отпуска/болезни
- * энейблит выбор даты самого отчета
- * если выделены то дейтпикер самого отчета
- * лочится и стирается его значение а дейтпикеры
- * отпуска/болезни становятся доступными*/
-function showOrHideDatePickers() {
-    var beginLongDate = dijit.byId("begin_long_date");
-    var endLongDate = dijit.byId("end_long_date");
-    var calDate = dijit.byId('calDate');
-    var otp = dojo.byId('long_vacation');
-    var ill = dojo.byId('long_illness');
-    if (otp.checked == false && ill.checked == false) {
-        beginLongDate.set({
-            disabled:true,
-            displayedValue:""
-        });
-        endLongDate.set({
-            disabled:true,
-            displayedValue:""
-        });
-        calDate.set("disabled", false);
-        setDuringDate();
-    } else {
-        beginLongDate.set("disabled", false);
-        endLongDate.set("disabled", false);
-        calDate.set({
-            disabled:true,
-            displayedValue:""
-        });
-    }
-}
-
 /* Устанавливает компоненту calDate дату по умолчанию. */
 function setDuringDate() {
     var date_picker = dijit.byId("calDate");
@@ -880,22 +797,7 @@ function reloadTimeSheetState() {
         date_picker.set("displayedValue", selectedCalDate);
     }
 
-    var beginDateStr = selectedLongVacationIllness[0].beginDate;
-    var endDateStr = selectedLongVacationIllness[0].endDate;
-    dijit.byId("begin_long_date").set("displayedValue", timestampStrToDisplayStr(beginDateStr));
-    dijit.byId("end_long_date").set("displayedValue", timestampStrToDisplayStr(endDateStr));
-
-    if (selectedLongVacationIllness[0].vacation == "true") {
-        var longVacation = dojo.byId("long_vacation");
-        longVacation.checked = true;
-        longVacation.onclick();
-    } else if (selectedLongVacationIllness[0].illness == "true") {
-        var longIllness = dojo.byId("long_illness");
-        longIllness.checked = true;
-        longIllness.onclick();
-    } else {
-        reloadRowsState();
-    }
+    reloadRowsState();
 }
 
 /*

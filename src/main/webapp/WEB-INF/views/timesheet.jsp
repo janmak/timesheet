@@ -35,7 +35,6 @@
         var selectedProjectRoles = ${selectedProjectRolesJson};
         var selectedActCategories = ${selectedActCategoriesJson};
         var selectedWorkplace = ${selectedWorkplaceJson};
-        var selectedLongVacationIllness = ${selectedLongVacationIllnessJson};
         var selectedCalDate = ${selectedCalDateJson};
         var dateByDefault = ${getDateByDefault};
         var firstWorkDateString =  "${getFirstWorkDate}";
@@ -192,46 +191,41 @@
                 root.onbeforeunload = null;
             }
 
-            var longVacation = dojo.byId("long_vacation");
             var longIllness = dojo.byId("long_illness");
             if (s == 'send' && confirmSendReport()) {
-                if (longVacation.checked == true || longIllness.checked == true) {
-                    timeSheetForm.action = "timesheetLong";
-                    timeSheetForm.submit();
-                } else {
-                    var division = dojo.byId('divisionId');
-                    var employee = dojo.byId('employeeId');
-                    var rowsCount = dojo.query(".time_sheet_row").length;
-                    var projectId;
-                    var projectComponent;
-                    var diff = false;
-                    for (var i = 0; i < rowsCount; i++) {
-                        projectComponent = dojo.query("#project_id_" + i)
-                        if (!diff && projectComponent.length > 0)
-                            if (projectComponent[0].value) {
-                                if (projectId && (projectId != projectComponent[0].value)) {
-                                    if (projectComponent[0].value != 0)
-                                        diff = true;
-                                }
-                                else
-                                    projectId = projectComponent[0].value;
+                var division = dojo.byId('divisionId');
+                var employee = dojo.byId('employeeId');
+                var rowsCount = dojo.query(".time_sheet_row").length;
+                var projectId;
+                var projectComponent;
+                var diff = false;
+                for (var i = 0; i < rowsCount; i++) {
+                    projectComponent = dojo.query("#project_id_" + i)
+                    if (!diff && projectComponent.length > 0)
+                        if (projectComponent[0].value) {
+                            if (projectId && (projectId != projectComponent[0].value)) {
+                                if (projectComponent[0].value != 0)
+                                    diff = true;
                             }
-                    }
-                    setCookie('aplanaDivision', division.value, TimeAfter(7, 0, 0));
-                    setCookie('aplanaEmployee', employee.value, TimeAfter(7, 0, 0));
-                    setCookie('aplanaRowsCount', rowsCount, TimeAfter(7, 0, 0));
-                    if (diff)
-                        deleteCookie("aplanaProject");
-                    else
-                        setCookie('aplanaProject', projectId, TimeAfter(7, 0, 0));
-                    timeSheetForm.action = "timesheet";
-                    maskBody();
-
-                    // disabled не включается в submit. поэтому снимем аттрибут.
-                    dojo.removeAttr("divisionId", "disabled");
-                    dojo.removeAttr("employeeId", "disabled");
-                    timeSheetForm.submit();
+                            else
+                                projectId = projectComponent[0].value;
+                        }
                 }
+                setCookie('aplanaDivision', division.value, TimeAfter(7, 0, 0));
+                setCookie('aplanaEmployee', employee.value, TimeAfter(7, 0, 0));
+                setCookie('aplanaRowsCount', rowsCount, TimeAfter(7, 0, 0));
+                if (diff)
+                    deleteCookie("aplanaProject");
+                else
+                    setCookie('aplanaProject', projectId, TimeAfter(7, 0, 0));
+                timeSheetForm.action = "timesheet";
+                maskBody();
+
+                // disabled не включается в submit. поэтому снимем аттрибут.
+                dojo.removeAttr("divisionId", "disabled");
+                dojo.removeAttr("employeeId", "disabled");
+                timeSheetForm.submit();
+
             }
             if (s == 'newReport' && confirmCreateNewReport()) {
                 timeSheetForm.action = "newReport";
@@ -472,31 +466,6 @@
             <form:textarea wrap="soft" path="plan" id="plan" rows="7" cols="92"/>
             <br/>
         </div>
-    </div>
-    <div id="vacation_ill"><h2 style="margin-top :5px;"><fmt:message key="vacation_illness"/></h2></div>
-    <div id="otpusk_illeness" style="margin-bottom: 10px">
-        <table>
-            <tr id="">
-                <td class="no_border" width="20px"><input type="checkbox" name="longVacation" id="long_vacation"
-                                                          onclick="checkLongVacation();"></td>
-                <td class="no_border" width="50px">Отпуск /</td>
-                <td class="no_border" width="20px"><input type="checkbox" name="longIllness" id="long_illness"
-                                                          onclick="checkLongIllness();"></td>
-                <td class="no_border" width="60px">Болезнь</td>
-                <td class="no_border" width="20px"> с</td>
-                <td class="no_border" width="210px">
-                    <input id="begin_long_date" name="beginLongDate" data-dojo-id="fromDate" data-dojo-type='dijit/form/DateTextBox'
-                           class="date_picker" disabled="disabled" onmouseover="tooltip.show(getTitle(this));"
-                           onmouseout="tooltip.hide();" onChange="toDate.constraints.min = arguments[0];"/>
-                </td>
-                <td class="no_border" width="20px"> по</td>
-                <td class="no_border" width="210px">
-                    <input id="end_long_date" name="endLongDate" data-dojo-id="toDate"  data-dojo-type='dijit/form/DateTextBox' class="date_picker"
-                           disabled="disabled" onmouseover="tooltip.show(getTitle(this));"
-                           onmouseout="tooltip.hide();" onChange="fromDate.constraints.max = arguments[0];"/>
-                </td>
-            </tr>
-        </table>
     </div>
     <div>
         <table>

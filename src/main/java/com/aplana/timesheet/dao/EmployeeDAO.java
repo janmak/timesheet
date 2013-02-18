@@ -346,4 +346,26 @@ public class EmployeeDAO {
 
         return query.getResultList();
     }
+
+    public Employee tryGetEmployeeFromBusinessTrip(Integer reportId) {
+        try {
+            return (Employee) entityManager.createQuery("select bt.employee from BusinessTrip as bt " +
+                    "where bt.id = :id")
+                    .setParameter("id", reportId)
+                    .getSingleResult();
+        } catch (NoResultException ex) {
+            return null;
+        }
+    }
+
+    public Employee tryGetEmployeeFromIllness(Integer reportId) {
+        try {
+            return (Employee) entityManager.createQuery("select  i.employee from Illness as i " +
+                    "where i.id = :id")
+                    .setParameter("id", reportId)
+                    .getSingleResult();
+        } catch (NoResultException ex) {
+            return null;
+        }
+    }
 }
