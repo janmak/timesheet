@@ -183,4 +183,9 @@ public class TSPropertyProvider {
     public static void updateProperties() {
         needUpdate = true;
     }
+
+    public static String getProperiesFilePath() {
+        return System.getProperty("pathToTsProperties");
+    }
+
 }
