@@ -97,7 +97,7 @@ public class VacationApprovalDAO {
     }
 
     public List<VacationApproval> getAllApprovalsForVacation(Vacation vacation) {
-        return entityManager.createQuery("from VacationApprovals as va where va.vacation = :vacation")
+        return entityManager.createQuery("from VacationApproval as va where va.vacation = :vacation")
                 .setParameter("vacation", vacation).getResultList();
     }
 }

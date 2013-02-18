@@ -8,6 +8,7 @@ import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
 import org.apache.commons.lang.WordUtils;
 import org.apache.commons.lang.time.DateFormatUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
@@ -19,6 +20,8 @@ import java.util.List;
  * @version 1.0
  */
 public class VacationDeletedSender extends MailSender<Vacation> {
+
+    private static final String DEFAULT_VACATION_APPROVAL_MAIL_MARKER = "[VACATION REQUEST]";
 
     public VacationDeletedSender(SendMailService sendMailService, TSPropertyProvider propertyProvider) {
         super(sendMailService, propertyProvider);
@@ -72,8 +75,17 @@ public class VacationDeletedSender extends MailSender<Vacation> {
     }
 
     private String getSubject(Vacation params) {
-        return  propertyProvider.getVacationMailMarker() +
-                String.format(" Заявление на отпуск сотрудника \"%s\" удалено", params.getEmployee().getName());
+        return  String.format(" Заявление на отпуск сотрудника \"%s\" удалено", params.getEmployee().getName());
+    }
+
+    @Override
+    protected String getSubjectMarker() {
+        try {
+            String marker = propertyProvider.getVacationMailMarker();
+            return (StringUtils.isBlank(marker)) ? DEFAULT_VACATION_APPROVAL_MAIL_MARKER : marker;
+        } catch (NullPointerException ex) {
+            return DEFAULT_VACATION_APPROVAL_MAIL_MARKER;
+        }
     }
 
     private Iterable<String> getToEmails(Vacation params) {

@@ -10,8 +10,6 @@ public enum VacationTypesEnum implements TSEnum {
     WITHOUT_PAY(63, "Отпуск без сохранения содержания"),
     WITH_NEXT_WORKING(64, "Отпуск с последующей отработкой");
 
-    public static final int DICT_ID = 9;
-
     private final int id;
     private final String name;
 

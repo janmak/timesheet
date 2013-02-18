@@ -4,7 +4,6 @@ import com.aplana.timesheet.properties.TSPropertyProvider;
 import com.aplana.timesheet.service.SendMailService;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
-import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,13 +11,10 @@ import org.slf4j.LoggerFactory;
 import javax.mail.*;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 
@@ -174,9 +170,13 @@ public class MailSender<T> {
 
     @VisibleForTesting
     void initMessageSubject(Mail mail, MimeMessage message) throws MessagingException {
-        String messageSubject = mail.getSubject();
+        String messageSubject = String.format(getSubjectMarker(), mail.getSubject());
         logger.debug("Message subject: {}", messageSubject);
         message.setSubject(messageSubject, "UTF-8");
+    }
+
+    protected String getSubjectMarker() {
+        return "";
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})

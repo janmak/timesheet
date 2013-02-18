@@ -11,8 +11,6 @@ import org.apache.commons.lang.time.DateFormatUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.mail.MessagingException;
-import javax.mail.internet.MimeMessage;
 import java.util.Arrays;
 import java.util.List;
 
@@ -20,9 +18,10 @@ import java.util.List;
  * User: vsergeev
  * Date: 04.02.13
  */
-public class VacationApproveRequestSender extends MailSender<VacationApproval> {
+public class VacationApproveRequestSender extends AbstractVacationApprovalSender {
 
     protected static final Logger logger = LoggerFactory.getLogger(VacationApproveRequestSender.class);
+    private static final String DEFAULT_TIMESHEET_URL = "http://timesheet.aplana.com";
 
     @Override
     protected List<Mail> getMailList(VacationApproval vacationApproval) {
@@ -31,7 +30,7 @@ public class VacationApproveRequestSender extends MailSender<VacationApproval> {
 
         mail.setFromEmail(sendMailService.getEmployeeEmail(vacation.getEmployee().getId()));
         mail.setToEmails(Arrays.asList(vacationApproval.getManager().getEmail()));
-        mail.setSubject(propertyProvider.getVacationMailMarker() + " " + getSubject(vacation)); // APLANATS-573
+        mail.setSubject(getSubject(vacation));
         mail.setParamsForGenerateBody(getParamsForGenerateBody(vacationApproval));
 
         return Arrays.asList(mail);
@@ -54,42 +53,42 @@ public class VacationApproveRequestSender extends MailSender<VacationApproval> {
         String beginDateStr = DateFormatUtils.format(vacation.getBeginDate(), DATE_FORMAT);
         String endDateStr = DateFormatUtils.format(vacation.getEndDate(), DATE_FORMAT);
         String commentStr = StringUtils.EMPTY;
-        String approveURL = String.format("http://timesheet.aplana.com/vacation_approval?uid={%s}", vacationApproval.getUid());
+        String approveURL = String.format("%s/vacation_approval?uid=%s", getTimeSheetURL(), vacationApproval.getUid());
         if (StringUtils.isNotBlank(vacation.getComment())) {
             commentStr = String.format("Комментарий: %s. ", vacation.getComment());
         }
 
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append(String.format("Просьба принять решение по отпуску %s ", vacationTypeStr));
+        stringBuilder.append(String.format("Просьба принять решение по %s ", vacationTypeStr));
         stringBuilder.append(String.format("сотрудника %s ", employeeNameStr));
         stringBuilder.append(String.format("из г. %s ", regionNameStr));
         stringBuilder.append(String.format("на период с %s - %s. ", beginDateStr, endDateStr));
         stringBuilder.append(String.format("%s", commentStr));
-        stringBuilder.append(String.format("Для регистрации Вашего решения нажмите на ссылку: (%s).", approveURL));
+        stringBuilder.append(String.format("Для регистрации Вашего решения нажмите на ссылку: %s.", approveURL));
 
         return stringBuilder.toString();
+    }
+
+    private String getTimeSheetURL() {
+        try {
+            String url = propertyProvider.getTimeSheetURL();
+            return (StringUtils.isBlank(url)) ? DEFAULT_TIMESHEET_URL : url;
+        } catch (NullPointerException ex) {
+            return DEFAULT_TIMESHEET_URL;
+        }
     }
 
     private String getSubject(Vacation vacation) {
         String beginDateStr = DateFormatUtils.format(vacation.getBeginDate(), DATE_FORMAT);
         String endDateStr = DateFormatUtils.format(vacation.getEndDate(), DATE_FORMAT);
 
-        return  propertyProvider.getVacationMailMarker() +   // APLANATS-573
-                String.format("[VACATION REQUEST] Запрос согласования отпуска %s %s - %s", vacation.getEmployee().getName(),
+        return  String.format("Запрос согласования отпуска %s %s - %s", vacation.getEmployee().getName(),
                         beginDateStr, endDateStr);
-    }
-
-    @Override
-    protected void initMessageBody(Mail mail, MimeMessage message) throws MessagingException {
-        try {
-            message.setText(mail.getParamsForGenerateBody().get(FIRST, MAIL_BODY), "UTF-8", "plain");
-        } catch (MessagingException e) {
-            logger.error("Error while init message body.", e);
-        }
     }
 
     public VacationApproveRequestSender(SendMailService sendMailService, TSPropertyProvider propertyProvider) {
         super(sendMailService, propertyProvider);
     }
+
 
 }

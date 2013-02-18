@@ -1,9 +1,11 @@
 package com.aplana.timesheet.controller;
 
+import com.aplana.timesheet.constants.TimeSheetConstants;
 import com.aplana.timesheet.dao.entity.Calendar;
 import com.aplana.timesheet.dao.entity.Employee;
 import com.aplana.timesheet.form.ViewReportsForm;
 import com.aplana.timesheet.form.validator.ViewReportsFormValidator;
+import com.aplana.timesheet.service.CalendarService;
 import com.aplana.timesheet.service.TimeSheetService;
 import com.aplana.timesheet.util.DateTimeUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +26,9 @@ public class ViewReportsController extends AbstractControllerForEmployeeWithYear
     ViewReportsFormValidator tsFormValidator;
     @Autowired
     TimeSheetService timeSheetService;
+
+    @Autowired
+    private CalendarService calendarService;
 
     @RequestMapping(value = "/viewreports", method = RequestMethod.GET)
     public String sendViewReports() {
@@ -51,6 +56,14 @@ public class ViewReportsController extends AbstractControllerForEmployeeWithYear
         mav.addObject("month", month);
         mav.addObject("monthList", DateTimeUtil.getMonthListJson((List<Calendar>) mav.getModel().get(YEARS_LIST), calendarService));
         mav.addObject("reports", timeSheetService.findDatesAndReportsForEmployee(employee, year, month));
+        mav.addObject(
+                "durationPlan",
+                calendarService.getWorkDaysCountForRegion(
+                        employee.getRegion(),
+                        year,
+                        month
+                ) * TimeSheetConstants.WORK_DAY_DURATION * employee.getJobRate()
+        );
 
         return mav;
     }

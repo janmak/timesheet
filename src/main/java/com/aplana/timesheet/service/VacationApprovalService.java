@@ -84,6 +84,11 @@ public class VacationApprovalService {
             }
 
             List<VacationApproval> tempVacationApprovals = createTempVacationApprovals(managers, vacation);
+
+            for (VacationApproval vacationApproval : tempVacationApprovals) {
+                sendMailService.performVacationApprovedSender(vacationApproval);
+            }
+
         } catch (CalendarServiceException ex) {
             logger.error(ex.getMessage(), ex);
             throw new VacationApprovalServiceException(ex);
@@ -115,6 +120,7 @@ public class VacationApprovalService {
      */
     public void sendVacationApprovedMessages (Vacation vacation) {
         List<VacationApproval> vacationApprovals = vacationApprovalDAO.getAllApprovalsForVacation(vacation);
+        vacationApprovals.add(createNewVacationApproval(vacation, new Date(), vacation.getEmployee()));
         for (VacationApproval vacationApproval : vacationApprovals) {
             sendMailService.performVacationApprovedSender(vacationApproval);
         }
@@ -145,7 +151,7 @@ public class VacationApprovalService {
      * проверяем, согласован ли отпуск с линейным руководителем
      */
     private Boolean vacationIsApprovedByLineManager(Vacation vacation) throws VacationApprovalServiceException {
-        if (approvedByLineManager.contains(vacation.getStatus().getId())) {        //проверка уже утвержденного отпуска
+        if (vacation.getStatus() != null && approvedByLineManager.contains(vacation.getStatus().getId())) {        //проверка уже утвержденного отпуска
             return true;
         }
 
@@ -153,7 +159,7 @@ public class VacationApprovalService {
         VacationApproval lineManagerApproval = getTopLineManagerApproval(vacation, lineManagerDaysToApprove);
 
         if (lineManagerApproval.getResult() != null) {    //нашли результат у одного из линейных
-            approveVacationByLineManager(vacation, lineManagerApproval.getResult());
+            approveVacationByLineManagerAndSendVacationApprovedMessages(vacation, lineManagerApproval.getResult());
             return lineManagerApproval.getResult();
         }
 
@@ -166,9 +172,8 @@ public class VacationApprovalService {
             sendMailService.performVacationApproveRequestSender(approvalResult); //посылаем письмо с уведомлением следующему в иерархии линейному руководителю
         } else {
             if (managerExists(vacation.getEmployee())){     //проверяем, что сотрудник - не сам себе руководитель. для таких отпуска автоматом не утверждаются
-                vacation.setStatus(dictionaryItemService.find(VacationStatusEnum.APPROVED.getId()));
-                vacationService.store(vacation);
-                sendVacationApprovedMessages(vacation);  //делаем рассылку о том, что отпуск согласован
+                approveVacationByLineManagerAndSendVacationApprovedMessages(vacation, true);
+                return true;
             }
         }
 
@@ -279,13 +284,15 @@ public class VacationApprovalService {
     /**
      * устанавливаем у отпуска статус
      */
-    private void approveVacationByLineManager(Vacation vacation, Boolean result) {
+    private void approveVacationByLineManagerAndSendVacationApprovedMessages(Vacation vacation, Boolean result) {
         if (result) {
             vacation.setStatus(dictionaryItemService.find(VacationStatusEnum.APPROVED.getId()));
         } else {
             vacation.setStatus(dictionaryItemService.find(VacationStatusEnum.REJECTED.getId()));
         }
         vacationService.store(vacation);
+
+        sendVacationApprovedMessages(vacation);  //делаем рассылку о том, что отпуск согласован
     }
 
 
@@ -603,10 +610,10 @@ public class VacationApprovalService {
     /**
      * создаем новую заготовку
      */
-    private VacationApproval createNewVacationApproval(Vacation vacation, Date requestDate, Employee employee) {
+    private VacationApproval createNewVacationApproval(Vacation vacation, Date requestDate, Employee manager) {
         VacationApproval vacationApproval = new VacationApproval();
         vacationApproval.setVacation(vacation);
-        vacationApproval.setManager(employee);
+        vacationApproval.setManager(manager);
         vacationApproval.setRequestDate(requestDate);
         vacationApproval.setUid(UUID.randomUUID().toString());
 

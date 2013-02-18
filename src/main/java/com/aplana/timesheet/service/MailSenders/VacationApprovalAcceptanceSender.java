@@ -12,7 +12,7 @@ import java.util.List;
  * @author iziyangirov
  */
 
-public class VacationApprovalAcceptanceSender extends MailSender<VacationApproval> {
+public class VacationApprovalAcceptanceSender extends AbstractVacationApprovalSender {
 
     final String DATE_FORMAT = "dd.MM.yyyy";
     final String MAIL_ACCEPT_SUBJECT = "Согласование \"%s\" сотрудника %s на период с %s - %s";
@@ -43,7 +43,7 @@ public class VacationApprovalAcceptanceSender extends MailSender<VacationApprova
                 String.format(MAIL_REFUSE_BODY, matchingFIO, vacationType, employeeFIO, region, dateBegin, dateEnd);
 
         mail.setFromEmail(propertyProvider.getMailFromAddress());
-        mail.setSubject(propertyProvider.getVacationMailMarker() + " " + subject); // APLANATS-573
+        mail.setSubject(subject);
         mail.setPreconstructedMessageBody(text);
         mail.setToEmails( Arrays.asList(vacationApproval.getVacation().getEmployee().getEmail()) );
         mail.setCcEmails(sendMailService.getVacationApprovalEmailList(vacationId));

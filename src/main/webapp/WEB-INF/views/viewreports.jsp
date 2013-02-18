@@ -11,8 +11,32 @@
     <head>
         <title><fmt:message key="viewreports"/></title>
         <link rel="stylesheet" type="text/css" href="<%= request.getContextPath()%>/resources/css/viewreports.css?modified=<%= new File(application.getRealPath("/resources/css/viewreports.css")).lastModified()%>">
-        <script type="text/javascript" src="<%= request.getContextPath()%>/resources/js/viewreports.js?modified=<%= new File(application.getRealPath("/resources/js/viewreports.js")).lastModified()%>"></script>
         <script type="text/javascript">
+            dojo.require("dojo.cookie");
+            dojo.addOnLoad(function () {
+                var stavka = 8; // Стандартное кол-во часов которое нужно отработать в день.
+                var durationalAll = document.getElementById("durationall");
+                var durations = dojo.query(".duration");
+                var employee = dojo.byId("employeeId");
+                var division = dojo.byId("divisionId");
+                var duration = 0;
+
+                function setDurationAll(duration) {
+                    durationalAll.innerHTML = duration.toFixed(1);
+                }
+                function getPath() {
+                    return "/viewreports/" + division.value + "/" + employee.value;
+                }
+
+                function changeNormal(evt) {
+                    evt = parseFloat(evt);
+                    stavka = evt / 5;
+                }
+                for (i = 0; i < durations.length; i++) {
+                    duration += parseFloat(durations[i].innerHTML) ;
+                }
+                setDurationAll(duration);
+            });
 
             dojo.ready(function () {
                 window.focus();
@@ -270,11 +294,7 @@
                 </tr>
                 <tr>
                     <td colspan="2">Всего(план):</td>
-                    <td id="durationplan">JavaScript is disabled</td>
-                </tr>
-                <tr>
-                    <td colspan="2">Норма (часов) в неделю:</td>
-                    <td><input type="text" id="normaInWeek"></td>
+                    <td id="durationplan">${durationPlan}</td>
                 </tr>
             </thead>
         </table>

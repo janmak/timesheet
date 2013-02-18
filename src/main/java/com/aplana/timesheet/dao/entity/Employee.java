@@ -73,6 +73,9 @@ public class Employee implements Identifiable {
     @Column(length = 50, name = "ldap_object_sid")
     private String objectSid;
 
+    @Column(name = "job_rate", columnDefinition = "float default 1", nullable = false)
+    private Float jobRate;
+
     public Set<Vacation> getVacations() {
         return vacations;
     }
@@ -88,9 +91,6 @@ public class Employee implements Identifiable {
     public void setIllnesses(Set<Illness> illnesses) {
         this.illnesses = illnesses;
     }
-
-    @Column(name = "job_rate", columnDefinition = "default 1")
-    private Float jobRate;
 
     public Set<Permission> getPermissions() {
         return permissions;

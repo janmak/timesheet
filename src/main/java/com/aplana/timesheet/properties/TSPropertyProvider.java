@@ -110,10 +110,8 @@ public class TSPropertyProvider {
         return new Double(getProperties().getProperty("overtime.threshold"));
     }
 
-    final String DEFAULT_VACATION_MAIL_MARKER = "[VACATION_REQUEST]";
     public String getVacationMailMarker() {
-        String result = getProperties().getProperty("vacation.mail.marker");
-        return (result == null || result == "") ? DEFAULT_VACATION_MAIL_MARKER : result;
+        return getProperties().getProperty("vacation.mail.marker");
     }
 
     final String DEFAULT_TIMESHEET_MAIL_MARKER = "[TIMESHEET]";
@@ -149,6 +147,10 @@ public class TSPropertyProvider {
 
     public Integer getVacationUrgentLineManagerOverrideThreshold() {
         return Integer.parseInt(getProperties().getProperty("vacations.vacation.urgent.manager.override.threshold"));
+    }
+
+    public String getTimeSheetURL() {
+        return getProperties().getProperty("timesheet.url");
     }
 
     /**
