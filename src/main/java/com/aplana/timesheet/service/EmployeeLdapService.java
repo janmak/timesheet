@@ -5,6 +5,7 @@ import com.aplana.timesheet.dao.ProjectRolePermissionsDAO;
 import com.aplana.timesheet.dao.entity.*;
 import com.aplana.timesheet.dao.entity.ldap.EmployeeLdap;
 import com.aplana.timesheet.util.DateTimeUtil;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -213,7 +214,7 @@ public class EmployeeLdapService {
         Employee employee=new Employee();
 
         employee.setName(employeeLdap.getDisplayName());
-        employee.setEmail( employeeLdap.getEmail().trim() );
+        employee.setEmail(StringUtils.trim(employeeLdap.getEmail()));
         employee.setLdap( employeeLdap.getLdapCn() );
 
 		if (employee.getJob() != null) {
