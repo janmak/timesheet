@@ -65,7 +65,7 @@ public class MailSender<T> {
                     try {
                         logger.info("Message is formed, but the sending off in the options. Message text: " + message.getContent().toString());
                         String mailDebugAddress = propertyProvider.getMailDebugAddress();
-                        if (mailDebugAddress != null && mailDebugAddress != ""){
+                        if (StringUtils.isNotBlank(mailDebugAddress)){
                             addDebugInfoAndChangeReceiver(message, mailDebugAddress);
                             transport.sendMessage(message, message.getAllRecipients());
                             logger.info("Message sended on debug address: " + mailDebugAddress);
