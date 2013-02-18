@@ -105,7 +105,18 @@
         }
 
         function cancelform(){
-            mainForm.action = "<%=request.getContextPath()%>/businesstripsandillness/";
+            var reportType = parseInt(dojo.byId("reportType").value);
+
+            switch (reportType) {
+                case illnessReportType:
+                    mainForm.action = "<%=request.getContextPath()%>/businesstripsandillness/illness/" + "${employeeId}";
+                    break;
+                case businessTripReportType :
+                    mainForm.action = "<%=request.getContextPath()%>/businesstripsandillness/businesstrip/" + "${employeeId}";
+                    break;
+                default: mainForm.action = "<%=request.getContextPath()%>/businesstripsandillness/";;
+            }
+
             mainForm.submit();
         }
 
@@ -177,7 +188,7 @@
 
         function checkComment(){
             var comment = document.getElementById("comment").value;
-            if (comment == null || comment.length <= 200){
+            if (comment == null || comment.trim().length <= 200){
                 return true;
             } else {
                 errors.push("Комментарий должен быть короче 200 символов!");
