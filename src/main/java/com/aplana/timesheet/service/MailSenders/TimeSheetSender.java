@@ -76,9 +76,7 @@ public class TimeSheetSender extends MailSender<TimeSheetForm> {
 
     private String getSubject(TimeSheetForm params) {
         return  propertyProvider.getTimesheetMailMarker()+ //APLANATS-571
-                " Status report - " +
-                (!params.isLongIllness() && !params.isLongVacation()
-                    ? params.getCalDate() : params.getBeginLongDate());
+                " Status report - " + params.getCalDate();
     }
 
     private Collection<String> getToEmails(TimeSheetForm params) {
@@ -136,14 +134,6 @@ public class TimeSheetSender extends MailSender<TimeSheetForm> {
             }
             putIfIsNotBlank(FIRST, result, PLAN_STRINGS, tsForm.getPlanEscaped());
             putIfIsNotBlank(FIRST, result, OVERTIME_CAUSE, sendMailService.getOvertimeCause(tsForm) );
-        } else if (tsForm.isLongIllness() || tsForm.isLongVacation()) {
-            if (tsForm.isLongIllness()) {
-                result.put(FIRST, REASON, "Болезнь с");
-            } else if (tsForm.isLongVacation()) {
-                result.put(FIRST, REASON, "Отпуск с");
-            }
-            result.put(FIRST, BEGIN_LONG_DATE, DateTimeUtil.formatDateString(tsForm.getBeginLongDate()));
-            result.put(FIRST, END_LONG_DATE, DateTimeUtil.formatDateString(tsForm.getEndLongDate()));
         }
 
         return result;

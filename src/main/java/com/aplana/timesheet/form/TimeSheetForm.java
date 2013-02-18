@@ -11,50 +11,10 @@ public class TimeSheetForm {
     private String calDate;
     private String plan;
     private double totalDuration;
-    /** Начало продолжительного(й) отпуска(болезни) */
-    private String beginLongDate;
-    /** Конец продолжительного(й) отпуска(болезни) */
-    private String endLongDate;
-    /** Продолжительный отпуск */
-    private boolean longVacation;
-    /** Продолжительная болезнь */
-    private boolean longIllness;
     /** Причина недоработок, переработок */
     private Integer overtimeCause;
     /** Комментария к причине надоработок/переработко */
     private String overtimeCauseComment;
-
-    public String getBeginLongDate() {
-        return beginLongDate;
-    }
-
-    public void setBeginLongDate(String beginLongDate) {
-        this.beginLongDate = beginLongDate;
-    }
-
-    public String getEndLongDate() {
-        return endLongDate;
-    }
-
-    public void setEndLongDate(String endLongDate) {
-        this.endLongDate = endLongDate;
-    }
-
-    public boolean isLongVacation() {
-        return longVacation;
-    }
-
-    public void setLongVacation(boolean longVacation) {
-        this.longVacation = longVacation;
-    }
-
-    public boolean isLongIllness() {
-        return longIllness;
-    }
-
-    public void setLongIllness(boolean longIllness) {
-        this.longIllness = longIllness;
-    }
 
     public Integer getDivisionId() {
         return divisionId;

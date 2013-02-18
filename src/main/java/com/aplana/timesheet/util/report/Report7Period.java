@@ -50,7 +50,7 @@ public class Report7Period implements Comparable {
 
     private String generateName() throws Exception {
         if (type.equals(PERIOD_TYPE_MONTH)) {
-            SimpleDateFormat sdf = new SimpleDateFormat("MM.YYYY");
+            SimpleDateFormat sdf = new SimpleDateFormat("MM.yyyy");
             return sdf.format(this.start);
         } else if (type.equals(PERIOD_TYPE_KVARTAL)) {
             SimpleDateFormat sdf = new SimpleDateFormat("MM");
@@ -75,7 +75,7 @@ public class Report7Period implements Comparable {
                 return "2-ой квартал" + sdf2.format(this.start);
             }
         } else if (type.equals(PERIOD_TYPE_YEAR)) {
-            SimpleDateFormat sdf = new SimpleDateFormat("YYYY");
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy");
             return sdf.format(this.start) + "г.";
         }
         throw new Exception("Can't get period name not valid type");

@@ -53,7 +53,7 @@ public class Employee implements Identifiable {
     @ForeignKey(name = "FK_EMP_REGION")
     private Region region;
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(name = "employee_permissions",
                joinColumns = {
                        @JoinColumn(name = "employee_id", nullable = false) },
@@ -73,6 +73,9 @@ public class Employee implements Identifiable {
     @Column(length = 50, name = "ldap_object_sid")
     private String objectSid;
 
+    @Column(name = "job_rate", columnDefinition = "float default 1", nullable = false)
+    private Float jobRate;
+
     public Set<Vacation> getVacations() {
         return vacations;
     }
@@ -88,9 +91,6 @@ public class Employee implements Identifiable {
     public void setIllnesses(Set<Illness> illnesses) {
         this.illnesses = illnesses;
     }
-
-    @Column(name = "job_rate", columnDefinition = "") // TODO
-    private Float jobRate;
 
     public Set<Permission> getPermissions() {
         return permissions;
