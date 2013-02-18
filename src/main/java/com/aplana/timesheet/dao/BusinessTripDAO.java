@@ -58,7 +58,7 @@ public class BusinessTripDAO {
 
     public List<BusinessTrip> getEmployeeBusinessTripsByDates(Employee employee, Date beginDate, Date endDate) {
         return entityManager.createQuery("from BusinessTrip as bt " +
-                "where bt.employee = :employee and bt.beginDate >= :beginDate and bt.endDate <= :endDate")
+                "where bt.employee = :employee and bt.beginDate <= :endDate and bt.endDate >= :beginDate")
                 .setParameter("employee", employee)
                 .setParameter("beginDate", beginDate)
                 .setParameter("endDate", endDate)

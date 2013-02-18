@@ -70,7 +70,7 @@ public class IllnessDAO {
 
     public List<Illness> getEmployeeIllnessByDates(Employee employee, Date beginDate, Date endDate) {
         return entityManager.createQuery("from Illness as i " +
-                "where i.employee = :employee and i.beginDate >= :beginDate and i.endDate <= :endDate")
+                "where i.employee = :employee and i.beginDate <= :endDate and i.endDate >= :beginDate")
                 .setParameter("employee", employee)
                 .setParameter("beginDate", beginDate)
                 .setParameter("endDate", endDate)
