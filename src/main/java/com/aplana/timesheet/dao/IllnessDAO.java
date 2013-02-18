@@ -2,14 +2,12 @@ package com.aplana.timesheet.dao;
 
 import com.aplana.timesheet.dao.entity.Employee;
 import com.aplana.timesheet.dao.entity.Illness;
-import org.bouncycastle.asn1.tsp.TimeStampReq;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -70,4 +68,12 @@ public class IllnessDAO {
         return true;
     }
 
+    public List<Illness> getEmployeeIllnessByDates(Employee employee, Date beginDate, Date endDate) {
+        return entityManager.createQuery("from Illness as i " +
+                "where i.employee = :employee and i.beginDate >= :beginDate and i.endDate <= :endDate")
+                .setParameter("employee", employee)
+                .setParameter("beginDate", beginDate)
+                .setParameter("endDate", endDate)
+                .getResultList();
+    }
 }

@@ -6,6 +6,7 @@ import com.aplana.timesheet.dao.entity.Employee;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -36,5 +37,9 @@ public class BusinessTripService {
 
     public BusinessTrip find(Integer reportId) {
         return businessTripDAO.find(reportId);
+    }
+
+    public List<BusinessTrip> getEmployeeBusinessTripsByDates(Employee employee, Date beginDate, Date endDate) {
+        return businessTripDAO.getEmployeeBusinessTripsByDates(employee, beginDate, endDate);
     }
 }

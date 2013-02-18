@@ -43,4 +43,7 @@ public class IllnessService {
         return illnessDAO.isDayIllness(employee, date);
     }
 
+    public List<Illness> getEmployeeIllnessByDates(Employee employee, Date beginDate, Date endDate) {
+        return illnessDAO.getEmployeeIllnessByDates(employee, beginDate, endDate);
+    }
 }

@@ -12,13 +12,13 @@
     float: left;
 
     text-wrap: normal;
-    width: 200;
+    width: 200px;
 }
 .checkboxesselect{
     float: left;
 
     text-wrap: normal;
-    width: 200;
+    width: 200px;
 }
 .lowspace {
     margin: 6px;
@@ -27,12 +27,13 @@
     margin: 15px;
 }
 .creationform{
-    width: 350;
+    width: 350px;
     float: none;
     display: block;
+    position: relative;
 }
 .chooseform{
-    width: 400;
+    width: 400px;
 }
 
 .button{
@@ -44,7 +45,7 @@
     width: 100%;
 }
 .noborder{
-    border: 0;
+    border: 0px;
 }
 .errorbox{
     background-color: #FFFF00;

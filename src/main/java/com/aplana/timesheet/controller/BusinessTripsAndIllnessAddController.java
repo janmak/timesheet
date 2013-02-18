@@ -92,7 +92,7 @@ public class BusinessTripsAndIllnessAddController extends AbstractController{
             @ModelAttribute("businesstripsandillnessadd") BusinessTripsAndIllnessAddForm tsForm,
             BindingResult result, @PathVariable("employeeId") Integer employeeId) throws BusinessTripsAndIllnessAddException {
         Employee employee = employeeService.find(employeeId);
-
+        tsForm.setEmployee(employee);
         businessTripsAndIllnessAddFormValidator.validate(tsForm, result);
 
         if (result.hasErrors()){
@@ -116,6 +116,7 @@ public class BusinessTripsAndIllnessAddController extends AbstractController{
     public ModelAndView validateAndSaveBusinessTripOrIllness(
             @ModelAttribute("businesstripsandillnessadd") BusinessTripsAndIllnessAddForm tsForm,
             BindingResult result, @PathVariable("reportId") Integer reportId) throws BusinessTripsAndIllnessAddException {
+        tsForm.setReportId(reportId);
         businessTripsAndIllnessAddFormValidator.validate(tsForm, result);
         if (result.hasErrors()){
             return getModelAndViewCreation(tsForm.getEmployee());

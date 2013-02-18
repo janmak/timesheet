@@ -1,9 +1,9 @@
 package com.aplana.timesheet.dao.entity;
 
+import com.aplana.timesheet.dao.Identifiable;
 import org.hibernate.annotations.ForeignKey;
 
 import javax.persistence.*;
-import java.io.Serializable;
 import java.util.Date;
 
 /**
@@ -12,7 +12,7 @@ import java.util.Date;
  */
 @Entity
 @Table(name = "business_trip")
-public class BusinessTrip implements Cloneable, Periodical {
+public class BusinessTrip implements Cloneable, Periodical, Identifiable {
 
     @Id
     @Column(name = "id")

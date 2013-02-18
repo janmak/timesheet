@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -53,5 +54,14 @@ public class BusinessTripDAO {
         ).setParameter( "id", reportId );
 
         return (BusinessTrip) query.getSingleResult();
+    }
+
+    public List<BusinessTrip> getEmployeeBusinessTripsByDates(Employee employee, Date beginDate, Date endDate) {
+        return entityManager.createQuery("from BusinessTrip as bt " +
+                "where bt.employee = :employee and bt.beginDate >= :beginDate and bt.endDate <= :endDate")
+                .setParameter("employee", employee)
+                .setParameter("beginDate", beginDate)
+                .setParameter("endDate", endDate)
+                .getResultList();
     }
 }
