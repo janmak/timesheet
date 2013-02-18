@@ -1,20 +1,21 @@
 package com.aplana.timesheet.util.report;
 
+import com.aplana.timesheet.enums.Report07PeriodTypeEnum;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import static com.aplana.timesheet.enums.Report07PeriodTypeEnum.*;
+
 public class Report7Period implements Comparable {
-    public static Integer PERIOD_TYPE_MONTH = 1;
-    public static Integer PERIOD_TYPE_KVARTAL = 3;
-    public static Integer PERIOD_TYPE_HALF_YEAR = 6;
-    public static Integer PERIOD_TYPE_YEAR = 12;
+
     private Date start;
     private Date end;
-    private Integer type;
+    private Report07PeriodTypeEnum type;
     private Integer number;
     private String name;
 
-    public Report7Period(Integer number, Date start, Date end, Integer type) throws Exception {
+    public Report7Period(Integer number, Date start, Date end, Report07PeriodTypeEnum type) throws Exception {
         this.start = start;
         this.end = end;
         this.type = type;
@@ -70,9 +71,9 @@ public class Report7Period implements Comparable {
             SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy");
             Integer number = new Integer(sdf.format(this.start));
             if (number > 0 && number < 7) {
-                return "1-ый квартал " + sdf2.format(this.start);
+                return "1-ое полугодие " + sdf2.format(this.start);
             } else {
-                return "2-ой квартал" + sdf2.format(this.start);
+                return "2-ое полугодие" + sdf2.format(this.start);
             }
         } else if (type.equals(PERIOD_TYPE_YEAR)) {
             SimpleDateFormat sdf = new SimpleDateFormat("YYYY");
