@@ -25,8 +25,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-import static com.aplana.timesheet.enums.VacationStatusEnum.*;
-import static com.aplana.timesheet.enums.TypesOfActivityEnum.*;
+import static com.aplana.timesheet.enums.TypesOfActivityEnum.getProjectPresaleNonProjectActivityId;
+import static com.aplana.timesheet.enums.VacationStatusEnum.APPROVED;
 
 @Repository
 public class JasperReportDAO {
@@ -622,7 +622,7 @@ public class JasperReportDAO {
                 for (periodNumber = 1; periodEnd.before(end); periodNumber = periodNumber + 1) {
                     final Date maxEndOfPeriod = getMaxEndOfPeriod(end, periodStart, periodType);
 
-                    periodEnd = getEndOfPeriod(periodType, start, periodEnd, maxEndOfPeriod);
+                    periodEnd = getEndOfPeriod(periodType, periodEnd, maxEndOfPeriod);
 
                     Report7Period period = new Report7Period(periodNumber, periodStart, end, periodType);
                     Query query2 = this.getReport07Query2(periodStart, periodEnd, projectId, report.getDivisionEmployee());
@@ -802,11 +802,8 @@ public class JasperReportDAO {
         return null;
     }
 
-    private Date getEndOfPeriod(Report07PeriodTypeEnum periodType, Date start, Date periodEnd, Date maxEndOfPeriod) {
-        final Date endOfPeriod = DateUtils.addMonths(
-                (periodType == Report07PeriodTypeEnum.PERIOD_TYPE_MONTH) ? periodEnd : start
-                , periodType.getMonthsCount()
-        );
+    private Date getEndOfPeriod(Report07PeriodTypeEnum periodType, Date periodEnd, Date maxEndOfPeriod) {
+        final Date endOfPeriod = DateUtils.addMonths(periodEnd, periodType.getMonthsCount());
 
         return (Date) ObjectUtils.min(endOfPeriod, maxEndOfPeriod);
     }
