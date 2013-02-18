@@ -1,6 +1,7 @@
 package com.aplana.timesheet.dao.entity;
 
 
+import com.aplana.timesheet.dao.Identifiable;
 import org.hibernate.annotations.ForeignKey;
 
 import javax.persistence.*;
@@ -12,7 +13,7 @@ import java.util.Date;
  */
 @Entity
 @Table(name = "illness")
-public class Illness implements Cloneable, Periodical {
+public class Illness implements Cloneable, Periodical, Identifiable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "illness_seq")

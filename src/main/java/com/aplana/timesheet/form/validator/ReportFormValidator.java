@@ -1,8 +1,11 @@
 package com.aplana.timesheet.form.validator;
 
+import com.aplana.timesheet.enums.Report07PeriodTypeEnum;
 import com.aplana.timesheet.reports.*;
 import com.aplana.timesheet.util.DateTimeUtil;
+import com.aplana.timesheet.util.EnumsUtils;
 import com.aplana.timesheet.util.report.Report7Period;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,11 +70,10 @@ public class ReportFormValidator implements Validator {
             errors.rejectValue("divisionEmployee", "error.reportform.noemplyeedivision");
         }
 
-        if (!report.getPeriodType().equals(Report7Period.PERIOD_TYPE_MONTH)
-                && !report.getPeriodType().equals(Report7Period.PERIOD_TYPE_HALF_YEAR)
-                && !report.getPeriodType().equals(Report7Period.PERIOD_TYPE_KVARTAL)
-                && !report.getPeriodType().equals(Report7Period.PERIOD_TYPE_YEAR)
-        ) {
+        final Report07PeriodTypeEnum periodType =
+                Report07PeriodTypeEnum.tryGetByMonthsCount(report.getPeriodType());
+
+        if (!ArrayUtils.contains(Report07PeriodTypeEnum.values(), periodType)) {
             errors.rejectValue("periodType", "error.reportform.wrongperiodtype");
         }
     }

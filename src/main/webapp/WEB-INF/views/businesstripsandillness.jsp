@@ -277,7 +277,7 @@
                             <tbody>
                                 <c:forEach var="report" items="${reports.periodicalsList}">
                                     <tr>
-                                        <td/>
+                                        <td></td>
                                         <sec:authorize access="hasRole('CHANGE_ILLNESS_BUSINESS_TRIP')">
                                         <td>
                                                 <div class="iconbutton">
@@ -292,11 +292,16 @@
                                                 </div>
                                             </td>
                                         </sec:authorize>
-                                        <td><fmt:formatDate value="${report.beginDate}" pattern="dd.MM.yyyy"/></td>
-                                        <td><fmt:formatDate value="${report.endDate}" pattern="dd.MM.yyyy"/></td>
-                                        <td>${report.calendarDays}</td>
-                                        <td>${report.workingDays}</td>
-                                        <td>${report.type.value}</td>
+                                        <td class="textcenter"><fmt:formatDate value="${report.beginDate}" pattern="dd.MM.yyyy"/></td>
+                                        <td class="textcenter"><fmt:formatDate value="${report.endDate}" pattern="dd.MM.yyyy"/></td>
+                                        <td class="textcenter">${report.calendarDays}</td>
+                                        <td class="textcenter">${report.workingDays}</td>
+                                        <td class="textcenter">
+                                            ${report.type.value}
+                                                <c:if test="${report.project != null}">
+                                                    (${report.project.name})
+                                                </c:if>
+                                        </td>
                                         <td>${report.comment}</td>
                                     </tr>
                                 </c:forEach>
@@ -348,7 +353,7 @@
                             <tbody>
                                 <c:forEach var="report" items="${reports.periodicalsList}">
                                     <tr>
-                                        <td/>
+                                        <td></td>
                                         <sec:authorize access="hasRole('CHANGE_ILLNESS_BUSINESS_TRIP')">
                                             <td>
                                                 <div class="iconbutton">
@@ -363,11 +368,11 @@
                                                 </div>
                                             </td>
                                         </sec:authorize>
-                                        <td><fmt:formatDate value="${report.beginDate}" pattern="dd.MM.yyyy"/></td>
-                                        <td><fmt:formatDate value="${report.endDate}" pattern="dd.MM.yyyy"/></td>
-                                        <td>${report.calendarDays}</td>
-                                        <td>${report.workingDays}</td>
-                                        <td>${report.reason.value}</td>
+                                        <td class="textcenter"><fmt:formatDate value="${report.beginDate}" pattern="dd.MM.yyyy"/></td>
+                                        <td class="textcenter"><fmt:formatDate value="${report.endDate}" pattern="dd.MM.yyyy"/></td>
+                                        <td class="textcenter">${report.calendarDays}</td>
+                                        <td class="textcenter">${report.workingDays}</td>
+                                        <td class="textcenter">${report.reason.value}</td>
                                         <td>${report.comment}</td>
                                     </tr>
                                 </c:forEach>
