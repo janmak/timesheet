@@ -1,11 +1,13 @@
 package com.aplana.timesheet.dao;
 
+import com.aplana.timesheet.enums.Report07PeriodTypeEnum;
 import com.aplana.timesheet.properties.TSPropertyProvider;
 import com.aplana.timesheet.reports.*;
 import com.aplana.timesheet.util.DateTimeUtil;
 import com.aplana.timesheet.util.HibernateQueryResultDataSource;
 import com.aplana.timesheet.util.report.Report7Period;
 import com.google.common.annotations.VisibleForTesting;
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.intellij.lang.annotations.Language;
 import org.slf4j.Logger;
@@ -579,6 +581,9 @@ public class JasperReportDAO {
     public HibernateQueryResultDataSource getReport07Data(Report07 report) {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         try {
+            final Report07PeriodTypeEnum periodType =
+                    Report07PeriodTypeEnum.getByMonthsCount(report.getPeriodType());
+
             ArrayList rolesDev = this.readRolesFromString(propertyProvider.getProjectRoleDeveloper());
             ArrayList rolesRp = this.readRolesFromString(propertyProvider.getProjectRoleRp());
             ArrayList rolesTest = this.readRolesFromString(propertyProvider.getProjectRoleTest());
@@ -615,11 +620,11 @@ public class JasperReportDAO {
                 Double periodByCenterEtc = Double.valueOf(0);
                 HashMap<String, Double> periodRegions = new HashMap<String, Double>();
                 for (periodNumber = 1; periodEnd.before(end); periodNumber = periodNumber + 1) {
-                    periodEnd = DateUtils.addMonths(periodStart, report.getPeriodType());
-                    if (periodEnd.after(end)) {
-                        periodEnd = end;
-                    }
-                    Report7Period period = new Report7Period(periodNumber, periodStart, end, report.getPeriodType());
+                    final Date maxEndOfPeriod = getMaxEndOfPeriod(end, periodStart, periodType);
+
+                    periodEnd = getEndOfPeriod(periodType, start, maxEndOfPeriod);
+
+                    Report7Period period = new Report7Period(periodNumber, periodStart, end, periodType);
                     Query query2 = this.getReport07Query2(periodStart, periodEnd, projectId, report.getDivisionEmployee());
                     Double durationByRP = 0D;
                     Double durationByAnalyst = 0D;
@@ -699,7 +704,7 @@ public class JasperReportDAO {
                             dataSource.add(this.report7DataSourceRow(period, projectName, "По Регионам", (String) region.getKey().concat(", ч. (%)"),
                                     this.report7GenerateValue(region.getValue(), durationPeriod)));
                             // Посчитаем для итого
-                            if (periodRegions.get(region.getKey().concat(" ч. (%)")) == null) {
+                            if (periodRegions.get(region.getKey().concat(", ч. (%)")) == null) {
                                 periodRegions.put(region.getKey().concat(" ч. (%)"), region.getValue());
                             } else {
                                 periodRegions.put(region.getKey().concat(" ч. (%)"), region.getValue() + periodRegions.get(region.getKey().concat(", ч. (%)")));
@@ -728,6 +733,10 @@ public class JasperReportDAO {
                     }
 
                     //durations.put(projectName, Double.valueOf(0));
+                    if (periodEnd.equals(maxEndOfPeriod)) {
+                        periodEnd = DateUtils.addDays(periodEnd, 1);
+                    }
+
                     periodStart = periodEnd;    // Обязательно
                 }
                 // Вывод итого в dataSource
@@ -793,37 +802,16 @@ public class JasperReportDAO {
         return null;
     }
 
-    private String Report7PeriodName(Integer type, Date d) throws Exception {
-        if (type == 1) {
-            SimpleDateFormat sdf = new SimpleDateFormat("MM.yyyy");
-            return sdf.format(d);
-        } else if (type == 3) {
-            SimpleDateFormat sdf = new SimpleDateFormat("MM");
-            Integer number = new Integer(sdf.format(d));
-            SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy");
-            if (number > 0 && number < 4) {
-                return "1-ый квартал " + sdf2.format(d);
-            } else if (number > 2 && number < 7) {
-                return "2-ой квартал " + sdf2.format(d);
-            } else if (number > 5 && number < 8) {
-                return "3-ий квартал " + sdf2.format(d);
-            } else if (number > 7) {
-                return "4-ый квартал " + sdf2.format(d);
-            }
-        } else if (type == 6) {
-            SimpleDateFormat sdf = new SimpleDateFormat("MM");
-            SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy");
-            Integer number = new Integer(sdf.format(d));
-            if (number > 0 && number < 7) {
-                return "1-ый квартал " + sdf2.format(d);
-            } else {
-                return "2-ой квартал" + sdf2.format(d);
-            }
-        } else if (type == 12) {
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy");
-            return sdf.format(d) + " г.";
-        }
-        throw new Exception();
+    private Date getEndOfPeriod(Report07PeriodTypeEnum periodType, Date start, Date maxEndOfPeriod) {
+        final Date periodEnd = DateUtils.addMonths(start, periodType.getMonthsCount());
+
+        return (Date) ObjectUtils.min(periodEnd, maxEndOfPeriod);
+    }
+
+    private Date getMaxEndOfPeriod(Date end, Date periodStart, Report07PeriodTypeEnum periodType) {
+        final Calendar calendar = DateUtils.toCalendar(periodStart);
+
+        return periodType.getMaxDateOfPartOfYear(calendar);
     }
 
     private String report7GenerateValue(Double projectDuration, Double periodDuration) {

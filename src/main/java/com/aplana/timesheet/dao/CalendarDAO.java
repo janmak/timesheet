@@ -14,8 +14,10 @@ import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import javax.persistence.criteria.*;
 import javax.validation.constraints.NotNull;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -32,21 +34,6 @@ public class CalendarDAO {
             BEGIN_DATE,
             END_DATE,
             REGION
-    );
-
-    private static final String YEAR = "year";
-    private static final String MONTH = "month";
-
-    private static final String GET_WORK_DAYS_FROM_DATE = String.format(
-            "select count(c) - count(h)" +
-            " from Calendar c" +
-            " left outer join c.holidays h" +
-            " where YEAR(c.calDate) = :%s and MONTH(c.calDate) = :%s" +
-                    " and (h.region is null or h.region = :%s) and c.calDate >= :%s",
-            YEAR,
-            MONTH,
-            REGION,
-            BEGIN_DATE
     );
 
     @PersistenceContext
@@ -197,20 +184,68 @@ public class CalendarDAO {
 
     public int getWorkDaysCountForRegion(Region region, Integer year, Integer month, @NotNull Date fromDate) {
         final Query query = entityManager.createQuery(
-                GET_WORK_DAYS_FROM_DATE
-        ).setParameter(REGION, region).setParameter(YEAR, year).
-                setParameter(MONTH, month).setParameter(BEGIN_DATE, fromDate);
+                "select count(c) - count(h)" +
+                    " from Calendar c" +
+                    " left outer join c.holidays h" +
+                    " where YEAR(c.calDate) = :year and MONTH(c.calDate) = :month" +
+                    " and (h.region is null or h.region = :region) and c.calDate >= :from_date"
+        ).setParameter("region", region).setParameter("year", year).
+                setParameter("month", month).setParameter("from_date", fromDate);
 
         return ((Long) query.getSingleResult()).intValue();
     }
 
     public int getWorkDaysCountForRegion(Region region, Integer year, Integer month, @Nullable Date fromDate,
                                          @Nullable Date toDate) {
-        final Query query = entityManager.createQuery(
-                GET_WORK_DAYS_FROM_DATE + " and c.calDate <= :to_date"
-        ).setParameter(REGION, region).setParameter(YEAR, year).
-                setParameter(MONTH, month).setParameter(BEGIN_DATE, fromDate).setParameter("to_date", toDate);
+        final CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        final CriteriaQuery<Object> criteriaQuery = criteriaBuilder.createQuery();
+        final Root<Calendar> from = criteriaQuery.from(Calendar.class);
+        final Join<Object, Object> join = from.join("holidays", JoinType.LEFT);
+        final CriteriaQuery<Object> select = criteriaQuery.select(criteriaBuilder.diff(
+                criteriaBuilder.count(from),
+                criteriaBuilder.count(join)
+        ));
+        final List<Predicate> predicates = new ArrayList<Predicate>();
+        final Path<Date> calDatePath = from.get("calDate");
+        final Path<Region> regionPath = join.get("region");
 
-        return ((Long) query.getSingleResult()).intValue();
+        predicates.add(
+                criteriaBuilder.and(
+                        criteriaBuilder.equal(
+                                criteriaBuilder.function("YEAR", Integer.class, calDatePath),
+                                year
+                        ),
+                        criteriaBuilder.equal(
+                                criteriaBuilder.function("MONTH", Integer.class, calDatePath),
+                                month
+                        ),
+                        criteriaBuilder.or(
+                                criteriaBuilder.isNull(regionPath),
+                                criteriaBuilder.equal(regionPath, region)
+                        )
+                )
+        );
+
+        if (fromDate != null) {
+            predicates.add(
+                    criteriaBuilder.greaterThanOrEqualTo(
+                            calDatePath,
+                            fromDate
+                    )
+            );
+        }
+
+        if (toDate != null) {
+            predicates.add(
+                    criteriaBuilder.lessThanOrEqualTo(
+                            calDatePath,
+                            toDate
+                    )
+            );
+        }
+
+        select.where(predicates.toArray(new Predicate[predicates.size()]));
+
+        return ((Long) entityManager.createQuery(select).getSingleResult()).intValue();
     }
 }

@@ -15,6 +15,7 @@ import java.util.List;
  */
 public class BusinessTripsAndIllnessAddForm {
 
+    private Integer reportId = null;
     private Employee employee;
     private Date beginDate = new Date();
     private Date endDate = new Date();
@@ -26,6 +27,14 @@ public class BusinessTripsAndIllnessAddForm {
     private Integer businessTripType = BusinessTripTypesEnum.NOT_PROJECT.getId();
     private List<BusinessTripTypesEnum> businessTripTypes = Arrays.asList(BusinessTripTypesEnum.values());
     private Integer projectId;
+
+    public Integer getReportId() {
+        return reportId;
+    }
+
+    public void setReportId(Integer reportId) {
+        this.reportId = reportId;
+    }
 
     public Integer getProjectId() {
         return projectId;
