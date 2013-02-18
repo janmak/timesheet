@@ -217,14 +217,14 @@ function createLayout(/* Array */ headerViews) {
 }
 
 function hideCol(button, colField) {
-    switchColDisplay(button, colField, true);
+    switchColDisplay(button, colField, true, true);
 }
 
 function showCol(button, colField) {
-    switchColDisplay(button, colField, false);
+    switchColDisplay(button, colField, false, true);
 }
 
-function switchColDisplay(button, colField, hide) {
+function switchColDisplay(button, colField, /* Boolean */ hide, /* Boolean */ updateStructure) {
     var container = dojo.NodeList(button).parents(".colContainer")[0];
     var display = hide ? "none" : "";
     var buttonWidth = (button.style.width || (button.width + "px"));
@@ -273,7 +273,9 @@ function switchColDisplay(button, colField, hide) {
     dojo.cookie(COOKIE_PREFIX + colField, hide, { expire: -1 });
     dojo.cookie(COOKIE_PREFIX + colField, hide, { expire: 999999999 });
 
-    grid.setStructure(grid.structure);
+    if (updateStructure) {
+        grid.setStructure(grid.structure);
+    }
 }
 
 function showHideButton(container) {
@@ -329,10 +331,12 @@ function restoreHiddenStateFromCookie(grid) {
             var cookieValue = dojo.cookie(COOKIE_PREFIX + field);
 
             if (cookieValue && cookieValue == "true") {
-                switchColDisplay(dojo.byId(HIDE_BUTTON_ID_PREFIX + field), field, true);
+                switchColDisplay(dojo.byId(HIDE_BUTTON_ID_PREFIX + field), field, true, false);
             }
         });
     });
+
+    grid.setStructure(grid.structure);
 }
 
 function cellHasBeenEdited(grid, field, row) {
