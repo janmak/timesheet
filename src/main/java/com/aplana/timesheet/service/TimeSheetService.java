@@ -118,31 +118,6 @@ public class TimeSheetService {
         return timeSheet;
     }
 
-    public void storeTimeSheetLong(TimeSheetForm tsForm) {
-        logger.debug("Selected employee id = {}", tsForm.getEmployeeId());
-        logger.debug("Selected calDate = {}", tsForm.getCalDate());
-        List<String> splittedDateRange = DateTimeUtil.splitDateRangeOnDays(tsForm.getBeginLongDate(), tsForm.getEndLongDate());
-        for (String dateInStr : splittedDateRange) {
-            TimeSheet timeSheet = new TimeSheet();
-            timeSheet.setEmployee(employeeService.find(tsForm.getEmployeeId()));
-            timeSheet.setCalDate(calendarService.find(dateInStr));
-            Set<TimeSheetDetail> timeSheetDetails = new LinkedHashSet<TimeSheetDetail>();
-            TimeSheetDetail timeSheetDetail = new TimeSheetDetail();
-            if (tsForm.isLongVacation()) {
-                timeSheetDetail.setActType( dictionaryItemService.find( TypesOfActivityEnum.VACATION.getId() ) );
-                timeSheetDetail.setDescription( TypesOfActivityEnum.VACATION.getName() );
-            } else if (tsForm.isLongIllness()) {
-                timeSheetDetail.setActType( dictionaryItemService.find( TypesOfActivityEnum.ILLNESS.getId() ) );
-                timeSheetDetail.setDescription( TypesOfActivityEnum.ILLNESS.getName() );
-            }
-            timeSheetDetail.setTimeSheet(timeSheet);
-            timeSheetDetails.add(timeSheetDetail);
-            timeSheet.setTimeSheetDetails(timeSheetDetails);
-            timeSheetDAO.storeTimeSheet(timeSheet);
-            logger.info("TimeSheet object for employee {} ({}) saved (long).", tsForm.getEmployeeId(), timeSheet.getCalDate());
-        }
-    }
-
     /**
      * Ищет в таблице timesheet запись соответсвующую date для сотрудника с
      * идентификатором employeeId и возвращает объект типа Timesheet.

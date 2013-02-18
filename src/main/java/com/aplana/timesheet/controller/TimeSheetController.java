@@ -96,7 +96,6 @@ public class TimeSheetController {
         mav.addObject("selectedProjectsJson", "[{row:'0', project:''}]");
         mav.addObject("selectedWorkplaceJson", "[{row:'0', workplace:''}]");
         mav.addObject("selectedActCategoriesJson", "[{row:'0', actCat:''}]");
-        mav.addObject("selectedLongVacationIllnessJson", getSelectedLongVacationIllnessJson(tsForm));
         mav.addObject("getDateByDefault", getDateByDefault(tsForm.getEmployeeId()));
         mav.addObject("getFirstWorkDate", getEmployeeFirstWorkDay(tsForm.getEmployeeId()));
 
@@ -140,7 +139,6 @@ public class TimeSheetController {
             mavWithErrors.addObject("selectedProjectTasksJson", getSelectedProjectTasksJson(tsForm));
             mavWithErrors.addObject("selectedWorkplaceJson", getSelectedWorkplaceJson(tsForm));
             mavWithErrors.addObject("selectedActCategoriesJson", getSelectedActCategoriesJson(tsForm));
-            mavWithErrors.addObject("selectedLongVacationIllnessJson", getSelectedLongVacationIllnessJson(tsForm));
             mavWithErrors.addObject("selectedCalDateJson", getSelectedCalDateJson(tsForm));
             mavWithErrors.addObject("getDateByDefault", getDateByDefault(tsForm.getEmployeeId()));
             mavWithErrors.addObject("getFirstWorkDate", getEmployeeFirstWorkDay(tsForm.getEmployeeId()));
@@ -155,38 +153,6 @@ public class TimeSheetController {
         ModelAndView mav = new ModelAndView("selected");
         mav.addObject("timeSheetForm", tsForm);
         logger.info("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
-
-        return mav;
-    }
-
-    //Пользователь списывает занятость за продолжительные отпуск или болезнь.
-    @RequestMapping(value = "/timesheetLong", method = RequestMethod.POST)
-    public ModelAndView sendTimeSheetLong(@ModelAttribute("timeSheetForm") TimeSheetForm tsForm, BindingResult result) {
-        logger.info("Processing form validation for employee {} ({}) (long).", tsForm.getEmployeeId(), tsForm.getCalDate());
-        tsFormValidator.validate(tsForm, result);
-        if (result.hasErrors()) {
-            logger.info("TimeSheetForm for employee {} has errors. Form not validated (long).", tsForm.getEmployeeId());
-            ModelAndView mavWithErrors = new ModelAndView("timesheet");
-            mavWithErrors.addObject("timeSheetForm", tsForm);
-            mavWithErrors.addObject("errors", result.getAllErrors());
-            mavWithErrors.addObject("selectedProjectRolesJson", "[{row:'0', role:''}]");
-            mavWithErrors.addObject("selectedProjectTasksJson", "[{row:'0', task:''}]");
-            mavWithErrors.addObject("selectedProjectsJson", "[{row:'0', project:''}]");
-            mavWithErrors.addObject("selectedActCategoriesJson", "[{row:'0', actCat:''}]");
-            mavWithErrors.addObject("selectedWorkplace", "[{row:'0', workplace:''}]");
-            mavWithErrors.addObject("selectedCalDateJson", "''");
-            mavWithErrors.addObject("selectedLongVacationIllnessJson", getSelectedLongVacationIllnessJson(tsForm));
-            mavWithErrors.addAllObjects(getListsToMAV());
-
-            return mavWithErrors;
-        }
-        timeSheetService.storeTimeSheetLong(tsForm);
-        sendMailService.performMailing(tsForm);
-
-        ModelAndView mav = new ModelAndView("selected");
-        mav.addObject("timeSheetForm", tsForm);
-        logger.info("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
-
 
         return mav;
     }
@@ -438,21 +404,6 @@ public class TimeSheetController {
             sb.append("]");
         } else {
             sb.append("[{row:'0', actCat:''}]");
-        }
-        return sb.toString();
-    }
-
-    private String getSelectedLongVacationIllnessJson(TimeSheetForm tsForm) {
-        StringBuilder sb = new StringBuilder();
-        if (tsForm.isLongIllness() || tsForm.isLongVacation()) {
-            sb.append("[");
-            sb.append("{vacation:'").append(tsForm.isLongVacation()).append("', ");
-            sb.append("illness:'").append(tsForm.isLongIllness()).append("', ");
-            sb.append("beginDate:'").append(tsForm.getBeginLongDate()).append("', ");
-            sb.append("endDate:'").append(tsForm.getEndLongDate()).append("'}");
-            sb.append("]");
-        } else {
-            sb.append("[{vacation:'false', illness:'false', beginDate:'', endDate:''}]");
         }
         return sb.toString();
     }

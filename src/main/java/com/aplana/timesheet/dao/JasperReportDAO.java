@@ -166,7 +166,7 @@ public class JasperReportDAO {
             workDaySeparator="and holidays.calDate is null ";
         }
 
-        // Я не знаю как написать это на HQL, но на SQL пишется легко и непринужденно.
+        // К сожалению HQL не может ворочить сложные запросы, прищлось писать native sql-запрос
         Query query = entityManager.createNativeQuery(
                 "SELECT\n" +
                         "        employee.id AS col_0,\n" +
@@ -441,37 +441,46 @@ public class JasperReportDAO {
         boolean withRegionClause   = report.hasRegions()                && !report.isAllRegions();
         boolean withDivisionClause = report.getDivisionOwnerId() != null && report.getDivisionOwnerId() != 0;
 
-        Query query = entityManager.createQuery(
-                "select " +
-                        "c.calDate, " +
-                        "empl.name, " +
-                        "empl.region.name " +
-                "from " +
-                        "Calendar c, " +
-                        "Employee empl " +
-                        "join empl.division d "  +
-                "where " +
-                        "c.calDate between :beginDate and " +
-                        "(CASE  WHEN empl.endDate IS NOT NULL THEN " +
-                        "   (CASE  WHEN empl.endDate < :endDate THEN " +
-                        "       empl.endDate " +
-                        "   ELSE :endDate END) " +
-                        "ELSE :endDate END) AND " +
-                        ( withDivisionClause ? DIVISION_CLAUSE : WITHOUT_CLAUSE ) +
-                        ( withRegionClause   ? REGION_CLAUSE   : WITHOUT_CLAUSE ) +
-                        "(empl.notToSync = false) AND " +
-                        "empl.manager.id is not null AND " +
-                        "c.calDate not in " +
-                            "(select ts.calDate.calDate " + //note: date don't have report
-                            "from TimeSheet ts " +
-                            "where ts.employee.id = empl.id) AND " +
-                        "c.calDate not in " +
-                            "(select h.calDate.calDate " +  //note: date is not holiday in employee's region
-                            "from Holiday h " +
-                            "where h.region.id is null " +
-                                "or  h.region.id = empl.region.id ) AND " +
-                        "(empl.startDate <= c.calDate) " +
-                "order by empl.name, c.calDate");
+        // К сожалению HQL не может ворочить сложные запросы, прищлось писать native sql-запрос
+        Query query = entityManager.createNativeQuery(
+            "SELECT\n" +
+                    "        calendar.caldate AS col_0,\n" +
+                    "        employee.name AS col_1,\n" +
+                    "        region.name AS col_2\n" +
+                    "FROM\n" +
+                    "        calendar calendar \n" +
+                    "        CROSS JOIN employee employee \n" +
+                    "        INNER JOIN division division ON employee.division=division.id  \n" +
+                    "        LEFT JOIN illness illnesses ON \n" +
+                    "                employee.id=illnesses.employee_id AND \n" +
+                    "                (calendar.caldate BETWEEN illnesses.begin_date AND illnesses.end_date) AND \n" +
+                    "                (illnesses.begin_date <= :endDate AND illnesses.end_date >= :beginDate)\n" +
+                    "        LEFT JOIN vacation vacations ON \n" +
+                    "                employee.id=vacations.employee_id AND \n" +
+                    "                (calendar.caldate BETWEEN vacations.begin_date AND vacations.end_date) AND \n" +
+                    "                (vacations.begin_date <= :endDate AND vacations.end_date >= :beginDate),\n" +
+                    "        region region \n" +
+                    "WHERE \n" +
+                             ( withDivisionClause ? "        division.id=:emplDivisionId AND \n" : "") +
+                             ( withRegionClause   ? "        (employee.region IN (:regionIds)) AND \n" : "" ) +
+                    "        illnesses.id IS NULL AND\n" +
+                    "        vacations.id IS NULL AND\n" +
+                    "        employee.region=region.id AND \n" +
+                    "        (calendar.caldate BETWEEN :beginDate AND \n" +
+                    "                CASE WHEN employee.end_date IS NOT NULL THEN \n" +
+                    "                        CASE WHEN employee.end_date<:endDate THEN employee.end_date ELSE :endDate END \n" +
+                    "                ELSE :endDate end) AND\n" +
+                    "        employee.not_to_sync=FALSE AND \n" +
+                    "        (employee.manager IS NOT NULL) AND \n" +
+                    "        (calendar.caldate NOT IN \n" +
+                    "                (SELECT timesheet.caldate FROM time_sheet timesheet WHERE timesheet.emp_id=employee.id)) AND \n" +
+                    "        (calendar.caldate NOT IN  \n" +
+                    "                (SELECT holiday.caldate FROM holiday holiday WHERE holiday.region IS NULL OR holiday.region=employee.region)) AND \n" +
+                    "        employee.start_date<=calendar.caldate \n" +
+                    "ORDER BY\n" +
+                    "        employee.name, \n" +
+                    "        calendar.caldate\n"
+        );
 
         if (withRegionClause) {
             query.setParameter("regionIds", report.getRegionIds());
