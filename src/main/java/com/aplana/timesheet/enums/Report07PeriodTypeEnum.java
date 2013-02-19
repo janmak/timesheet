@@ -56,8 +56,9 @@ public enum Report07PeriodTypeEnum {
                             monthsCount * (calendar.get(Calendar.MONTH) / monthsCount) + (monthsCount - 1)
                     )
             );
-            calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH));
         }
+
+        calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH));
 
         return calendar.getTime();
     }

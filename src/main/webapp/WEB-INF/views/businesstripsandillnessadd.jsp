@@ -79,7 +79,6 @@
             if (${reportId == null}) {
                 return "Создание " + getReportName();
             } else {
-                document.getElementById("reportType").addAttribute("disabled", "disabled");
                 return "Редактирование " + getReportName();
             }
         }
@@ -106,7 +105,18 @@
         }
 
         function cancelform(){
-            mainForm.action = "<%=request.getContextPath()%>/businesstripsandillness/";
+            var reportType = parseInt(dojo.byId("reportType").value);
+
+            switch (reportType) {
+                case illnessReportType:
+                    mainForm.action = "<%=request.getContextPath()%>/businesstripsandillness/illness/" + "${employeeId}";
+                    break;
+                case businessTripReportType :
+                    mainForm.action = "<%=request.getContextPath()%>/businesstripsandillness/businesstrip/" + "${employeeId}";
+                    break;
+                default: mainForm.action = "<%=request.getContextPath()%>/businesstripsandillness/";;
+            }
+
             mainForm.submit();
         }
 
@@ -151,7 +161,7 @@
             if (businessTripType != null){
                 if (businessTripType == businesstrip_project){
                     var projectId = document.getElementById("projectId").value;
-                    if (projectId == null || projectId == projectUndefined){
+                    if (projectId == null || projectId == projectUndefined || projectId == "0"){
                         errors.push("Для проектной командировки необходимо выбрать проект!");
                         return false;
                     } else {
@@ -178,7 +188,7 @@
 
         function checkComment(){
             var comment = document.getElementById("comment").value;
-            if (comment == null || comment.length <= 200){
+            if (comment == null || comment.trim().length <= 200){
                 return true;
             } else {
                 errors.push("Комментарий должен быть короче 200 символов!");
@@ -287,13 +297,7 @@
                 </div>
             </c:when>
             <c:when test="${reportId != null}">
-                <div class="checkboxeslabel lowspace">Редактируется:</div>
-                <div class="checkboxesselect lowspace">
-                    <form:select path="reportType" id="reportType" onchange="updateView(this)"
-                                 onmouseover="tooltip.show(getTitle(this));" onmouseout="tooltip.hide();" required="true"  disabled="true">
-                        <form:options items="${businesstripsandillnessadd.reportTypes}" itemLabel="name" itemValue="id" required="true" cssClass="date_picker"/>
-                    </form:select>
-                </div>
+                <form:hidden path="reportType" />
             </c:when>
         </c:choose>
 

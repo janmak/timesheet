@@ -75,7 +75,7 @@
 
             setTimeout(function() {
                 restoreHiddenStateFromCookie(<%= GRID_JS_ID %>);
-            }, 1);
+            }, 10);
         });
 
         dojo.addOnUnload(function() {

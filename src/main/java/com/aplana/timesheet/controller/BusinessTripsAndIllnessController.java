@@ -132,7 +132,7 @@ public class BusinessTripsAndIllnessController extends AbstractController{
     }
 
     @RequestMapping(value = "/businesstripsandillness/{divisionId}/{employeeId}/{year}/{month}")
-    public ModelAndView showBusinessTripsAndIllness(
+    public ModelAndView showDefaultIllnessReport(
             @PathVariable("divisionId") Integer divisionId,
             @PathVariable("employeeId") Integer employeeId,
             @PathVariable("year") Integer year,
@@ -140,6 +140,33 @@ public class BusinessTripsAndIllnessController extends AbstractController{
             @ModelAttribute("businesstripsandillness") BusinessTripsAndIllnessForm tsForm,
             BindingResult result) throws BusinessTripsAndIllnessControllerException {
         Integer printtype = tsForm.getReportType();
+        return getBusinessTripsOrIllnessReport(divisionId, employeeId, year, month, printtype);
+    }
+
+    @RequestMapping(value = "/businesstripsandillness/businesstrip/{employeeId}")
+    public ModelAndView showBusinessTrips(
+            @PathVariable("employeeId") Integer employeeId,
+            @ModelAttribute("businesstripsandillness") BusinessTripsAndIllnessForm businessTripsAndIllnessForm)throws BusinessTripsAndIllnessControllerException {
+        return getBusinessTripsOrIllnessReport(employeeId, QuickReportTypesEnum.BUSINESS_TRIP.getId());
+    }
+
+    @RequestMapping(value = "/businesstripsandillness/illness/{employeeId}")
+    public ModelAndView showIllness(
+            @PathVariable("employeeId") Integer employeeId,
+            @ModelAttribute("businesstripsandillness") BusinessTripsAndIllnessForm businessTripsAndIllnessForm)throws BusinessTripsAndIllnessControllerException {
+        return getBusinessTripsOrIllnessReport(employeeId, QuickReportTypesEnum.BUSINESS_TRIP.getId());
+    }
+
+    private ModelAndView getBusinessTripsOrIllnessReport(Integer employeeId, Integer printType) throws BusinessTripsAndIllnessControllerException {
+        Employee employee = employeeService.find(employeeId);
+        java.util.Calendar calendar = java.util.Calendar.getInstance();
+        Integer month = calendar.get(java.util.Calendar.MONTH) + 1;
+        Integer year = calendar.get(java.util.Calendar.YEAR);
+
+        return getBusinessTripsOrIllnessReport(employee.getDivision().getId(), employee.getId(), year, month, printType);
+    }
+
+    private ModelAndView getBusinessTripsOrIllnessReport(Integer divisionId, Integer employeeId, Integer year, Integer month, Integer printtype) throws BusinessTripsAndIllnessControllerException {
         Employee employee = employeeService.find(employeeId);
         List<Calendar> years = DateTimeUtil.getYearsList(calendarService);
         List<Division> divisionList = divisionService.getDivisions();
@@ -162,7 +189,7 @@ public class BusinessTripsAndIllnessController extends AbstractController{
             BindingResult result) throws BusinessTripsAndIllnessControllerException {
         tsForm.setReportType(reportTypeId);
 
-        return showBusinessTripsAndIllness(divisionId, employeeId, year, month, tsForm, result);
+        return showDefaultIllnessReport(divisionId, employeeId, year, month, tsForm, result);
     }
 
     /**

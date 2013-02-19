@@ -239,20 +239,16 @@ public class Employee implements Identifiable {
     public String toString() {
         final StringBuilder sb = new StringBuilder();
         sb.append("Employee");
-        sb.append("{id=").append(id);
-        sb.append(", name='").append(name).append('\'');
-        sb.append(", email='").append(email).append('\'');
-        sb.append(", startDate=").append(startDate);
+        sb.append("{id=").append(getId());
+        sb.append(", name='").append(getName()).append('\'');
+        sb.append(", email='").append(getEmail()).append('\'');
+        sb.append(", startDate=").append(getStartDate());
         sb.append(", ldap='").append(ldap).append('\'');
-        sb.append(", endDate=").append(endDate);
-        sb.append(", manager=").append(manager);
-        sb.append(", division=").append(division);
-        sb.append(", job=").append(job);
-        sb.append(", region=").append(region);
-        sb.append(", permissions=").append(permissions);
-        sb.append(", notToSync=").append(notToSync);
-        sb.append(", objectSid='").append(objectSid).append('\'');
-        sb.append(", jobRate=").append(jobRate);
+        sb.append(", endDate=").append(getEndDate());
+        sb.append(", job=").append(getJob());
+        sb.append(", notToSync=").append(isNotToSync());
+        sb.append(", objectSid='").append(getObjectSid()).append('\'');
+        sb.append(", jobRate=").append(getJobRate());
         sb.append('}');
         return sb.toString();
     }
