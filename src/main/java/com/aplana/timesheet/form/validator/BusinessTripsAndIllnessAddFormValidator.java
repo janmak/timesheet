@@ -67,7 +67,7 @@ public class BusinessTripsAndIllnessAddFormValidator extends AbstractValidator {
 
             if (! reports.isEmpty()) {
                 if (! isEditingReport(form.getReportId(), reports)) {
-                    errors.rejectValue("beginDate", "error.businesstripsandilnessaddform.beginDate.wrong", "Выбранный период частично или полностью попадает на период существующего отчета!");
+                    errors.rejectValue("beginDate", "error.businesstripsandilnessaddform.beginDate.wrong", String.format("Выбранный период частично или полностью попадает на период %s %s!", getExistingString(reportType), getReportName(reportType)));
                 }
             }
         }
@@ -76,10 +76,24 @@ public class BusinessTripsAndIllnessAddFormValidator extends AbstractValidator {
             errors.rejectValue("beginDate", "error.businesstripsandilnessaddform.begindate.wrong", "Дата окончания " + getReportName(reportType) + " не может быть раньше даты начала!");
         }
 
+        form.setComment(form.getComment().trim());
+
         if (form.getComment() != null && form.getComment().length() > 200) {
             errors.rejectValue("beginDate", "error.businesstripsandilnessaddform.comment.wrong", "Комментарий слишком длинный! (максимально допускается 200 символов)");
         }
 
+    }
+
+    private String getExistingString(QuickReportTypesEnum reportType) {
+        switch (reportType) {
+            case BUSINESS_TRIP: {
+                return "существующей";
+            }
+            case ILLNESS: {
+                return "существующего";
+            }
+            default: return null;
+        }
     }
 
     private Employee getEmployeeFromQuickReport(QuickReportTypesEnum reportType, Integer reportId) {

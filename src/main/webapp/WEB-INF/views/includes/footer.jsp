@@ -1,14 +1,12 @@
 <%@ page import="com.aplana.timesheet.util.DateTimeUtil" %>
 <%@ page import="java.io.FileInputStream" %>
 <%@ page import="java.util.Properties" %>
+<%@ page import="com.aplana.timesheet.properties.TSPropertyProvider" %>
+<%@ page import="org.springframework.beans.factory.annotation.Autowired" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%
-    Properties property = new Properties();
-    try {
-        property.load(new FileInputStream("./webapps/timesheet.properties"));
-    } catch (Exception e) { }
-    String version = property.getProperty("footer.text");
-    String help = property.getProperty("timesheet.help.url");
+    String version = TSPropertyProvider.getFooterText();
+    String help = TSPropertyProvider.getTimesheetHelpUrl();
 %>
 <br/>
 <hr/>

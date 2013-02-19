@@ -15,11 +15,16 @@ function setBeginDate(){
     var month = today.getMonth();
     var startDate = (new Date(today.getFullYear(), today.getMonth(), 1)).format("dd.mm.yyyy");
     var beginDate = dijit.byId("beginDate");
-    beginDate.set("displayedValue", startDate);
+    setDefaultDateIfNeed(beginDate, startDate);
 }
 
 function setLastDate(){
     var today = (new Date()).format("dd.mm.yyyy");
     var endDate = dijit.byId("endDate");
-    endDate.set("displayedValue", today);
+    setDefaultDateIfNeed(endDate, today);
+}
+
+function setDefaultDateIfNeed(widget, defaultDate) {
+    var date = widget.get('value');
+    widget.set('displayedValue', (date == null || date == undefined) ? defaultDate : date);
 }

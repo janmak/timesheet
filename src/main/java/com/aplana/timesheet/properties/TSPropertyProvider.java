@@ -153,6 +153,14 @@ public class TSPropertyProvider {
         return getProperties().getProperty("timesheet.url");
     }
 
+    public static String getFooterText() {
+        return getProperties().getProperty("footer.text");
+    }
+
+    public static String getTimesheetHelpUrl() {
+        return getProperties().getProperty("timesheet.help.url");
+    }
+
     /**
      * Единый метод для загрузки почтовых настроек
      *
@@ -183,4 +191,9 @@ public class TSPropertyProvider {
     public static void updateProperties() {
         needUpdate = true;
     }
+
+    public static String getProperiesFilePath() {
+        return System.getProperty("pathToTsProperties");
+    }
+
 }

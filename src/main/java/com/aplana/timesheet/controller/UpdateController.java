@@ -23,6 +23,7 @@ import org.springframework.ldap.support.LdapUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.annotation.Nullable;
@@ -110,6 +111,13 @@ public class UpdateController {
         TSPropertyProvider.updateProperties();
 
         return "redirect:/admin";
+    }
+
+    @RequestMapping(value = "/update/propertiesAJAX", produces = "text/plain;charset=UTF-8")
+    @ResponseBody
+    public String updatePropertiesAXAX() {
+        TSPropertyProvider.updateProperties();
+        return TSPropertyProvider.getProperiesFilePath();
     }
 
     @RequestMapping(value = "/update/objectSid")

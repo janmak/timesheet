@@ -238,16 +238,15 @@ public class TimeSheetService {
     }
 
     public Date getLastWorkdayWithoutTimesheet(Integer employeeId){
+        Employee employee = employeeDAO.find(employeeId);
+        Calendar calendar = timeSheetDAO.getDateNextAfterLastDayWithTS(employee);
         Date result = new Date();
-        // ищем последнюю дату, когда была списана занятость
-        do {
-            result = DateUtils.addDays(result, -1);
-        } while (!timeSheetDAO.isEmplyeeHasTsForDate(employeeId, result) );
-        // ищем следующий день после найденного, который является рабочим днем
-        do {
-            result = DateUtils.addDays(result, 1);
-        } while (!holidayDAO.isWorkDay(DateTimeUtil.dateToString(result)));
-        return result;
+        if (calendar == null){
+            return result;
+        } else{
+            result.setTime(calendar.getCalDate().getTime());
+            return result;
+        }
     }
 
     public Date getEmployeeFirstWorkDay(Integer employeeId){
