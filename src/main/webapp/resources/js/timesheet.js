@@ -1062,8 +1062,6 @@ function overtimeCauseChange(obj){
 
 function checkDurationThenSendForm(){
     var totalDuration = recalculateDuration();
-    var vacation = dojo.byId("long_vacation");
-    var illness = dojo.byId("long_illness");
     var oob = false; //Отпуск или отгул или болезнь
     var actTypes = dojo.query(".activityType");
 
@@ -1080,8 +1078,7 @@ function checkDurationThenSendForm(){
 
     if (
         (totalDuration < (8 - overtimeThreshold) || totalDuration > (8 + overtimeThreshold) )
-        && (vacation.checked != true && illness.checked != true)
-        && !oob
+            && !oob
     ) {
         var comment = dijit.byId("overtimeCauseComment");
 
