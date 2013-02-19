@@ -9,20 +9,15 @@
 <head>
     <title><fmt:message key="title.vacationApproval"/></title>
 </head>
+
 <body>
 
 <script type="text/javascript">
 
-    dojo.ready(function () {
-        setVisibility();
-    });
-
-    function setVisibility(){
+    window.onload = function() {
         if ("${vacationApprovalForm.isAllButtonsVisible}" != "true"){
-            accDiv = dojo.byId("acceptence_div");
-            dojo.attr(accDiv, {
-                style: "display: none"
-            });
+            var accDiv = document.getElementById('acceptence_div');
+            accDiv.style.display = "none";
         }
     }
 
@@ -34,8 +29,6 @@
 
 </script>
 
-
-<br/><br/><br/>
 <form:form method="post" modelAttribute="vacationApprovalForm" name="mainForm">
 
     <form:label path="message">
@@ -43,8 +36,7 @@
     </form:label>
 
     <br/><br/>
-
-    <div id="acceptence_div" >
+    <div id="acceptence_div">
         <button id="submit_button" style="width:210px" onclick="submitResult(true)" type="button">
             Согласен
         </button>
