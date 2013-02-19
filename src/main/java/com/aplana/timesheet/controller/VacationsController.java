@@ -83,6 +83,17 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
 
         final ModelAndView modelAndView = createModelAndViewForEmployee("vacations", employeeId, divisionId);
 
+        final Integer vacationId = vacationsForm.getVacationId();
+
+        if (vacationId != null) {
+            try {
+                deleteVacation(vacationId);
+                vacationsForm.setVacationId(null);
+            } catch (DeleteVacationException ex) {
+                result.rejectValue("vacationId", "error.vacations.deletevacation.failed", ex.getLocalizedMessage());
+            }
+        }
+
         final Employee employee = (Employee) modelAndView.getModel().get(EMPLOYEE);
         final List<Vacation> vacations = vacationDAO.findVacations(employeeId, year);
 
@@ -97,17 +108,6 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
         modelAndView.addObject("workDays", workDays);
         modelAndView.addAllObjects(getSummaryAndCalcDays(employee, vacations, calDays, workDays, year));
         modelAndView.addObject("curEmployee", securityService.getSecurityPrincipal().getEmployee());
-
-        final Integer vacationId = vacationsForm.getVacationId();
-
-        if (vacationId != null) {
-            try {
-                deleteVacation(vacationId);
-                vacationsForm.setVacationId(null);
-            } catch (DeleteVacationException ex) {
-                result.rejectValue("vacationId", "error.vacations.deletevacation.failed", ex.getLocalizedMessage());
-            }
-        }
 
         return modelAndView;
     }
