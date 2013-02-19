@@ -22,6 +22,7 @@
             divisionChange(dojo.byId("divisionId"));
 
             dojo.byId("employeeId").value = ${employeeId};
+            dojo.byId("vacationId").setAttribute("disabled", "disabled");
         });
 
         var employeeList = ${employeeListJson};
@@ -33,6 +34,7 @@
 
             if (isNotNilOrNull(year)) {
                 if (checkEmployeeData(divisionId, empId)) {
+                    dojo.byId("vacationId").setAttribute("disabled", "disabled");
                     vacationsForm.action =
                             "<%=request.getContextPath()%>/vacations/" + divisionId + "/" + empId + "/" + year;
                     vacationsForm.submit();
@@ -64,6 +66,7 @@
                 return;
             }
 
+            dojo.byId("vacationId").removeAttribute("disabled");
             dojo.byId("vacationId").value = vac_id;
             vacationsForm.submit();
         }
@@ -75,7 +78,7 @@
 <br/>
 
 <form:form method="post" commandName="vacationsForm" name="mainForm">
-    <form:hidden path="vacationId" disabled="${vacationsForm.vacationId != null}" />
+    <form:hidden path="vacationId" />
 
     <span class="label">Подразделение</span>
     <form:select path="divisionId" id="divisionId" onchange="divisionChange(this)" class="without_dojo"
