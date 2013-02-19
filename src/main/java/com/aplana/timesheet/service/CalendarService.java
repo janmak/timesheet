@@ -2,6 +2,7 @@ package com.aplana.timesheet.service;
 
 import com.aplana.timesheet.dao.CalendarDAO;
 import com.aplana.timesheet.dao.entity.Calendar;
+import com.aplana.timesheet.dao.entity.Holiday;
 import com.aplana.timesheet.dao.entity.Region;
 import com.aplana.timesheet.exception.TSRuntimeException;
 import com.aplana.timesheet.exception.service.CalendarServiceException;
@@ -182,5 +183,9 @@ public class CalendarService
 
     public int getWorkDaysCountForRegion(Region region, Integer year, Integer month) {
         return getWorkDaysCountForRegion(region, year, month, null, null);
+    }
+
+    public List<Holiday> getHolidaysForRegion(Date minDate, Date maxDate, Region region) {
+        return calendarDAO.getHolidaysForRegion(minDate, maxDate, region);
     }
 }

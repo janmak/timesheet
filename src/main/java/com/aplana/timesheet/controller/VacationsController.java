@@ -1,15 +1,13 @@
 package com.aplana.timesheet.controller;
 
-import com.aplana.timesheet.dao.CalendarDAO;
-import com.aplana.timesheet.dao.VacationDAO;
-import com.aplana.timesheet.dao.entity.DictionaryItem;
 import com.aplana.timesheet.dao.entity.Employee;
 import com.aplana.timesheet.dao.entity.Holiday;
 import com.aplana.timesheet.dao.entity.Vacation;
 import com.aplana.timesheet.enums.VacationStatusEnum;
+import com.aplana.timesheet.exception.service.DeleteVacationException;
 import com.aplana.timesheet.form.VacationsForm;
 import com.aplana.timesheet.form.validator.VacationsFormValidator;
-import com.aplana.timesheet.service.SendMailService;
+import com.aplana.timesheet.service.VacationService;
 import com.aplana.timesheet.util.EnumsUtils;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
@@ -34,25 +32,11 @@ import java.util.*;
 @Controller
 public class VacationsController extends AbstractControllerForEmployeeWithYears {
 
-    private static class DeleteVacationException extends RuntimeException {
-
-        private DeleteVacationException(String message) {
-            super(message);
-        }
-
-    }
-
     @Autowired
     private VacationsFormValidator vacationsFormValidator;
 
     @Autowired
-    private VacationDAO vacationDAO;
-
-    @Autowired
-    private CalendarDAO calendarDAO;
-
-    @Autowired
-    private SendMailService sendMailService;
+    private VacationService vacationService;
 
     @RequestMapping(value = "/vacations", method = RequestMethod.GET)
     public String prepareToShowVacations() {
@@ -87,7 +71,7 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
 
         if (vacationId != null) {
             try {
-                deleteVacation(vacationId);
+                vacationService.deleteVacation(vacationId);
                 vacationsForm.setVacationId(null);
             } catch (DeleteVacationException ex) {
                 result.rejectValue("vacationId", "error.vacations.deletevacation.failed", ex.getLocalizedMessage());
@@ -95,7 +79,7 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
         }
 
         final Employee employee = (Employee) modelAndView.getModel().get(EMPLOYEE);
-        final List<Vacation> vacations = vacationDAO.findVacations(employeeId, year);
+        final List<Vacation> vacations = vacationService.findVacations(employeeId, year);
 
         final int vacationsSize = vacations.size();
 
@@ -146,7 +130,7 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
             }
 
             final List<Holiday> holidaysForRegion =
-                    calendarDAO.getHolidaysForRegion(minDate, maxDate, employee.getRegion());
+                    calendarService.getHolidaysForRegion(minDate, maxDate, employee.getRegion());
             final Calendar calendar = Calendar.getInstance();
 
             calendar.set(Calendar.YEAR, year);
@@ -232,43 +216,6 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
                 );
             }
         }));
-    }
-
-    private void deleteVacation(Integer vacationId) {
-        final Vacation vacation = vacationDAO.findVacation(vacationId);
-
-        if (vacation == null) { // если вдруг удалил автор, а не сотрудник
-            throw new DeleteVacationException("Запись не найдена");
-        }
-
-        final Employee employee = securityService.getSecurityPrincipal().getEmployee();
-        final boolean isAdmin = employeeService.isEmployeeAdmin(employee.getId());
-
-        final DictionaryItem statusDictionaryItem = vacation.getStatus();
-        final VacationStatusEnum vacationStatus =
-                EnumsUtils.getEnumById(statusDictionaryItem.getId(), VacationStatusEnum.class);
-
-        if (
-                employee.equals(vacation.getEmployee()) ||
-                employee.equals(vacation.getAuthor()) ||
-                isAdmin
-        ) {
-            if (!isAdmin && (vacationStatus == VacationStatusEnum.REJECTED || vacationStatus == VacationStatusEnum.APPROVED)) {
-                throw new DeleteVacationException(String.format(
-                        "Нельзя удалить заявление на отпуск в статусе \"%s\". Для удаления данного заявления " +
-                                "необходимо написать на timesheet@aplana.com",
-                        statusDictionaryItem.getValue()
-                ));
-            }
-
-            sendMailService.performVacationDeletedMailing(vacation);    //todo переделать, чтобы рассылка все-таки была после удаления?
-
-            vacationDAO.delete(vacation);
-
-            return;
-        }
-
-        throw new DeleteVacationException("Ошибка доступа");
     }
 
 }
