@@ -7,7 +7,6 @@ import com.aplana.timesheet.properties.TSPropertyProvider;
 import com.aplana.timesheet.service.SendMailService;
 import com.aplana.timesheet.service.VacationApprovalService;
 import com.aplana.timesheet.service.vacationapproveprocess.VacationApprovalProcessService;
-import com.aplana.timesheet.util.TimeSheetUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
