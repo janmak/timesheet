@@ -36,7 +36,7 @@ public class JasperReportDAO {
     private static Map<Class, String[]> fieldsMap = new HashMap<Class, String[]>( 6 );
 
     static {
-        //TODO может быть это вынести в сам класс Reports?
+        //может быть это вынести в сам класс Reports? kss - нет, это мапинг полей datasource для отчета, его логично делать там же, где формируются данные.
         fieldsMap.put( Report01.class, new String[] { "id", "name", "caldate", "projnames", "overtime", "duration",
                 "holiday", "region", "projdetail", "durationdetail", "region_name", "vacation", "illness" } );
         fieldsMap.put( Report02.class, new String[] { "name", "empldivision", "project",
@@ -171,78 +171,78 @@ public class JasperReportDAO {
         // К сожалению HQL не может ворочить сложные запросы, прищлось писать native sql-запрос
         Query query = entityManager.createNativeQuery(
                 "SELECT\n" +
-                        "        employee.id AS col_0,\n" +
-                        "        employee.name AS col_1,\n" +
-                        "        timesheet.caldate AS col_2,\n" +
-                        "        cast('' AS varchar(255)) AS col_3,\n" +
-                        "        sum(timesheet_details.duration)-8 AS col_4,\n" +
-                        "        sum(timesheet_details.duration) AS col_5,\n" +
-                        "        holidays.id AS col_6,\n" +
-                        "        holidays.region AS col_7,\n" +
-                        "        CASE\n" +
+                        "        employee.id AS col_0," +
+                        "        employee.name AS col_1," +
+                        "        timesheet.caldate AS col_2," +
+                        "        cast('' AS varchar(255)) AS col_3," +
+                        "        sum(timesheet_details.duration)-8 AS col_4," +
+                        "        sum(timesheet_details.duration) AS col_5," +
+                        "        holidays.id AS col_6," +
+                        "        holidays.region AS col_7," +
+                        "        CASE" +
                         "            WHEN (holidays.id is not null OR" +
                         "                  vacations.id is not null OR" +
                         "                  illnesses.id is not null) " +
-                        "               THEN CASE\n" +
-                        "                   WHEN project.id is not null THEN project.name \n" +
-                        "                   ELSE cast('Внепроектная деятельность' AS varchar(255)) \n" +
-                        "            END\n" +
-                        "            ELSE cast('%NO_GROUPING%' AS varchar(255)) \n" +
-                        "        END AS col_8,\n" +
-                        "        CASE\n" +
+                        "               THEN CASE" +
+                        "                   WHEN project.id is not null THEN project.name " +
+                        "                   ELSE cast('Внепроектная деятельность' AS varchar(255)) " +
+                        "            END" +
+                        "            ELSE cast('%NO_GROUPING%' AS varchar(255)) " +
+                        "        END AS col_8," +
+                        "        CASE" +
                         "            WHEN (holidays.id is not null OR" +
                         "                  vacations.id is not null OR " +
                         "                  illnesses.id is not null) " +
-                        "               THEN SUM(timesheet_details.duration) \n" +
-                        "            ELSE cast(-1 as float4) \n" +
-                        "        END AS col_9,\n" +
-                        "        region.name AS col_10,\n" +
-                        "        vacations.id AS col_11,\n" +
-                        "        illnesses.id AS col_12 \n" +
-                        "FROM\n" +
-                        "       time_sheet_detail timesheet_details \n" +
-                        "       INNER JOIN time_sheet timesheet ON timesheet_details.time_sheet_id=timesheet.id \n" +
-                        "       INNER JOIN employee employee    ON timesheet.emp_id=employee.id \n" +
-                        "       INNER JOIN region region        ON employee.region=region.id \n" +
-                        "       INNER JOIN division division    ON employee.division=division.id \n" +
-                        "       LEFT OUTER JOIN calendar calendar  ON timesheet.caldate=calendar.caldate \n" +
-                        "       LEFT OUTER JOIN holiday holidays   ON calendar.caldate=holidays.caldate \n" +
-                        "       LEFT OUTER JOIN project project    ON timesheet_details.proj_id=project.id \n" +
-                        "       LEFT OUTER JOIN project_role project_role ON timesheet_details.projectrole_id=project_role.id \n" +
-                        "       LEFT OUTER JOIN vacation vacations ON \n" +
-                        "               employee.id=vacations.employee_id AND \n" +
-                        "               timesheet.caldate BETWEEN vacations.begin_date AND vacations.end_date \n" +
-                        "               AND vacations.status_id=:status\n" +
-                        "       LEFT OUTER JOIN illness illnesses ON \n" +
-                        "               employee.id=illnesses.employee_id AND \n" +
-                        "               timesheet.caldate BETWEEN illnesses.begin_date AND illnesses.end_date\n" +
-                        "WHERE\n" +
+                        "               THEN SUM(timesheet_details.duration) " +
+                        "            ELSE cast(-1 as float4) " +
+                        "        END AS col_9," +
+                        "        region.name AS col_10," +
+                        "        vacations.id AS col_11," +
+                        "        illnesses.id AS col_12 " +
+                        "FROM" +
+                        "       time_sheet_detail timesheet_details " +
+                        "       INNER JOIN time_sheet timesheet ON timesheet_details.time_sheet_id=timesheet.id " +
+                        "       INNER JOIN employee employee    ON timesheet.emp_id=employee.id " +
+                        "       INNER JOIN region region        ON employee.region=region.id " +
+                        "       INNER JOIN division division    ON employee.division=division.id " +
+                        "       LEFT OUTER JOIN calendar calendar  ON timesheet.caldate=calendar.caldate " +
+                        "       LEFT OUTER JOIN holiday holidays   ON calendar.caldate=holidays.caldate " +
+                        "       LEFT OUTER JOIN project project    ON timesheet_details.proj_id=project.id " +
+                        "       LEFT OUTER JOIN project_role project_role ON timesheet_details.projectrole_id=project_role.id " +
+                        "       LEFT OUTER JOIN vacation vacations ON " +
+                        "               employee.id=vacations.employee_id AND " +
+                        "               timesheet.caldate BETWEEN vacations.begin_date AND vacations.end_date " +
+                        "               AND vacations.status_id=:status" +
+                        "       LEFT OUTER JOIN illness illnesses ON " +
+                        "               employee.id=illnesses.employee_id AND " +
+                        "               timesheet.caldate BETWEEN illnesses.begin_date AND illnesses.end_date " +
+                        "WHERE " +
                                 (withDivisionClause ? "division.id = :emplDivisionId AND " : "") +
                                 (withRegionClause ? "region.id in :regionIds AND " : "") +
                                 workDaySeparator +
-                        "        timesheet_details.act_type in :actTypes AND \n" +
-                        "        timesheet.caldate BETWEEN :beginDate AND :endDate AND \n" +
-                        "        (holidays.region is null OR holidays.region=region.id) \n" +
-                        "GROUP BY\n" +
-                        "        employee.id ,\n" +
-                        "        employee.name ,\n" +
-                        "        timesheet.caldate ,\n" +
-                        "        holidays.id ,\n" +
-                        "        holidays.region ,\n" +
-                        "        col_8 ,\n" +
-                        "        region.name ,\n" +
-                        "        vacations.id ,\n" +
-                        "        illnesses.id \n" +
-                        "HAVING\n" +
-                        "        sum(timesheet_details.duration) > 8 \n" +
-                        "        OR holidays.id is not null \n" +
-                        "        OR vacations.id is not null\n" +
-                        "        OR illnesses.id is not null\n" +
-                        "ORDER BY\n" +
-                        "        employee.name,\n" +
-                        "        holidays.id desc,\n" +
-                        "        vacations.id, \n" +
-                        "        illnesses.id, \n" +
+                        "        timesheet_details.act_type in :actTypes AND " +
+                        "        timesheet.caldate BETWEEN :beginDate AND :endDate AND " +
+                        "        (holidays.region is null OR holidays.region=region.id) " +
+                        "GROUP BY" +
+                        "        employee.id ," +
+                        "        employee.name ," +
+                        "        timesheet.caldate ," +
+                        "        holidays.id ," +
+                        "        holidays.region ," +
+                        "        col_8 ," +
+                        "        region.name ," +
+                        "        vacations.id ," +
+                        "        illnesses.id " +
+                        "HAVING" +
+                        "        sum(timesheet_details.duration) > 8 " +
+                        "        OR holidays.id is not null " +
+                        "        OR vacations.id is not null" +
+                        "        OR illnesses.id is not null" +
+                        "ORDER BY" +
+                        "        employee.name," +
+                        "        holidays.id desc," +
+                        "        vacations.id, " +
+                        "        illnesses.id, " +
                         "        timesheet.caldate"
         );
 
@@ -260,7 +260,7 @@ public class JasperReportDAO {
                 .setParameter("actTypes", getProjectPresaleNonProjectActivityId()); // отчет только по этим типам активностей ( 12 , 13 , 14 )
 
         List resultList = query.getResultList();
-        //TODO похоже это нужно вынести в запрос, и не делать этого в Java
+        //похоже это нужно вынести в запрос, и не делать этого в Java - kss: это нельзя сделать в hql запросе - только в nativesql c использованием специфических для БД функций.
         List projResultList = getProjResultList ( report );
 
         // Пробежим весь список отчетов и заполним в них списки проектов, над которыми работали сотрудники
@@ -600,24 +600,24 @@ public class JasperReportDAO {
             }
             List dataSource = new ArrayList();
             Double temp = null;
-            HashMap<String, HashMap<String, Double>> periodsDuration = new HashMap();
-            HashMap<String, Double> durations = new HashMap();
+            HashMap<String, HashMap<String, Double>> periodsDuration = new HashMap<String, HashMap<String, Double>>();
+            HashMap<String, Double> durations = new HashMap<String, Double>();
             Report7Period itogoPeriod = new Report7Period("Итого");
-            for (Iterator i = query1.getResultList().iterator(); i.hasNext(); ) {
-                Object[] projects = (Object[]) i.next();
+            for (Object o : query1.getResultList()) {
+                Object[] projects = (Object[]) o;
                 Integer projectId = (Integer) projects[0];
                 Integer projectDivision = (Integer) projects[2];
                 Date periodStart = start;
                 String projectName = null;
                 Integer periodNumber = null;
                 Date periodEnd = periodStart;
-                Double periodByRP = Double.valueOf(0);
-                Double periodByAnalyst = Double.valueOf(0);
-                Double periodByDev = Double.valueOf(0);
-                Double periodBySystem = Double.valueOf(0);
-                Double periodByTest = Double.valueOf(0);
-                Double periodByCenterOwner = Double.valueOf(0);
-                Double periodByCenterEtc = Double.valueOf(0);
+                Double periodByRP = 0D;
+                Double periodByAnalyst = 0D;
+                Double periodByDev = 0D;
+                Double periodBySystem = 0D;
+                Double periodByTest = 0D;
+                Double periodByCenterOwner = 0D;
+                Double periodByCenterEtc = 0D;
                 HashMap<String, Double> periodRegions = new HashMap<String, Double>();
                 for (periodNumber = 1; periodEnd.before(end); periodNumber = periodNumber + 1) {
                     final Date maxEndOfPeriod = getMaxEndOfPeriod(end, periodStart, periodType);
@@ -635,8 +635,8 @@ public class JasperReportDAO {
                     Double durationByCenterOwner = 0D;
                     Double durationByCenterEtc = 0D;
                     Double durationPeriod = 0D;
-                    for (Iterator j = query2.getResultList().iterator(); j.hasNext(); ) {
-                        Object[] values = (Object[]) j.next();
+                    for (Object o1 : query2.getResultList()) {
+                        Object[] values = (Object[]) o1;
                         String projectRegion = (String) values[5];
                         Double pDuration = (Double) values[3];
                         Integer job = (Integer) values[2];
@@ -769,7 +769,7 @@ public class JasperReportDAO {
                 }
             }
             for (Map.Entry<String, HashMap<String, Double>> period : periodsDuration.entrySet()) {
-                Double sum = Double.valueOf(0);
+                Double sum = 0D;
                 for (Map.Entry<String, Double> project : period.getValue().entrySet()) {
                     sum = sum + project.getValue();
                 }
@@ -782,7 +782,7 @@ public class JasperReportDAO {
                 }
             }
 
-            Double sum = Double.valueOf(0);
+            Double sum = 0D;
             for (Map.Entry<String, Double> period : durations.entrySet()) {
                 sum += period.getValue();
             }
@@ -815,15 +815,15 @@ public class JasperReportDAO {
     }
 
     private String report7GenerateValue(Double projectDuration, Double periodDuration) {
-        if (projectDuration.isNaN() || projectDuration == null)
-            projectDuration = Double.valueOf(0);
-        if (projectDuration.isNaN() || projectDuration == null)
-            periodDuration = Double.valueOf(0);
+        if (projectDuration == null || projectDuration.isNaN())
+            projectDuration = 0D;
+        if (projectDuration == null || projectDuration.isNaN())
+            periodDuration = 0D;
         Double result;
         if (periodDuration > 0) {
             result = projectDuration / periodDuration * 100;
         } else {
-            result = Double.valueOf(0);
+            result = 0D;
         }
         return doubleFormat.format(projectDuration) + " (" + doubleFormat.format(result) + "%)";
     }
@@ -845,8 +845,8 @@ public class JasperReportDAO {
     private ArrayList readRolesFromString(String s) {
         String[] roles = s.split(",");
         ArrayList role = new ArrayList();
-        for (Integer i = 0; i < roles.length; i = i + 1) {
-            role.add(Integer.parseInt(roles[i]));
+        for (String role1 : roles) {
+            role.add(Integer.parseInt(role1));
         }
         return role;
     }

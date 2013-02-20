@@ -1,14 +1,8 @@
-<%@ page import="com.aplana.timesheet.util.DateTimeUtil" %>
-<%@ page import="java.io.FileInputStream" %>
-<%@ page import="java.util.Properties" %>
+<%@ page import="com.aplana.timesheet.properties.TSPropertyProvider" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%
-    Properties property = new Properties();
-    try {
-        property.load(new FileInputStream("./webapps/timesheet.properties"));
-    } catch (Exception e) { }
-    String version = property.getProperty("footer.text");
-    String help = property.getProperty("timesheet.help.url");
+    String version = TSPropertyProvider.getFooterText();
+    String help = TSPropertyProvider.getTimesheetHelpUrl();
 %>
 <br/>
 <hr/>
@@ -17,7 +11,6 @@
 <p style="text-align: center">
     <script type="text/javascript">
         var ua = navigator.userAgent.toLowerCase();
-        // Определим Internet Explorer
         if (ua.indexOf("gecko") == -1 && ua.indexOf("chrome")) {
             document.write("<fmt:message key="recomendation.browser.using.text"/>" + "</br>");
         }

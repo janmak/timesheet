@@ -1,3 +1,4 @@
+<%@ page import="static com.aplana.timesheet.util.ResourceUtils.getResRealPath" %>
 <%@page contentType="text/html" pageEncoding="UTF-8" %>
 
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form" %>
@@ -9,10 +10,11 @@
 <html>
 <head>
     <title><fmt:message key="title.vacations"/></title>
-    <link rel="stylesheet" type="text/css" href="<%= request.getContextPath()%>/resources/css/vacations.css" />
-    <script type="text/javascript" src="<%= request.getContextPath()%>/resources/js/vacations.js"></script>
+    <link rel="stylesheet" type="text/css" href="<%= getResRealPath("/resources/css/vacations.css", application) %>" />
+    <script src="<%= getResRealPath("/resources/js/vacations.js", application) %>" type="text/javascript"></script>
     <script type="text/javascript">
         dojo.require("dojo.NodeList-traverse");
+        dojo.require("dojox.html.entities");
 
         dojo.ready(function() {
             window.focus();
@@ -21,6 +23,7 @@
             divisionChange(dojo.byId("divisionId"));
 
             dojo.byId("employeeId").value = ${employeeId};
+            dojo.byId("vacationId").setAttribute("disabled", "disabled");
         });
 
         var employeeList = ${employeeListJson};
@@ -32,6 +35,7 @@
 
             if (isNotNilOrNull(year)) {
                 if (checkEmployeeData(divisionId, empId)) {
+                    dojo.byId("vacationId").setAttribute("disabled", "disabled");
                     vacationsForm.action =
                             "<%=request.getContextPath()%>/vacations/" + divisionId + "/" + empId + "/" + year;
                     vacationsForm.submit();
@@ -63,39 +67,9 @@
                 return;
             }
 
-            var prevHtml = parentElement.innerHTML;
-
-            dojo.addClass(parentElement, "activity-indicator");
-            parentElement.innerHTML =
-                    "<img src=\"<c:url value="/resources/img/loading_small.gif"/>\"/>";
-
-            function handleError(error) {
-                resetParent();
-
-                alert("Не удалось удалить заявку:\n\n" + error);
-            }
-
-            function resetParent() {
-                dojo.removeClass(parentElement, "activity-indicator");
-                parentElement.innerHTML = prevHtml;
-            }
-
-            dojo.xhrGet({
-                url: "<%= request.getContextPath()%>/deleteVacation/" + vac_id,
-                handleAs: "text",
-
-                load: function(data) {
-                    if (data.length == 0) {
-                        window.location.reload();
-                    } else {
-                        handleError(data);
-                    }
-                },
-
-                error: function(error) {
-                    handleError(error.message);
-                }
-            });
+            dojo.byId("vacationId").removeAttribute("disabled");
+            dojo.byId("vacationId").value = vac_id;
+            vacationsForm.submit();
         }
     </script>
 </head>
@@ -105,15 +79,7 @@
 <br/>
 
 <form:form method="post" commandName="vacationsForm" name="mainForm">
-    <c:if test="${fn:length(errors) > 0}">
-        <div class="errors_box">
-            <c:forEach items="${errors}" var="error">
-                <fmt:message key="${error.code}">
-                    <fmt:param value="${error.arguments[0]}"/>
-                </fmt:message><br/>
-            </c:forEach>
-        </div>
-    </c:if>
+    <form:hidden path="vacationId" />
 
     <span class="label">Подразделение</span>
     <form:select path="divisionId" id="divisionId" onchange="divisionChange(this)" class="without_dojo"
@@ -137,6 +103,10 @@
 
     <button id="show" style="width:150px" style="vertical-align: middle" type="button"
             onclick="showVacations()">Показать</button>
+
+    <br/><br/>
+
+    <form:errors path="*" cssClass="errors_box" delimiter="<br/><br/>" />
 </form:form>
 <br/>
 <table id="vacations">

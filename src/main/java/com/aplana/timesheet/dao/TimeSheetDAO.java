@@ -8,6 +8,7 @@ import com.aplana.timesheet.enums.TypesOfActivityEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheAnnotationParser;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +26,8 @@ import java.util.List;
 @Repository
 public class TimeSheetDAO {
 
+    @Autowired
+    CalendarDAO calendarDAO;
     @Autowired
     IllnessDAO illnessDAO;
     @Autowired
@@ -185,12 +188,18 @@ public class TimeSheetDAO {
         return entityManager.find(TimeSheet.class, id);
     }
 
-    public boolean isEmplyeeHasTsForDate(Integer employeeId, java.util.Date date){
+    // возвращает следующий рабочикй день, после даты последнего списания занятости
+    public Calendar getDateNextAfterLastDayWithTS(Employee employee){
         Query query = entityManager.createQuery(
-                "SELECT COUNT(ts.calDate.calDate) FROM TimeSheet as ts WHERE ts.employee.id = :employeeId AND ts.calDate.calDate = :date"
-        ).setParameter("employeeId", employeeId).setParameter("date", date);
+                "SELECT MAX(ts.calDate) FROM TimeSheet ts WHERE ts.employee = :employee"
+        ).setParameter("employee", employee);
 
-        return ((Long) query.getResultList().get(0)).equals(1L);
+        Calendar result = new Calendar();
+        if (!query.getResultList().isEmpty() && query.getSingleResult() != null) {
+            return calendarDAO.getNextWorkDay( (Calendar) query.getSingleResult(), employee.getRegion());
+        } else {
+            return null;
+        }
     }
 
     @Transactional

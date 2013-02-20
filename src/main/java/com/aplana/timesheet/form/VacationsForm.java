@@ -7,6 +7,7 @@ package com.aplana.timesheet.form;
 public class VacationsForm extends AbstractFormForEmployee {
 
     private Integer year;
+    private Integer vacationId;
 
     public Integer getYear() {
         return year;
@@ -14,5 +15,13 @@ public class VacationsForm extends AbstractFormForEmployee {
 
     public void setYear(Integer year) {
         this.year = year;
+    }
+
+    public Integer getVacationId() {
+        return vacationId;
+    }
+
+    public void setVacationId(Integer vacationId) {
+        this.vacationId = vacationId;
     }
 }

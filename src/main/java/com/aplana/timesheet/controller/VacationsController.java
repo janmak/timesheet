@@ -1,32 +1,29 @@
 package com.aplana.timesheet.controller;
 
-import com.aplana.timesheet.dao.CalendarDAO;
-import com.aplana.timesheet.dao.VacationDAO;
-import com.aplana.timesheet.dao.entity.DictionaryItem;
 import com.aplana.timesheet.dao.entity.Employee;
 import com.aplana.timesheet.dao.entity.Holiday;
 import com.aplana.timesheet.dao.entity.Vacation;
 import com.aplana.timesheet.enums.VacationStatusEnum;
+import com.aplana.timesheet.exception.service.DeleteVacationException;
 import com.aplana.timesheet.form.VacationsForm;
 import com.aplana.timesheet.form.validator.VacationsFormValidator;
-import com.aplana.timesheet.service.SendMailService;
+import com.aplana.timesheet.service.VacationService;
 import com.aplana.timesheet.util.EnumsUtils;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.annotation.Nullable;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author rshamsutdinov
@@ -39,13 +36,7 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
     private VacationsFormValidator vacationsFormValidator;
 
     @Autowired
-    private VacationDAO vacationDAO;
-
-    @Autowired
-    private CalendarDAO calendarDAO;
-
-    @Autowired
-    private SendMailService sendMailService;
+    private VacationService vacationService;
 
     @RequestMapping(value = "/vacations", method = RequestMethod.GET)
     public String prepareToShowVacations() {
@@ -68,17 +59,48 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
             @ModelAttribute("vacationsForm") VacationsForm vacationsForm,
             BindingResult result
     ) {
+        vacationsForm.setDivisionId(divisionId);
+        vacationsForm.setEmployeeId(employeeId);
+        vacationsForm.setYear(year);
+
         vacationsFormValidator.validate(vacationsForm, result);
 
         final ModelAndView modelAndView = createModelAndViewForEmployee("vacations", employeeId, divisionId);
 
+        final Integer vacationId = vacationsForm.getVacationId();
+
+        if (vacationId != null) {
+            try {
+                vacationService.deleteVacation(vacationId);
+                vacationsForm.setVacationId(null);
+            } catch (DeleteVacationException ex) {
+                result.rejectValue("vacationId", "error.vacations.deletevacation.failed", ex.getLocalizedMessage());
+            }
+        }
+
         final Employee employee = (Employee) modelAndView.getModel().get(EMPLOYEE);
-        final List<Vacation> vacations = vacationDAO.findVacations(employeeId, year);
+        final List<Vacation> vacations = vacationService.findVacations(employeeId, year);
 
         final int vacationsSize = vacations.size();
 
         final List<Integer> calDays = new ArrayList<Integer>(vacationsSize);
         final List<Integer> workDays = new ArrayList<Integer>(vacationsSize);
+
+        modelAndView.addObject("year", year);
+        modelAndView.addObject("vacationsList", vacations);
+        modelAndView.addObject("calDays", calDays);
+        modelAndView.addObject("workDays", workDays);
+        modelAndView.addAllObjects(getSummaryAndCalcDays(employee, vacations, calDays, workDays, year));
+        modelAndView.addObject("curEmployee", securityService.getSecurityPrincipal().getEmployee());
+
+        return modelAndView;
+    }
+
+    private Map<String, Integer> getSummaryAndCalcDays(Employee employee, List<Vacation> vacations,
+                                                       List<Integer> calDays,
+                                                       List<Integer> workDays, int year
+    ) {
+        final int vacationsSize = vacations.size();
 
         int summaryApproved = 0;
         int summaryRejected = 0;
@@ -108,7 +130,7 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
             }
 
             final List<Holiday> holidaysForRegion =
-                    calendarDAO.getHolidaysForRegion(minDate, maxDate, employee.getRegion());
+                    calendarService.getHolidaysForRegion(minDate, maxDate, employee.getRegion());
             final Calendar calendar = Calendar.getInstance();
 
             calendar.set(Calendar.YEAR, year);
@@ -168,17 +190,14 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
             }
         }
 
-        modelAndView.addObject("year", year);
-        modelAndView.addObject("vacationsList", vacations);
-        modelAndView.addObject("calDays", calDays);
-        modelAndView.addObject("workDays", workDays);
-        modelAndView.addObject("summaryApproved", summaryApproved);
-        modelAndView.addObject("summaryRejected", summaryRejected);
-        modelAndView.addObject("summaryCalDays", summaryCalDays);
-        modelAndView.addObject("summaryWorkDays", summaryWorkDays);
-        modelAndView.addObject("curEmployee", securityService.getSecurityPrincipal().getEmployee());
+        final Map<String, Integer> map = new HashMap<String, Integer>();
 
-        return modelAndView;
+        map.put("summaryApproved", summaryApproved);
+        map.put("summaryRejected", summaryRejected);
+        map.put("summaryCalDays", summaryCalDays);
+        map.put("summaryWorkDays", summaryWorkDays);
+
+        return map;
     }
 
     private int getDiffInDays(Date beginDate, Date endDate) {
@@ -197,51 +216,6 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
                 );
             }
         }));
-    }
-
-    @RequestMapping(value = "/deleteVacation/{vac_id}", produces = "text/plain;charset=UTF-8")
-    @ResponseBody
-    public String deleteVacation(
-            @PathVariable("vac_id") Integer vacationId) {
-        try {
-            final Vacation vacation = vacationDAO.findVacation(vacationId);
-
-            if (vacation == null) { // если вдруг удалил автор, а не сотрудник
-                return "Запись не найдена";
-            }
-
-            final Employee employee = securityService.getSecurityPrincipal().getEmployee();
-            final boolean isAdmin = employeeService.isEmployeeAdmin(employee.getId());
-
-            final DictionaryItem statusDictionaryItem = vacation.getStatus();
-            final VacationStatusEnum vacationStatus =
-                    EnumsUtils.getEnumById(statusDictionaryItem.getId(), VacationStatusEnum.class);
-
-            if (
-                    employee.equals(vacation.getEmployee()) ||
-                    employee.equals(vacation.getAuthor()) ||
-                    isAdmin
-            ) {
-                if (!isAdmin && (vacationStatus == VacationStatusEnum.REJECTED || vacationStatus == VacationStatusEnum.APPROVED)) {
-                    return String.format(
-                            "Нельзя удалить заявление на отпуск в статусе \"%s\". Для удаления данного заявления " +
-                                    "необходимо написать на timesheet@aplana.com",
-                            statusDictionaryItem.getValue()
-                    );
-                }
-
-                sendMailService.performVacationDeletedMailing(vacation);    //todo переделать, чтобы рассылка все-таки была после удаления?
-
-                vacationDAO.delete(vacation);
-
-                return StringUtils.EMPTY;
-            }
-        } catch (Exception e) {
-            logger.error(e.getLocalizedMessage(), e);
-            return e.getLocalizedMessage();
-        }
-
-        return "Ошибка доступа";
     }
 
 }
