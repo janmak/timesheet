@@ -6,7 +6,7 @@ package com.aplana.timesheet.form;
 public class VacationApprovalForm {
 
     String message;
-    Boolean isAllButtonsVisible;
+    String buttonsVisible;
 
     public String getMessage() {
         return message;
@@ -16,11 +16,11 @@ public class VacationApprovalForm {
         this.message = message;
     }
 
-    public Boolean getIsAllButtonsVisible() {
-        return isAllButtonsVisible;
+    public String getButtonsVisible() {
+        return buttonsVisible;
     }
 
-    public void setIsAllButtonsVisible(Boolean allButtonsVisible) {
-        isAllButtonsVisible = allButtonsVisible;
+    public void setButtonsVisible(String buttonsVisible) {
+        this.buttonsVisible = buttonsVisible;
     }
 }

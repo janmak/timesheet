@@ -45,6 +45,8 @@ public class VacationApprovalController {
     final String REFUSE_ANSWER = "%s, Вы не согласовали \"%s\" сотрудника %s из г. %s на период с %s - %s.";
     final String ACCEPT_ANSWER = "%s, Вы согласовали \"%s\" сотрудника %s из г. %s на период с %s - %s.";
 
+    final String BUTTONS_UNVISIBLE = "style=\"display: none\"";
+
     final private AtomicInteger GLOBAL_WRONG_REQUEST_COUNTER = new AtomicInteger(0);
 
     @RequestMapping(value = "/vacation_approval", method = RequestMethod.GET)
@@ -75,17 +77,17 @@ public class VacationApprovalController {
         if (result == null){
             vaForm.setMessage(String.format(NOT_ACCEPTED_YET, matchingFIO, vacationType, employeeFIO, region, dateBegin,
                     dateEnd, comment));
-            vaForm.setIsAllButtonsVisible(true);
+            vaForm.setButtonsVisible("");
         } else {
            vaForm.setMessage(String.format(ACCEPTANCE, vacationType, employeeFIO, region, dateBegin, dateEnd,
                    getResultString(result)));
-           vaForm.setIsAllButtonsVisible(false);
+           vaForm.setButtonsVisible(BUTTONS_UNVISIBLE);
         }
 
         return mav;
     }
 
-    @RequestMapping(value = "/vacation_approval/save/{uid}/{acceptance}", method = RequestMethod.POST)
+    @RequestMapping(value = "/vacation_approval/save/{uid}/{acceptance}")
     public ModelAndView vacationApprovalSaveResult(
             @PathVariable("uid") String uid,
             @PathVariable ("acceptance") Boolean acceptance,
@@ -94,6 +96,7 @@ public class VacationApprovalController {
     ) throws VacationApprovalServiceException {
         ModelAndView mav = new ModelAndView("vacation_approval");
         mav.addObject("NoPageFormat", "true");
+        vaForm.setButtonsVisible(BUTTONS_UNVISIBLE);
 
         VacationApproval vacationApproval = vacationApprovalService.getVacationApproval(uid);
 
@@ -127,13 +130,12 @@ public class VacationApprovalController {
 
         vacationApprovalService.checkVacationIsApproved(vacationApproval.getVacation());
 
-        mav.addObject("NoPageFormat", "true");
         return mav;
     }
 
     private void proceedBadRequest(VacationApprovalForm vaForm, HttpServletRequest request){
         vaForm.setMessage(BAD_REQUEST);
-        vaForm.setIsAllButtonsVisible(false);
+        vaForm.setButtonsVisible(BUTTONS_UNVISIBLE);
 
         logger.warn("Somebody try to get vacation approval service by wrong UID number: {}",
                 String.format(LOGGER_MESSAGE, request.getRemoteAddr()));
