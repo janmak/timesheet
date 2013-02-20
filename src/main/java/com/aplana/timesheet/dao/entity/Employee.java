@@ -2,6 +2,7 @@ package com.aplana.timesheet.dao.entity;
 
 import com.aplana.timesheet.dao.Identifiable;
 import org.hibernate.annotations.ForeignKey;
+import org.jetbrains.annotations.Nullable;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
@@ -128,7 +129,7 @@ public class Employee implements Identifiable {
         return manager;
     }
 
-    public void setManager(Employee manager) {
+    public void setManager(@Nullable Employee manager) {
         this.manager = manager;
     }
 

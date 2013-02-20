@@ -59,7 +59,7 @@ public class VacationApproveRequestSender extends AbstractVacationApprovalSender
         }
 
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append(String.format("Просьба принять решение по %s ", vacationTypeStr));
+        stringBuilder.append(String.format("Просьба принять решение по \"%s\" ", vacationTypeStr));
         stringBuilder.append(String.format("сотрудника %s ", employeeNameStr));
         stringBuilder.append(String.format("из г. %s ", regionNameStr));
         stringBuilder.append(String.format("на период с %s - %s. ", beginDateStr, endDateStr));
