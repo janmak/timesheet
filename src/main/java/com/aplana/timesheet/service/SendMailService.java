@@ -27,9 +27,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.ui.velocity.VelocityEngineUtils;
 
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import static com.aplana.timesheet.enums.ProjectRolesEnum.*;
+import static com.aplana.timesheet.enums.ProjectRolesEnum.getById;
 
 @Service
 public class SendMailService{
@@ -284,9 +287,8 @@ public class SendMailService{
         return vacationApprovalService.getVacationApprovalEmailList(vacationId);
     }
 
-    public List<ProjectParticipant> getProjectParticipantsOfManagersThatDoesntApproveVacation(List<Integer> projectRolesIds, Project project, Vacation vacation) {
-        return projectParticipantService.getProjectParticipantsOfManagersThatDoesntApproveVacation(projectRolesIds,
-                project, vacation);
+    public List<ProjectParticipant> getProjectParticipantsOfManagersThatDoesntApproveVacation(Project project, Vacation vacation) {
+        return projectParticipantService.getProjectParticipantsOfManagersThatDoesntApproveVacation(project, vacation);
     }
 
     interface RenameMe {
