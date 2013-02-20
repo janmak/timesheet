@@ -18,7 +18,9 @@ import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
+import org.apache.commons.lang.StringUtils;
 import org.apache.velocity.app.VelocityEngine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,10 +29,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.ui.velocity.VelocityEngineUtils;
 
 import javax.annotation.Nullable;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.aplana.timesheet.enums.ProjectRolesEnum.getById;
 
@@ -60,6 +59,8 @@ public class SendMailService{
         public String apply(@Nullable RenameMe input) {
             final ProjectRolesEnum roleInCurrentProject = input.getProjectRole();
 
+            final Project project = projectService.find(input.getProjectId());
+
             return Joiner.on(",").join(
                 Iterables.transform(
                     Iterables.filter(
@@ -68,21 +69,14 @@ public class SendMailService{
                                 @Override
                                 public boolean apply(@Nullable ProjectParticipant participant) {
                                     if(participant == null || participant.getProjectRole()==null) return false;
-                                    ProjectRolesEnum projectPaticipantRole = getById(participant.getProjectRole().getId());
-                                    return rolesOfEmploeeysForRole.get(projectPaticipantRole).contains(roleInCurrentProject);
+                                    if (participant.getEmployee().getId().equals(project.getManager().getId())){
+                                        return true;
+                                    }
+                                    return (participant.getProjectRole().getId().equals(roleInCurrentProject.getId()));
                                 } }),
                     GET_EMAIL_FROM_PARTICIPANT
                 )
         ); } };
-
-    public static Multimap<ProjectRolesEnum, ProjectRolesEnum> rolesOfEmploeeysForRole = HashMultimap.create();
-
-    // TODO eshangareev надо здесь исправить логику, потому что роли поменялись
-    static {
-//        rolesOfEmploeeysForRole.putAll(PROJECT_MANAGER, Arrays.asList(values()));
-//        rolesOfEmploeeysForRole.putAll(HEAD_OF_DEVELOPMENT, Arrays.asList(DESIGN_ENGINEER, DEVELOPER_OLD, SYSTEM_ENGINEER_OLD, TESTER_OLD));
-//        rolesOfEmploeeysForRole.putAll(ANALYST_OLD, Arrays.asList(ANALYST_OLD, TECHNICAL_WRITER));
-    }
 
     @Autowired
     public VelocityEngine velocityEngine;
@@ -114,18 +108,18 @@ public class SendMailService{
      * @param empId
      */
     public String getEmployeesManagersEmails(Integer empId) {
-        final StringBuilder chiefEmails = new StringBuilder();
+        Set<String> emailList = new HashSet<String>();
 
         final Employee employee = employeeService.find(empId);
         final Employee manager = employee.getManager();
 
-        if (manager != null) {
-            chiefEmails.append(getEmployeesManagersEmails(manager.getId()));
+        if (manager != null && !manager.getId().equals(empId)) {
+            emailList.add(getEmployeesManagersEmails(manager.getId()));
         } else {
-            chiefEmails.append(employee.getEmail()).append(",");
+            emailList.add(employee.getEmail());
         }
 
-        return chiefEmails.toString();
+        return StringUtils.join(emailList, ',');
     }
 
     /**
@@ -187,11 +181,11 @@ public class SendMailService{
     }
 
     private String getProjectParticipantsEmails(Iterable<RenameMe> details) {
-        return Joiner.on(",").join(
-                Iterables.transform(
-                        Iterables.filter(details, LEAVE_PRESALE_AND_PROJECTS_ONLY),
-                        GET_EMAILS_OF_INTERESTED_PARTICIPANTS_FROM_PROJECT_FOR_CURRENT_ROLE)
-        );
+        return StringUtils.join(
+                Lists.newArrayList(Iterables.transform(
+                Iterables.filter(details, LEAVE_PRESALE_AND_PROJECTS_ONLY),
+                GET_EMAILS_OF_INTERESTED_PARTICIPANTS_FROM_PROJECT_FOR_CURRENT_ROLE))
+                , ",");
     }
 
     public List<Employee> getEmployeesList(Division division){
