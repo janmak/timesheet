@@ -238,6 +238,7 @@ public class EmployeeLdapService {
                 if (empInDbByMail != null) {
                     employee.setId(empInDbByMail.getId());
                     employee.setStartDate(empInDbByMail.getStartDate());
+                    employee.getPermissions().addAll(empInDbByMail.getPermissions());
                 //есть сотрудник в БД
                 //Миша: для существующих поле манагер не обновлялось, при этом остальные поля должны обновляться
                 //сперва должно сравниваться по полю LDAP, если нет то по полю EMAIL, если нет то считать что сотрудник новый и добавлять
@@ -303,11 +304,7 @@ public class EmployeeLdapService {
     }
 
     public void setEmployeePermission(Employee employee){
-        Set<Permission> permissions = employee.getPermissions();
-
-        if (permissions == null) {
-            permissions = new HashSet<Permission>();
-        }
+        Set<Permission> permissions = new HashSet<Permission>();
 
         permissions.add(
                 projectRolePermissionsDAO.getProjectRolePermission(
