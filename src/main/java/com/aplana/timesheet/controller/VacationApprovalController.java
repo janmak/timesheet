@@ -6,6 +6,7 @@ import com.aplana.timesheet.form.VacationApprovalForm;
 import com.aplana.timesheet.properties.TSPropertyProvider;
 import com.aplana.timesheet.service.SendMailService;
 import com.aplana.timesheet.service.VacationApprovalService;
+import com.aplana.timesheet.service.vacationapproveprocess.VacationApprovalProcessService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +28,10 @@ public class VacationApprovalController {
 
     @Autowired
     private VacationApprovalService vacationApprovalService;
+    @Autowired
+    private VacationApprovalProcessService vacationApprovalProcessService;
+    @Autowired
+    private SecurityService securityService;
     @Autowired
     private TSPropertyProvider propertyProvider;
     @Autowired
@@ -127,7 +132,7 @@ public class VacationApprovalController {
 
         sendMailService.performVacationAcceptanceMailing(vacationApproval);
 
-        vacationApprovalService.checkVacationIsApproved(vacationApproval.getVacation());
+        vacationApprovalProcessService.checkVacationIsApproved(vacationApproval.getVacation());
 
         return mav;
     }

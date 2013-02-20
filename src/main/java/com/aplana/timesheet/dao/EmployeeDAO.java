@@ -374,4 +374,12 @@ public class EmployeeDAO {
             return null;
         }
     }
+
+    public Boolean isLineManager(Employee employee) {
+        Long slavesCount = (Long) entityManager.createQuery("select count (*) from Employee as e " +
+                "where e.manager = :employee")
+                .setParameter("employee", employee)
+                .getSingleResult();
+        return slavesCount > 0;
+    }
 }

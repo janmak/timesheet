@@ -46,4 +46,8 @@ public class IllnessService {
     public List<Illness> getEmployeeIllnessByDates(Employee employee, Date beginDate, Date endDate) {
         return illnessDAO.getEmployeeIllnessByDates(employee, beginDate, endDate);
     }
+
+    public int getIllnessWorkdaysCount(Employee employee, Integer year, Integer month) {
+        return illnessDAO.getIllnessWorkdaysCount(employee, year, month);
+    }
 }

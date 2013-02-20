@@ -76,4 +76,30 @@ public class IllnessDAO {
                 .setParameter("endDate", endDate)
                 .getResultList();
     }
+
+    public int getIllnessWorkdaysCount(Employee employee, Integer year, Integer month) {
+        /*
+            Здравствуй, мой юный друг! Я понимаю, в каком ты пребываешь состоянии от ниже написанных строчек кода, но,
+            пожалуйста, если ты знаешь, как сделать рабочий вариант на HQL - сделай это за меня.
+
+            P.S.: проблема в том, что вариант на HQL ВСЕГДА возвращает 0.
+        */
+
+        final Query query = entityManager.createNativeQuery(
+            String.format(
+                "select" +
+                "        (count(c) - count(h)) as days" +
+                "    from" +
+                "        illness as i" +
+                "    left outer join calendar as c on (date_trunc('month', c.caldate) = {ts '%1$s'}) and (c.caldate between i.begin_date and i.end_date)" +
+                "    left outer join holiday as h on (c.caldate = h.caldate) and (h.region is null or h.region = :region)" +
+                "    where" +
+                "        i.employee_id = :employee_id" +
+                "        and {ts '%1$s'} between date_trunc('month', i.begin_Date) and date_trunc('month', i.end_Date)",
+                String.format("%d-%d-1", year, month)
+            )
+        ).setParameter("employee_id", employee.getId()).setParameter("region", employee.getRegion().getId());
+
+        return ((Number) query.getSingleResult()).intValue();
+    }
 }
