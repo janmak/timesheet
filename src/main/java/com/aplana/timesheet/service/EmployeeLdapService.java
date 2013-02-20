@@ -223,7 +223,9 @@ public class EmployeeLdapService {
 
 		if (employee.getJob() != null) {
             setEmployeePermission(employee);
-		}
+		} else {
+            employee.setPermissions(new HashSet<Permission>());
+        }
 
         findAndFillJobField( employeeLdap, errors, employee );
         // важно установить Region и Division до установки Manager
