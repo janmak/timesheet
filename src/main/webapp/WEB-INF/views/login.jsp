@@ -54,7 +54,8 @@
                     <input id="inputPass" type="password" name="j_password" value=""/>
                     <br/>
                     <br/>
-                    <input type='checkbox' name='remember' value="value" style="width: auto"/> Запомнить меня
+                    <input type='checkbox' name='remember' value="value" style="width: auto" id="remember"/>
+                    <label for="remember">Запомнить меня</label>
                     <br/>
                     <input class="btnSend" type="submit" value="Войти"/>
                 </form>  <br>
