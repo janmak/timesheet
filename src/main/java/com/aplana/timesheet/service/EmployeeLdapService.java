@@ -5,7 +5,6 @@ import com.aplana.timesheet.dao.ProjectRolePermissionsDAO;
 import com.aplana.timesheet.dao.entity.*;
 import com.aplana.timesheet.dao.entity.ldap.EmployeeLdap;
 import com.aplana.timesheet.util.DateTimeUtil;
-import com.google.common.base.Optional;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -304,7 +303,12 @@ public class EmployeeLdapService {
     }
 
     public void setEmployeePermission(Employee employee){
-        Set<Permission> permissions = Optional.fromNullable(employee.getPermissions()).or(new TreeSet<Permission>());
+        Set<Permission> permissions = employee.getPermissions();
+
+        if (permissions == null) {
+            permissions = new HashSet<Permission>();
+        }
+
         permissions.add(
                 projectRolePermissionsDAO.getProjectRolePermission(
                         employee.getJob().getId()
