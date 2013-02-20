@@ -26,12 +26,12 @@ public class ProjectParticipantDAO {
     /**
      * Получаем РП, которые еще не ответили на письмо о согласовании отпуска, по ID их ролей на проекте
      */
-    public List<ProjectParticipant> getProjectParticipantsOfManagersThatDoesntApproveVacation(List<Integer> projectRolesIds, Project project, Vacation vacation) {
+    public List<ProjectParticipant> getProjectParticipantsOfManagersThatDoesntApproveVacation(Project project, Vacation vacation) {
         Query query = entityManager.createQuery("from ProjectParticipant as pp " +
-                "where pp.project = :project and pp.projectRole.id in (:roleIds) and pp.employee not in " +
+                "where pp.project = :project and pp.projectRole.id = :roleId and pp.employee not in " +
                 "(select va.manager from VacationApproval as va where va.vacation = :vacation and va.result is not null)")
                 .setParameter("project", project)
-                .setParameter("roleIds", projectRolesIds)
+                .setParameter("roleId", vacation.getEmployee().getJob())
                 .setParameter("vacation", vacation);
 
         return query.getResultList();

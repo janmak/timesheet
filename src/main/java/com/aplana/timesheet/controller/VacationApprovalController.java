@@ -31,16 +31,13 @@ public class VacationApprovalController {
     @Autowired
     private VacationApprovalProcessService vacationApprovalProcessService;
     @Autowired
-    private SecurityService securityService;
-    @Autowired
     private TSPropertyProvider propertyProvider;
     @Autowired
     private SendMailService sendMailService;
 
     private static final Logger logger = LoggerFactory.getLogger(VacationApprovalController.class);
 
-    final String NOT_ACCEPTED_YET = "%s, просьба принять решение по \"%s\" сотрудника %s из" +
-            " г. %s на период с %s - %s. %s";
+    final String NOT_ACCEPTED_YET = "%s, просьба принять решение по \"%s\" сотрудника %s из г. %s на период с %s - %s. %s";
     final String ACCEPTANCE = "Запрос \"%s\" сотрудника %s из г. %s на период с %s - %s %s.";
     final String ACCEPTED = "согласован";
     final String REFUSE = "не согласован";
@@ -50,7 +47,7 @@ public class VacationApprovalController {
     final String REFUSE_ANSWER = "%s, Вы не согласовали \"%s\" сотрудника %s из г. %s на период с %s - %s.";
     final String ACCEPT_ANSWER = "%s, Вы согласовали \"%s\" сотрудника %s из г. %s на период с %s - %s.";
 
-    final String BUTTONS_UNVISIBLE = "style=\"display: none\"";
+    final String BUTTONS_INVISIBLE = "style=\"display: none\"";
 
     final private AtomicInteger GLOBAL_WRONG_REQUEST_COUNTER = new AtomicInteger(0);
 
@@ -86,7 +83,7 @@ public class VacationApprovalController {
         } else {
            vaForm.setMessage(String.format(ACCEPTANCE, vacationType, employeeFIO, region, dateBegin, dateEnd,
                    getResultString(result)));
-           vaForm.setButtonsVisible(BUTTONS_UNVISIBLE);
+           vaForm.setButtonsVisible(BUTTONS_INVISIBLE);
         }
 
         return mav;
@@ -101,7 +98,7 @@ public class VacationApprovalController {
     ) throws VacationApprovalServiceException {
         ModelAndView mav = new ModelAndView("vacation_approval");
         mav.addObject("NoPageFormat", "true");
-        vaForm.setButtonsVisible(BUTTONS_UNVISIBLE);
+        vaForm.setButtonsVisible(BUTTONS_INVISIBLE);
 
         VacationApproval vacationApproval = vacationApprovalService.getVacationApproval(uid);
 
@@ -140,7 +137,7 @@ public class VacationApprovalController {
 
     private void proceedBadRequest(VacationApprovalForm vaForm, HttpServletRequest request){
         vaForm.setMessage(BAD_REQUEST);
-        vaForm.setButtonsVisible(BUTTONS_UNVISIBLE);
+        vaForm.setButtonsVisible(BUTTONS_INVISIBLE);
 
         logger.warn("Somebody try to get vacation approval service by wrong UID number: {}",
                 String.format(LOGGER_MESSAGE, request.getRemoteAddr()));

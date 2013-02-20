@@ -27,9 +27,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.ui.velocity.VelocityEngineUtils;
 
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import static com.aplana.timesheet.enums.ProjectRolesEnum.*;
+import static com.aplana.timesheet.enums.ProjectRolesEnum.getById;
 
 @Service
 public class SendMailService{
@@ -74,10 +77,11 @@ public class SendMailService{
 
     public static Multimap<ProjectRolesEnum, ProjectRolesEnum> rolesOfEmploeeysForRole = HashMultimap.create();
 
+    // TODO eshangareev надо здесь исправить логику, потому что роли поменялись
     static {
-        rolesOfEmploeeysForRole.putAll(PROJECT_MANAGER, Arrays.asList(values()));
-        rolesOfEmploeeysForRole.putAll(HEAD_OF_DEVELOPMENT, Arrays.asList(DESIGN_ENGINEER, DEVELOPER_OLD, SYSTEM_ENGINEER_OLD, TESTER_OLD));
-        rolesOfEmploeeysForRole.putAll(ANALYST_OLD, Arrays.asList(ANALYST_OLD, TECHNICAL_WRITER));
+//        rolesOfEmploeeysForRole.putAll(PROJECT_MANAGER, Arrays.asList(values()));
+//        rolesOfEmploeeysForRole.putAll(HEAD_OF_DEVELOPMENT, Arrays.asList(DESIGN_ENGINEER, DEVELOPER_OLD, SYSTEM_ENGINEER_OLD, TESTER_OLD));
+//        rolesOfEmploeeysForRole.putAll(ANALYST_OLD, Arrays.asList(ANALYST_OLD, TECHNICAL_WRITER));
     }
 
     @Autowired
@@ -283,9 +287,8 @@ public class SendMailService{
         return vacationApprovalService.getVacationApprovalEmailList(vacationId);
     }
 
-    public List<ProjectParticipant> getProjectParticipantsOfManagersThatDoesntApproveVacation(List<Integer> projectRolesIds, Project project, Vacation vacation) {
-        return projectParticipantService.getProjectParticipantsOfManagersThatDoesntApproveVacation(projectRolesIds,
-                project, vacation);
+    public List<ProjectParticipant> getProjectParticipantsOfManagersThatDoesntApproveVacation(Project project, Vacation vacation) {
+        return projectParticipantService.getProjectParticipantsOfManagersThatDoesntApproveVacation(project, vacation);
     }
 
     interface RenameMe {
