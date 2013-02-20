@@ -1,7 +1,6 @@
 package com.aplana.timesheet.dao.entity;
 
 import javax.persistence.*;
-import java.lang.Integer;
 import java.util.Set;
 
 /**
@@ -65,5 +64,26 @@ public class Permission {
 
     public void setBeginDate(String beginDate) {
         this.beginDate = beginDate;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null) return false;
+
+        Permission that = (Permission) o;
+
+        final Integer thatId = that.getId();
+
+        return !(id != null ? !id.equals(thatId) : thatId != null);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = id != null ? id.hashCode() : 0;
+        result = 31 * result + (beginDate != null ? beginDate.hashCode() : 0);
+        result = 31 * result + (employees != null ? employees.hashCode() : 0);
+        result = 31 * result + (projectRoles != null ? projectRoles.hashCode() : 0);
+        return result;
     }
 }
