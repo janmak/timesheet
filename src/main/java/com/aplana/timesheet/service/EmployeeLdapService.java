@@ -154,6 +154,10 @@ public class EmployeeLdapService {
 				.getDivisionLeader(division.getLeader(), division.getLdapName());
 			logger.debug("Division '{}' has {} leader", division.getLdapName(), divLeader.size());
 
+            if (divLeader.isEmpty()){
+                continue;
+            }
+
             EmployeeLdap managerLdap = divLeader.get(0);
 
             Employee manager = createAndFillEmployee(managerLdap, errors, EmployeeType.MANAGER);

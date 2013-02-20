@@ -75,7 +75,7 @@ public class Employee implements Identifiable {
     private String objectSid;
 
     @Column(name = "job_rate", columnDefinition = "float default 1", nullable = false)
-    private Float jobRate;
+    private Float jobRate = 1.0f;
 
     public Set<Vacation> getVacations() {
         return vacations;
