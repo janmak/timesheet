@@ -229,10 +229,10 @@ public class WithLdapSyncService {
         // У руководителей отделений не должны быть прописаны руководители
         Division division = dao.find(employeeFromDb.getDivision().getId());
 
-        if(!division.getLeaderId().equals(employeeFromDb)){
-            employeeFromDb.setManager   (employeeFromLdap.getManager());
-        } else {
+        if(division.getLeaderId() != null && division.getLeaderId().equals(employeeFromDb)){
             employeeFromDb.setManager(null);
+        } else {
+            employeeFromDb.setManager(employeeFromLdap.getManager());
         }
         if (StringUtils.isBlank(employeeFromLdap.getEmail())) {
             logger.info("Employee {} is deactivated(empty email)", employeeFromDb.getName());
