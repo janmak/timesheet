@@ -1,9 +1,6 @@
 package com.aplana.timesheet.controller;
 
-import argo.jdom.JsonNode;
-import argo.jdom.JsonObjectNodeBuilder;
-import argo.jdom.JsonRootNode;
-import argo.jdom.JsonStringNode;
+import argo.jdom.*;
 import argo.saj.InvalidSyntaxException;
 import com.aplana.timesheet.constants.TimeSheetConstants;
 import com.aplana.timesheet.dao.EmployeeDAO;
@@ -11,12 +8,14 @@ import com.aplana.timesheet.dao.entity.*;
 import com.aplana.timesheet.enums.EmployeePlanType;
 import com.aplana.timesheet.enums.TSEnum;
 import com.aplana.timesheet.enums.TypesOfActivityEnum;
+import com.aplana.timesheet.enums.VacationStatusEnum;
 import com.aplana.timesheet.form.PlanEditForm;
 import com.aplana.timesheet.form.validator.PlanEditFormValidator;
 import com.aplana.timesheet.service.*;
 import com.aplana.timesheet.util.DateTimeUtil;
 import com.aplana.timesheet.util.EnumsUtils;
 import com.aplana.timesheet.util.JsonUtil;
+import com.google.common.collect.Maps;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -212,6 +211,12 @@ public class PlanEditController {
     @Autowired
     private PlanEditService planEditService;
 
+    @Autowired
+    private VacationService vacationService;
+
+    @Autowired
+    private IllnessService illnessService;
+
     @RequestMapping(PLAN_EDIT_URL)
     public ModelAndView showForm(
             @ModelAttribute(PlanEditForm.FORM) PlanEditForm form,
@@ -397,7 +402,6 @@ public class PlanEditController {
                 getProjectRoleIds(form)
         );
         final ArrayList<JsonNode> nodes = new ArrayList<JsonNode>();
-        final Map<Integer, Double> projectsFactMap = new HashMap<Integer, Double>();
 
         final Integer year = form.getYear();
         final Integer month = form.getMonth();
@@ -406,7 +410,6 @@ public class PlanEditController {
 
         JsonObjectNodeBuilder builder;
         Region region;
-        Division division;
         int workDaysCount;
 
         for (Employee employee : employees) {
@@ -414,7 +417,6 @@ public class PlanEditController {
                     withField(EMPLOYEE_ID, JsonUtil.aNumberBuilder(employee.getId())).
                     withField(EMPLOYEE, aStringBuilder(employee.getName()));
 
-            division = employee.getDivision();
             region = employee.getRegion();
 
             workDaysCount = calendarService.getWorkDaysCountForRegion(region, year, month, employee.getStartDate());
@@ -422,128 +424,162 @@ public class PlanEditController {
             final double summaryPlan = TimeSheetConstants.WORK_DAY_DURATION * workDaysCount * employee.getJobRate();
 
             if (showPlans) {
-                builder.withField(
-                        SUMMARY_PLAN,
-                        JsonUtil.aNumberBuilder(summaryPlan)
-                );
-
-                Double centerProjectsPlan = null;
-                Double centerPresalesPlan = null;
-                double sumOfPlanCharge = 0;
-
-                for (EmployeeProjectPlan employeeProjectPlan : employeeProjectPlanService.find(employee, year, month)) {
-                    final Project project = employeeProjectPlan.getProject();
-                    final Employee manager = project.getManager();
-
-                    if (manager != null && division.equals(manager.getDivision())) {
-                        final double duration = nilIfNull(employeeProjectPlan.getValue());
-
-                        if (isPresale(project)) {
-                            centerPresalesPlan = nilIfNull(centerPresalesPlan) + duration;
-                        } else {
-                            centerProjectsPlan = nilIfNull(centerProjectsPlan) + duration;
-                        }
-                    }
-
-                    builder.withField(
-                            String.format("%d" + _PLAN, project.getId()),
-                            JsonUtil.aNumberBuilder(employeeProjectPlan.getValue())
-                    );
-                }
-
-                sumOfPlanCharge += nilIfNull(centerProjectsPlan) + nilIfNull(centerPresalesPlan);
-
-                appendNumberField(builder, CENTER_PROJECTS_PLAN, centerProjectsPlan);
-                appendNumberField(builder, CENTER_PRESALES_PLAN, centerPresalesPlan);
-
-                Double value;
-
-                for (EmployeePlan employeePlan : employeePlanService.find(employee, year, month)) {
-                    value = employeePlan.getValue();
-
-                    sumOfPlanCharge += nilIfNull(value);
-
-                    appendNumberField(builder, getFieldNameForEmployeePlan(employeePlan), value);
-                }
-
-                builder.withField(
-                        PERCENT_OF_CHARGE_PLAN,
-                        aStringBuilder(formatPercentOfCharge(sumOfPlanCharge / summaryPlan))
-                );
+                appendToBuilder(builder, getPlans(employee, year, month, summaryPlan));
             }
 
             if (showFacts) {
-                double summaryFact = 0;
-                double centerProjectsFact = 0;
-                double centerPresalesFact = 0;
-                double otherProjectsFact = 0;
-                double nonProjectFact = 0;
-                double illnessFact = 0;
-                double vacationFact = 0;
-
-                projectsFactMap.clear();
-
-                Integer projectId;
-
-                for (TimeSheet timeSheet : timeSheetService.getTimeSheetsForEmployee(employee, year, month)) {
-                    for (TimeSheetDetail timeSheetDetail : timeSheet.getTimeSheetDetails()) {
-                        final double duration = nilIfNull(timeSheetDetail.getDuration());
-
-                        summaryFact += duration;
-
-                        final TypesOfActivityEnum actType =
-                                EnumsUtils.getEnumById(timeSheetDetail.getActType().getId(), TypesOfActivityEnum.class);
-
-                        switch (actType) {
-                            case NON_PROJECT: nonProjectFact += duration; break;
-                            case ILLNESS: illnessFact += getDefaultDuration(duration); break;
-                            case VACATION: vacationFact += getDefaultDuration(duration); break;
-                        }
-
-                        final Project project = timeSheetDetail.getProject();
-
-                        if (project != null && project.isActive()) {
-                            projectId = project.getId();
-
-                            final Employee manager = project.getManager();
-
-                            if (manager != null && division.equals(manager.getDivision())) {
-                                if (isPresale(project)) {
-                                    centerPresalesFact += duration;
-                                } else {
-                                    centerProjectsFact += duration;
-                                }
-                            } else {
-                                otherProjectsFact += duration;
-                            }
-
-                            projectsFactMap.put(projectId, nilIfNull(projectsFactMap.get(projectId)) + duration);
-                        }
-                    }
-                }
-
-                builder.
-                    withField(SUMMARY_FACT, JsonUtil.aNumberBuilder(summaryFact)).
-                    withField(PERCENT_OF_CHARGE_FACT, aStringBuilder(formatPercentOfCharge(summaryFact / summaryPlan))).
-                    withField(CENTER_PROJECTS_FACT, JsonUtil.aNumberBuilder(centerProjectsFact)).
-                    withField(CENTER_PRESALES_FACT, JsonUtil.aNumberBuilder(centerPresalesFact)).
-                    withField(OTHER_PROJECTS_AND_PRESALES_FACT, JsonUtil.aNumberBuilder(otherProjectsFact)).
-                    withField(NON_PROJECT_FACT, JsonUtil.aNumberBuilder(nonProjectFact)).
-                    withField(ILLNESS_FACT, JsonUtil.aNumberBuilder(illnessFact)).
-                    withField(VACATION_FACT, JsonUtil.aNumberBuilder(vacationFact));
-
-                for (Map.Entry<Integer, Double> entry : projectsFactMap.entrySet()) {
-                    builder.withField(
-                            String.format("%d" + _FACT, entry.getKey()),
-                            JsonUtil.aNumberBuilder(entry.getValue())
-                    );
-                }
+                appendToBuilder(builder, getFacts(employee, year, month, summaryPlan));
             }
 
             nodes.add(builder.build());
         }
 
         return JsonUtil.format(array(nodes));
+    }
+
+    private void appendToBuilder(JsonObjectNodeBuilder builder, Map<String, JsonNodeBuilder> map) {
+        for (Map.Entry<String, JsonNodeBuilder> entry : map.entrySet()) {
+            builder.withField(entry.getKey(), entry.getValue());
+        }
+    }
+
+    private Map<String, JsonNodeBuilder> getPlans(Employee employee, Integer year, Integer month, double summaryPlan) {
+        final Division division = employee.getDivision();
+        final Map<String, JsonNodeBuilder> map = Maps.newHashMap();
+
+        Double centerProjectsPlan = null;
+        Double centerPresalesPlan = null;
+        double sumOfPlanCharge = 0;
+
+        for (EmployeeProjectPlan employeeProjectPlan : employeeProjectPlanService.find(employee, year, month)) {
+            final Project project = employeeProjectPlan.getProject();
+            final Employee manager = project.getManager();
+
+            if (manager != null && division.equals(manager.getDivision())) {
+                final double duration = nilIfNull(employeeProjectPlan.getValue());
+
+                if (isPresale(project)) {
+                    centerPresalesPlan = nilIfNull(centerPresalesPlan) + duration;
+                } else {
+                    centerProjectsPlan = nilIfNull(centerProjectsPlan) + duration;
+                }
+            }
+
+            map.put(
+                    String.format("%d" + _PLAN, project.getId()),
+                    JsonUtil.aNumberBuilder(employeeProjectPlan.getValue())
+            );
+        }
+
+        sumOfPlanCharge += nilIfNull(centerProjectsPlan) + nilIfNull(centerPresalesPlan);
+
+        appendNumberField(map, CENTER_PROJECTS_PLAN, centerProjectsPlan);
+        appendNumberField(map, CENTER_PRESALES_PLAN, centerPresalesPlan);
+
+        Double value;
+
+        for (EmployeePlan employeePlan : employeePlanService.find(employee, year, month)) {
+            value = employeePlan.getValue();
+
+            sumOfPlanCharge += nilIfNull(value);
+
+            appendNumberField(map, getFieldNameForEmployeePlan(employeePlan), value);
+        }
+
+        map.put(
+                SUMMARY_PLAN,
+                JsonUtil.aNumberBuilder(summaryPlan)
+        );
+
+        map.put(
+                PERCENT_OF_CHARGE_PLAN,
+                aStringBuilder(formatPercentOfCharge(sumOfPlanCharge / summaryPlan))
+        );
+
+        return map;
+    }
+
+    private Map<String, JsonNodeBuilder> getFacts(Employee employee, Integer year, Integer month, double summaryPlan) {
+        final Division division = employee.getDivision();
+        final Map<Integer, Double> projectsFactMap = Maps.newHashMap();
+
+        double summaryFact = 0;
+        double centerProjectsFact = 0;
+        double centerPresalesFact = 0;
+        double otherProjectsFact = 0;
+        double nonProjectFact = 0;
+
+        Integer projectId;
+
+        for (TimeSheet timeSheet : timeSheetService.getTimeSheetsForEmployee(employee, year, month)) {
+            for (TimeSheetDetail timeSheetDetail : timeSheet.getTimeSheetDetails()) {
+                final double duration = nilIfNull(timeSheetDetail.getDuration());
+
+                summaryFact += duration;
+
+                final TypesOfActivityEnum actType =
+                        EnumsUtils.getEnumById(timeSheetDetail.getActType().getId(), TypesOfActivityEnum.class);
+
+                if (actType == TypesOfActivityEnum.NON_PROJECT) {
+                    nonProjectFact += duration;
+                }
+
+                final Project project = timeSheetDetail.getProject();
+
+                if (project != null && project.isActive()) {
+                    projectId = project.getId();
+
+                    final Employee manager = project.getManager();
+
+                    if (manager != null && division.equals(manager.getDivision())) {
+                        if (isPresale(project)) {
+                            centerPresalesFact += duration;
+                        } else {
+                            centerProjectsFact += duration;
+                        }
+                    } else {
+                        otherProjectsFact += duration;
+                    }
+
+                    projectsFactMap.put(projectId, nilIfNull(projectsFactMap.get(projectId)) + duration);
+                }
+            }
+        }
+
+        final Map<String, JsonNodeBuilder> map = Maps.newHashMap();
+
+        for (Map.Entry<Integer, Double> entry : projectsFactMap.entrySet()) {
+            map.put(
+                    String.format("%d" + _FACT, entry.getKey()),
+                    JsonUtil.aNumberBuilder(entry.getValue())
+            );
+        }
+
+        map.put(SUMMARY_FACT, JsonUtil.aNumberBuilder(summaryFact));
+        map.put(PERCENT_OF_CHARGE_FACT, aStringBuilder(formatPercentOfCharge(summaryFact / summaryPlan)));
+        map.put(CENTER_PROJECTS_FACT, JsonUtil.aNumberBuilder(centerProjectsFact));
+        map.put(CENTER_PRESALES_FACT, JsonUtil.aNumberBuilder(centerPresalesFact));
+        map.put(OTHER_PROJECTS_AND_PRESALES_FACT, JsonUtil.aNumberBuilder(otherProjectsFact));
+        map.put(NON_PROJECT_FACT, JsonUtil.aNumberBuilder(nonProjectFact));
+        map.put(
+                ILLNESS_FACT,
+                JsonUtil.aNumberBuilder(
+                        TimeSheetConstants.WORK_DAY_DURATION * illnessService.getIllnessWorkdaysCount(
+                                employee, year, month
+                        )
+                )
+        );
+        map.put(
+                VACATION_FACT,
+                JsonUtil.aNumberBuilder(
+                        TimeSheetConstants.WORK_DAY_DURATION * vacationService.getVacationsWorkdaysCount(
+                                employee, year, month,
+                                VacationStatusEnum.APPROVED
+                        )
+                )
+        );
+
+        return map;
     }
 
     private String formatPercentOfCharge(double normalizedValueOfCharge) {
@@ -560,9 +596,9 @@ public class PlanEditController {
         throw new IllegalArgumentException();
     }
 
-    private void appendNumberField(JsonObjectNodeBuilder builder, String fieldName, Double value) {
+    private void appendNumberField(Map<String, JsonNodeBuilder> map, String fieldName, Double value) {
         if (value != null) {
-            builder.withField(fieldName, JsonUtil.aNumberBuilder(value));
+            map.put(fieldName, JsonUtil.aNumberBuilder(value));
         }
     }
 

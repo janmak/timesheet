@@ -83,4 +83,32 @@ public class VacationDAO {
         return entityManager.createQuery("from Vacation as v where v.status.id not in :notApprovedStatuses")
                 .setParameter("notApprovedStatuses", VacationStatusEnum.getNotApprovedStatuses()).getResultList();
     }
+
+    public int getVacationsWorkdaysCount(Employee employee, Integer year, Integer month, VacationStatusEnum status) {
+        /*
+            Здравствуй, мой юный друг! Я понимаю, в каком ты пребываешь состоянии от ниже написанных строчек кода, но,
+            пожалуйста, если ты знаешь, как сделать рабочий вариант на HQL - сделай это за меня.
+
+            P.S.: проблема в том, что вариант на HQL ВСЕГДА возвращает 0.
+        */
+
+        final Query query = entityManager.createNativeQuery(
+            String.format(
+                "select" +
+                "        (count(c) - count(h)) as days" +
+                "    from" +
+                "        vacation as v" +
+                "    left outer join calendar as c on (date_trunc('month', c.caldate) = {ts '%1$s'}) and (c.caldate between v.begin_date and v.end_date)" +
+                "    left outer join holiday as h on (c.caldate = h.caldate) and (h.region is null or h.region = :region)" +
+                "    where" +
+                "        v.employee_id = :employee_id" +
+                "        and v.status_id = :status_id" +
+                "        and {ts '%1$s'} between date_trunc('month', v.begin_Date) and date_trunc('month', v.end_Date)",
+                String.format("%d-%d-1", year, month)
+            )
+        ).setParameter("employee_id", employee.getId()).setParameter("status_id", status.getId()).
+                setParameter("region", employee.getRegion().getId());
+
+        return ((Number) query.getSingleResult()).intValue();
+    }
 }

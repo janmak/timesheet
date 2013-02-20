@@ -106,4 +106,8 @@ public class VacationService {
 
         throw new DeleteVacationException("Ошибка доступа");
     }
+
+    public int getVacationsWorkdaysCount(Employee employee, Integer year, Integer month, VacationStatusEnum status) {
+        return vacationDAO.getVacationsWorkdaysCount(employee, year, month, VacationStatusEnum.APPROVED);
+    }
 }
