@@ -28,8 +28,8 @@ public class VacationService {
         return vacationDAO.isDayVacation(employee, date);
     }
 
-    public List<Vacation> getAllNotApprovedVacations() {
-        return vacationDAO.getAllNotApprovedVacations();
+    public List<Integer> getAllNotApprovedVacationsIds() {
+        return vacationDAO.getAllNotApprovedVacationsIds();
     }
 
     public long getIntersectVacationsCount(Integer employeeId, Timestamp fromDate, Timestamp toDate) {
@@ -39,4 +39,9 @@ public class VacationService {
                 toDate
         );
     }
+
+    public Vacation findVacation(Integer vacationId) {
+        return vacationDAO.findVacation(vacationId);
+    }
+
 }
