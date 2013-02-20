@@ -143,7 +143,7 @@ public class TimeSheetFormValidator extends AbstractValidator {
 
         String plan = tsForm.getPlan();
         // Планы на следующий рабочий день.
-        if (planNecessary && emplJob != PROJECT_MANAGER && emplJob != HEAD_OF_CENTER) {
+        if (planNecessary && emplJob != HEAD) {
             if (StringUtils.isBlank(plan)) {
                 errors.rejectValue("plan",
                         "error.tsform.plan.required",
@@ -164,7 +164,7 @@ public class TimeSheetFormValidator extends AbstractValidator {
         if (description != null) {
             logger.debug("Employee Job: {}", emplJob.getName());
 
-            if ( StringUtils.isBlank( description ) && emplJob != PROJECT_MANAGER && emplJob != HEAD_OF_CENTER ) {
+            if ( StringUtils.isBlank( description ) && emplJob != HEAD ) {
                 errors.rejectValue( "timeSheetTablePart[" + notNullRowNumber + "].description",
                         "error.tsform.description.required", getErrorMessageArgs( notNullRowNumber ),
                         "Необходимо указать комментарии в строке " + ( notNullRowNumber + 1 ) + "." );
@@ -180,7 +180,7 @@ public class TimeSheetFormValidator extends AbstractValidator {
         Integer actCatId = formRow.getActivityCategoryId();
 
         // Не указана категория активности
-        if ( isNotChoosed( actCatId ) && ( emplJob != HEAD_OF_CENTER ) ) {
+        if ( isNotChoosed( actCatId ) && ( emplJob != HEAD ) ) {
             errors.rejectValue( "timeSheetTablePart[" + notNullRowNumber + "].activityCategoryId",
                     "error.tsform.activity.category.required", getErrorMessageArgs( notNullRowNumber ),
                     "Необходимо указать категорию активности в строке " + ( notNullRowNumber + 1 ) + "." );
@@ -411,7 +411,7 @@ public class TimeSheetFormValidator extends AbstractValidator {
     private boolean isActCatValid(Integer actCat, ProjectRolesEnum emplJob) {
         if (actCat == null ||
                 //У проектной роли "Руководитель центра" нет доступных категорий активности.
-                ( emplJob == HEAD_OF_CENTER && actCat == 0 )
+                ( emplJob == HEAD && actCat == 0 )
         ) {
             return true;
         }

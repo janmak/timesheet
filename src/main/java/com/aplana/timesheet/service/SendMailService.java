@@ -74,10 +74,11 @@ public class SendMailService{
 
     public static Multimap<ProjectRolesEnum, ProjectRolesEnum> rolesOfEmploeeysForRole = HashMultimap.create();
 
+    // TODO eshangareev надо здесь исправить логику, потому что роли поменялись
     static {
-        rolesOfEmploeeysForRole.putAll(PROJECT_MANAGER, Arrays.asList(values()));
-        rolesOfEmploeeysForRole.putAll(HEAD_OF_DEVELOPMENT, Arrays.asList(DESIGN_ENGINEER, DEVELOPER_OLD, SYSTEM_ENGINEER_OLD, TESTER_OLD));
-        rolesOfEmploeeysForRole.putAll(ANALYST_OLD, Arrays.asList(ANALYST_OLD, TECHNICAL_WRITER));
+//        rolesOfEmploeeysForRole.putAll(PROJECT_MANAGER, Arrays.asList(values()));
+//        rolesOfEmploeeysForRole.putAll(HEAD_OF_DEVELOPMENT, Arrays.asList(DESIGN_ENGINEER, DEVELOPER_OLD, SYSTEM_ENGINEER_OLD, TESTER_OLD));
+//        rolesOfEmploeeysForRole.putAll(ANALYST_OLD, Arrays.asList(ANALYST_OLD, TECHNICAL_WRITER));
     }
 
     @Autowired
