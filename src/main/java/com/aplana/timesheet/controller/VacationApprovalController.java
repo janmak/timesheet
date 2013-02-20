@@ -4,10 +4,8 @@ import com.aplana.timesheet.dao.entity.VacationApproval;
 import com.aplana.timesheet.exception.service.VacationApprovalServiceException;
 import com.aplana.timesheet.form.VacationApprovalForm;
 import com.aplana.timesheet.properties.TSPropertyProvider;
-import com.aplana.timesheet.service.SecurityService;
 import com.aplana.timesheet.service.SendMailService;
 import com.aplana.timesheet.service.VacationApprovalService;
-import com.aplana.timesheet.util.TimeSheetUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,8 +28,6 @@ public class VacationApprovalController {
     @Autowired
     private VacationApprovalService vacationApprovalService;
     @Autowired
-    private SecurityService securityService;
-    @Autowired
     private TSPropertyProvider propertyProvider;
     @Autowired
     private SendMailService sendMailService;
@@ -40,12 +36,12 @@ public class VacationApprovalController {
 
     final String NOT_ACCEPTED_YET = "%s, просьба принять решение по \"%s\" сотрудника %s из" +
             " г. %s на период с %s - %s. %s";
-    final String ACCEPTED = "Запрос \"%s\" сотрудника %s из г. %s на период с %s - %s %s.";
-    final String ACCEPTANCE = "согласован";
+    final String ACCEPTANCE = "Запрос \"%s\" сотрудника %s из г. %s на период с %s - %s %s.";
+    final String ACCEPTED = "согласован";
     final String REFUSE = "не согласован";
     final String DATE_FORMAT = "dd.MM.yyyy";
     final String BAD_REQUEST = "Неверный запрос!";
-    final String LOGGER_MESSAGE = "\n    UserIP: %s\n    UserID: %s\n    UserFIO: %s";
+    final String LOGGER_MESSAGE = "\n    UserIP: %s\n";
     final String REFUSE_ANSWER = "%s, Вы не согласовали \"%s\" сотрудника %s из г. %s на период с %s - %s.";
     final String ACCEPT_ANSWER = "%s, Вы согласовали \"%s\" сотрудника %s из г. %s на период с %s - %s.";
 
@@ -58,6 +54,7 @@ public class VacationApprovalController {
             HttpServletRequest request
     ) {
         ModelAndView mav = new ModelAndView("vacation_approval");
+        mav.addObject("NoPageFormat", "true");
 
         VacationApproval vacationApproval = vacationApprovalService.getVacationApproval(uid);
 
@@ -80,7 +77,7 @@ public class VacationApprovalController {
                     dateEnd, comment));
             vaForm.setIsAllButtonsVisible(true);
         } else {
-           vaForm.setMessage(String.format(ACCEPTED, vacationType, employeeFIO, region, dateBegin, dateEnd,
+           vaForm.setMessage(String.format(ACCEPTANCE, vacationType, employeeFIO, region, dateBegin, dateEnd,
                    getResultString(result)));
            vaForm.setIsAllButtonsVisible(false);
         }
@@ -96,11 +93,13 @@ public class VacationApprovalController {
             HttpServletRequest request
     ) throws VacationApprovalServiceException {
         ModelAndView mav = new ModelAndView("vacation_approval");
+        mav.addObject("NoPageFormat", "true");
 
         VacationApproval vacationApproval = vacationApprovalService.getVacationApproval(uid);
 
         if (vacationApproval == null){
             proceedBadRequest(vaForm, request);
+            return mav;
         }
 
         // отпуск уже согласовывали
@@ -128,6 +127,7 @@ public class VacationApprovalController {
 
         vacationApprovalService.checkVacationIsApproved(vacationApproval.getVacation());
 
+        mav.addObject("NoPageFormat", "true");
         return mav;
     }
 
@@ -135,15 +135,8 @@ public class VacationApprovalController {
         vaForm.setMessage(BAD_REQUEST);
         vaForm.setIsAllButtonsVisible(false);
 
-        Integer userID = null;
-        String userFIO = "<not defined>";
-        TimeSheetUser securityUser = securityService.getSecurityPrincipal();
-        if (securityUser != null){
-            userFIO = securityUser.getEmployee().getName();
-            userID = securityUser.getEmployee().getId();
-        }
         logger.warn("Somebody try to get vacation approval service by wrong UID number: {}",
-                String.format(LOGGER_MESSAGE, request.getRemoteAddr(), userID, userFIO));
+                String.format(LOGGER_MESSAGE, request.getRemoteAddr()));
 
         // если счетчик неудачных попыток кратен лимиту из настроек
         if (GLOBAL_WRONG_REQUEST_COUNTER.getAndIncrement() % propertyProvider.getVacationApprovalErrorThreshold() == 0){
@@ -158,7 +151,7 @@ public class VacationApprovalController {
 
     public String getResultString(Boolean result){
         if (result) {
-            return ACCEPTANCE;
+            return ACCEPTED;
         }
         return REFUSE;
     }
