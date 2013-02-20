@@ -9,6 +9,7 @@ import com.aplana.timesheet.exception.service.VacationApprovalServiceException;
 import com.aplana.timesheet.form.CreateVacationForm;
 import com.aplana.timesheet.form.validator.CreateVacationFormValidator;
 import com.aplana.timesheet.service.*;
+import com.aplana.timesheet.service.vacationapproveprocess.VacationApprovalProcessService;
 import com.aplana.timesheet.util.DateTimeUtil;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
@@ -50,7 +51,7 @@ public class CreateVacationController {
     @Autowired
     private VacationService vacationService;
     @Autowired
-    private VacationApprovalService vacationApprovalService;
+    private VacationApprovalProcessService vacationApprovalProcessService;
 
     @RequestMapping(value = "/createVacation", method = RequestMethod.GET)
     public String prepareToCreateVacation() {
@@ -160,9 +161,9 @@ public class CreateVacationController {
         vacationService.store(vacation);
 
         if ( needsToBeApproved(vacation )) {
-            vacationApprovalService.sendVacationApproveRequestMessages(vacation);       //рассылаем письма о согласовании отпуска
+            vacationApprovalProcessService.sendVacationApproveRequestMessages(vacation);       //рассылаем письма о согласовании отпуска
         } else {
-            vacationApprovalService.sendBackDateVacationApproved(vacation);
+            vacationApprovalProcessService.sendBackDateVacationApproved(vacation);
         }
 
         return new ModelAndView(

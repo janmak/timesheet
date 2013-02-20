@@ -35,6 +35,8 @@ public abstract class AbstractVacationApprovalSender extends MailSender<Vacation
         try {
             if (mail.getParamsForGenerateBody() != null) {
                 message.setText(mail.getParamsForGenerateBody().get(FIRST, MAIL_BODY), "UTF-8", "plain");
+            }else{
+                super.initMessageBody(mail, message);
             }
         } catch (MessagingException e) {
             logger.error("Error while init message body.", e);

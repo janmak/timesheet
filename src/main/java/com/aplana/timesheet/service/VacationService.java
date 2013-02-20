@@ -42,8 +42,8 @@ public class VacationService {
         return vacationDAO.isDayVacation(employee, date);
     }
 
-    public List<Vacation> getAllNotApprovedVacations() {
-        return vacationDAO.getAllNotApprovedVacations();
+    public List<Integer> getAllNotApprovedVacationsIds() {
+        return vacationDAO.getAllNotApprovedVacationsIds();
     }
 
     public long getIntersectVacationsCount(Integer employeeId, Timestamp fromDate, Timestamp toDate) {
@@ -106,6 +106,11 @@ public class VacationService {
 
         throw new DeleteVacationException("Ошибка доступа");
     }
+
+    public Vacation findVacation(Integer vacationId) {
+        return vacationDAO.findVacation(vacationId);
+    }
+
 
     public int getVacationsWorkdaysCount(Employee employee, Integer year, Integer month, VacationStatusEnum status) {
         return vacationDAO.getVacationsWorkdaysCount(employee, year, month, VacationStatusEnum.APPROVED);

@@ -20,34 +20,34 @@ public class Vacation {
     private Integer id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "employee_id", nullable = false)
+    @JoinColumn(name = "employee_id")
     @ForeignKey(name = "fk_employee")
     private Employee employee;
 
-    @Column(name = "creation_date", columnDefinition = "date not null")
+    @Column(name = "creation_date")
     private Date creationDate;
 
-    @Column(name = "begin_date", columnDefinition = "date not null")
+    @Column(name = "begin_date")
     private Date beginDate;
 
-    @Column(name = "end_date", columnDefinition = "date not null")
+    @Column(name = "end_date")
     private Date endDate;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "type_id", nullable = false)
+    @JoinColumn(name = "type_id")
     @ForeignKey(name = "fk_vacation_type")
     private DictionaryItem type;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "status_id", nullable = false)
+    @JoinColumn(name = "status_id")
     @ForeignKey(name = "fk_vacation_status")
     private DictionaryItem status;
 
-    @Column(name = "comment", columnDefinition = "character(400)")
+    @Column(name = "comment")
     private String comment;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "author_id", nullable = false)
+    @JoinColumn(name = "author_id")
     @ForeignKey(name = "fk_author")
     private Employee author;
 

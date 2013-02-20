@@ -62,9 +62,9 @@ public class VacationDAO {
         return (Long) query.getSingleResult();
     }
 
+    @Transactional
     public Vacation findVacation(Integer vacationId) {
         final Query query = entityManager.createQuery("from Vacation v where v.id = :id").setParameter("id", vacationId);
-
         return (Vacation) query.getSingleResult();
     }
 
@@ -79,8 +79,10 @@ public class VacationDAO {
         }
         return true;
     }
-    public List<Vacation> getAllNotApprovedVacations() {
-        return entityManager.createQuery("from Vacation as v where v.status.id not in :notApprovedStatuses")
+
+    @Transactional
+    public List<Integer> getAllNotApprovedVacationsIds() {
+        return entityManager.createQuery("select v.id from Vacation as v where v.status.id in :notApprovedStatuses")
                 .setParameter("notApprovedStatuses", VacationStatusEnum.getNotApprovedStatuses()).getResultList();
     }
 

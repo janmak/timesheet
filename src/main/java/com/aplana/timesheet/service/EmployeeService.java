@@ -160,4 +160,8 @@ public class EmployeeService {
     public Employee getEmployeeFromIllness(Integer reportId) {
         return employeeDAO.tryGetEmployeeFromIllness(reportId);
     }
+
+    public Boolean isLineManager(Employee employee) {
+        return employeeDAO.isLineManager(employee);
+    }
 }

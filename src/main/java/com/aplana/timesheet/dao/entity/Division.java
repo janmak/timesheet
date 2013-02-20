@@ -40,7 +40,7 @@ public class Division implements Identifiable {
 	private Set<Project> projects;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "leader_id", nullable = false)
+    @JoinColumn(name = "leader_id", nullable = true)
     @ForeignKey(name = "fk_employee")
     private Employee leaderId;
 

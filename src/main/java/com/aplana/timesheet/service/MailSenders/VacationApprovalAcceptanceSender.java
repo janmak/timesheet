@@ -16,9 +16,9 @@ public class VacationApprovalAcceptanceSender extends AbstractVacationApprovalSe
 
     final String DATE_FORMAT = "dd.MM.yyyy";
     final String MAIL_ACCEPT_SUBJECT = "Согласование \"%s\" сотрудника %s на период с %s - %s";
-    final String MAIL_ACCEPT_BODY = "%s согласовал \"%s\" сотрудника %s из г. %s на период с %s - %s.";
+    final String MAIL_ACCEPT_BODY = "%s согласовал(а) \"%s\" сотрудника %s из г. %s на период с %s - %s.";
     final String MAIL_REFUSE_SUBJECT = "Согласование \"%s\" сотрудника %s на период с %s - %s";
-    final String MAIL_REFUSE_BODY = "%s не согласовал \"%s\" сотрудника %s из г. %s на период с %s - %s.";
+    final String MAIL_REFUSE_BODY = "%s не согласовал(а) \"%s\" сотрудника %s из г. %s на период с %s - %s.";
 
     public VacationApprovalAcceptanceSender(SendMailService sendMailService, TSPropertyProvider propertyProvider) {
         super(sendMailService, propertyProvider);

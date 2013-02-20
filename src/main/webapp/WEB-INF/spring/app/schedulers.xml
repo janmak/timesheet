@@ -75,18 +75,18 @@
 		<beans:property name="cronExpression" value="${scheduler.reportcheck}" />
 	</beans:bean>
 
-    <beans:bean id="vacationApprovalService"
-                class="com.aplana.timesheet.service.VacationApprovalService" />
+    <beans:bean id="VacationApprovalAutoProcessService"
+                class="com.aplana.timesheet.service.vacationapproveprocess.VacationApprovalAutoProcessService" />
 
-    <beans:bean id="vacationApprovalServiceJob"
+    <beans:bean id="vacationApprovalAutoProcessServiceJob"
                 class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
-        <beans:property name="targetObject" ref="vacationApprovalService" />
+        <beans:property name="targetObject" ref="VacationApprovalAutoProcessService" />
         <beans:property name="targetMethod" value="checkAllVacations" />
     </beans:bean>
 
-    <beans:bean id="vacationApprovalServiceCronTrigger"
+    <beans:bean id="vacationApprovalAutoProcessServiceCronTrigger"
                 class="org.springframework.scheduling.quartz.CronTriggerBean">
-        <beans:property name="jobDetail" ref="vacationApprovalServiceJob" />
+        <beans:property name="jobDetail" ref="vacationApprovalAutoProcessServiceJob" />
         <beans:property name="cronExpression" value="${scheduler.vacationapprovalcheck}" />
     </beans:bean>
 	
@@ -94,13 +94,13 @@
 		<beans:property name="jobDetails">
 			<beans:list>
 				<beans:ref bean="reportCheckServiceJob" />
-                <beans:ref bean="vacationApprovalServiceJob" />
+                <beans:ref bean="vacationApprovalAutoProcessServiceJob" />
 			</beans:list>
 		</beans:property>
 		<beans:property name="triggers">
 			<beans:list>
 				<beans:ref bean="reportCheckServiceCronTrigger" />
-                <beans:ref bean="vacationApprovalServiceCronTrigger" />
+                <beans:ref bean="vacationApprovalAutoProcessServiceCronTrigger" />
 			</beans:list>
 		</beans:property>
 	</beans:bean>

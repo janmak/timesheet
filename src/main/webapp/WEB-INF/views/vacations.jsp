@@ -1,3 +1,4 @@
+<%@ page import="static com.aplana.timesheet.util.ResourceUtils.getResRealPath" %>
 <%@page contentType="text/html" pageEncoding="UTF-8" %>
 
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form" %>
@@ -9,8 +10,8 @@
 <html>
 <head>
     <title><fmt:message key="title.vacations"/></title>
-    <link rel="stylesheet" type="text/css" href="<%= request.getContextPath()%>/resources/css/vacations.css" />
-    <script type="text/javascript" src="<%= request.getContextPath()%>/resources/js/vacations.js"></script>
+    <link rel="stylesheet" type="text/css" href="<%= getResRealPath("/resources/css/vacations.css", application) %>" />
+    <script src="<%= getResRealPath("/resources/js/vacations.js", application) %>" type="text/javascript"></script>
     <script type="text/javascript">
         dojo.require("dojo.NodeList-traverse");
         dojo.require("dojox.html.entities");
