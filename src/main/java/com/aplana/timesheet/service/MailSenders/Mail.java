@@ -4,12 +4,10 @@ import com.aplana.timesheet.dao.entity.Division;
 import com.aplana.timesheet.dao.entity.Employee;
 import com.google.common.collect.Sets;
 import com.google.common.collect.Table;
+import org.apache.velocity.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author eshangareev
@@ -97,7 +95,14 @@ public class Mail {
     }
 
     public void setToEmails(Iterable<String> toEmails) {
-        this.toEmails = Sets.newHashSet(toEmails); //удаляем дупликаты
+        //удаляем дупликаты
+        final Set<String> uniqueToEmails = Sets.newHashSet();
+
+        for (String toEmail : toEmails) {
+            uniqueToEmails.addAll(StringUtils.trimStrings(Arrays.asList(toEmail.split(","))));
+        }
+
+        this.toEmails = uniqueToEmails;
     }
 
     public String getDate() {

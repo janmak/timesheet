@@ -30,7 +30,6 @@ public class TimeSheetController {
 
     @Autowired
     protected HttpServletRequest request;
-
     @Autowired
     private DivisionService divisionService;
     @Autowired

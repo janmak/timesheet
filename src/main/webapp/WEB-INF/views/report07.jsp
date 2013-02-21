@@ -78,7 +78,7 @@
                 <form:select path="periodType">
                     <form:option value="1">Месяц</form:option>
                     <form:option value="3">Квартал</form:option>
-                    <form:option value="6">Пол года</form:option>
+                    <form:option value="6">Полгода</form:option>
                     <form:option value="12">Год</form:option>
                 </form:select>
             </td>

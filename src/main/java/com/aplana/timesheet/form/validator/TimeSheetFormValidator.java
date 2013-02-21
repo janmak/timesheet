@@ -13,6 +13,7 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +22,9 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
 
 import javax.annotation.Nullable;
+import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -112,6 +115,36 @@ public class TimeSheetFormValidator extends AbstractValidator {
         }
 
         validatePlan( tsForm, emplJob, planNecessary, errors );
+
+        checkForEffectiveActTypes(tsForm.getTimeSheetTablePart(), tsForm.getDivisionId(), tsForm.getEmployeeId(), tsForm.getCalDate(), errors);
+    }
+
+    private void checkForEffectiveActTypes(List<TimeSheetTableRowForm> timeSheetTablePart, Integer employeeId, Integer divisionId, String calDate, Errors errors) {
+        try {
+        int counter = 0;
+        for (TimeSheetTableRowForm row : timeSheetTablePart) {
+            if (! TypesOfActivityEnum.isEfficientActivity(row.getActivityTypeId())) {
+                counter++;
+            }
+        }
+
+        if (counter == timeSheetTablePart.size()) {
+
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(DateUtils.parseDate(calDate, DateTimeUtil.DATE_PATTERN));
+            int month = calendar.get(Calendar.MONTH) + 1;
+            int year = calendar.get(Calendar.YEAR);
+            String timeSheetURL = propertyProvider.getTimeSheetURL();
+            String href = String.format("<a href=\"%s/businesstripsandillness/%s/%s/%s/%s\">формой</a>.", timeSheetURL, divisionId, employeeId, month, year);
+
+            String message = String.format("В отчете обязательно " +
+                    "должна присутствовать полезная активность. Для списания больничного воспользуйтесь специальной %s", href);
+
+            errors.rejectValue("timeSheetTablePart", "error.tsform.tablepart.effectiveactivitytypesrequired", message);
+        }
+        } catch (ParseException ex) {
+            logger.error("unreal exception: ", ex);
+        }
     }
 
     private List<TimeSheetTableRowForm> filterTable(TimeSheetForm tsForm){
