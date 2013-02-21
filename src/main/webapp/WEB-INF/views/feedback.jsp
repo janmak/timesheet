@@ -151,14 +151,14 @@
     <div id="form_table">
         <table id="time_sheet_table">
             <tr id="time_sheet_header">
-                <th align="center" width="120px">Тип сообщения</th>
-                <th align="center" width="210px">Текст сообщения</th>
-                <th align="center" width="270px">Вложения</th>
+                <th align="center" style="min-width: 200px">Тип сообщения</th>
+                <th align="center" style="min-width: 400px">Текст сообщения</th>
+                <th align="center" style="min-width: 270px">Вложения</th>
             </tr>
 				
             <tr class="time_sheet_row" id="ts_row">
                 <td width="38" class="top_align"> <!-- Тип проблемы -->
-                    <form:select path="feedbackType" cssClass="activityType" style="width:200px" id="feedback_type"
+                    <form:select path="feedbackType" cssClass="activityType" cssStyle="width: 100%;" id="feedback_type"
                                  name="feedback_type" onchange="feedbackTypeChange(this);"
                                  onmouseover="tooltip.show(getTitle(this));" onmouseout="tooltip.hide();">
                         <fmt:message key="feedback.type.newproposal" var="problemNewProposal"/>
@@ -175,7 +175,7 @@
                 </td>
                 <td class="top_align"> <!-- Текст сообщения -->
                     <form:textarea path="feedbackDescription" id="feedbackDescription" name="feedbackDescription" rows="8"
-                                   cols="40"></form:textarea>
+                                   cssStyle="width: 100%;"></form:textarea>
                 </td>
                 <td class="top_align"><!-- Вложения -->
 					<table style="border-style:none">

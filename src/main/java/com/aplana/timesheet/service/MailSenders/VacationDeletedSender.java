@@ -79,13 +79,20 @@ public class VacationDeletedSender extends MailSender<Vacation> {
     }
 
     @Override
-    protected String getSubjectMarker() {
+    protected String getSubjectFormat() {
+        String marker = null;
+
         try {
-            String marker = propertyProvider.getVacationMailMarker();
-            return (StringUtils.isBlank(marker)) ? DEFAULT_VACATION_APPROVAL_MAIL_MARKER : marker;
+            marker = propertyProvider.getVacationMailMarker();
         } catch (NullPointerException ex) {
-            return DEFAULT_VACATION_APPROVAL_MAIL_MARKER;
+            // do nothing
         }
+
+        if (StringUtils.isBlank(marker)) {
+            marker = DEFAULT_VACATION_APPROVAL_MAIL_MARKER;
+        }
+
+        return marker + " %s";
     }
 
     private Iterable<String> getToEmails(Vacation params) {

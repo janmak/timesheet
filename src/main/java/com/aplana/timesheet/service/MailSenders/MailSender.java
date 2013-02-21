@@ -170,13 +170,17 @@ public class MailSender<T> {
 
     @VisibleForTesting
     void initMessageSubject(Mail mail, MimeMessage message) throws MessagingException {
-        String messageSubject = String.format(getSubjectMarker(), mail.getSubject());
+        String messageSubject = String.format(getSubjectFormat(), mail.getSubject());
         logger.debug("Message subject: {}", messageSubject);
         message.setSubject(messageSubject, "UTF-8");
     }
 
-    protected String getSubjectMarker() {
-        return "";
+    /**
+     * В формате допустимо использовать только один аргумент и только %s
+     * @return
+     */
+    protected String getSubjectFormat() {
+        return "%s";
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})

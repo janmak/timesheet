@@ -245,6 +245,7 @@ public class EmployeeLdapService {
                     employee.setId(empInDbByMail.getId());
                     employee.setStartDate(empInDbByMail.getStartDate());
                     employee.getPermissions().addAll(empInDbByMail.getPermissions());
+                    employee.setJobRate(empInDbByMail.getJobRate());
                 //есть сотрудник в БД
                 //Миша: для существующих поле манагер не обновлялось, при этом остальные поля должны обновляться
                 //сперва должно сравниваться по полю LDAP, если нет то по полю EMAIL, если нет то считать что сотрудник новый и добавлять
