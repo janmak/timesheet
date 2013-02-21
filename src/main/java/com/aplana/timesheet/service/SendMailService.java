@@ -16,10 +16,8 @@ import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
-import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Multimap;
 import org.apache.commons.lang.StringUtils;
 import org.apache.velocity.app.VelocityEngine;
 import org.slf4j.Logger;
@@ -30,8 +28,6 @@ import org.springframework.ui.velocity.VelocityEngineUtils;
 
 import javax.annotation.Nullable;
 import java.util.*;
-
-import static com.aplana.timesheet.enums.ProjectRolesEnum.getById;
 
 @Service
 public class SendMailService{
@@ -281,8 +277,8 @@ public class SendMailService{
         return vacationApprovalService.getVacationApprovalEmailList(vacationId);
     }
 
-    public List<ProjectParticipant> getProjectParticipantsOfManagersThatDoesntApproveVacation(Project project, Vacation vacation) {
-        return projectParticipantService.getProjectParticipantsOfManagersThatDoesntApproveVacation(project, vacation);
+    public Map<Employee, List<Project>> getJuniorProjectManagersAndProjects(Project project, Vacation vacation) {
+        return employeeService.getJuniorProjectManagersAndProjects(Arrays.asList(project), vacation);
     }
 
     interface RenameMe {
