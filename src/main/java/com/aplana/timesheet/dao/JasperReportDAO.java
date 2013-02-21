@@ -460,7 +460,8 @@ public class JasperReportDAO {
                     "        LEFT JOIN vacation vacations ON \n" +
                     "                employee.id=vacations.employee_id AND \n" +
                     "                (calendar.caldate BETWEEN vacations.begin_date AND vacations.end_date) AND \n" +
-                    "                (vacations.begin_date <= :endDate AND vacations.end_date >= :beginDate),\n" +
+                    "                (vacations.begin_date <= :endDate AND vacations.end_date >= :beginDate) AND \n" +
+                    "                (vacations.status_id = :statusId),\n" +
                     "        region region \n" +
                     "WHERE \n" +
                              ( withDivisionClause ? "        division.id=:emplDivisionId AND \n" : "") +
@@ -492,6 +493,7 @@ public class JasperReportDAO {
         }
         query.setParameter("beginDate", DateTimeUtil.stringToTimestamp( report.getBeginDate() ));
         query.setParameter("endDate", DateTimeUtil.stringToTimestamp(report.getEndDate()));
+        query.setParameter("statusId", APPROVED.getId());
 
         return query.getResultList();
     }
