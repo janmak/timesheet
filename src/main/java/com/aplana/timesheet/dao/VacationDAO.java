@@ -13,6 +13,8 @@ import javax.persistence.Query;
 import java.util.Date;
 import java.util.List;
 
+import static com.aplana.timesheet.enums.VacationStatusEnum.*;
+
 /**
  * @author rshamsutdinov
  * @version 1.0
@@ -69,11 +71,10 @@ public class VacationDAO {
     }
 
     @Transactional
-    // ToDo скорее всего необходимо будет доработать метод, чтобы он учитывал только те отпуска, что утверждены
     public Boolean isDayVacation(Employee employee, Date date){
         Query query = entityManager.createQuery(
-                "SELECT i FROM Vacation AS i WHERE i.employee = :employee AND :date BETWEEN i.beginDate AND i.endDate"
-        ).setParameter("employee", employee).setParameter("date", date);
+                "SELECT i FROM Vacation AS i WHERE i.employee = :employee AND :date BETWEEN i.beginDate AND i.endDate AND i.status.id = :statusId"
+        ).setParameter("employee", employee).setParameter("date", date).setParameter("statusId", APPROVED.getId());
         if (query.getResultList().isEmpty()) {
             return false;
         }

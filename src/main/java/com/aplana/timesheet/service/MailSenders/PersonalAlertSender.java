@@ -8,7 +8,6 @@ import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.velocity.VelocityEngineUtils;
 
 import javax.annotation.Nullable;
@@ -16,7 +15,7 @@ import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import java.util.*;
 
-public class PersonalAlertSender extends MailSender<List<ReportCheck>> {
+public class PersonalAlertSender extends AbstractSenderWithAssistants<List<ReportCheck>> {
 
     public PersonalAlertSender(SendMailService sendMailService, TSPropertyProvider propertyProvider) {
         super(sendMailService, propertyProvider);
@@ -48,6 +47,7 @@ public class PersonalAlertSender extends MailSender<List<ReportCheck>> {
             Mail mail = new Mail();
             mail.setFromEmail(this.propertyProvider.getMailFromAddress());  // Возможно стоит добавить метод getPropertyProvider в родитель
             mail.setToEmails(Arrays.asList(currentReportCheck.getEmployee().getEmail()));
+            mail.setCcEmails(Arrays.asList(getAssistantEmail(currentReportCheck.getEmployee())));
             mail.setSubject(getSubject(currentReportCheck));
             mail.setEmployeeList(Arrays.asList(currentReportCheck.getEmployee()));
 

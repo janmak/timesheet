@@ -1,5 +1,6 @@
 package com.aplana.timesheet.service.MailSenders;
 
+import com.aplana.timesheet.dao.entity.Employee;
 import com.aplana.timesheet.dao.entity.Region;
 import com.aplana.timesheet.dao.entity.Vacation;
 import com.aplana.timesheet.dao.entity.VacationApproval;
@@ -14,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -31,11 +33,18 @@ public class VacationApprovedSender extends AbstractVacationApprovalSender {
     @Override
     protected List<Mail> getMailList(VacationApproval vacationApproval) {
         final Mail mail = new Mail();
-        Vacation vacation = vacationApproval.getVacation();
+        final Vacation vacation = vacationApproval.getVacation();
+        final Employee employee = vacation.getEmployee();
 
-        mail.setFromEmail(sendMailService.getEmployeeEmail(vacation.getEmployee().getId()));
+        mail.setFromEmail(sendMailService.getEmployeeEmail(employee.getId()));
         mail.setToEmails(Arrays.asList(vacationApproval.getManager().getEmail()));
-        mail.setCcEmails(getAdditionalEmailsForRegion(vacation.getEmployee().getRegion()));
+
+        final Collection<String> ccEmails =
+                getAdditionalEmailsForRegion(employee.getRegion());
+
+        ccEmails.add(getAssistantEmail(employee));
+
+        mail.setCcEmails(ccEmails);
 
         if (vacation.getStatus().getId().equals(VacationStatusEnum.APPROVED.getId())) {
             addApprovedContent(vacation, mail);
@@ -66,7 +75,7 @@ public class VacationApprovedSender extends AbstractVacationApprovalSender {
         mail.setParamsForGenerateBody(getApprovedBody(vacation));
     }
 
-    private Iterable<String> getAdditionalEmailsForRegion(Region region) {
+    private Collection<String> getAdditionalEmailsForRegion(Region region) {
         String additionalEmails = region.getAdditionalEmails();
 
         return  (StringUtils.isNotBlank(additionalEmails)) ? Arrays.asList(additionalEmails.split("\\s*,\\s*")) : Arrays.asList(StringUtils.EMPTY);

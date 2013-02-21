@@ -170,7 +170,7 @@ public class JasperReportDAO {
 
         // К сожалению HQL не может ворочить сложные запросы, прищлось писать native sql-запрос
         Query query = entityManager.createNativeQuery(
-                "SELECT\n" +
+                "SELECT " +
                         "        employee.id AS col_0," +
                         "        employee.name AS col_1," +
                         "        timesheet.caldate AS col_2," +
@@ -199,7 +199,7 @@ public class JasperReportDAO {
                         "        region.name AS col_10," +
                         "        vacations.id AS col_11," +
                         "        illnesses.id AS col_12 " +
-                        "FROM" +
+                        "FROM " +
                         "       time_sheet_detail timesheet_details " +
                         "       INNER JOIN time_sheet timesheet ON timesheet_details.time_sheet_id=timesheet.id " +
                         "       INNER JOIN employee employee    ON timesheet.emp_id=employee.id " +
@@ -236,8 +236,8 @@ public class JasperReportDAO {
                         "HAVING" +
                         "        sum(timesheet_details.duration) > 8 " +
                         "        OR holidays.id is not null " +
-                        "        OR vacations.id is not null" +
-                        "        OR illnesses.id is not null" +
+                        "        OR vacations.id is not null " +
+                        "        OR illnesses.id is not null " +
                         "ORDER BY" +
                         "        employee.name," +
                         "        holidays.id desc," +
@@ -460,7 +460,8 @@ public class JasperReportDAO {
                     "        LEFT JOIN vacation vacations ON \n" +
                     "                employee.id=vacations.employee_id AND \n" +
                     "                (calendar.caldate BETWEEN vacations.begin_date AND vacations.end_date) AND \n" +
-                    "                (vacations.begin_date <= :endDate AND vacations.end_date >= :beginDate),\n" +
+                    "                (vacations.begin_date <= :endDate AND vacations.end_date >= :beginDate) AND \n" +
+                    "                (vacations.status_id = :statusId),\n" +
                     "        region region \n" +
                     "WHERE \n" +
                              ( withDivisionClause ? "        division.id=:emplDivisionId AND \n" : "") +
@@ -492,6 +493,7 @@ public class JasperReportDAO {
         }
         query.setParameter("beginDate", DateTimeUtil.stringToTimestamp( report.getBeginDate() ));
         query.setParameter("endDate", DateTimeUtil.stringToTimestamp(report.getEndDate()));
+        query.setParameter("statusId", APPROVED.getId());
 
         return query.getResultList();
     }
@@ -570,7 +572,6 @@ public class JasperReportDAO {
 			query.setParameter("regionIds", report.getRegionIds());
         if (withProjectClause)
             query.setParameter("projectId", report.getProjectId());
-        query.setParameter("projectId", report.getProjectId());
         query.setParameter("beginDate", DateTimeUtil.stringToTimestamp( report.getBeginDate() ));
         query.setParameter("endDate", DateTimeUtil.stringToTimestamp(report.getEndDate()));
 

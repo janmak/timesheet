@@ -1,6 +1,5 @@
 package com.aplana.timesheet.service;
 
-import com.aplana.timesheet.dao.VacationDAO;
 import com.aplana.timesheet.dao.entity.*;
 import com.aplana.timesheet.enums.ProjectRolesEnum;
 import com.aplana.timesheet.enums.TypesOfActivityEnum;
@@ -89,13 +88,11 @@ public class SendMailService{
     @Autowired
     private OvertimeCauseService overtimeCauseService;
     @Autowired
-    private VacationDAO vacationDAO;
-    @Autowired
-    private CalendarService calendarService;
-    @Autowired
     private VacationApprovalService vacationApprovalService;
     @Autowired
     private ProjectParticipantService projectParticipantService;
+    @Autowired
+    private EmployeeAssistantService employeeAssistantService;
 
 
     /**
@@ -279,6 +276,10 @@ public class SendMailService{
 
     public Map<Employee, List<Project>> getJuniorProjectManagersAndProjects(Project project, Vacation vacation) {
         return employeeService.getJuniorProjectManagersAndProjects(Arrays.asList(project), vacation);
+    }
+
+    public EmployeeAssistant getEmployeeAssistant(Employee employee) {
+        return employeeAssistantService.tryFind(employee);
     }
 
     interface RenameMe {
