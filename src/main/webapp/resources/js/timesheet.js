@@ -192,7 +192,7 @@ function addNewRow() {
         name:"timeSheetTablePart[" + newRowIndex + "].description",
         wrap:"soft",
         rows:"4",
-        cols:"30"
+        style: "width: 100%"
     });
     descriptionCell.appendChild(descriptionTextarea);
     // Ячейка с проблемами
@@ -204,7 +204,7 @@ function addNewRow() {
         name:"timeSheetTablePart[" + newRowIndex + "].problem",
         wrap:"soft",
         rows:"4",
-        cols:"30"
+        style: "width: 100%"
     });
     problemCell.appendChild(problemTextarea);
     // Помещаем новую строку в конец таблицы

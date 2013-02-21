@@ -351,21 +351,21 @@
     <div id="form_table">
         <table id="time_sheet_table">
             <tr id="time_sheet_header">
-                <th width="30px">
+                <th style="min-width: 30px">
                     <a onclick="addNewRow()">
                         <img style="cursor: pointer;" src="<c:url value="/resources/img/add.gif"/>" width="15px" title="Добавить строку"/>
                     </a>
                 </th>
-                <th width="20px">№</th>
-                <th width="100px">Место работы</th>
-                <th width="120px">Тип активности</th>
-                <th width="200px">Название проекта/пресейла</th>
-                <th width="130px">Проектная роль</th>
-                <th width="170px">Активность</th>
-                <th width="130px">Задача</th>
-                <th width="30px">ч.</th>
-                <th width="200px">Комментарии</th>
-                <th width="200px">Проблемы</th>
+                <th style="min-width: 20px">№</th>
+                <th style="min-width: 100px">Место работы</th>
+                <th style="min-width: 120px">Тип активности</th>
+                <th style="min-width: 200px">Название проекта/пресейла</th>
+                <th style="min-width: 130px">Проектная роль</th>
+                <th style="min-width: 170px">Активность</th>
+                <th style="min-width: 130px">Задача</th>
+                <th style="min-width: 30px">ч.</th>
+                <th style="min-width: 200px">Комментарии</th>
+                <th style="min-width: 200px">Проблемы</th>
             </tr>
 
             <c:if test="${fn:length(timeSheetForm.timeSheetTablePart) > 0}">
@@ -437,9 +437,9 @@
                                                           onchange="checkDuration(this);" onkeyup="somethingChanged();"/></td>
                         <td class="top_align"><form:textarea wrap="soft"
                                                              path="timeSheetTablePart[${row.index}].description"
-                                                             rows="4" cols="30" id="description_id_${row.index}" onkeyup="somethingChanged();"/></td>
+                                                             rows="4" style="width: 100%" id="description_id_${row.index}" onkeyup="somethingChanged();"/></td>
                         <td class="top_align"><form:textarea wrap="soft" path="timeSheetTablePart[${row.index}].problem"
-                                                             rows="4" cols="30" id="problem_id_${row.index}" onkeyup="somethingChanged();"/></td>
+                                                             rows="4" style="width: 100%" id="problem_id_${row.index}" onkeyup="somethingChanged();"/></td>
                     </tr>
                 </c:forEach>
             </c:if>
