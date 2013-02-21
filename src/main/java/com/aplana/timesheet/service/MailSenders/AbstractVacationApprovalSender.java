@@ -12,7 +12,7 @@ import javax.mail.internet.MimeMessage;
  * User: vsergeev
  * Date: 15.02.13
  */
-public abstract class AbstractVacationApprovalSender extends MailSender<VacationApproval>{
+public abstract class AbstractVacationApprovalSender extends AbstractSenderWithAssistants<VacationApproval>{
 
     private static final String DEFAULT_VACATION_APPROVAL_MAIL_MARKER = "[VACATION REQUEST]";
 
