@@ -153,6 +153,10 @@ public class TSPropertyProvider {
         return getProperties().getProperty("timesheet.url");
     }
 
+    public String getFeedbackMarker() {
+        return getProperties().getProperty("feedback.mail.marker", "[TS FEEDBACK] Сообщение от пользователя системы списания занятости");
+    }
+
     public static String getFooterText() {
         return getProperties().getProperty("footer.text");
     }

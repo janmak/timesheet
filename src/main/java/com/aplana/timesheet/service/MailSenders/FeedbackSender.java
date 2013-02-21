@@ -55,25 +55,32 @@ public class FeedbackSender extends MailSender<FeedbackForm> {
         mail.setFromEmail(employeeEmail);
         mail.setToEmails(Arrays.asList(propertyProvider.getMailProblemsAndProposalsCoaddress()));
         mail.setCcEmails(Arrays.asList(employeeEmail));
-        mail.setSubject(params.getFeedbackTypeName());
+        mail.setSubject(propertyProvider.getFeedbackMarker());
         mail.setFilePahts(Arrays.asList(params.getFile1Path(), params.getFile2Path()));
         mail.setPreconstructedMessageBody(
-                getMessageBody(employeeName, employeeEmail, params.getFeedbackDescription()) );
+                getMessageBody(employeeName, employeeEmail, params.getFeedbackDescription(), params.getFeedbackTypeName()) );
 
         return Arrays.asList(mail);
     }
 
-    private String getMessageBody(String name, String email, String discription) {
-        StringBuilder bodyTxt = new StringBuilder();
+    private String getMessageBody(String name, String email, String discription, String feedbackTypeName) {
+        final StringBuilder bodyTxt = new StringBuilder();
 
-        if (StringUtils.isNotBlank(name)) {
-            bodyTxt.append("Сообщение пришло от: ").append(name).append("\n");
-        }
-        if (StringUtils.isNotBlank(email)) {
-            bodyTxt.append("С адреса: ").append(email).append("\n");
-        }
         bodyTxt.append(StringEscapeUtils.escapeHtml4(discription));
 
-        return bodyTxt.toString();
+        if (StringUtils.isNotBlank(name)) {
+            bodyTxt.append("\n\nПришло от: ").append(name);
+        }
+
+        if (StringUtils.isNotBlank(email)) {
+            bodyTxt.append("\nС адреса: ").append(email);
+        }
+
+        if (StringUtils.isNotBlank(feedbackTypeName)) {
+            bodyTxt.append("\nТип сообщения: ").append(feedbackTypeName);
+        }
+
+        return bodyTxt.toString().replace("\n", "<br>");
     }
+
 }

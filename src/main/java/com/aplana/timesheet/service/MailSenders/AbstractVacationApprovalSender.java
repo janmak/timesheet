@@ -21,13 +21,20 @@ public abstract class AbstractVacationApprovalSender extends MailSender<Vacation
     }
 
     @Override
-    final protected String getSubjectMarker() {
+    final protected String getSubjectFormat() {
+        String marker = null;
+
         try {
-            String marker = propertyProvider.getVacationMailMarker();
-            return (StringUtils.isBlank(marker)) ? DEFAULT_VACATION_APPROVAL_MAIL_MARKER : marker;
+            marker = propertyProvider.getVacationMailMarker();
         } catch (NullPointerException ex) {
-            return DEFAULT_VACATION_APPROVAL_MAIL_MARKER;
+            // do nothing
         }
+
+        if (StringUtils.isBlank(marker)) {
+            marker = DEFAULT_VACATION_APPROVAL_MAIL_MARKER;
+        }
+
+        return marker + " %s";
     }
 
     @Override
