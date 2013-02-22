@@ -29,9 +29,8 @@ public class VacationDeletedSender extends MailSender<Vacation> {
 
     @Override
     protected List<Mail> getMailList(Vacation vacation) {
-        final Mail mail = new Mail();
+        final Mail mail = new TimeSheetMail();
 
-        mail.setFromEmail(sendMailService.getEmployeeEmail(sendMailService.getSecurityPrincipal().getEmployee().getId()));
         mail.setToEmails(getToEmails(vacation));
         mail.setSubject(getSubject(vacation));
         mail.setParamsForGenerateBody(getParamsForGenerateBody(vacation));

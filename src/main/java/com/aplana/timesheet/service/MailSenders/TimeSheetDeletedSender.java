@@ -48,8 +48,7 @@ public class TimeSheetDeletedSender extends AbstractSenderWithAssistants<TimeShe
     protected List<Mail> getMailList(TimeSheet params) {
         final Employee employee = params.getEmployee();
         logger.info("Performing mailing about deleted timesheet.");
-        Mail mail = new Mail();
-        mail.setFromEmail(propertyProvider.getMailFromAddress());
+        Mail mail = new TimeSheetMail();
         mail.setToEmails(getToEmails(params));
         mail.setCcEmails(Arrays.asList(getAssistantEmail(employee)));
         mail.setEmployeeList(Arrays.asList(employee));

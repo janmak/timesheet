@@ -25,10 +25,9 @@ public class VacationApproveRequestSender extends AbstractVacationApprovalSender
 
     @Override
     protected List<Mail> getMailList(VacationApproval vacationApproval) {
-        final Mail mail = new Mail();
+        final Mail mail = new TimeSheetMail();
         Vacation vacation = vacationApproval.getVacation();
 
-        mail.setFromEmail(sendMailService.getEmployeeEmail(vacation.getEmployee().getId()));
         mail.setToEmails(Arrays.asList(vacationApproval.getManager().getEmail()));
         mail.setSubject(getSubject(vacation));
         mail.setParamsForGenerateBody(getParamsForGenerateBody(vacationApproval));

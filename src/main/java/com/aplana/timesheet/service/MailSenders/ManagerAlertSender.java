@@ -9,7 +9,6 @@ import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.velocity.VelocityEngineUtils;
 
 import javax.annotation.Nullable;
@@ -63,7 +62,7 @@ public class ManagerAlertSender extends MailSender<List<ReportCheck>> {
             if (currentManager.isDisabled(null))
                 logger.info("Manager {} is disabled", currentManager.getName());
             else {
-                Mail mail = new Mail();
+                Mail mail = new TimeSheetMail();
 
                 List<ReportCheck> currentReportCheckList = entry.getValue();
 
@@ -71,7 +70,6 @@ public class ManagerAlertSender extends MailSender<List<ReportCheck>> {
                 mail.setSubject(getSubject(currentReportCheckList));
                 mail.setDivision(currentReportCheckList.get(0).getDivision());
                 mail.setEmployeeList(Arrays.asList(currentManager));
-                mail.setFromEmail(propertyProvider.getMailFromAddress());
                 mail.getPassedDays().putAll(getPassedDays(currentReportCheckList));
 
                 mails.add(mail);

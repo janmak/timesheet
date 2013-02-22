@@ -13,10 +13,9 @@ import java.util.*;
  * @author eshangareev
  * @version 1.0
  */
-public class Mail {
+public abstract class Mail {
     private Division division;
     private Iterable<String> ccEmails = new ArrayList<String>();
-    private String fromEmail;
     private String subject;
     private Iterable<String> toEmails = new ArrayList<String>();
 
@@ -28,13 +27,7 @@ public class Mail {
     private String date;
     private Table<Integer, String, String> paramsForGenerateBody;
 
-    public String getFromEmail() {
-        return fromEmail;
-    }
-
-    public void setFromEmail(String fromEmail) {
-        this.fromEmail = fromEmail;
-    }
+    public abstract String getFromEmail();
 
     public Division getDivision() {
         return division;

@@ -26,7 +26,7 @@ public class VacationApprovalAcceptanceSender extends AbstractVacationApprovalSe
 
     @Override
     protected List<Mail> getMainMailList(VacationApproval vacationApproval) {
-        Mail mail = new Mail();
+        Mail mail = new TimeSheetMail();
 
         Integer vacationId = vacationApproval.getVacation().getId();
         String matchingFIO = vacationApproval.getManager().getName();
@@ -42,7 +42,6 @@ public class VacationApprovalAcceptanceSender extends AbstractVacationApprovalSe
         String text = result ? String.format(MAIL_ACCEPT_BODY, matchingFIO, vacationType, employeeFIO, region, dateBegin, dateEnd) :
                 String.format(MAIL_REFUSE_BODY, matchingFIO, vacationType, employeeFIO, region, dateBegin, dateEnd);
 
-        mail.setFromEmail(propertyProvider.getMailFromAddress());
         mail.setSubject(subject);
         mail.setPreconstructedMessageBody(text);
         mail.setToEmails( Arrays.asList(vacationApproval.getVacation().getEmployee().getEmail()) );

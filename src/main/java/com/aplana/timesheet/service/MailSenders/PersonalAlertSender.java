@@ -44,8 +44,7 @@ public class PersonalAlertSender extends AbstractSenderWithAssistants<List<Repor
         List<Mail> mails = new ArrayList<Mail>();
 
         for ( ReportCheck currentReportCheck : params ) {
-            Mail mail = new Mail();
-            mail.setFromEmail(this.propertyProvider.getMailFromAddress());  // Возможно стоит добавить метод getPropertyProvider в родитель
+            Mail mail = new TimeSheetMail();
             mail.setToEmails(Arrays.asList(currentReportCheck.getEmployee().getEmail()));
             mail.setCcEmails(Arrays.asList(getAssistantEmail(currentReportCheck.getEmployee())));
             mail.setSubject(getSubject(currentReportCheck));

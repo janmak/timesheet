@@ -41,7 +41,7 @@ public class LoginProblemSender extends MailSender<AdminMessageForm> {
     @Override
     protected List<Mail> getMailList(AdminMessageForm params) {
         logger.info("Login problem mailing.");
-        Mail mail = new Mail();
+        Mail mail = new TimeSheetMail();
 
         StringBuilder bodyTxt = new StringBuilder();
 
