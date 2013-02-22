@@ -112,17 +112,6 @@
             var myStore = new dojo.data.ItemFileWriteStore({
                 data: myStoreObject
             });
-            var myLayout = createLayout(createHeaderViewsAndFillModelFields());
-
-            dojo.forEach(normalize(modelFields, dojo.fromJson(dataJson)), function(row) {
-                for (var field in row) {
-                    if (typeof row[field] == typeof undefined) {
-                        row[field] = "";
-                    }
-                }
-
-                myStoreObject.items.push(row);
-            });
 
             function createHeaderViewsAndFillModelFields() {
                 var firstView = {
@@ -159,11 +148,11 @@
 
                             if (number > 100) {
                                 return dojo.create(
-                                    "span",
-                                    {
-                                        innerHTML: text,
-                                        style: "color: red; font-weight: bold"
-                                    }
+                                        "span",
+                                        {
+                                            innerHTML: text,
+                                            style: "color: red; font-weight: bold"
+                                        }
                                 ).outerHTML;
                             }
 
@@ -219,14 +208,14 @@
                         dojo.forEach(view.groups, function(group) {
                             <c:choose>
                             <c:when test="${planEditForm.showPlans and planEditForm.showFacts}">
-                                var planField = group.field + "<%= _PLAN %>";
-                                var factField = group.field + "<%= _FACT %>";
+                            var planField = group.field + "<%= _PLAN %>";
+                            var factField = group.field + "<%= _FACT %>";
 
-                                view.cells.push(createCell("План", planField), createCell("Факт", factField));
-                                modelFields.push(planField, factField);
+                            view.cells.push(createCell("План", planField), createCell("Факт", factField));
+                            modelFields.push(planField, factField);
 
-                                group.colSpan = 2;
-                                group.expand = true;
+                            group.colSpan = 2;
+                            group.expand = true;
                             </c:when>
                             <c:otherwise>
                             var fieldComponent = "<%= _PLAN %>";
@@ -260,6 +249,19 @@
 
                 return views;
             }
+
+            var myLayout = createLayout(createHeaderViewsAndFillModelFields());
+
+            dojo.forEach(normalize(modelFields, dojo.fromJson(dataJson)), function(row) {
+                for (var field in row) {
+                    if (typeof row[field] == typeof undefined) {
+                        row[field] = "";
+                    }
+                }
+
+                myStoreObject.items.push(row);
+            });
+
         }
 
 
