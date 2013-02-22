@@ -359,9 +359,10 @@ public class PlanEditController {
 
         return projectStates.isEmpty()
                 ? new ArrayList<Project>()
-                : projectService.getProjectsByStatesForDate(
+                : projectService.getProjectsByStatesForDateAndDivisionId(
                         projectStates,
-                        date
+                        date,
+                        form.getDivisionId()
                 );
     }
 
