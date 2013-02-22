@@ -246,6 +246,7 @@ public class EmployeeLdapService {
                     employee.setStartDate(empInDbByMail.getStartDate());
                     employee.getPermissions().addAll(empInDbByMail.getPermissions());
                     employee.setJobRate(empInDbByMail.getJobRate());
+                    employee.setManager2(empInDbByMail.getManager2());
                 //есть сотрудник в БД
                 //Миша: для существующих поле манагер не обновлялось, при этом остальные поля должны обновляться
                 //сперва должно сравниваться по полю LDAP, если нет то по полю EMAIL, если нет то считать что сотрудник новый и добавлять
@@ -257,7 +258,7 @@ public class EmployeeLdapService {
         }
 
         if (employeeType != EmployeeType.MANAGER) {
-            findAndFillManagerField(employee, errors);
+            findAndFillManagerField(employee, employeeLdap, errors);
         }
 
         return employee;
@@ -273,34 +274,13 @@ public class EmployeeLdapService {
         }
     }
 
-    private void findAndFillManagerField(Employee employee, StringBuffer errors) {
-        final Region region = employee.getRegion();
+    private void findAndFillManagerField(Employee employee, EmployeeLdap employeeLdap, StringBuffer errors) {
         final Division division = employee.getDivision();
 
-        Employee manager = null;
+        Employee manager = employeeService.findByLdapName(employeeLdap.getManager());
 
-        if (division != null) {
-            if (region != null) {
-                final List<Employee> regionManagers =
-                        employeeService.getRegionManager(region.getId(), division.getId());
-
-                if (!regionManagers.isEmpty()) {
-                    logger.debug(
-                            String.format(
-                                    "Division %s of region %s has %d managers",
-                                    division.getName(),
-                                    region.getName(),
-                                    regionManagers.size()
-                            )
-                    );
-
-                    manager = regionManagers.get(0);
-                }
-            }
-
-            if (manager == null) {
-                manager = employeeService.find(division.getLeader());
-            }
+        if (manager == null && division != null) {
+            manager = employeeService.find(division.getLeader());
         }
 
         if (manager != null) {
