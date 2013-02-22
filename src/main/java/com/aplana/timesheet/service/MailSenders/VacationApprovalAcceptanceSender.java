@@ -12,7 +12,7 @@ import java.util.List;
  * @author iziyangirov
  */
 
-public class VacationApprovalAcceptanceSender extends AbstractVacationApprovalSender {
+public class VacationApprovalAcceptanceSender extends AbstractVacationApprovalSenderWithCopyToAuthor {
 
     final String DATE_FORMAT = "dd.MM.yyyy";
     final String MAIL_ACCEPT_SUBJECT = "Согласование \"%s\" сотрудника %s на период с %s - %s";
@@ -25,7 +25,7 @@ public class VacationApprovalAcceptanceSender extends AbstractVacationApprovalSe
     }
 
     @Override
-    protected List<Mail> getMailList(VacationApproval vacationApproval) {
+    protected List<Mail> getMainMailList(VacationApproval vacationApproval) {
         Mail mail = new Mail();
 
         Integer vacationId = vacationApproval.getVacation().getId();

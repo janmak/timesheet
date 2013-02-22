@@ -28,15 +28,24 @@ public class VacationDeletedSender extends MailSender<Vacation> {
     }
 
     @Override
-    protected List<Mail> getMailList(Vacation params) {
+    protected List<Mail> getMailList(Vacation vacation) {
         final Mail mail = new Mail();
 
         mail.setFromEmail(sendMailService.getEmployeeEmail(sendMailService.getSecurityPrincipal().getEmployee().getId()));
-        mail.setToEmails(getToEmails(params));
-        mail.setSubject(getSubject(params));
-        mail.setParamsForGenerateBody(getParamsForGenerateBody(params));
+        mail.setToEmails(getToEmails(vacation));
+        mail.setSubject(getSubject(vacation));
+        mail.setParamsForGenerateBody(getParamsForGenerateBody(vacation));
+        addAuthorsEmailToCopy(vacation, mail);
 
         return Arrays.asList(mail);
+    }
+
+    final private void addAuthorsEmailToCopy(Vacation vacation, Mail mail) {
+        Employee author = vacation.getAuthor();
+        Employee employee = vacation.getEmployee();
+        if (! author.getId().equals(employee.getId())) {
+            mail.setCcEmails(Arrays.asList(author.getEmail()));
+        }
     }
 
     private Table<Integer, String, String> getParamsForGenerateBody(Vacation params) {

@@ -25,7 +25,7 @@ import java.util.List;
  * User: vsergeev
  * Date: 13.02.13
  */
-public class VacationApprovedSender extends AbstractVacationApprovalSender {
+public class VacationApprovedSender extends AbstractVacationApprovalSenderWithCopyToAuthor {
 
     protected static final Logger logger = LoggerFactory.getLogger(VacationApprovedSender.class);
 
@@ -34,7 +34,7 @@ public class VacationApprovedSender extends AbstractVacationApprovalSender {
     }
 
     @Override
-    protected List<Mail> getMailList(VacationApproval vacationApproval) {
+    protected List<Mail> getMainMailList(VacationApproval vacationApproval) {
         final Mail mail = new Mail();
         final Vacation vacation = vacationApproval.getVacation();
         final Employee employee = vacation.getEmployee();

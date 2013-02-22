@@ -10,7 +10,7 @@ import org.apache.commons.lang.StringUtils;
  * @author rshamsutdinov
  * @version 1.0
  */
-public class AbstractSenderWithAssistants<T> extends MailSender<T> {
+public abstract class AbstractSenderWithAssistants<T> extends MailSender<T> {
 
     public AbstractSenderWithAssistants(SendMailService sendMailService, TSPropertyProvider propertyProvider) {
         super(sendMailService, propertyProvider);
@@ -19,10 +19,6 @@ public class AbstractSenderWithAssistants<T> extends MailSender<T> {
     protected final String getAssistantEmail(Employee employee) {
         final EmployeeAssistant employeeAssistant = sendMailService.getEmployeeAssistant(employee);
 
-        if (employeeAssistant == null) {
-            return StringUtils.EMPTY;
-        }
-
-        return employeeAssistant.getAssistant().getEmail();
+        return (employeeAssistant == null) ? StringUtils.EMPTY : employeeAssistant.getAssistant().getEmail();
     }
 }
