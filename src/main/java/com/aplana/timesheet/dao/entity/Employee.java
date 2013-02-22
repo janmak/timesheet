@@ -40,6 +40,11 @@ public class Employee implements Identifiable {
     private Employee manager;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "manager2")
+    @ForeignKey(name = "FK_MANAGER2")
+    private Employee manager2;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "division", nullable = false)
     @ForeignKey(name = "FK_EMP_DIVISION")
     private Division division;
@@ -76,6 +81,14 @@ public class Employee implements Identifiable {
 
     @Column(name = "job_rate", columnDefinition = "float default 1", nullable = false)
     private Float jobRate = 1.0f;
+
+    public Employee getManager2() {
+        return manager2;
+    }
+
+    public void setManager2(Employee manager2) {
+        this.manager2 = manager2;
+    }
 
     public Set<Vacation> getVacations() {
         return vacations;
