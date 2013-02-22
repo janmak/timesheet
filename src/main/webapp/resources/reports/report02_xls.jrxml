@@ -42,14 +42,14 @@
 	<group name="GroupByName">
 		<groupExpression><![CDATA[$F{name}]]></groupExpression>
 		<groupHeader>
-			<band height="32">
+			<band height="13">
 				<textField>
 					<reportElement uuid="bcec8fd7-be3d-4fff-a70c-7fd0ac353b2a" style="SubTitle" x="0" y="0" width="111" height="13"/>
 					<textElement/>
 					<textFieldExpression><![CDATA[$F{name}]]></textFieldExpression>
 				</textField>
 				<textField evaluationTime="Group" evaluationGroup="GroupByName" pattern="">
-					<reportElement uuid="6e4e6704-a2b0-470f-b38b-52350f201116" style="SubTitle" x="629" y="0" width="92" height="17"/>
+					<reportElement uuid="6e4e6704-a2b0-470f-b38b-52350f201116" style="SubTitle" x="629" y="0" width="92" height="13"/>
 					<textElement/>
 					<textFieldExpression><![CDATA[new DecimalFormat("###0.0").format($V{DurationSumGroupByName}) + "/" + new DecimalFormat("###0.0").format($V{DurationHolidaySumGroupByName})]]></textFieldExpression>
 				</textField>
@@ -127,7 +127,7 @@
 		</band>
 	</columnHeader>
 	<detail>
-		<band height="29">
+		<band height="14">
 			<textField>
 				<reportElement uuid="76b0b3d7-2320-49b3-b81d-4971e1605b01" style="ColoredDetail" x="0" y="0" width="111" height="13"/>
 				<textElement/>
