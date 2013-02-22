@@ -172,7 +172,7 @@ public class MailSender<T> {
     void initMessageSubject(Mail mail, MimeMessage message) throws MessagingException {
         String messageSubject = String.format(getSubjectFormat(), mail.getSubject());
         logger.debug("Message subject: {}", messageSubject);
-        message.setSubject(messageSubject);
+        message.setSubject(messageSubject, "koi8-r");
     }
 
     /**

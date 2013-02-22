@@ -238,8 +238,9 @@ public class ProjectService {
         return projectDAO.getProjectsAssignedToVacation(vacation);
     }
 
-    public List<Project> getProjectsByStatesForDate(List<Integer> projectStates, Date date) {
-        return projectDAO.getProjectsByStatesForDate(projectStates, date);
+    public List<Project> getProjectsByStatesForDateAndDivisionId(List<Integer> projectStates, Date date,
+                                                                 Integer divisionId) {
+        return projectDAO.getProjectsByStatesForDateAndDivisionId(projectStates, date, divisionId);
     }
 
     /**
