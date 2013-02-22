@@ -80,10 +80,8 @@ public class VacationApprovalProcessService extends AbstractVacationApprovalProc
         }
 
         List<VacationApproval> tempVacationApprovals = createTempVacationApprovals(managers, vacation);
-
-        for (VacationApproval vacationApproval : tempVacationApprovals) {
-            sendMailService.performVacationApprovedSender(vacationApproval);
-        }
+        List<String> emails = prepareEmailsListForVacationApprovedMessage(tempVacationApprovals);
+        sendMailService.performVacationApprovedSender(vacation, emails);
     }
 
     /**

@@ -12,7 +12,8 @@ import java.util.List;
  * @author iziyangirov
  */
 
-public class VacationApprovalAcceptanceSender extends AbstractVacationApprovalSenderWithCopyToAuthor {
+public class VacationApprovalAcceptanceSender extends AbstractSenderWithCcAddress<VacationApproval>
+        implements MailWithCcAddresses<VacationApproval>{
 
     final String DATE_FORMAT = "dd.MM.yyyy";
     final String MAIL_ACCEPT_SUBJECT = "Согласование \"%s\" сотрудника %s на период с %s - %s";
@@ -25,7 +26,7 @@ public class VacationApprovalAcceptanceSender extends AbstractVacationApprovalSe
     }
 
     @Override
-    protected List<Mail> getMainMailList(VacationApproval vacationApproval) {
+    public List<Mail> getMainMailList(VacationApproval vacationApproval) {
         Mail mail = new TimeSheetMail();
 
         Integer vacationId = vacationApproval.getVacation().getId();
@@ -48,6 +49,11 @@ public class VacationApprovalAcceptanceSender extends AbstractVacationApprovalSe
         mail.setCcEmails(sendMailService.getVacationApprovalEmailList(vacationId));
 
         return Arrays.asList(mail);
+    }
+
+    @Override
+    final public String getCcEmail(VacationApproval vacationApproval) {
+        return vacationApproval.getVacation().getAuthor().getEmail();
     }
 
 }

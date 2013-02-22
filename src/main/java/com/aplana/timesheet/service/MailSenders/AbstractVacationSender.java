@@ -1,6 +1,5 @@
 package com.aplana.timesheet.service.MailSenders;
 
-import com.aplana.timesheet.dao.entity.VacationApproval;
 import com.aplana.timesheet.properties.TSPropertyProvider;
 import com.aplana.timesheet.service.SendMailService;
 import org.apache.commons.lang3.StringUtils;
@@ -12,11 +11,11 @@ import javax.mail.internet.MimeMessage;
  * User: vsergeev
  * Date: 15.02.13
  */
-public abstract class AbstractVacationApprovalSender extends AbstractSenderWithAssistants<VacationApproval>{
+public abstract class AbstractVacationSender<T> extends AbstractSenderWithAssistants<T>{
 
     private static final String DEFAULT_VACATION_APPROVAL_MAIL_MARKER = "[VACATION REQUEST]";
 
-    public AbstractVacationApprovalSender(SendMailService sendMailService, TSPropertyProvider propertyProvider) {
+    public AbstractVacationSender(SendMailService sendMailService, TSPropertyProvider propertyProvider) {
         super(sendMailService, propertyProvider);
     }
 
