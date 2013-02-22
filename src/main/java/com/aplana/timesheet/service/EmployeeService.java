@@ -2,9 +2,7 @@ package com.aplana.timesheet.service;
 
 import com.aplana.timesheet.constants.TimeSheetConstants;
 import com.aplana.timesheet.dao.EmployeeDAO;
-import com.aplana.timesheet.dao.entity.Division;
-import com.aplana.timesheet.dao.entity.Employee;
-import com.aplana.timesheet.dao.entity.Permission;
+import com.aplana.timesheet.dao.entity.*;
 import com.aplana.timesheet.enums.PermissionsEnum;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
@@ -15,8 +13,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Nullable;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class EmployeeService {
@@ -163,5 +160,35 @@ public class EmployeeService {
 
     public Boolean isLineManager(Employee employee) {
         return employeeDAO.isLineManager(employee);
+    }
+
+    /**
+     * Получаем список менеджеров, которые еще не приняли решение по отпуску
+     */
+    public List<Employee> getProjectManagersThatDoesntApproveVacation(Project project, Vacation vacation) {
+        return employeeDAO.getProjectManagersThatDoesntApproveVacation(project, vacation);
+    }
+
+    /**
+     * получаем список младших (тимлиды, ведущие аналитики) руководителей проектов, на которых сотрудник планирует свою занятость в даты отпуска.
+     */
+    public Map<Employee, List<Project>> getJuniorProjectManagersAndProjects(List<Project> employeeProjects, final Vacation vacation) {
+        Map<Employee, List<Project>> managersAndProjects = new HashMap<Employee, List<Project>>();
+        for (Project project : employeeProjects) {
+            if (! vacation.getEmployee().getId().equals(project.getManager().getId())) {        //если оформляющий отпуск - руководитель этого проекта, то по этому проекту писем не рассылаем
+                List<Employee> managers = getProjectManagersThatDoesntApproveVacation(project, vacation);
+                for (Employee manager : managers) {
+                    if (! manager.getId().equals(vacation.getEmployee().getId())) {       //отсеиваем сотрудника, если он сам руководитель
+                        if (managersAndProjects.containsKey(manager)) {
+                            managersAndProjects.get(manager).add(project);
+                        } else {
+                            managersAndProjects.put(manager, Arrays.asList(project));
+                        }
+                    }
+                }
+            }
+        }
+
+        return managersAndProjects;
     }
 }

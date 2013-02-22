@@ -274,8 +274,8 @@ public class SendMailService{
         return vacationApprovalService.getVacationApprovalEmailList(vacationId);
     }
 
-    public List<ProjectParticipant> getProjectParticipantsOfManagersThatDoesntApproveVacation(Project project, Vacation vacation) {
-        return projectParticipantService.getProjectParticipantsOfManagersThatDoesntApproveVacation(project, vacation);
+    public Map<Employee, List<Project>> getJuniorProjectManagersAndProjects(Project project, Vacation vacation) {
+        return employeeService.getJuniorProjectManagersAndProjects(Arrays.asList(project), vacation);
     }
 
     public EmployeeAssistant getEmployeeAssistant(Employee employee) {
