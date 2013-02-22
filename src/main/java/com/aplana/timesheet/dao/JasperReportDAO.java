@@ -31,7 +31,7 @@ import static com.aplana.timesheet.enums.VacationStatusEnum.APPROVED;
 @Repository
 public class JasperReportDAO {
 
-    public static final String HOURS_WITH_PERCENTS = " ч. (%)";
+    public static final String HOURS_WITH_PERCENTS = ", ч. (%)";
     private DecimalFormat doubleFormat = new DecimalFormat("#.##");
 
     private static Map<Class, String[]> fieldsMap = new HashMap<Class, String[]>( 6 );
