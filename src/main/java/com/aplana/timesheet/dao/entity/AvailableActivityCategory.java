@@ -33,7 +33,18 @@ public class AvailableActivityCategory {
     @ForeignKey(name = "FK_ACTIVITY_CATEGORY")
 	private DictionaryItem actCat;
 
-	public Integer getId() {
+    @Column(name = "description")
+    private String description;
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public Integer getId() {
 		return id;
 	}
 

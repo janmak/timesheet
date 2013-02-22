@@ -61,4 +61,10 @@ public class AvailableActivityCategoryDAO {
 
         return query.getResultList();
 	}
+
+    @Transactional(readOnly = true)
+    public List<AvailableActivityCategory> getAllAvailableActivityCategories(){
+        Query query = entityManager.createQuery("from AvailableActivityCategory as aac");
+        return query.getResultList();
+    }
 }

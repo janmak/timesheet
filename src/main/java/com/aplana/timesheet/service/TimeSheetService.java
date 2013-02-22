@@ -1,5 +1,6 @@
 package com.aplana.timesheet.service;
 
+import com.aplana.timesheet.dao.AvailableActivityCategoryDAO;
 import com.aplana.timesheet.dao.EmployeeDAO;
 import com.aplana.timesheet.dao.HolidayDAO;
 import com.aplana.timesheet.dao.TimeSheetDAO;
@@ -33,10 +34,10 @@ public class TimeSheetService {
     private TimeSheetDAO timeSheetDAO;
 
     @Autowired
-    private HolidayDAO holidayDAO;
+    private EmployeeDAO employeeDAO;
 
     @Autowired
-    private EmployeeDAO employeeDAO;
+    AvailableActivityCategoryDAO availableActivityCategoryDAO;
 
     @Autowired
     private CalendarService calendarService;
@@ -255,5 +256,22 @@ public class TimeSheetService {
 
     public List<TimeSheet> getTimeSheetsForEmployee(Employee employee, Integer year, Integer month) {
         return timeSheetDAO.getTimeSheetsForEmployee(employee, year, month);
+    }
+
+    public String getListOfActDescriptoin(){
+        List<AvailableActivityCategory> availableActivityCategories = availableActivityCategoryDAO.getAllAvailableActivityCategories();
+        StringBuilder result = new StringBuilder();
+        result.append("[");
+        for (AvailableActivityCategory activityCategory : availableActivityCategories){
+            result.append("{");
+            result.append("actCat:'" + activityCategory.getActCat().getId() + "', ");
+            result.append("actType:'" + activityCategory.getActType().getId() + "', ");
+            result.append("projectRole:'" + activityCategory.getProjectRole().getId() + "', ");
+            result.append("description:'" + activityCategory.getDescription() + "'");
+            result.append("}, ");
+        }
+        result.append("{actCat:'0', actType:'0', projectRole:'0', description:'Описание не определено'}");
+        result.append("]");
+        return result.toString();
     }
 }
