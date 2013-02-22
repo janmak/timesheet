@@ -278,7 +278,7 @@
 <h1><fmt:message key="title.timesheet"/></h1>
 
 <div id="dialogOne" data-dojo-type="dijit.Dialog" title="" style="display: none;">
-    <div data-dojo-type="dijit.layout.ContentPane" style="width: 450px; height: 200px;">
+    <div data-dojo-type="dijit.layout.ContentPane" style="width: 500px; height: 200px;">
         <div style="margin-bottom: 3px;">Выберите причину</div>
         <div id="overtimeCause" onChange="overtimeCauseChange(this)" data-dojo-type="dijit.form.Select"
              style="width: 100%;"></div>

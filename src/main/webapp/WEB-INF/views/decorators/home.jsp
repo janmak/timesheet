@@ -8,6 +8,8 @@
 <html>
 
 <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=EmulateIE8">
+
     <c:if test="${NoPageFormat == null}">
         <%@ include file="../includes/meta.jsp" %>
         <%@ include file="../includes/style.jsp" %>

@@ -81,14 +81,14 @@
 <form:form method="post" commandName="vacationsForm" name="mainForm">
     <form:hidden path="vacationId" />
 
-    <span class="label">Подразделение</span>
+    <span class="label">Подразделение:</span>
     <form:select path="divisionId" id="divisionId" onchange="divisionChange(this)" class="without_dojo"
                  onmouseover="tooltip.show(getTitle(this));" onmouseout="tooltip.hide();">
         <form:option label="" value="0"/>
         <form:options items="${divisionList}" itemLabel="name" itemValue="id"/>
     </form:select>
 
-    <span class="label">Отчет сотрудника</span>
+    <span class="label">Отчет:</span>
     <form:select path="employeeId" id="employeeId" class="without_dojo" onmouseover="tooltip.show(getTitle(this));"
                  onmouseout="tooltip.hide();" onchange="setDefaultEmployeeJob(-1);">
         <form:option items="${employeeList}" label="" value="0"/>

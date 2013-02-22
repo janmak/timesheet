@@ -106,7 +106,9 @@ function createLayout(/* Array */ headerViews) {
         layout.push(view);
 
         var nogroups = (!dojo.isArray(headerView.groups) || headerView.groups.length === 0);
-        var cellStyles = (view.noscroll === true || nogroups) ? undefined : "padding-left: 1px; padding-right: 1px;";
+        var measure = "px";
+        var padding = (dojo.isWebKit ? 1 : 1.25) + measure;
+        var cellStyles = (view.noscroll === true || nogroups) ? undefined : "padding-left: " + padding + "; padding-right: " + padding + ";";
 
         dojo.forEach(headerView.cells, function(cell) {
             view.cells.push({
@@ -172,7 +174,7 @@ function createLayout(/* Array */ headerViews) {
                         var width = 0;
 
                         dojo.forEach(this.childs, function(child) {
-                            width += parseInt(child.width);
+                            width += parseFloat(child.width);
                         });
 
                         this.headerStyles = "width: " + width + "px;";

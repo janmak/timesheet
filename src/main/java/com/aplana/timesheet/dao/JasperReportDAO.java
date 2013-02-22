@@ -31,6 +31,7 @@ import static com.aplana.timesheet.enums.VacationStatusEnum.APPROVED;
 @Repository
 public class JasperReportDAO {
 
+    public static final String HOURS_WITH_PERCENTS = ", ч. (%)";
     private DecimalFormat doubleFormat = new DecimalFormat("#.##");
 
     private static Map<Class, String[]> fieldsMap = new HashMap<Class, String[]>( 6 );
@@ -710,13 +711,15 @@ public class JasperReportDAO {
 
                         // Подсчёт по регионам
                         for (Map.Entry<String, Double> region : regions.entrySet()) {
-                            dataSource.add(this.report7DataSourceRow(period, projectName, "По Регионам", (String) region.getKey().concat(", ч. (%)"),
+                            final String regionHoursAndPercents = region.getKey().concat(HOURS_WITH_PERCENTS);
+
+                            dataSource.add(this.report7DataSourceRow(period, projectName, "По Регионам", (String) regionHoursAndPercents,
                                     this.report7GenerateValue(region.getValue(), durationPeriod)));
                             // Посчитаем для итого
-                            if (periodRegions.get(region.getKey().concat(", ч. (%)")) == null) {
-                                periodRegions.put(region.getKey().concat(" ч. (%)"), region.getValue());
+                            if (periodRegions.get(regionHoursAndPercents) == null) {
+                                periodRegions.put(regionHoursAndPercents, region.getValue());
                             } else {
-                                periodRegions.put(region.getKey().concat(" ч. (%)"), region.getValue() + periodRegions.get(region.getKey().concat(", ч. (%)")));
+                                periodRegions.put(regionHoursAndPercents, region.getValue() + periodRegions.get(regionHoursAndPercents));
                             }
                         }
                         if (durationPeriod > 0) {

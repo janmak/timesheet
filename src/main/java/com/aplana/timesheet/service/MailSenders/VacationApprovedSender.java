@@ -7,13 +7,16 @@ import com.aplana.timesheet.dao.entity.VacationApproval;
 import com.aplana.timesheet.enums.VacationStatusEnum;
 import com.aplana.timesheet.properties.TSPropertyProvider;
 import com.aplana.timesheet.service.SendMailService;
+import com.google.common.base.Predicate;
 import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Table;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateFormatUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -22,7 +25,7 @@ import java.util.List;
  * User: vsergeev
  * Date: 13.02.13
  */
-public class VacationApprovedSender extends AbstractVacationApprovalSender {
+public class VacationApprovedSender extends AbstractVacationApprovalSenderWithCopyToAuthor {
 
     protected static final Logger logger = LoggerFactory.getLogger(VacationApprovedSender.class);
 
@@ -31,7 +34,7 @@ public class VacationApprovedSender extends AbstractVacationApprovalSender {
     }
 
     @Override
-    protected List<Mail> getMailList(VacationApproval vacationApproval) {
+    protected List<Mail> getMainMailList(VacationApproval vacationApproval) {
         final Mail mail = new Mail();
         final Vacation vacation = vacationApproval.getVacation();
         final Employee employee = vacation.getEmployee();
@@ -42,9 +45,7 @@ public class VacationApprovedSender extends AbstractVacationApprovalSender {
         final Collection<String> ccEmails =
                 getAdditionalEmailsForRegion(employee.getRegion());
 
-        ccEmails.add(getAssistantEmail(employee));
-
-        mail.setCcEmails(ccEmails);
+        mail.setCcEmails(getNotBlankEmails(ccEmails));
 
         if (vacation.getStatus().getId().equals(VacationStatusEnum.APPROVED.getId())) {
             addApprovedContent(vacation, mail);
@@ -53,6 +54,15 @@ public class VacationApprovedSender extends AbstractVacationApprovalSender {
         }
 
         return Arrays.asList(mail);
+    }
+
+    private Iterable<String> getNotBlankEmails(Collection<String> ccEmails) {
+        return Iterables.filter(ccEmails, new Predicate<String>() {
+            @Override
+            public boolean apply(@Nullable String email) {
+                return StringUtils.isNotBlank(email);
+            }
+        });
     }
 
     private void addRejectedContent(Vacation vacation, Mail mail) {
