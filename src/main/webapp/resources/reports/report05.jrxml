@@ -25,6 +25,7 @@
 	<field name="duration" class="java.lang.Double"/>
 	<field name="description" class="java.lang.String"/>
 	<field name="problem" class="java.lang.String"/>
+	<field name="region_name" class="java.lang.String"/>
 	<group name="Group1">
 		<groupExpression><![CDATA[$F{name}]]></groupExpression>
 		<groupHeader>
@@ -32,7 +33,7 @@
 				<textField>
 					<reportElement style="Group Header 1" x="0" y="6" width="553" height="24" forecolor="#000000" backcolor="#CCCCCC"/>
 					<textElement/>
-					<textFieldExpression class="java.lang.String"><![CDATA[$F{name}]]></textFieldExpression>
+					<textFieldExpression class="java.lang.String"><![CDATA[$F{name} + ", " + $F{region_name}]]></textFieldExpression>
 				</textField>
 				<line>
 					<reportElement x="80" y="31" width="720" height="1"/>

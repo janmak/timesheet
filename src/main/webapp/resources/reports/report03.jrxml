@@ -31,6 +31,7 @@
 	<field name="duration" class="java.lang.Double"/>
 	<field name="holiday" class="java.lang.Integer"/>
 	<field name="region" class="java.lang.Integer"/>
+	<field name="region_name" class="java.lang.String"/>
 	<variable name="DurationSumGroupByName" class="java.lang.Double" resetType="Group" resetGroup="GroupByName" calculation="Sum">
 		<variableExpression><![CDATA[$F{duration}]]></variableExpression>
 	</variable>
@@ -55,12 +56,16 @@
 			<band height="30">
 				<textField>
 					<reportElement uuid="ca7c71f2-2f99-4b0b-ba2f-b18d9c0fbfb9" style="SubTitle" x="0" y="0" width="453" height="30"/>
-					<textElement/>
-					<textFieldExpression><![CDATA[$F{name} + " (" + $F{empldivision} + ")"]]></textFieldExpression>
+					<textElement>
+						<font size="16"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{name} + " (" + $F{empldivision} + ", " + $F{region_name} + ")"]]></textFieldExpression>
 				</textField>
 				<textField evaluationTime="Group" evaluationGroup="GroupByName">
 					<reportElement uuid="90d40522-fd6d-41dc-9e5b-9a344615768d" style="SubTitle" x="453" y="0" width="100" height="30"/>
-					<textElement/>
+					<textElement>
+						<font size="16"/>
+					</textElement>
 					<textFieldExpression><![CDATA[new DecimalFormat("###0.0").format($V{DurationSumGroupByName}) + "/" + new DecimalFormat("###0.0").format($V{DurationHolidaySumGroupByName})]]></textFieldExpression>
 				</textField>
 			</band>
@@ -79,12 +84,16 @@
 			<band height="20">
 				<textField>
 					<reportElement uuid="b85e323d-7065-493a-a881-07e3f90b8e6b" style="Group Header 2" x="77" y="0" width="295" height="20"/>
-					<textElement/>
+					<textElement>
+						<font isBold="false"/>
+					</textElement>
 					<textFieldExpression><![CDATA[$F{project}]]></textFieldExpression>
 				</textField>
 				<textField evaluationTime="Group" evaluationGroup="GroupByProject">
 					<reportElement uuid="77bebba4-eadf-4d25-b890-c37c5eaa0a86" style="Group Header 2" x="453" y="0" width="100" height="20"/>
-					<textElement/>
+					<textElement>
+						<font isBold="false"/>
+					</textElement>
 					<textFieldExpression><![CDATA[new DecimalFormat("###0.0").format($V{DurationSumGroupByProject}) + "/" + new DecimalFormat("###0.0").format($V{DurationHolidaySumGroupByProject})]]></textFieldExpression>
 				</textField>
 			</band>
@@ -98,14 +107,18 @@
 					<reportElement uuid="de36456d-c804-4d89-94db-66c45ac0a37d" style="Group Header 3" x="97" y="0" width="295" height="20">
 						<printWhenExpression><![CDATA[$F{taskname} != null ? Boolean.TRUE:Boolean.FALSE]]></printWhenExpression>
 					</reportElement>
-					<textElement/>
+					<textElement>
+						<font isBold="false"/>
+					</textElement>
 					<textFieldExpression><![CDATA[$F{taskname}]]></textFieldExpression>
 				</textField>
 				<textField evaluationTime="Group" evaluationGroup="GroupByTask">
 					<reportElement uuid="88bda3c3-6b92-442f-8a59-45b6816e7e9d" style="Group Header 3" x="453" y="0" width="100" height="20">
 						<printWhenExpression><![CDATA[$F{taskname} != null ? Boolean.TRUE:Boolean.FALSE]]></printWhenExpression>
 					</reportElement>
-					<textElement/>
+					<textElement>
+						<font isBold="false"/>
+					</textElement>
 					<textFieldExpression><![CDATA[new DecimalFormat("###0.0").format($V{DurationSumGroupByTask}) + "/" + new DecimalFormat("###0.0").format($V{DurationHolidaySumGroupByTask})]]></textFieldExpression>
 				</textField>
 			</band>

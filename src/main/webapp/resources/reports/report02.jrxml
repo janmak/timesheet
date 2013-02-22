@@ -3,7 +3,7 @@
 	<property name="net.sf.jasperreports.print.keep.full.text" value="true"/>
 	<property name="ireport.zoom" value="1.5"/>
 	<property name="ireport.x" value="0"/>
-	<property name="ireport.y" value="138"/>
+	<property name="ireport.y" value="26"/>
 	<import value="com.aplana.timesheet.util.DateTimeUtil"/>
 	<style name="Normal" isDefault="true" pdfFontName="arial.ttf" pdfEncoding="Cp1251"/>
 	<style name="Title" style="Normal" fontName="Arial" fontSize="26"/>
@@ -30,6 +30,7 @@
 	<field name="duration" class="java.lang.Double"/>
 	<field name="holiday" class="java.lang.Integer"/>
 	<field name="region" class="java.lang.Integer"/>
+	<field name="region_name" class="java.lang.String"/>
 	<variable name="DurationSumGroupByName" class="java.lang.Double" resetType="Group" resetGroup="GroupByName" calculation="Sum">
 		<variableExpression><![CDATA[$F{duration}]]></variableExpression>
 	</variable>
@@ -54,12 +55,16 @@
 			<band height="59">
 				<textField>
 					<reportElement uuid="dd14bbd2-0b23-4b5c-ab64-07860f73ea11" style="SubTitle" x="0" y="0" width="453" height="30"/>
-					<textElement/>
-					<textFieldExpression><![CDATA[$F{name} + " (" + $F{empldivision} + ")"]]></textFieldExpression>
+					<textElement>
+						<font size="16" isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{name} + " (" + $F{empldivision} + ", " + $F{region_name} + ")"]]></textFieldExpression>
 				</textField>
 				<textField evaluationTime="Group" evaluationGroup="GroupByName" pattern="">
 					<reportElement uuid="6e4e6704-a2b0-470f-b38b-52350f201116" style="SubTitle" x="453" y="0" width="100" height="30"/>
-					<textElement/>
+					<textElement>
+						<font size="16"/>
+					</textElement>
 					<textFieldExpression><![CDATA[new DecimalFormat("###0.0").format($V{DurationSumGroupByName}) + "/" + new DecimalFormat("###0.0").format($V{DurationHolidaySumGroupByName})]]></textFieldExpression>
 				</textField>
 			</band>
