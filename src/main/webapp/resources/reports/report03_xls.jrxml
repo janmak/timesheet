@@ -2,7 +2,7 @@
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="report4" pageWidth="842" pageHeight="595" orientation="Landscape" columnWidth="802" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="29997b36-5721-4705-a23c-3fe6cca3cb3c">
 	<property name="net.sf.jasperreports.print.keep.full.text" value="true"/>
 	<property name="ireport.zoom" value="1.5"/>
-	<property name="ireport.x" value="118"/>
+	<property name="ireport.x" value="0"/>
 	<property name="ireport.y" value="0"/>
 	<import value="com.aplana.timesheet.util.DateTimeUtil"/>
 	<style name="Normal" isDefault="true" fontSize="8" pdfFontName="arial.ttf" pdfEncoding="Cp1251"/>
@@ -30,6 +30,7 @@
 	<field name="duration" class="java.lang.Double"/>
 	<field name="holiday" class="java.lang.Integer"/>
 	<field name="region" class="java.lang.Integer"/>
+	<field name="region_name" class="java.lang.String"/>
 	<variable name="DurationSumGroup" class="java.lang.Double" resetType="Group" resetGroup="GroupByName" calculation="Sum">
 		<variableExpression><![CDATA[$F{duration}]]></variableExpression>
 	</variable>
@@ -95,9 +96,14 @@
 				<text><![CDATA[Сотрудник]]></text>
 			</staticText>
 			<staticText>
-				<reportElement uuid="30f081df-7e19-4c50-a3dc-d28593bfc203" style="Column header" x="111" y="0" width="166" height="13"/>
+				<reportElement uuid="30f081df-7e19-4c50-a3dc-d28593bfc203" style="Column header" x="111" y="0" width="99" height="13"/>
 				<textElement/>
 				<text><![CDATA[Подразделение]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="4b4efc2e-98f6-4939-9c47-54f450d1cc3c" style="Column header" x="210" y="0" width="67" height="13"/>
+				<textElement/>
+				<text><![CDATA[Регион]]></text>
 			</staticText>
 			<staticText>
 				<reportElement uuid="857955e8-c607-4f0d-9f9f-785b462ebd95" style="Column header" x="277" y="0" width="183" height="13"/>
@@ -134,9 +140,14 @@
 				<textFieldExpression><![CDATA[$F{name}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement uuid="c4868b5c-6ccc-418a-8888-fec992dd0c0e" style="ColoredDetail" x="111" y="0" width="166" height="13"/>
+				<reportElement uuid="c4868b5c-6ccc-418a-8888-fec992dd0c0e" style="ColoredDetail" x="111" y="0" width="99" height="13"/>
 				<textElement/>
 				<textFieldExpression><![CDATA[$F{empldivision}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="36166486-5a09-40ea-9e91-c8c0090e295d" style="ColoredDetail" x="210" y="0" width="67" height="13"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$F{region_name}]]></textFieldExpression>
 			</textField>
 			<textField>
 				<reportElement uuid="cddeff02-edde-47de-86b6-14ef580daf37" style="ColoredDetail" x="277" y="0" width="183" height="13"/>

@@ -29,6 +29,7 @@
 	<field name="duration" class="java.lang.Double"/>
 	<field name="holiday" class="java.lang.Integer"/>
 	<field name="region" class="java.lang.Integer"/>
+	<field name="region_name" class="java.lang.String"/>
 	<variable name="DurationSumGroup" class="java.lang.Double" resetType="Group" resetGroup="GroupByName" calculation="Sum">
 		<variableExpression><![CDATA[$F{duration}]]></variableExpression>
 	</variable>
@@ -94,9 +95,14 @@
 				<text><![CDATA[Сотрудник]]></text>
 			</staticText>
 			<staticText>
-				<reportElement uuid="d401d8e5-b875-4a7e-b3df-5315297fef80" style="Column header" x="111" y="0" width="166" height="13"/>
+				<reportElement uuid="d401d8e5-b875-4a7e-b3df-5315297fef80" style="Column header" x="111" y="0" width="109" height="13"/>
 				<textElement/>
 				<text><![CDATA[Подразделение]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="b55e2a66-5893-4eea-914d-d627b21b83c0" style="Column header" x="220" y="0" width="57" height="13"/>
+				<textElement/>
+				<text><![CDATA[Регион]]></text>
 			</staticText>
 			<staticText>
 				<reportElement uuid="42f48407-14f9-4b2f-8ba5-d24c29d331e8" style="Column header" x="277" y="0" width="206" height="13"/>
@@ -128,9 +134,14 @@
 				<textFieldExpression><![CDATA[$F{name}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement uuid="3841c748-624a-4267-bf3e-7af13caa4d0c" style="ColoredDetail" x="111" y="0" width="166" height="13"/>
+				<reportElement uuid="3841c748-624a-4267-bf3e-7af13caa4d0c" style="ColoredDetail" x="111" y="0" width="109" height="13"/>
 				<textElement/>
 				<textFieldExpression><![CDATA[$F{empldivision}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="9487084f-64e5-4da8-8757-5f8e1476642f" style="ColoredDetail" x="220" y="0" width="57" height="13"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$F{region_name}]]></textFieldExpression>
 			</textField>
 			<textField>
 				<reportElement uuid="5d9b0d09-7c4a-4310-8024-182d6fdf6d34" style="ColoredDetail" x="277" y="0" width="206" height="13"/>

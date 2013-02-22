@@ -40,13 +40,13 @@ public class JasperReportDAO {
         fieldsMap.put( Report01.class, new String[] { "id", "name", "caldate", "projnames", "overtime", "duration",
                 "holiday", "region", "projdetail", "durationdetail", "region_name", "vacation", "illness" } );
         fieldsMap.put( Report02.class, new String[] { "name", "empldivision", "project",
-                "taskname", "duration", "holiday", "region" } );
+                "taskname", "duration", "holiday", "region", "region_name" } );
         fieldsMap.put( Report03.class, new String[] { "name", "empldivision", "project", "taskname",
-                "caldate", "duration", "holiday", "region" } );
+                "caldate", "duration", "holiday", "region", "region_name" } );
         fieldsMap.put( Report04.class, new String[] { "date", "name", "region_name" } );
         fieldsMap.put( Report05.class, new String[] { "calDate", "name", "value", "pctName", "actType",
-                "pctRole", "taskName", "duration", "description", "problem" } );
-        fieldsMap.put( Report06.class, new String[] { "duration", "act_type", "name", "act_cat" } );
+                "pctRole", "taskName", "duration", "description", "problem", "region_name" } );
+        fieldsMap.put( Report06.class, new String[] { "duration", "act_type", "name", "act_cat", "region_name" } );
     }
 
     private static final Logger logger = LoggerFactory.getLogger(JasperReportDAO.class);
@@ -288,13 +288,15 @@ public class JasperReportDAO {
                                 "else " +
                                     "case when h.region.id is not null and h.region.id<>empl.region.id then 0 " +
                                     "else 1 end end), " +
-                                "max(h.region.id) " +
+                                "max(h.region.id), " +
+                                "r.name " +
                         "FROM TimeSheetDetail tsd " +
                             "join tsd.timeSheet ts " +
                             "join ts.employee empl " +
                             "join ts.calDate c " +
                             "join empl.division d " +
                             "join tsd.project p " +
+                            "join empl.region r " +
                             "left outer join tsd.projectTask as pt " +
                             "left outer join c.holidays h " +
                             " %s " +
@@ -302,7 +304,7 @@ public class JasperReportDAO {
                             "tsd.duration > 0 AND " +
                             " %s %s %s %s" +
                             "c.calDate between :beginDate AND :endDate " +
-                        "GROUP BY empl.name, d.name, p.name, pt.cqId, 6 " +
+                        "GROUP BY empl.name, d.name, p.name, pt.cqId, 6, r.name " +
                         "ORDER BY empl.name, p.name, pt.cqId ";
 
     private List getResultList( Report02 report ) {
@@ -368,13 +370,15 @@ public class JasperReportDAO {
                                 "case when h.region.id is not null and h.region.id<>empl.region.id then 0 " +
                                 "else 1 end " +
                             "end), " +
-                            "h.region.id " +
+                            "h.region.id, " +
+                            "r.name " +
                     "FROM TimeSheetDetail tsd " +
                         "join tsd.timeSheet ts " +
                         "join ts.employee empl " +
                         "join ts.calDate c " +
                         "join empl.division d " +
                         "join tsd.project p " +
+                        "join empl.region r " +
                         "left outer  join tsd.projectTask as pt " +
                         "left outer join c.holidays h " +
                         "%s " +
@@ -382,7 +386,7 @@ public class JasperReportDAO {
                         "tsd.duration > 0 AND " +
                         "%s %s %s %s " +
                         "c.calDate between :beginDate AND :endDate " +
-                    "GROUP BY empl.name, d.name, p.name, pt.cqId, c.calDate, h.id, h.region.id, empl.region.id " +
+                    "GROUP BY empl.name, d.name, p.name, pt.cqId, c.calDate, h.id, h.region.id, empl.region.id, r.name " +
                     "ORDER BY empl.name, p.name, pt.cqId, c.calDate ";
 
     private List getResultList( Report03 report ) {
@@ -514,12 +518,14 @@ public class JasperReportDAO {
                         "COALESCE(pt.cqId, ''), " +
                         "td.duration, " +
                         "td.description, " +
-                        "td.problem " +
+                        "td.problem, " +
+                        "r.name " +
                 "from TimeSheetDetail td " +
                     "left outer join td.projectTask as pt " +
                     "inner join td.timeSheet ts " +
                     "inner join ts.employee empl " +
                     "join empl.division d " +
+                    "join empl.region r " +
                 "where " +
                     ( withDivisionClause ? DIVISION_CLAUSE : WITHOUT_CLAUSE ) +
                     ( withRegionClause   ? REGION_CLAUSE   : WITHOUT_CLAUSE ) +
@@ -553,11 +559,13 @@ public class JasperReportDAO {
                         "sum(tsd.duration), " +
                         "act.projectRole.name, " +
                         "tsd.timeSheet.employee.name, " +
-                        "tsd.actCat.value " +
+                        "tsd.actCat.value, " +
+                        "r.name " +
                 "FROM " +
                         "TimeSheetDetail tsd, " +
                         "AvailableActivityCategory act " +
                         "join tsd.timeSheet.employee empl " +
+                        "join empl.region r " +
                 "WHERE " +
                         "tsd.actType=act.actType AND " +
                         "tsd.actCat=act.actCat AND " +
@@ -565,7 +573,7 @@ public class JasperReportDAO {
                         (withProjectClause ? PROJECT_CLAUSE : WITHOUT_CLAUSE) +
                         "tsd.timeSheet.calDate.calDate between :beginDate AND :endDate AND " +
                         "act.projectRole=tsd.timeSheet.employee.job " +
-                "GROUP BY act.projectRole.name, tsd.timeSheet.employee.name, tsd.actCat.value " +
+                "GROUP BY act.projectRole.name, tsd.timeSheet.employee.name, tsd.actCat.value, r.name " +
                 "ORDER BY tsd.timeSheet.employee.name asc");
 
         if (withRegionClause)
