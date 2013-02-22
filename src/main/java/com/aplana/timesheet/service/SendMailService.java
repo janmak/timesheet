@@ -1,6 +1,5 @@
 package com.aplana.timesheet.service;
 
-import com.aplana.timesheet.dao.VacationDAO;
 import com.aplana.timesheet.dao.entity.*;
 import com.aplana.timesheet.enums.ProjectRolesEnum;
 import com.aplana.timesheet.enums.TypesOfActivityEnum;
@@ -16,10 +15,8 @@ import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
-import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Multimap;
 import org.apache.commons.lang.StringUtils;
 import org.apache.velocity.app.VelocityEngine;
 import org.slf4j.Logger;
@@ -30,8 +27,6 @@ import org.springframework.ui.velocity.VelocityEngineUtils;
 
 import javax.annotation.Nullable;
 import java.util.*;
-
-import static com.aplana.timesheet.enums.ProjectRolesEnum.getById;
 
 @Service
 public class SendMailService{
@@ -93,13 +88,11 @@ public class SendMailService{
     @Autowired
     private OvertimeCauseService overtimeCauseService;
     @Autowired
-    private VacationDAO vacationDAO;
-    @Autowired
-    private CalendarService calendarService;
-    @Autowired
     private VacationApprovalService vacationApprovalService;
     @Autowired
     private ProjectParticipantService projectParticipantService;
+    @Autowired
+    private EmployeeAssistantService employeeAssistantService;
 
 
     /**
@@ -281,8 +274,12 @@ public class SendMailService{
         return vacationApprovalService.getVacationApprovalEmailList(vacationId);
     }
 
-    public List<ProjectParticipant> getProjectParticipantsOfManagersThatDoesntApproveVacation(Project project, Vacation vacation) {
-        return projectParticipantService.getProjectParticipantsOfManagersThatDoesntApproveVacation(project, vacation);
+    public Map<Employee, List<Project>> getJuniorProjectManagersAndProjects(Project project, Vacation vacation) {
+        return employeeService.getJuniorProjectManagersAndProjects(Arrays.asList(project), vacation);
+    }
+
+    public EmployeeAssistant getEmployeeAssistant(Employee employee) {
+        return employeeAssistantService.tryFind(employee);
     }
 
     interface RenameMe {

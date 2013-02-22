@@ -306,7 +306,7 @@ public abstract class AbstractVacationApprovalProcessService {
 
         for (Project project : projects) {
             Employee manager = project.getManager();
-            tryAddNewEmployeeToApprovals(vacation, requestDate, approvals, null, manager);
+            tryAddNewManagerToApprovalResults(vacation, requestDate, approvals, manager, Lists.newArrayList(project));
         }
 
         return approvals;
@@ -316,22 +316,21 @@ public abstract class AbstractVacationApprovalProcessService {
      * создаем заготовки для писем о согласовании отпуска для младших менеджеров на проекте (тимлид, старший аналитик, заместители...)
      */
     private Map<String, VacationApproval> prepareJuniorProjectManagersVacationApprovals(List<Project> projects, Vacation vacation) throws CalendarServiceException {
-        List<ProjectParticipant> juniorManagerProjectParticipants =
-                Lists.newArrayList(projectParticipantService.getJuniorProjectManagerProjectParticipants(projects, vacation));
+        Map<Employee, List<Project>> juniorProjectManagersAndProjects =
+                employeeService.getJuniorProjectManagersAndProjects(projects, vacation);
 
-        return createJuniorManagersVacationApprovals(juniorManagerProjectParticipants, vacation);
+        return createJuniorManagersVacationApprovals(juniorProjectManagersAndProjects, vacation);
     }
 
     /**
      * Создаем записи для утверждения отпусков младшими менеджерами в таблицах.
      */
-    private Map<String, VacationApproval> createJuniorManagersVacationApprovals(List<ProjectParticipant> employeeProjectManagersProjectParticipants, Vacation vacation) {
+    private Map<String, VacationApproval> createJuniorManagersVacationApprovals(Map<Employee, List<Project>> juniorProjectManagersAndProjects, Vacation vacation) {
         Date requestDate = new Date();
         Map<String, VacationApproval> approvals = new HashMap<String, VacationApproval>();
 
-        for (ProjectParticipant projectParticipant : employeeProjectManagersProjectParticipants) {
-            Employee manager = projectParticipant.getEmployee();
-            tryAddNewEmployeeToApprovals(vacation, requestDate, approvals, projectParticipant, manager);
+        for (Employee manager : juniorProjectManagersAndProjects.keySet()) {
+            tryAddNewManagerToApprovalResults(vacation, requestDate, approvals, manager, juniorProjectManagersAndProjects.get(manager));
         }
 
         return approvals;
@@ -342,16 +341,18 @@ public abstract class AbstractVacationApprovalProcessService {
      * для тимлидов и старших аналитиков обязательно указать связь с таблицей project_participant
      * для руководителей проектов эта связь всегда будет null, т.к. их в таблице project_participant нет
      */
-    private void tryAddNewEmployeeToApprovals(Vacation vacation, Date requestDate, Map<String, VacationApproval> approvals,
-                                              ProjectParticipant projectParticipant, Employee manager) {
-        VacationApproval vacationApproval = (approvals.get(manager.getEmail()) != null) ?
-                approvals.get(manager.getEmail()) : addNewVacationApproval(approvals, vacation, requestDate, manager);
+    private void tryAddNewManagerToApprovalResults(Vacation vacation, Date requestDate, Map<String, VacationApproval> approvals,
+                                                   Employee manager, List<Project> projects) {
+        for (Project project : projects) {
+            VacationApproval vacationApproval = (approvals.get(manager.getEmail()) != null) ?
+                    approvals.get(manager.getEmail()) : addNewVacationApproval(approvals, vacation, requestDate, manager);
 
-        VacationApprovalResult vacationApprovalResult = new VacationApprovalResult();
-        vacationApprovalResult.setProjectParticipant(projectParticipant);
-        vacationApprovalResult.setVacationApproval(vacationApproval);
+            VacationApprovalResult vacationApprovalResult = new VacationApprovalResult();
+            vacationApprovalResult.setProject(project);
+            vacationApprovalResult.setVacationApproval(vacationApproval);
 
-        vacationApprovalResultService.store(vacationApprovalResult);
+            vacationApprovalResultService.store(vacationApprovalResult);
+        }
     }
 
     /**

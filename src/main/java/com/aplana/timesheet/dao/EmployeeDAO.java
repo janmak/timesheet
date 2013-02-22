@@ -2,6 +2,8 @@ package com.aplana.timesheet.dao;
 
 import com.aplana.timesheet.dao.entity.Division;
 import com.aplana.timesheet.dao.entity.Employee;
+import com.aplana.timesheet.dao.entity.Project;
+import com.aplana.timesheet.dao.entity.Vacation;
 import com.google.common.collect.Iterables;
 import org.hibernate.Hibernate;
 import org.slf4j.Logger;
@@ -381,5 +383,19 @@ public class EmployeeDAO {
                 .setParameter("employee", employee)
                 .getSingleResult();
         return slavesCount > 0;
+    }
+
+    /**
+     * Получаем младших менеджеров проекта (тимлиды, ведущие аналитики), которые еще не ответили на письмо о согласовании отпуска
+     */
+    public List<Employee> getProjectManagersThatDoesntApproveVacation(Project project, Vacation vacation) {
+        Query query = entityManager.createQuery("select pp.employee from ProjectParticipant as pp " +
+                "where pp.project = :project and pp.projectRole.id = :roleId and pp.employee not in " +
+                "(select va.manager from VacationApproval as va where va.vacation = :vacation and va.result is not null)")
+                .setParameter("project", project)
+                .setParameter("roleId", vacation.getEmployee().getJob().getId())
+                .setParameter("vacation", vacation);
+
+        return query.getResultList();
     }
 }

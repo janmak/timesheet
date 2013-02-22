@@ -21,8 +21,8 @@ public class VacationApprovalResult {
     private VacationApproval vacationApproval;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "project_participant_id", columnDefinition = "INTEGER")
-    private ProjectParticipant projectParticipant;
+    @JoinColumn(name = "project_id", columnDefinition = "INTEGER")
+    private Project project;
 
     public Integer getId() {
         return id;
@@ -40,11 +40,11 @@ public class VacationApprovalResult {
         this.vacationApproval = vacationApproval;
     }
 
-    public ProjectParticipant getProjectParticipant() {
-        return projectParticipant;
+    public Project getProject() {
+        return project;
     }
 
-    public void setProjectParticipant(ProjectParticipant projectParticipant) {
-        this.projectParticipant = projectParticipant;
+    public void setProject(Project project) {
+        this.project = project;
     }
 }

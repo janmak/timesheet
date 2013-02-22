@@ -1,9 +1,10 @@
 package com.aplana.timesheet.service.vacationapproveprocess;
 
-import com.aplana.timesheet.dao.entity.*;
-import com.aplana.timesheet.exception.service.CalendarServiceException;
+import com.aplana.timesheet.dao.entity.Employee;
+import com.aplana.timesheet.dao.entity.Project;
+import com.aplana.timesheet.dao.entity.Vacation;
+import com.aplana.timesheet.dao.entity.VacationApproval;
 import com.aplana.timesheet.exception.service.VacationApprovalServiceException;
-import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -66,28 +67,22 @@ public class VacationApprovalProcessService extends AbstractVacationApprovalProc
      * Рассылаем уведомления о согласовании отпуска задним числом
      * (такой отпуск создается уполномоченным сотрудником и не нуждается в согласовании)
      */
-    public void sendBackDateVacationApproved (Vacation vacation) throws VacationApprovalServiceException {
-        try {
-            Map<String, Employee> managers = new HashMap<String, Employee>();
-            List<Project> projects = projectService.getProjectsForVacation(vacation);
-            List<ProjectParticipant> juniorManagerProjectParticipants =
-                    Lists.newArrayList(projectParticipantService.getJuniorProjectManagerProjectParticipants(projects, vacation));
-            for (ProjectParticipant projectParticipant : juniorManagerProjectParticipants) {
-                managers.put(projectParticipant.getEmployee().getEmail(), projectParticipant.getEmployee());
-            }
-            for (Project project : projects) {
-                managers.put(project.getManager().getEmail(), project.getManager());
-            }
+    public void sendBackDateVacationApproved (Vacation vacation) {
+        Map<String, Employee> managers = new HashMap<String, Employee>();
+        List<Project> projects = projectService.getProjectsForVacation(vacation);
+        Map<Employee, List<Project>> juniorManagerProjectParticipants =
+                (employeeService.getJuniorProjectManagersAndProjects(projects, vacation));
+        for (Employee manager : juniorManagerProjectParticipants.keySet()) {
+            managers.put(manager.getEmail(), manager);
+        }
+        for (Project project : projects) {
+            managers.put(project.getManager().getEmail(), project.getManager());
+        }
 
-            List<VacationApproval> tempVacationApprovals = createTempVacationApprovals(managers, vacation);
+        List<VacationApproval> tempVacationApprovals = createTempVacationApprovals(managers, vacation);
 
-            for (VacationApproval vacationApproval : tempVacationApprovals) {
-                sendMailService.performVacationApprovedSender(vacationApproval);
-            }
-
-        } catch (CalendarServiceException ex) {
-            logger.error(ex.getMessage(), ex);
-            throw new VacationApprovalServiceException(ex);
+        for (VacationApproval vacationApproval : tempVacationApprovals) {
+            sendMailService.performVacationApprovedSender(vacationApproval);
         }
     }
 

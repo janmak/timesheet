@@ -8,7 +8,6 @@ import com.aplana.timesheet.util.DateTimeUtil;
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.velocity.VelocityEngineUtils;
 
 import javax.annotation.Nullable;
@@ -16,9 +15,9 @@ import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import java.util.*;
 
-import static com.aplana.timesheet.util.DateTimeUtil.*;
+import static com.aplana.timesheet.util.DateTimeUtil.formatDateString;
 
-public class TimeSheetDeletedSender extends MailSender<TimeSheet> {
+public class TimeSheetDeletedSender extends AbstractSenderWithAssistants<TimeSheet> {
 
     public TimeSheetDeletedSender(SendMailService sendMailService, TSPropertyProvider propertyProvider) {
         super(sendMailService, propertyProvider);
@@ -47,14 +46,16 @@ public class TimeSheetDeletedSender extends MailSender<TimeSheet> {
 
     @Override
     protected List<Mail> getMailList(TimeSheet params) {
+        final Employee employee = params.getEmployee();
         logger.info("Performing mailing about deleted timesheet.");
         Mail mail = new Mail();
         mail.setFromEmail(propertyProvider.getMailFromAddress());
         mail.setToEmails(getToEmails(params));
-        mail.setEmployeeList(Arrays.asList(params.getEmployee()));
+        mail.setCcEmails(Arrays.asList(getAssistantEmail(employee)));
+        mail.setEmployeeList(Arrays.asList(employee));
         String date = DateTimeUtil.formatDate(params.getCalDate().getCalDate());
         mail.setDate(date);
-        mail.setSubject(getSubject(params.getEmployee(), date ));
+        mail.setSubject(getSubject(employee, date ));
         //APLANATS-574 дополняем бэкапом
         mail.setPreconstructedMessageBody(sendMailService.initMessageBodyForReport(params));
         return Arrays.asList(mail);

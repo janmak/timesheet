@@ -228,7 +228,7 @@ public class ProjectDAO {
      * получаем список проектов пользователя, руководители которых должны подтвердить заявление на отпуск
      */
     public List<Project> getProjectsAssignedToVacation(Vacation vacation) {
-        Query query = entityManager.createQuery("select distinct var.projectParticipant.project from VacationApprovalResult as var " +
+        Query query = entityManager.createQuery("select distinct var.project from VacationApprovalResult as var " +
                 "where var.vacationApproval.vacation = :vacation")
                 .setParameter("vacation", vacation);
 
