@@ -95,6 +95,7 @@ public class TimeSheetController {
         mav.addObject("selectedProjectsJson", "[{row:'0', project:''}]");
         mav.addObject("selectedWorkplaceJson", "[{row:'0', workplace:''}]");
         mav.addObject("selectedActCategoriesJson", "[{row:'0', actCat:''}]");
+        mav.addObject("listOfActDescriptionJson", getListOfActDescriptoin());
         mav.addObject("getDateByDefault", getDateByDefault(tsForm.getEmployeeId()));
         mav.addObject("getFirstWorkDate", getEmployeeFirstWorkDay(tsForm.getEmployeeId()));
 
@@ -141,6 +142,7 @@ public class TimeSheetController {
             mavWithErrors.addObject("selectedCalDateJson", getSelectedCalDateJson(tsForm));
             mavWithErrors.addObject("getDateByDefault", getDateByDefault(tsForm.getEmployeeId()));
             mavWithErrors.addObject("getFirstWorkDate", getEmployeeFirstWorkDay(tsForm.getEmployeeId()));
+            mavWithErrors.addObject("listOfActDescription", getListOfActDescriptoin());
             mavWithErrors.addAllObjects(getListsToMAV());
 
             return mavWithErrors;
@@ -458,4 +460,9 @@ public class TimeSheetController {
     public String getPlans(@RequestParam("date") String date, @RequestParam("employeeId") Integer employeeId) {
         return timeSheetService.getPlansJson(date, employeeId);
     }
+
+    public String getListOfActDescriptoin(){
+        return timeSheetService.getListOfActDescriptoin();
+    }
+
 }

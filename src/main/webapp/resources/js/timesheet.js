@@ -157,10 +157,16 @@ function addNewRow() {
     var actCatSelect = dojo.doc.createElement("select");
     dojo.attr(actCatSelect, {
         id:"activity_category_id_" + newRowIndex,
-        name:"timeSheetTablePart[" + newRowIndex + "].activityCategoryId"
+        name:"timeSheetTablePart[" + newRowIndex + "].activityCategoryId",
+        onchange:"setActDescription(" + newRowIndex + ")"
     });
     insertEmptyOption(actCatSelect);
     actCatCell.appendChild(actCatSelect);
+    var labelDescription = dojo.doc.createElement("label");
+    dojo.attr(labelDescription, {
+        id:"act_description_" + newRowIndex
+    })
+    actCatCell.appendChild(labelDescription);
     // Ячейка с проектными задачами
     var projectTasksCell = newTsRow.insertCell(7);
     dojo.addClass(projectTasksCell, "top_align");
@@ -236,6 +242,22 @@ function addNewRow() {
     dojo.connect(durationInput, "onchange", durationInput, checkDuration);
     dojo.connect(descriptionTextarea, "onkeyup", descriptionTextarea, textareaAutoGrow);
     dojo.connect(problemTextarea, "onkeyup", problemTextarea, textareaAutoGrow);
+}
+
+function setActDescription(rowIndex){
+    var actCat = (dojo.byId("activity_category_id_" + rowIndex)).value;
+    var actType = (dojo.byId("activity_type_id_" + rowIndex)).value;
+    var projectRole = (dojo.byId("project_role_id_" + rowIndex)).value;
+    var label = dojo.byId("act_description_" + rowIndex);
+    for (var i = 0; i < listOfActDescription.length; i++) {
+        if (listOfActDescription[i].actCat == actCat &&
+            listOfActDescription[i].actType == actType &&
+            listOfActDescription[i].projectRole == projectRole )
+        {
+            label.innerHTML = listOfActDescription[i].description;
+            break;
+        }
+    }
 }
 
 function setDefaultSelectEvents(obj) {

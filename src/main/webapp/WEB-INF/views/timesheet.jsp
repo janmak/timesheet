@@ -36,6 +36,7 @@
         var selectedActCategories = ${selectedActCategoriesJson};
         var selectedWorkplace = ${selectedWorkplaceJson};
         var selectedCalDate = ${selectedCalDateJson};
+        var listOfActDescription = ${listOfActDescriptionJson};
         var dateByDefault = ${getDateByDefault};
         var firstWorkDateString =  "${getFirstWorkDate}";
             if (firstWorkDateString != null) {
