@@ -39,7 +39,7 @@
                     </ul>
                 </td>
                 <td>
-                    <span style="float: right"><a href="<c:url value='/logout'/>">Выйти из системы</a></span>
+                    <span style="float: right"><a href="<c:url value='/logout'/>">Выйти</a></span>
                 </td>
             </tr>
         </table>
