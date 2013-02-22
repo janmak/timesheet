@@ -8,7 +8,6 @@ import com.aplana.timesheet.form.TimeSheetForm;
 import com.aplana.timesheet.form.TimeSheetTableRowForm;
 import com.aplana.timesheet.properties.TSPropertyProvider;
 import com.aplana.timesheet.service.SendMailService;
-import com.aplana.timesheet.util.DateTimeUtil;
 import com.google.common.base.Function;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Iterables;
@@ -64,9 +63,8 @@ public class TimeSheetSender extends MailSender<TimeSheetForm> {
     @Override
     protected List<Mail> getMailList(TimeSheetForm params) {
         logger.info("Performing timesheet mailing.");
-        Mail mail = new Mail();
+        Mail mail = new TimeSheetMail();
 
-        mail.setFromEmail(sendMailService.getEmployeeEmail(params.getEmployeeId()));
         mail.setToEmails(getToEmails(params));
         mail.setSubject(getSubject(params));
         mail.setParamsForGenerateBody(getBody(params));

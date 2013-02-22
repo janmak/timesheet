@@ -35,11 +35,10 @@ public class VacationApprovedSender extends AbstractVacationApprovalSenderWithCo
 
     @Override
     protected List<Mail> getMainMailList(VacationApproval vacationApproval) {
-        final Mail mail = new Mail();
+        final Mail mail = new TimeSheetMail();
         final Vacation vacation = vacationApproval.getVacation();
         final Employee employee = vacation.getEmployee();
 
-        mail.setFromEmail(sendMailService.getEmployeeEmail(employee.getId()));
         mail.setToEmails(Arrays.asList(vacationApproval.getManager().getEmail()));
 
         final Collection<String> ccEmails =

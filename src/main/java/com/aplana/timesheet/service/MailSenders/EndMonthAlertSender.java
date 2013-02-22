@@ -42,13 +42,12 @@ public class EndMonthAlertSender extends MailSender<List<ReportCheck>> {
 
     @Override
     protected List<Mail> getMailList(List<ReportCheck> params) {
-        Mail mail = new Mail();
+        Mail mail = new TimeSheetMail();
         
         mail.setEmployeeList(getEmployees(params));
         mail.setSubject(String.format("Не забудьте списать занятость за %s", getMonthTxt(currentDay())));
         mail.setDivision(Iterables.getFirst(params, null).getDivision());
         mail.setToEmails(getToEmails(mail.getEmployeeList(), mail.getDivision()));
-        mail.setFromEmail(propertyProvider.getMailFromAddress());
         
         return Lists.newArrayList(mail);
     }

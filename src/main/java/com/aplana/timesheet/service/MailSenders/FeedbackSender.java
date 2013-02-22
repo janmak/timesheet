@@ -47,12 +47,11 @@ public class FeedbackSender extends MailSender<FeedbackForm> {
 
     @Override
     protected List<Mail> getMailList(FeedbackForm params) {
-        Mail mail = new Mail();
+        Mail mail = new TimeSheetMail();
 
         String employeeName = sendMailService.getEmployeeFIO(params.getEmployeeId());
         String employeeEmail = sendMailService.getEmployeeEmail(params.getEmployeeId());
 
-        mail.setFromEmail(employeeEmail);
         mail.setToEmails(Arrays.asList(propertyProvider.getMailProblemsAndProposalsCoaddress()));
         mail.setCcEmails(Arrays.asList(employeeEmail));
         mail.setSubject(propertyProvider.getFeedbackMarker());
