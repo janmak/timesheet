@@ -529,7 +529,7 @@ function typeActivityChange(obj) {
             value:"0"
         });
     }
-    if ((select.value == "12") || (select.value == "13") || (select.value == "14")) {
+    if ((select.value == "12") || (select.value == "13") || (select.value == "14") || (select.value == "42")) {
         dojo.removeAttr("activity_category_id_" + rowIndex, "disabled");
         dojo.removeAttr("description_id_" + rowIndex, "disabled");
         if (rowIndex == GetFirstIdDescription()) {
