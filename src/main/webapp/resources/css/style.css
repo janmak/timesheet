@@ -402,3 +402,7 @@ table.report_params td {
     color: #f58383;
 }
 
+textarea {
+    resize: none; /* Скажем "нет" произволу браузеров! */
+}
+
