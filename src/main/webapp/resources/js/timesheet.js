@@ -1432,3 +1432,7 @@ function fillEmployeeListByDivision(division) {
         fillProjectList(i, dojo.byId("activity_type_id_" + i).value);
     }
 }
+
+function getRootEventListener() {
+    return window.addEventListener || window.attachEvent ? window : document.addEventListener ? document : null;
+}

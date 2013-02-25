@@ -43,7 +43,7 @@
                 var date = firstWorkDateString.split('.');
                 var firstWorkDate = new Date(date[2], date[1]-1, date[0]);
             }
-        var root = window.addEventListener || window.attachEvent ? window : document.addEventListener ? document : null;
+        var root = getRootEventListener();
         var month = correctLength(new Date().getMonth() + 1);
 
         dojo.declare("Calendar", com.aplana.dijit.ext.Calendar, {
