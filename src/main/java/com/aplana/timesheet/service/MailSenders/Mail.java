@@ -15,6 +15,10 @@ import java.util.*;
 public abstract class Mail {
 
     private static Set<String> clearDuplicates(Iterable<String> emails) {
+        if (emails == null) {
+            return null;
+        }
+
         final Set<String> uniqueEmails = Sets.newHashSet();
 
         for (String email : emails) {
