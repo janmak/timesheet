@@ -31,8 +31,7 @@ public class ExceptionHandler implements HandlerExceptionResolver {
     protected static final Logger logger = LoggerFactory.getLogger(ExceptionHandler.class);
 
     public ModelAndView resolveException(HttpServletRequest request,
-                                         HttpServletResponse response, Object handler, Exception exception)
-    {
+                                         HttpServletResponse response, Object handler, Exception exception) {
         Map<String, Object> model = new HashMap<String, Object>();
 
         // При MaxUploadSizeExceededException не нужно отправлять письмо админу
@@ -41,25 +40,28 @@ public class ExceptionHandler implements HandlerExceptionResolver {
             return new ModelAndView("redirect:feedback", model);
         }
 
-        model.put("errors", "Unexpected error: " + exception.getMessage());
-        // получим ФИО пользователя
-        String FIO = "<не определен>";
-        TimeSheetUser securityUser = securityService.getSecurityPrincipal();
-        if (securityUser != null) {
-            int employeeId = securityUser.getEmployee().getId();
-            FIO = employeeService.find(employeeId).getName();
+        try {
+            model.put("errors", "Unexpected error: " + exception.getMessage());
+            // получим ФИО пользователя
+            String FIO = "<не определен>";
+            TimeSheetUser securityUser = securityService.getSecurityPrincipal();
+            if (securityUser != null) {
+                int employeeId = securityUser.getEmployee().getId();
+                FIO = employeeService.find(employeeId).getName();
+            }
+            // Отправим сообщение админам
+            StringBuilder sb = new StringBuilder();
+            sb.append("У пользователя " + FIO + " произошла следующая ошибка:<br>");
+            sb.append(exception.getMessage() != null ? exception.getMessage() : "");
+            sb.append("<br><br>");
+            sb.append("Stack trace: <br>");
+            sb.append(Arrays.toString(exception.getStackTrace()));
+            sendMailService.performExceptionSender(sb.toString());
+        } finally {
+            // Выведем в лог
+            logger.error("Произошла неожиданная ошибка:", exception);
+            return new ModelAndView("exception", model);
         }
-        // Отправим сообщение админам
-        StringBuilder sb = new StringBuilder();
-        sb.append("У пользователя " + FIO + " произошла следующая ошибка:<br>");
-        sb.append(exception.getMessage() != null ? exception.getMessage() : "");
-        sb.append("<br><br>");
-        sb.append("Stack trace: <br>");
-        sb.append(Arrays.toString(exception.getStackTrace()));
-        sendMailService.performExceptionSender( sb.toString() );
-        // Выведем в лог
-        logger.error("Произошла неожиданная ошибка:", exception);
-        return new ModelAndView("exception", model);
     }
 
 

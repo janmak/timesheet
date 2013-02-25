@@ -7,6 +7,8 @@ import com.aplana.timesheet.enums.PermissionsEnum;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import org.apache.velocity.app.VelocityEngine;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +19,9 @@ import java.util.*;
 
 @Service
 public class EmployeeService {
+
+    private static final Logger logger = LoggerFactory.getLogger(EmployeeService.class);
+
     @Autowired
     public VelocityEngine velocityEngine;
     @Autowired
@@ -180,9 +185,12 @@ public class EmployeeService {
                 for (Employee manager : managers) {
                     if (! manager.getId().equals(vacation.getEmployee().getId())) {       //отсеиваем сотрудника, если он сам руководитель
                         if (managersAndProjects.containsKey(manager)) {
-                            managersAndProjects.get(manager).add(project);
+                            List<Project> projects = managersAndProjects.get(manager);
+                            projects.add(project);
                         } else {
-                            managersAndProjects.put(manager, Arrays.asList(project));
+                            ArrayList<Project> projectArrayList = new ArrayList<Project>(1);
+                            projectArrayList.add(project);
+                            managersAndProjects.put(manager, projectArrayList);
                         }
                     }
                 }
