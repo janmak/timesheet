@@ -154,7 +154,7 @@ public class BusinessTripsAndIllnessController extends AbstractController{
     public ModelAndView showIllness(
             @PathVariable("employeeId") Integer employeeId,
             @ModelAttribute("businesstripsandillness") BusinessTripsAndIllnessForm businessTripsAndIllnessForm)throws BusinessTripsAndIllnessControllerException {
-        return getBusinessTripsOrIllnessReport(employeeId, QuickReportTypesEnum.BUSINESS_TRIP.getId());
+        return getBusinessTripsOrIllnessReport(employeeId, QuickReportTypesEnum.ILLNESS.getId());
     }
 
     private ModelAndView getBusinessTripsOrIllnessReport(Integer employeeId, Integer printType) throws BusinessTripsAndIllnessControllerException {
