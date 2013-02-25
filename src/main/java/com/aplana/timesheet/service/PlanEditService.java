@@ -5,13 +5,14 @@ import argo.jdom.JsonRootNode;
 import argo.jdom.JsonStringNode;
 import com.aplana.timesheet.dao.entity.*;
 import com.aplana.timesheet.enums.TSEnum;
+import com.aplana.timesheet.util.DateTimeUtil;
 import com.aplana.timesheet.util.JsonUtil;
+import org.apache.commons.lang.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.Calendar;
 
 import static com.aplana.timesheet.controller.PlanEditController.*;
 
@@ -38,6 +39,12 @@ public class PlanEditService {
     private DictionaryItemService dictionaryItemService;
 
     public void savePlans(JsonRootNode rootNode, Integer year, Integer month) {
+        final Calendar calendar = DateTimeUtil.getCalendar(year, month);
+
+        if (DateUtils.truncatedCompareTo(new Date(), calendar.getTime(), Calendar.MONTH) > 0) {
+            throw new IllegalArgumentException("Редактирование планов за предыдущий месяц запрещено");
+        }
+
         final List<EmployeePlan> employeePlans = new ArrayList<EmployeePlan>();
         final List<EmployeeProjectPlan> employeeProjectPlans = new ArrayList<EmployeeProjectPlan>();
 

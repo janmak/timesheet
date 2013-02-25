@@ -42,8 +42,10 @@ public class CreateVacationFormValidator extends AbstractValidator {
 
     @Override
     public void validate(Object o, Errors errors) {
-        final CreateVacationForm createVacationForm = (CreateVacationForm) o;
+        validate((CreateVacationForm) o, errors, false);
+    }
 
+    public void validate(CreateVacationForm createVacationForm, Errors errors, boolean approved) {
         final String calFromDate = createVacationForm.getCalFromDate();
         final String calToDate = createVacationForm.getCalToDate();
 
@@ -54,7 +56,10 @@ public class CreateVacationFormValidator extends AbstractValidator {
             final Timestamp fromDate = DateTimeUtil.stringToTimestamp(calFromDate);
             final Timestamp toDate = DateTimeUtil.stringToTimestamp(calToDate);
 
-            if (!employeeService.isEmployeeAdmin(securityService.getSecurityPrincipal().getEmployee().getId())) {
+            if (!(
+                    approved &&
+                    employeeService.isEmployeeAdmin(securityService.getSecurityPrincipal().getEmployee().getId())
+            )) {
                 final Date currentDate = new Date();
 
                 if (!fromDate.after(currentDate)) {

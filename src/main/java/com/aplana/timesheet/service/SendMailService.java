@@ -176,8 +176,8 @@ public class SendMailService{
     private String getProjectParticipantsEmails(Iterable<RenameMe> details) {
         return StringUtils.join(
                 Lists.newArrayList(Iterables.transform(
-                Iterables.filter(details, LEAVE_PRESALE_AND_PROJECTS_ONLY),
-                GET_EMAILS_OF_INTERESTED_PARTICIPANTS_FROM_PROJECT_FOR_CURRENT_ROLE))
+                        Iterables.filter(details, LEAVE_PRESALE_AND_PROJECTS_ONLY),
+                        GET_EMAILS_OF_INTERESTED_PARTICIPANTS_FROM_PROJECT_FOR_CURRENT_ROLE))
                 , ",");
     }
 
@@ -282,8 +282,8 @@ public class SendMailService{
         return employeeService.getJuniorProjectManagersAndProjects(Arrays.asList(project), vacation);
     }
 
-    public EmployeeAssistant getEmployeeAssistant(Employee employee) {
-        return employeeAssistantService.tryFind(employee);
+    public EmployeeAssistant getEmployeeAssistant(Set<String> managersEmails) {
+        return employeeAssistantService.tryFind(managersEmails);
     }
 
     interface RenameMe {
