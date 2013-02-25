@@ -46,9 +46,6 @@
         var root = window.addEventListener || window.attachEvent ? window : document.addEventListener ? document : null;
         var month = correctLength(new Date().getMonth() + 1);
 
-        // инициализация данных по выходным и отчетам для текущей даты
-        initCurrentDateInfo('${timeSheetForm.employeeId}');
-
         dojo.declare("Calendar", com.aplana.dijit.ext.Calendar, {
             getEmployeeId: function() {
                 return dojo.byId("employeeId").value;
@@ -128,6 +125,9 @@
             reloadTimeSheetState();
             recalculateDuration();
             refreshPlans(dijit.byId('calDate').value, dojo.byId('employeeId').value);
+
+            // инициализация данных по выходным и отчетам для текущей даты
+            initCurrentDateInfo('${timeSheetForm.employeeId}', dijit.byId('calDate').value);
         });
 
         function refreshPlans(date, employeeId){
