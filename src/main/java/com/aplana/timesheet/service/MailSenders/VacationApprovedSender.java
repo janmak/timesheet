@@ -41,7 +41,7 @@ public class VacationApprovedSender extends AbstractVacationSenderWithCopyToAuth
         final Collection<String> ccEmails =
                 new ArrayList<String>(getAdditionalEmailsForRegion(employee.getRegion()));
 
-        ccEmails.add(getAssistantEmail(employee));
+        ccEmails.add(getAssistantEmail(getManagersEmails(mail, employee)));
 
         mail.setCcEmails(getNotBlankEmails(ccEmails));
 

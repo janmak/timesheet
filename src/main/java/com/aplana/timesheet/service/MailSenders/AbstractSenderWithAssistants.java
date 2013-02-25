@@ -4,7 +4,10 @@ import com.aplana.timesheet.dao.entity.Employee;
 import com.aplana.timesheet.dao.entity.EmployeeAssistant;
 import com.aplana.timesheet.properties.TSPropertyProvider;
 import com.aplana.timesheet.service.SendMailService;
+import com.google.common.collect.Sets;
 import org.apache.commons.lang.StringUtils;
+
+import java.util.Set;
 
 /**
  * @author rshamsutdinov
@@ -16,9 +19,18 @@ public abstract class AbstractSenderWithAssistants<T> extends MailSender<T> {
         super(sendMailService, propertyProvider);
     }
 
-    protected final String getAssistantEmail(Employee employee) {
-        final EmployeeAssistant employeeAssistant = sendMailService.getEmployeeAssistant(employee);
+    protected final String getAssistantEmail(Set<String> managersEmails) {
+        final EmployeeAssistant employeeAssistant = sendMailService.getEmployeeAssistant(managersEmails);
 
         return (employeeAssistant == null) ? StringUtils.EMPTY : employeeAssistant.getAssistant().getEmail();
+    }
+
+    protected final Set<String> getManagersEmails(Mail mail, Employee employee) {
+        final Set<String> emails = Sets.newHashSet(mail.getToEmails());
+
+        emails.remove(employee.getEmail());
+        emails.remove(TSPropertyProvider.getMailFromAddress());
+
+        return emails;
     }
 }
