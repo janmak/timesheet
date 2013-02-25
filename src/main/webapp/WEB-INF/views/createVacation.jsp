@@ -142,7 +142,7 @@
                 <span class="label">Дата с</span>
             </td>
             <td>
-                <form:input path="calFromDate" id="calFromDate" class="date_picker" data-dojo-type="DateTextBox" required="true"
+                <form:input path="calFromDate" id="calFromDate" class="date_picker" data-dojo-type="DateTextBox"
                             onMouseOver="tooltip.show(getTitle(this));" onMouseOut="tooltip.hide();" />
             </td>
         </tr>
@@ -152,7 +152,7 @@
                 <span class="label">Дата по</span>
             </td>
             <td>
-                <form:input path="calToDate" id="calToDate" class="date_picker" data-dojo-type="DateTextBox" required="true"
+                <form:input path="calToDate" id="calToDate" class="date_picker" data-dojo-type="DateTextBox"
                             onMouseOver="tooltip.show(getTitle(this));" onMouseOut="tooltip.hide();" onChange="updateExitToWork();" />
                 <div id="exitToWork"></div>
             </td>
