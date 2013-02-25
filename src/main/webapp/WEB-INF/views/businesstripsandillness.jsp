@@ -262,10 +262,10 @@
                     <th width="160">Кол-во календарных дней</th>
                     <th width="160">Кол-во рабочих дней</th>
                     <c:choose>
-                        <c:when test="${reportFormed == 6}">
+                        <c:when test="${reportFormed == 7}">
                             <th width="160">Проектная/внепроектная</th>
                         </c:when>
-                        <c:when test="${reportFormed == 7}">
+                        <c:when test="${reportFormed == 6}">
                             <th width="160">Основание</th>
                         </c:when>
                     </c:choose>
