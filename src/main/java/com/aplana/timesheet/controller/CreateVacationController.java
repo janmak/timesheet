@@ -131,15 +131,16 @@ public class CreateVacationController {
             @ModelAttribute(CREATE_VACATION_FORM) CreateVacationForm createVacationForm,
             BindingResult bindingResult
     ) throws VacationApprovalServiceException {
-        createVacationFormValidator.validate(createVacationForm, bindingResult);
-
         final Employee employee = employeeService.find(employeeId);
+        final Employee curEmployee = securityService.getSecurityPrincipal().getEmployee();
+        final boolean isApprovedVacation =
+                (employeeService.isEmployeeAdmin(curEmployee.getId()) && BooleanUtils.toBoolean(approved));
+
+        createVacationFormValidator.validate(createVacationForm, bindingResult, isApprovedVacation);
 
         if (bindingResult.hasErrors()) {
             return getModelAndView(employee);
         }
-
-        final Employee curEmployee = securityService.getSecurityPrincipal().getEmployee();
 
         final Vacation vacation = new Vacation();
 
@@ -150,9 +151,6 @@ public class CreateVacationController {
         vacation.setType(dictionaryItemService.find(createVacationForm.getVacationType()));
         vacation.setAuthor(curEmployee);
         vacation.setEmployee(employee);
-
-        final boolean isApprovedVacation =
-                (employeeService.isEmployeeAdmin(curEmployee.getId()) && BooleanUtils.toBoolean(approved));
 
         vacation.setStatus(dictionaryItemService.find(
                 isApprovedVacation ? VacationStatusEnum.APPROVED.getId() : VacationStatusEnum.APPROVEMENT_WITH_PM.getId()
