@@ -42,8 +42,9 @@ public class TSPropertyProvider {
         return getProperties().getProperty("mail.ProblemsAndProposals.toaddress");
     }
 
-    public String getMailFromAddress() {
-        return getProperties().getProperty("mail.fromaddress");
+    private static final String DEFAULT_TIME_SHEET_MAIL_ADRESS = "timesheet@aplana.com";
+    public static String getMailFromAddress() {
+        return getProperties().getProperty("mail.fromaddress", DEFAULT_TIME_SHEET_MAIL_ADRESS);
     }
 
     public String getMailSendEnable() {
@@ -194,6 +195,7 @@ public class TSPropertyProvider {
 
     public static void updateProperties() {
         needUpdate = true;
+        getProperties();
     }
 
     public static String getProperiesFilePath() {
