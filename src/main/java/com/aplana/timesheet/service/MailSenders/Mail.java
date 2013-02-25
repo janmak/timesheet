@@ -4,7 +4,6 @@ import com.aplana.timesheet.dao.entity.Division;
 import com.aplana.timesheet.dao.entity.Employee;
 import com.google.common.collect.Sets;
 import com.google.common.collect.Table;
-import org.apache.velocity.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.*;
@@ -14,17 +13,29 @@ import java.util.*;
  * @version 1.0
  */
 public abstract class Mail {
+
+    private static Set<String> clearDuplicates(Iterable<String> emails) {
+        final Set<String> uniqueEmails = Sets.newHashSet();
+
+        for (String email : emails) {
+            uniqueEmails.addAll(Arrays.asList(email.split("\\s*,\\s*")));
+        }
+
+        return uniqueEmails;
+    }
+
     private Division division;
     private Iterable<String> ccEmails = new ArrayList<String>();
     private String subject;
+
     private Iterable<String> toEmails = new ArrayList<String>();
 
     private Iterable<Employee> employeeList;
-
     private Map<Employee, List<String>> passedDays = new HashMap<Employee, List<String>>();
     private Iterable<MultipartFile> filePahts;
     private String preconstructedMessageBody;
     private String date;
+
     private Table<Integer, String, String> paramsForGenerateBody;
 
     public abstract String getFromEmail();
@@ -51,7 +62,7 @@ public abstract class Mail {
 
     public void setCcEmails(Iterable<String> ccEmails) {
         if (ccEmails != null){
-            this.ccEmails = Sets.newHashSet(ccEmails); //удаляем дупликаты;
+            this.ccEmails = clearDuplicates(ccEmails); //удаляем дупликаты;
         }
     }
 
@@ -89,13 +100,7 @@ public abstract class Mail {
 
     public void setToEmails(Iterable<String> toEmails) {
         //удаляем дупликаты
-        final Set<String> uniqueToEmails = Sets.newHashSet();
-
-        for (String toEmail : toEmails) {
-            uniqueToEmails.addAll(StringUtils.trimStrings(Arrays.asList(toEmail.split(","))));
-        }
-
-        this.toEmails = uniqueToEmails;
+        this.toEmails = clearDuplicates(toEmails);
     }
 
     public String getDate() {
@@ -112,10 +117,6 @@ public abstract class Mail {
 
     public Table<Integer, String, String> getParamsForGenerateBody() {
         return paramsForGenerateBody;
-    }
-
-    public void setToEmails(List<String> emailsToAdd) {
-        this.toEmails = emailsToAdd;
     }
 
 }
