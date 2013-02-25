@@ -55,7 +55,13 @@
             </ol>
         #end
         #if ($paramsForGenerateBody.get($first, "overtimeCause")!=$null)
-            <li><h2><b>Причина переработок:</b></h2></li>
+            <li><h2><b>
+                #if ($paramsForGenerateBody.get($first, "overtimeCauseId") == 10)
+                    Причина недоработок:
+                #else
+                    Причина переработок:
+                #end
+            </b></h2></li>
             #set ($overtimeCauseStrings = $paramsForGenerateBody.get($first, "overtimeCause").split("\n"))
             #foreach ($overtimeCauseString in $overtimeCauseStrings)
                 <span>$overtimeCauseString</span><br>
