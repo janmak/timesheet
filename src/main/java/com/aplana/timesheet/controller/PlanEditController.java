@@ -16,6 +16,7 @@ import com.aplana.timesheet.util.DateTimeUtil;
 import com.aplana.timesheet.util.EnumsUtils;
 import com.aplana.timesheet.util.JsonUtil;
 import com.google.common.collect.Maps;
+import org.apache.commons.lang.time.DateUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -339,12 +340,23 @@ public class PlanEditController {
 
         planEditFormValidator.validate(form, bindingResult);
 
+        Boolean editable = Boolean.FALSE;
+
         if (!bindingResult.hasErrors() && (form.getShowPlans() || form.getShowFacts())) {
             fillTableData(modelAndView, form);
             modelAndView.addObject("monthList", calendarService.getMonthList(form.getYear()));
+            editable = isEditable(form);
         }
 
+        modelAndView.addObject("editable", editable);
+
         return modelAndView;
+    }
+
+    private Boolean isEditable(PlanEditForm form) {
+        final Calendar calendar = DateTimeUtil.getCalendar(form.getYear(), form.getMonth());
+
+        return (DateUtils.truncatedCompareTo(new Date(), calendar.getTime(), Calendar.MONTH) <= 0);
     }
 
     private void fillTableData(ModelAndView modelAndView, PlanEditForm form) {
@@ -601,10 +613,6 @@ public class PlanEditController {
         if (value != null) {
             map.put(fieldName, JsonUtil.aNumberBuilder(value));
         }
-    }
-
-    private double getDefaultDuration(double duration) {
-        return (duration == 0) ? TimeSheetConstants.WORK_DAY_DURATION : duration;
     }
 
     private List<Integer> getRegionIds(PlanEditForm form) {
