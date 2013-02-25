@@ -88,26 +88,30 @@
             var date = dojo.byId("calToDate").value;
             var exitToWorkElement = dojo.byId("exitToWork");
 
-            exitToWorkElement.innerHTML =
-                    "<img src=\"<c:url value="/resources/img/loading_small.gif"/>\"/>";
+            if (typeof date == typeof undefined || date == null || date.length == 0) {
+                exitToWorkElement.innerHTML = '';
+            } else {
+                exitToWorkElement.innerHTML =
+                        "<img src=\"<c:url value="/resources/img/loading_small.gif"/>\"/>";
 
-            dojo.xhrGet({
-                url: "<%= request.getContextPath()%>/getExitToWork/${employee.id}/" + date + "/",
-                handleAs: "text",
+                dojo.xhrGet({
+                    url: "<%= request.getContextPath()%>/getExitToWork/${employee.id}/" + date + "/",
+                    handleAs: "text",
 
-                load: function(data) {
-                    if (data.size != 0) {
-                        exitToWorkElement.innerHTML = data;
-                    } else {
-                        exitToWorkElement.innerHTML = "Не удалось получить дату выхода из отпуска!";
+                    load: function(data) {
+                        if (data.size != 0) {
+                            exitToWorkElement.innerHTML = data;
+                        } else {
+                            exitToWorkElement.innerHTML = "Не удалось получить дату выхода из отпуска!";
+                        }
+                    },
+
+                    error: function(error) {
+                        exitToWorkElement.setAttribute("class", "error");
+                        exitToWorkElement.innerHTML = error;
                     }
-                },
-
-                error: function(error) {
-                    exitToWorkElement.setAttribute("class", "error");
-                    exitToWorkElement.innerHTML = error;
-                }
-            });
+                });
+            }
         }
 
         function cancel() {
