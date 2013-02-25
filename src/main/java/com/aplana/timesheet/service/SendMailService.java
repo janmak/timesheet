@@ -270,6 +270,10 @@ public class SendMailService{
         return overtimeCauseService.getCauseName(tsForm);
     }
 
+    public Integer getOverUnderTimeDictId(Integer overtimeCause){
+        return overtimeCauseService.getDictId(overtimeCause);
+    }
+
     public List<String> getVacationApprovalEmailList(Integer vacationId) {
         return vacationApprovalService.getVacationApprovalEmailList(vacationId);
     }

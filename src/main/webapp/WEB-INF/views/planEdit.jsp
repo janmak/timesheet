@@ -78,11 +78,15 @@
             }, 10);
         });
 
-        dojo.addOnUnload(function() {
+        function checkChanges() {
             if (hasChanges) {
                 return "Изменения не были сохранены.";
             }
-        });
+        }
+
+        dojo.addOnUnload(checkChanges);
+        dojo.addOnWindowUnload(checkChanges);
+        getRootEventListener().onbeforeunload = checkChanges;
 
         function replacePeriodsWithDots(value) {
             if (typeof value == "string") {
