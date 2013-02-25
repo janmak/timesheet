@@ -21,6 +21,8 @@ import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import java.util.*;
 
+import static com.aplana.timesheet.enums.DictionaryEnum.*;
+
 public class TimeSheetSender extends MailSender<TimeSheetForm> {
 
     public static final String WORK_PLACE = "workPlace";
@@ -49,6 +51,7 @@ public class TimeSheetSender extends MailSender<TimeSheetForm> {
         Map model = new HashMap();
 
         model.put("paramsForGenerateBody", mail.getParamsForGenerateBody());
+        model.put("undertimeDictId", UNFINISHED_DAY_CAUSE.getId());
 
         logger.info("follows initialization output from velocity");
         String messageBody = VelocityEngineUtils.mergeTemplateIntoString(

@@ -56,7 +56,7 @@
         #end
         #if ($paramsForGenerateBody.get($first, "overtimeCause")!=$null)
             <li><h2><b>
-                #if ($paramsForGenerateBody.get($first, "overtimeCauseId") == 10)
+                #if ($paramsForGenerateBody.get($first, "overtimeCauseId") == $undertimeDictId)
                     Причина недоработок:
                 #else
                     Причина переработок:
