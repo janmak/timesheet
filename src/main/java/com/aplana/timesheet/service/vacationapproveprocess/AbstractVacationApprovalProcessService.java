@@ -57,9 +57,25 @@ public abstract class AbstractVacationApprovalProcessService {
     public void sendVacationApprovedMessages (Vacation vacation) {
         List<VacationApproval> vacationApprovals = vacationApprovalService.getAllApprovalsForVacation(vacation);
         vacationApprovals.add(createNewVacationApproval(vacation, new Date(), vacation.getEmployee()));
-        for (VacationApproval vacationApproval : vacationApprovals) {
-            sendMailService.performVacationApprovedSender(vacationApproval);
+        List<String> emails = prepareEmailsListForVacationApprovedMessage(vacationApprovals);
+        sendMailService.performVacationApprovedSender(vacation, emails);
+    }
+
+    /**
+     * формируем список адресов, на которые будет разослано сообщение об успешном согласовании
+     */
+    protected List<String> prepareEmailsListForVacationApprovedMessage(List<VacationApproval> vacationApprovals) {
+        if (! vacationApprovals.isEmpty()) {
+            List<String> emails = new ArrayList<String>();
+            for (VacationApproval vacationApproval : vacationApprovals) {
+                emails.add(vacationApproval.getManager().getEmail());
+            }
+            Vacation vacation = vacationApprovals.get(0).getVacation();
+            emails.add(vacation.getAuthor().getEmail());
+            emails.add(vacation.getEmployee().getEmail());
+            return emails;
         }
+        return null;
     }
 
     /**

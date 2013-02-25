@@ -221,8 +221,8 @@ public class SendMailService{
         new VacationApproveRequestSender(this, propertyProvider).sendMessage(vacationApproval);
     }
 
-    public void performVacationApprovedSender (VacationApproval vacationApproval) {
-        new VacationApprovedSender(this, propertyProvider).sendMessage(vacationApproval);
+    public void performVacationApprovedSender (Vacation vacation, List<String> emails) {
+        new VacationApprovedSender(this, propertyProvider).sendMessageToEmails(vacation, emails);
     }
 
     public void performExceptionSender(String problem){

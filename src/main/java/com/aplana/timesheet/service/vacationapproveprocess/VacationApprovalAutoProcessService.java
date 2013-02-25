@@ -270,7 +270,7 @@ public class VacationApprovalAutoProcessService extends AbstractVacationApproval
      */
     public Integer getVacationUrgentProjectManagerOverrideThreshold() throws VacationApprovalServiceException {
         try {
-            return propertyProvider.getVacationUrgentLineManagerOverrideThreshold();
+            return propertyProvider.getVacationUrgentProjectManagerOverrideThreshold(); //kss 25.02.2013, похоже была опечатка (getVacationUrgentLineManagerOverrideThreshold)
         } catch (NullPointerException ex) {
             return VACATION_URGENT_PROJECT_MANAGER_OVERRIDE_TRESHOLD_DEFAULT;
         } catch (NumberFormatException ex) {

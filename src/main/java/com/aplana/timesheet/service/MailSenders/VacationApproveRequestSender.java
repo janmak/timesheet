@@ -18,10 +18,14 @@ import java.util.List;
  * User: vsergeev
  * Date: 04.02.13
  */
-public class VacationApproveRequestSender extends AbstractVacationApprovalSender {
+public class VacationApproveRequestSender extends AbstractVacationSender<VacationApproval> {
 
     protected static final Logger logger = LoggerFactory.getLogger(VacationApproveRequestSender.class);
     private static final String DEFAULT_TIMESHEET_URL = "http://timesheet.aplana.com";
+
+    public VacationApproveRequestSender(SendMailService sendMailService, TSPropertyProvider propertyProvider) {
+        super(sendMailService, propertyProvider);
+    }
 
     @Override
     protected List<Mail> getMailList(VacationApproval vacationApproval) {
@@ -84,10 +88,5 @@ public class VacationApproveRequestSender extends AbstractVacationApprovalSender
         return  String.format("Запрос согласования отпуска %s %s - %s", vacation.getEmployee().getName(),
                         beginDateStr, endDateStr);
     }
-
-    public VacationApproveRequestSender(SendMailService sendMailService, TSPropertyProvider propertyProvider) {
-        super(sendMailService, propertyProvider);
-    }
-
 
 }

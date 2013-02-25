@@ -3,7 +3,6 @@ package com.aplana.timesheet.service.MailSenders;
 import com.aplana.timesheet.dao.entity.Employee;
 import com.aplana.timesheet.dao.entity.Region;
 import com.aplana.timesheet.dao.entity.Vacation;
-import com.aplana.timesheet.dao.entity.VacationApproval;
 import com.aplana.timesheet.enums.VacationStatusEnum;
 import com.aplana.timesheet.properties.TSPropertyProvider;
 import com.aplana.timesheet.service.SendMailService;
@@ -25,7 +24,7 @@ import java.util.List;
  * User: vsergeev
  * Date: 13.02.13
  */
-public class VacationApprovedSender extends AbstractVacationApprovalSenderWithCopyToAuthor {
+public class VacationApprovedSender extends AbstractVacationSenderWithCopyToAuthor {
 
     protected static final Logger logger = LoggerFactory.getLogger(VacationApprovedSender.class);
 
@@ -34,12 +33,9 @@ public class VacationApprovedSender extends AbstractVacationApprovalSenderWithCo
     }
 
     @Override
-    protected List<Mail> getMainMailList(VacationApproval vacationApproval) {
+    public List<Mail> getMainMailList (Vacation vacation) {
         final Mail mail = new TimeSheetMail();
-        final Vacation vacation = vacationApproval.getVacation();
         final Employee employee = vacation.getEmployee();
-
-        mail.setToEmails(Arrays.asList(vacationApproval.getManager().getEmail()));
 
         final Collection<String> ccEmails =
                 getAdditionalEmailsForRegion(employee.getRegion());
