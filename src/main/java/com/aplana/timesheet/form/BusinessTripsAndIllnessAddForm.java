@@ -18,7 +18,7 @@ public class BusinessTripsAndIllnessAddForm {
     private Integer reportId = null;
     private Employee employee;
     private Date beginDate = new Date();
-    private Date endDate = new Date();
+    private Date endDate;
     private String comment;
     private Integer reason = IllnessTypesEnum.ILLNESS.getId();
     private Integer reportType = QuickReportTypesEnum.ILLNESS.getId();
