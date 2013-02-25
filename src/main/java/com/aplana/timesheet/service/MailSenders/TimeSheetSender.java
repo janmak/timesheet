@@ -21,6 +21,8 @@ import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import java.util.*;
 
+import static com.aplana.timesheet.enums.DictionaryEnum.*;
+
 public class TimeSheetSender extends MailSender<TimeSheetForm> {
 
     public static final String WORK_PLACE = "workPlace";
@@ -37,6 +39,7 @@ public class TimeSheetSender extends MailSender<TimeSheetForm> {
     public static final String END_LONG_DATE = "endLongDate";
     public static final String SENDER_NAME = "senderName";
     public static final String OVERTIME_CAUSE = "overtimeCause";
+    public static final String OVERTIME_CAUSE_ID = "overtimeCauseId";
 
     public TimeSheetSender(SendMailService sendMailService, TSPropertyProvider propertyProvider) {
         super(sendMailService, propertyProvider);
@@ -48,6 +51,7 @@ public class TimeSheetSender extends MailSender<TimeSheetForm> {
         Map model = new HashMap();
 
         model.put("paramsForGenerateBody", mail.getParamsForGenerateBody());
+        model.put("undertimeDictId", UNDERTIME_CAUSE.getId());
 
         logger.info("follows initialization output from velocity");
         String messageBody = VelocityEngineUtils.mergeTemplateIntoString(
@@ -132,6 +136,7 @@ public class TimeSheetSender extends MailSender<TimeSheetForm> {
             }
             putIfIsNotBlank(FIRST, result, PLAN_STRINGS, tsForm.getPlanEscaped());
             putIfIsNotBlank(FIRST, result, OVERTIME_CAUSE, sendMailService.getOvertimeCause(tsForm) );
+            putIfIsNotBlank(FIRST, result, OVERTIME_CAUSE_ID, sendMailService.getOverUnderTimeDictId(tsForm.getOvertimeCause()).toString() );
         }
 
         return result;

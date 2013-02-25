@@ -2,16 +2,13 @@ package com.aplana.timesheet.service;
 
 import com.aplana.timesheet.dao.AvailableActivityCategoryDAO;
 import com.aplana.timesheet.dao.EmployeeDAO;
-import com.aplana.timesheet.dao.HolidayDAO;
 import com.aplana.timesheet.dao.TimeSheetDAO;
 import com.aplana.timesheet.dao.entity.*;
-import com.aplana.timesheet.enums.TypesOfActivityEnum;
 import com.aplana.timesheet.form.TimeSheetForm;
 import com.aplana.timesheet.form.TimeSheetTableRowForm;
 import com.aplana.timesheet.form.entity.DayTimeSheet;
 import com.aplana.timesheet.util.DateTimeUtil;
 import com.google.common.collect.Lists;
-import org.apache.commons.lang.time.DateUtils;
 import org.apache.velocity.app.VelocityEngine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -267,10 +264,14 @@ public class TimeSheetService {
             result.append("actCat:'" + activityCategory.getActCat().getId() + "', ");
             result.append("actType:'" + activityCategory.getActType().getId() + "', ");
             result.append("projectRole:'" + activityCategory.getProjectRole().getId() + "', ");
-            result.append("description:'" + activityCategory.getDescription() + "'");
+            result.append("description:'");
+                if (activityCategory.getDescription() != null){
+                    result.append(activityCategory.getDescription());
+                }
+            result.append("'");
             result.append("}, ");
         }
-        result.append("{actCat:'0', actType:'0', projectRole:'0', description:'Описание не определено'}");
+        result.append("{actCat:'0', actType:'0', projectRole:'0', description:''}");
         result.append("]");
         return result.toString();
     }

@@ -70,4 +70,8 @@ public class OvertimeCauseService {
     public boolean isOvertimeCauseNeeeded(double totalDuration) {
         return Math.abs(totalDuration - TimeSheetConstants.WORK_DAY_DURATION) > propertyProvider.getOvertimeThreshold();
     }
+
+    public Integer getDictId(Integer overtimeCauseId) {
+        return dictionaryItemDAO.find(overtimeCauseId).getDictionary().getId();
+    }
 }

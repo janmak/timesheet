@@ -164,7 +164,8 @@ function addNewRow() {
     actCatCell.appendChild(actCatSelect);
     var labelDescription = dojo.doc.createElement("label");
     dojo.attr(labelDescription, {
-        id:"act_description_" + newRowIndex
+        id:"act_description_" + newRowIndex,
+        style:"font-style: italic"
     })
     actCatCell.appendChild(labelDescription);
     // Ячейка с проектными задачами
@@ -249,14 +250,19 @@ function setActDescription(rowIndex){
     var actType = (dojo.byId("activity_type_id_" + rowIndex)).value;
     var projectRole = (dojo.byId("project_role_id_" + rowIndex)).value;
     var label = dojo.byId("act_description_" + rowIndex);
+    var finded = false;
     for (var i = 0; i < listOfActDescription.length; i++) {
         if (listOfActDescription[i].actCat == actCat &&
             listOfActDescription[i].actType == actType &&
             listOfActDescription[i].projectRole == projectRole )
         {
             label.innerHTML = listOfActDescription[i].description;
+            finded = true;
             break;
         }
+    }
+    if (!finded) {
+        label.innerHTML = "";
     }
 }
 
@@ -845,6 +851,9 @@ function resetRowState(rowIndex, resetActType) {
         disabled:"disabled",
         value:"0"
     });
+    var labelDescription = dojo.byId("act_description_" + rowIndex);
+    labelDescription.innerHtml = "";
+    setActDescription(rowIndex);
     dojo.attr("cqId_id_" + rowIndex, {
         disabled:"disabled",
         value:"0"
@@ -1155,6 +1164,7 @@ function projectRoleChange(obj) {
     var selectId = dojo.attr(select, "id");
     var rowIndex = selectId.substring(selectId.lastIndexOf("_") + 1, selectId.length);
     fillAvailableActivityCategoryList(rowIndex);
+    setActDescription(rowIndex);
 }
 
 /* Сортирует по алфавиту содержимое выпадающих списков. */
