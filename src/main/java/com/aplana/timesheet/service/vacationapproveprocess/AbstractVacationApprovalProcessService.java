@@ -70,9 +70,7 @@ public abstract class AbstractVacationApprovalProcessService {
             for (VacationApproval vacationApproval : vacationApprovals) {
                 emails.add(vacationApproval.getManager().getEmail());
             }
-            Vacation vacation = vacationApprovals.get(0).getVacation();
-            emails.add(vacation.getAuthor().getEmail());
-            emails.add(vacation.getEmployee().getEmail());
+
             return emails;
         }
         return null;
@@ -177,6 +175,19 @@ public abstract class AbstractVacationApprovalProcessService {
 
         VacationApproval lineManagerApproval = getTopLineManagerApproval(vacation);   //проверяем, посылалось ли письмо линейным руководителям
         if (lineManagerApproval == null) {      //если не посылалось, посылаем
+
+            if (vacation.getEmployee().getManager2() != null) {
+                VacationApproval lineManager2VacationApproval = vacationApprovalService.tryGetManagerApproval(vacation, vacation.getEmployee().getManager2());
+                if (lineManager2VacationApproval != null && lineManager2VacationApproval.getResult() != null) {
+                    setFinalStatusForVacationAndSendVacationApprovedMessages(vacation, lineManager2VacationApproval.getResult());
+                }
+                if (lineManager2VacationApproval == null) {
+                    lineManager2VacationApproval = createNewVacationApproval(vacation, new Date(), vacation.getEmployee().getManager2());
+                    vacationApprovalService.store(lineManager2VacationApproval);
+                    sendMailService.performVacationApproveRequestSender(lineManager2VacationApproval);
+                }
+            }
+
             lineManagerApproval = prepareApproveLetterForLineManagerOfEmployee(vacation, vacation.getEmployee());
             sendMailService.performVacationApproveRequestSender(lineManagerApproval);
         }
@@ -354,8 +365,6 @@ public abstract class AbstractVacationApprovalProcessService {
 
     /**
      * пытаемся добавить сотрудника к рассылке. Если сотрудник уже есть в рассылке - не добавляем его
-     * для тимлидов и старших аналитиков обязательно указать связь с таблицей project_participant
-     * для руководителей проектов эта связь всегда будет null, т.к. их в таблице project_participant нет
      */
     private void tryAddNewManagerToApprovalResults(Vacation vacation, Date requestDate, Map<String, VacationApproval> approvals,
                                                    Employee manager, List<Project> projects) {
@@ -406,5 +415,18 @@ public abstract class AbstractVacationApprovalProcessService {
         }
 
         return false;
+    }
+
+    /**
+     * Получаем результат второго линейного
+     */
+    protected Boolean getManager2Result(Vacation vacation) {
+        if (vacation.getEmployee().getManager2() == null) {
+            return null;
+        }
+
+        VacationApproval lineManager2Approval = vacationApprovalService.tryGetManagerApproval(vacation, vacation.getEmployee().getManager2());
+
+        return (lineManager2Approval != null) ? lineManager2Approval.getResult() : null;
     }
 }
