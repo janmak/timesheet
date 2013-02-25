@@ -28,7 +28,9 @@ public abstract class AbstractSenderWithAssistants<T> extends MailSender<T> {
     protected final Set<String> getManagersEmails(Mail mail, Employee employee) {
         final Set<String> emails = Sets.newHashSet(mail.getToEmails());
 
-        emails.remove(employee.getEmail());
+        if (employee.getManager() != null || employee.getManager2() != null) {
+            emails.remove(employee.getEmail());
+        }
         emails.remove(TSPropertyProvider.getMailFromAddress());
 
         return emails;
