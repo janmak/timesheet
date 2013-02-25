@@ -40,6 +40,8 @@ public class VacationApprovedSender extends AbstractVacationSenderWithCopyToAuth
         final Collection<String> ccEmails =
                 getAdditionalEmailsForRegion(employee.getRegion());
 
+        ccEmails.add(getAssistantEmail(employee));
+
         mail.setCcEmails(getNotBlankEmails(ccEmails));
 
         if (vacation.getStatus().getId().equals(VacationStatusEnum.APPROVED.getId())) {
