@@ -88,26 +88,30 @@
             var date = dojo.byId("calToDate").value;
             var exitToWorkElement = dojo.byId("exitToWork");
 
-            exitToWorkElement.innerHTML =
-                    "<img src=\"<c:url value="/resources/img/loading_small.gif"/>\"/>";
+            if (typeof date == typeof undefined || date == null || date.length == 0) {
+                exitToWorkElement.innerHTML = '';
+            } else {
+                exitToWorkElement.innerHTML =
+                        "<img src=\"<c:url value="/resources/img/loading_small.gif"/>\"/>";
 
-            dojo.xhrGet({
-                url: "<%= request.getContextPath()%>/getExitToWork/${employee.id}/" + date + "/",
-                handleAs: "text",
+                dojo.xhrGet({
+                    url: "<%= request.getContextPath()%>/getExitToWork/${employee.id}/" + date + "/",
+                    handleAs: "text",
 
-                load: function(data) {
-                    if (data.size != 0) {
-                        exitToWorkElement.innerHTML = data;
-                    } else {
-                        exitToWorkElement.innerHTML = "Не удалось получить дату выхода из отпуска!";
+                    load: function(data) {
+                        if (data.size != 0) {
+                            exitToWorkElement.innerHTML = data;
+                        } else {
+                            exitToWorkElement.innerHTML = "Не удалось получить дату выхода из отпуска!";
+                        }
+                    },
+
+                    error: function(error) {
+                        exitToWorkElement.setAttribute("class", "error");
+                        exitToWorkElement.innerHTML = error;
                     }
-                },
-
-                error: function(error) {
-                    exitToWorkElement.setAttribute("class", "error");
-                    exitToWorkElement.innerHTML = error;
-                }
-            });
+                });
+            }
         }
 
         function cancel() {
@@ -138,7 +142,7 @@
                 <span class="label">Дата с</span>
             </td>
             <td>
-                <form:input path="calFromDate" id="calFromDate" class="date_picker" data-dojo-type="DateTextBox" required="true"
+                <form:input path="calFromDate" id="calFromDate" class="date_picker" data-dojo-type="DateTextBox"
                             onMouseOver="tooltip.show(getTitle(this));" onMouseOut="tooltip.hide();" />
             </td>
         </tr>
@@ -148,7 +152,7 @@
                 <span class="label">Дата по</span>
             </td>
             <td>
-                <form:input path="calToDate" id="calToDate" class="date_picker" data-dojo-type="DateTextBox" required="true"
+                <form:input path="calToDate" id="calToDate" class="date_picker" data-dojo-type="DateTextBox"
                             onMouseOver="tooltip.show(getTitle(this));" onMouseOut="tooltip.hide();" onChange="updateExitToWork();" />
                 <div id="exitToWork"></div>
             </td>
