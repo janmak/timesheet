@@ -9,7 +9,7 @@ public enum DictionaryEnum implements TSEnum {
     TYPES_OF_ACTIVITY(2, "Тип активности"),
     WORKPLACE(5, "Место работы"),
     VACATION_TYPE(9, "Тип отпуска"),
-    UNFINISHED_DAY_CAUSE(10, "Причины недоработок"),
+    UNDERTIME_CAUSE(10, "Причины недоработок"),
     OVERTIME_CAUSE(11, "Причины переработок");
 
 

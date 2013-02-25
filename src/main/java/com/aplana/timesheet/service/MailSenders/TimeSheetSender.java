@@ -51,7 +51,7 @@ public class TimeSheetSender extends MailSender<TimeSheetForm> {
         Map model = new HashMap();
 
         model.put("paramsForGenerateBody", mail.getParamsForGenerateBody());
-        model.put("undertimeDictId", UNFINISHED_DAY_CAUSE.getId());
+        model.put("undertimeDictId", UNDERTIME_CAUSE.getId());
 
         logger.info("follows initialization output from velocity");
         String messageBody = VelocityEngineUtils.mergeTemplateIntoString(
