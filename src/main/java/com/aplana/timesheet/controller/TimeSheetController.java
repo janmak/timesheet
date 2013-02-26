@@ -1,12 +1,13 @@
 package com.aplana.timesheet.controller;
 
-import com.aplana.timesheet.dao.entity.*;
+import com.aplana.timesheet.dao.entity.DictionaryItem;
+import com.aplana.timesheet.dao.entity.Division;
+import com.aplana.timesheet.dao.entity.ProjectRole;
+import com.aplana.timesheet.dao.entity.TimeSheet;
 import com.aplana.timesheet.form.TimeSheetForm;
-import com.aplana.timesheet.form.TimeSheetTableRowForm;
 import com.aplana.timesheet.form.validator.TimeSheetFormValidator;
 import com.aplana.timesheet.properties.TSPropertyProvider;
 import com.aplana.timesheet.service.*;
-import com.aplana.timesheet.util.DateTimeUtil;
 import com.aplana.timesheet.util.EmployeeHelper;
 import com.aplana.timesheet.util.TimeSheetUser;
 import org.slf4j.Logger;
@@ -85,7 +86,8 @@ public class TimeSheetController {
 
         if (date != null) {
             tsForm.setCalDate(date);
-            mav.addObject("selectedCalDateJson", getSelectedCalDateJson(tsForm));   //выставляем дату для DateTextBox
+            //выставляем дату для DateTextBox
+            mav.addObject("selectedCalDateJson", timeSheetService.getSelectedCalDateJson(tsForm));
         } else {
             mav.addObject("selectedCalDateJson", "''");
         }
@@ -131,12 +133,15 @@ public class TimeSheetController {
             ModelAndView mavWithErrors = new ModelAndView("timesheet");
             mavWithErrors.addObject("timeSheetForm", tsForm);
             mavWithErrors.addObject("errors", result.getAllErrors());
-            mavWithErrors.addObject("selectedProjectsJson", getSelectedProjectsJson(tsForm));
-            mavWithErrors.addObject("selectedProjectRolesJson", getSelectedProjectRolesJson(tsForm));
-            mavWithErrors.addObject("selectedProjectTasksJson", getSelectedProjectTasksJson(tsForm));
-            mavWithErrors.addObject("selectedWorkplaceJson", getSelectedWorkplaceJson(tsForm));
-            mavWithErrors.addObject("selectedActCategoriesJson", getSelectedActCategoriesJson(tsForm));
-            mavWithErrors.addObject("selectedCalDateJson", getSelectedCalDateJson(tsForm));
+            mavWithErrors.addObject("selectedProjectsJson", timeSheetService.getSelectedProjectsJson(tsForm));
+            mavWithErrors.addObject("selectedProjectRolesJson", timeSheetService.getSelectedProjectRolesJson(tsForm));
+            mavWithErrors.addObject("selectedProjectTasksJson", timeSheetService.getSelectedProjectTasksJson(tsForm));
+            mavWithErrors.addObject("selectedWorkplaceJson", timeSheetService.getSelectedWorkplaceJson(tsForm));
+            mavWithErrors.addObject(
+                    "selectedActCategoriesJson",
+                    timeSheetService.getSelectedActCategoriesJson(tsForm)
+            );
+            mavWithErrors.addObject("selectedCalDateJson", timeSheetService.getSelectedCalDateJson(tsForm));
             mavWithErrors.addAllObjects(getListsToMAV());
 
             return mavWithErrors;
@@ -208,14 +213,17 @@ public class TimeSheetController {
         List<DictionaryItem> typesOfActivity = dictionaryItemService.getTypesOfActivity();
         result.put("actTypeList", typesOfActivity);
 
-        String typesOfActivityJson = getDictionaryItemsInJson(typesOfActivity);
+        String typesOfActivityJson = dictionaryItemService.getDictionaryItemsInJson(typesOfActivity);
         result.put("actTypeJson", typesOfActivityJson);
 
-        String workplacesJson = getDictionaryItemsInJson(dictionaryItemService.getWorkplaces());
+        String workplacesJson = dictionaryItemService.getDictionaryItemsInJson(dictionaryItemService.getWorkplaces());
         result.put("workplaceJson", workplacesJson);
 
-        result.put("overtimeCauseJson", getDictionaryItemsInJson(dictionaryItemService.getOvertimeCauses()) );
-        result.put("unfinishedDayCauseJson", getDictionaryItemsInJson(dictionaryItemService.getUnfinishedDayCauses()) );
+        result.put("overtimeCauseJson", dictionaryItemService.getDictionaryItemsInJson(dictionaryItemService
+                .getOvertimeCauses()) );
+        result.put("unfinishedDayCauseJson", dictionaryItemService.getDictionaryItemsInJson(dictionaryItemService
+                .getUnfinishedDayCauses()
+        ) );
         result.put("overtimeThreshold", propertyProvider.getOvertimeThreshold());
 
         List<Division> divisions = divisionService.getDivisions();
@@ -226,13 +234,16 @@ public class TimeSheetController {
         List<DictionaryItem> categoryOfActivity = dictionaryItemService.getCategoryOfActivity();
         result.put("actCategoryList", categoryOfActivity);
 
-        String actCategoryListJson = getDictionaryItemsInJson(categoryOfActivity);
+        String actCategoryListJson = dictionaryItemService.getDictionaryItemsInJson(categoryOfActivity);
         result.put("actCategoryListJson", actCategoryListJson);
 
-        result.put("availableActCategoriesJson", getAvailableActCategoriesJson());
+        result.put("availableActCategoriesJson", availableActivityCategoryService.getAvailableActCategoriesJson());
 
         result.put("projectListJson", projectService.getProjectListJson(divisions));
-        result.put("projectTaskListJson", getProjectTaskListJson(projectService.getProjectsWithCq()));
+        result.put(
+                "projectTaskListJson",
+                projectTaskService.getProjectTaskListJson(projectService.getProjectsWithCq())
+        );
 
         List<ProjectRole> projectRoleList = projectRoleService.getProjectRoles();
 
@@ -244,210 +255,14 @@ public class TimeSheetController {
         }
 
         result.put("projectRoleList", projectRoleList);
-        StringBuilder projectRoleListJson = new StringBuilder();
-        projectRoleListJson.append("[");
-        for (ProjectRole item : projectRoleList) {
-            projectRoleListJson.append("{id:'");
-            projectRoleListJson.append(item.getId().toString());
-            projectRoleListJson.append("', value:'");
-            projectRoleListJson.append(item.getName());
-            projectRoleListJson.append("'},");
-        }
-        result.put("projectRoleListJson", projectRoleListJson.toString().substring(0, (projectRoleListJson.toString().length() - 1)) + "]");
-
-        TimeSheetUser securityUser = securityService.getSecurityPrincipal();
+        result.put("projectRoleListJson", projectRoleService.getProjectRoleListJson(projectRoleList));
 
         result.put("listOfActDescriptionJson", getListOfActDescriptoin());
         result.put("getDateByDefault", getDateByDefault(securityUser.getEmployee().getId()));
         // todo to iziyangirov: перенести в эмплоее лист, после того, как Ришат закомитит
         result.put("getFirstWorkDate", getEmployeeFirstWorkDay(securityUser.getEmployee().getId()));
-
+        
         return result;
-    }
-
-    private String getDictionaryItemsInJson(List<DictionaryItem> items) {
-        StringBuilder builder = new StringBuilder();
-        builder.append("[");
-        for (DictionaryItem item : items) {
-            builder.append("{id:'");
-            builder.append(item.getId().toString());
-            builder.append("', value:'");
-            builder.append(item.getValue());
-            builder.append("'},");
-        }
-        if (builder.length() > 1) {
-            builder.deleteCharAt(builder.length() - 1);
-        }
-
-        builder.append("]");
-        return builder.toString();
-    }
-
-    private String getProjectTaskListJson(List<Project> projects) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("[");
-        for (int i = 0; i < projects.size(); i++) {
-            Integer projectId = projects.get(i).getId();
-            List<ProjectTask> tasks = projectTaskService.getProjectTasks(projectId);
-            sb.append("{projId:'");
-            sb.append(projectId);
-            sb.append("', projTasks:[");
-            for (int j = 0; j < tasks.size(); j++) {
-                sb.append("{id:'");
-                sb.append(tasks.get(j).getCqId());
-                sb.append("', value:'");
-                sb.append(tasks.get(j).getCqId());
-                sb.append("'}");
-                if (j < (tasks.size() - 1)) {
-                    sb.append(", ");
-                }
-            }
-            sb.append("]}");
-            if (i < (projects.size() - 1)) {
-                sb.append(", ");
-            }
-        }
-        sb.append("]");
-        return sb.toString();
-    }
-
-    private String getSelectedProjectTasksJson(TimeSheetForm tsForm) {
-        StringBuilder sb = new StringBuilder();
-        List<TimeSheetTableRowForm> tablePart = tsForm.getTimeSheetTablePart();
-        if (tablePart != null) {
-            sb.append("[");
-            for (int i = 0; i < tablePart.size(); i++) {
-                if (!"".equals(tablePart.get(i).getCqId())) {
-                    sb.append("{row:'").append(i).append("', ");
-                    sb.append("task:'").append(tablePart.get(i).getCqId()).append("'}");
-                    if (i < (tablePart.size() - 1)) {
-                        sb.append(", ");
-                    }
-                }
-            }
-            sb.append("]");
-        } else {
-            sb.append("[{row:'0', task:''}]");
-        }
-        return sb.toString();
-    }
-
-    private String getSelectedProjectRolesJson(TimeSheetForm tsForm) {
-        StringBuilder sb = new StringBuilder();
-        List<TimeSheetTableRowForm> tablePart = tsForm.getTimeSheetTablePart();
-        if (tablePart != null) {
-            sb.append("[");
-            for (int i = 0; i < tablePart.size(); i++) {
-                if (!"".equals(tablePart.get(i).getCqId())) {
-                    sb.append("{row:'").append(i).append("', ");
-                    sb.append("role:'").append(tablePart.get(i).getProjectRoleId()).append("'}");
-                    if (i < (tablePart.size() - 1)) {
-                        sb.append(", ");
-                    }
-                }
-            }
-            sb.append("]");
-        } else {
-            sb.append("[{row:'0', role:''}]");
-        }
-        return sb.toString();
-    }
-
-    private String getSelectedProjectsJson(TimeSheetForm tsForm) {
-        StringBuilder sb = new StringBuilder();
-        List<TimeSheetTableRowForm> tablePart = tsForm.getTimeSheetTablePart();
-        if (tablePart != null) {
-            sb.append("[");
-            for (int i = 0; i < tablePart.size(); i++) {
-                sb.append("{row:'").append(i).append("', ");
-                sb.append("project:'").append(tablePart.get(i).getProjectId()).append("'}");
-                if (i < (tablePart.size() - 1)) {
-                    sb.append(", ");
-                }
-            }
-            sb.append("]");
-        } else {
-            sb.append("[{row:'0', project:''}]");
-        }
-        return sb.toString();
-    }
-
-    private String getSelectedWorkplaceJson(TimeSheetForm tsForm) {
-        StringBuilder sb = new StringBuilder();
-        List<TimeSheetTableRowForm> tablePart = tsForm.getTimeSheetTablePart();
-        if (tablePart != null) {
-            sb.append("[");
-            for (int i = 0; i < tablePart.size(); i++) {
-                sb.append("{row:'").append(i).append("', ");
-                sb.append("workplace:'").append(tablePart.get(i).getWorkplaceId()).append("'}");
-                if (i < (tablePart.size() - 1)) {
-                    sb.append(", ");
-                }
-            }
-            sb.append("]");
-        } else {
-            sb.append("[{row:'0', workplace:''}]");
-        }
-        return sb.toString();
-    }
-
-    private String getSelectedActCategoriesJson(TimeSheetForm tsForm) {
-        StringBuilder sb = new StringBuilder();
-        List<TimeSheetTableRowForm> tablePart = tsForm.getTimeSheetTablePart();
-        if (tablePart != null) {
-            sb.append("[");
-            for (int i = 0; i < tablePart.size(); i++) {
-                sb.append("{row:'").append(i).append("', ");
-                sb.append("actCat:'").append(tablePart.get(i).getActivityCategoryId()).append("'}");
-                if (i < (tablePart.size() - 1)) {
-                    sb.append(", ");
-                }
-            }
-            sb.append("]");
-        } else {
-            sb.append("[{row:'0', actCat:''}]");
-        }
-        return sb.toString();
-    }
-
-    private String getAvailableActCategoriesJson() {
-        StringBuilder sb = new StringBuilder();
-        List<DictionaryItem> actTypes = dictionaryItemService.getTypesOfActivity();
-        List<ProjectRole> projectRoles = projectRoleService.getProjectRoles();
-        sb.append("[");
-        for (int i = 0; i < actTypes.size(); i++) {
-            for ( ProjectRole projectRole : projectRoles ) {
-                sb.append( "{actType:'" ).append( actTypes.get( i ).getId() ).append( "', " );
-                sb.append( "projRole:'" ).append( projectRole.getId() ).append( "', " );
-                List<AvailableActivityCategory> avActCats = availableActivityCategoryService
-                        .getAvailableActivityCategories( actTypes.get( i ), projectRole );
-                sb.append( "avActCats:[" );
-                for ( int k = 0; k < avActCats.size(); k++ ) {
-                    sb.append( "'" ).append( avActCats.get( k ).getActCat().getId() ).append( "'" );
-                    if ( k < ( avActCats.size() - 1 ) ) {
-                        sb.append( ", " );
-                    }
-                }
-                sb.append( "]}" );
-                if ( i < ( actTypes.size() ) ) {
-                    sb.append( ", " );
-                }
-            }
-        }
-        return sb.toString().substring(0, (sb.toString().length() - 2)) + "]";
-    }
-
-    private String getSelectedCalDateJson(TimeSheetForm tsForm) {
-        StringBuilder sb = new StringBuilder();
-        String date = "";
-        sb.append("'");
-        if (DateTimeUtil.isDateValid(tsForm.getCalDate())){
-            date = DateTimeUtil.formatDateString(tsForm.getCalDate());
-            sb.append(date);
-        }
-        sb.append("'");
-        logger.debug("SelectedCalDateJson = {}", date);
-        return sb.toString();
     }
 
     /**

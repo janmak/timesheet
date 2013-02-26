@@ -1,18 +1,22 @@
 package com.aplana.timesheet.service;
 
+import argo.jdom.JsonArrayNodeBuilder;
 import com.aplana.timesheet.dao.ProjectRoleDAO;
 import com.aplana.timesheet.dao.entity.ProjectRole;
+import com.aplana.timesheet.util.JsonUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+
+import static argo.jdom.JsonNodeBuilders.*;
 
 @Service
 public class ProjectRoleService {	
 
 	@Autowired
 	private ProjectRoleDAO projectRoleDAO;
-	
+
 	/** Возвращает объект класса ProjectRole по указанному идентификатору */
 	public ProjectRole find(Integer id) {
 		return projectRoleDAO.find(id);
@@ -44,4 +48,19 @@ public class ProjectRoleService {
     public ProjectRole getSysRole(Integer roleId) {
         return projectRoleDAO.getSysRole(roleId);
     }
+
+    public String getProjectRoleListJson(Iterable<ProjectRole> projectRoleList) {
+        final JsonArrayNodeBuilder builder = anArrayBuilder();
+
+        for (ProjectRole item : projectRoleList) {
+            builder.withElement(
+                    anObjectBuilder().
+                            withField("id", JsonUtil.aStringBuilder(item.getId())).
+                            withField("value", aStringBuilder(item.getName()))
+            );
+        }
+
+        return JsonUtil.format(builder);
+    }
+
 }

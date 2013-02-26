@@ -1,11 +1,16 @@
 package com.aplana.timesheet.service;
 
+import argo.jdom.JsonArrayNodeBuilder;
 import com.aplana.timesheet.dao.ProjectTaskDAO;
+import com.aplana.timesheet.dao.entity.Project;
 import com.aplana.timesheet.dao.entity.ProjectTask;
+import com.aplana.timesheet.util.JsonUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+
+import static argo.jdom.JsonNodeBuilders.*;
 
 @Service
 public class ProjectTaskService {
@@ -28,4 +33,31 @@ public class ProjectTaskService {
 	public ProjectTask find(Integer projectId, String cqId) {
 		return projectTaskDAO.find(projectId, cqId);
 	}
+
+    public String getProjectTaskListJson(List<Project> projects) {
+        final JsonArrayNodeBuilder builder = anArrayBuilder();
+
+        for (Project project : projects) {
+            final Integer projectId = project.getId();
+            final List<ProjectTask> tasks = getProjectTasks(projectId);
+            final JsonArrayNodeBuilder tasksBuilder = anArrayBuilder();
+
+            for (ProjectTask task : tasks) {
+                tasksBuilder.withElement(
+                        anObjectBuilder().
+                                withField("id", aStringBuilder(task.getCqId())).
+                                withField("value", aStringBuilder(task.getCqId()))
+                );
+            }
+
+            builder.withElement(
+                    anObjectBuilder().
+                            withField("projId", JsonUtil.aStringBuilder(projectId)).
+                            withField("projTasks", tasksBuilder)
+            );
+        }
+
+        return JsonUtil.format(builder);
+    }
+
 }

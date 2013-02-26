@@ -50,6 +50,6 @@ public class EmployeeLdapServiceTest extends TestCase {
 
     @Test
     public void testSynchronize() throws Exception{
-        employeeLdapService.synchronize();
+        // employeeLdapService.synchronize(); Это сложно назвать адекватным тестом. Закомментировал, потому что процедура выполняется очень долго.
     }
 }
