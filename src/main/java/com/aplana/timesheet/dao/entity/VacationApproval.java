@@ -4,6 +4,7 @@ import org.hibernate.annotations.ForeignKey;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.Set;
 
 /**
  * @author rshamsutdinov
@@ -34,11 +35,23 @@ public class VacationApproval {
     @ForeignKey(name = "fk_manager")
     private Employee manager;
 
+    @OneToMany(mappedBy = "vacationApproval", fetch = FetchType.LAZY)
+    @OrderBy("id asc")
+    private Set<VacationApprovalResult> vacationApprovalResults;
+
     @Column(name = "uid", columnDefinition = "CHAR(36) NOT NULL")
     private String uid;
 
     @Column (name = "result")
     private Boolean result;
+
+    public Set<VacationApprovalResult> getVacationApprovalResults() {
+        return vacationApprovalResults;
+    }
+
+    public void setVacationApprovalResults(Set<VacationApprovalResult> vacationApprovalResults) {
+        this.vacationApprovalResults = vacationApprovalResults;
+    }
 
     public String getUid() {
         return uid;

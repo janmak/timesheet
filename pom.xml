@@ -1,42 +1,44 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-	<groupId>com.aplana.timesheet</groupId>
-	<artifactId>TimeSheet</artifactId>
-	<packaging>war</packaging>
-	<version>1.0-SNAPSHOT</version>
-	
-	<name>${project.artifactId}</name>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.aplana.timesheet</groupId>
+    <artifactId>TimeSheet</artifactId>
+    <packaging>war</packaging>
+    <version>1.0-SNAPSHOT</version>
 
-	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<spring.version>3.1.1.RELEASE</spring.version>
-		<spring-ldap.version>1.3.1.RELEASE</spring-ldap.version>
+    <name>${project.artifactId}</name>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <spring.version>3.1.1.RELEASE</spring.version>
+        <spring-ldap.version>1.3.1.RELEASE</spring-ldap.version>
         <spring-security.version>3.1.0.RELEASE</spring-security.version>
-		<slf4j.version>1.6.1</slf4j.version>
-		<logback.version>0.9.29</logback.version>
-		<junit.version>4.8.2</junit.version>
-		<hibernate.version>3.6.3.Final</hibernate.version>
-		<cargo.plugin.version>1.1.1</cargo.plugin.version>
-		<catalina.home>C:/Tomcat6</catalina.home>
-		<compiller.plugin.version>2.3.2</compiller.plugin.version>
-		<maven.compiler.source>1.6</maven.compiler.source>
-		<maven.compiler.target>1.6</maven.compiler.target>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<war.plugin.version>2.1.1</war.plugin.version>
-		<maven.tomcat.url>http://localhost:9090/manager/html</maven.tomcat.url>
-		<maven.tomcat.update>true</maven.tomcat.update>
-		<maven.tomcat.mode>war</maven.tomcat.mode>
-		<tomcat.username>deployer</tomcat.username>
-		<tomcat.password>password</tomcat.password>
-		<maven-surefire-plugin.version>2.12.4</maven-surefire-plugin.version>
-		<surefire-junit4.version>2.12.4</surefire-junit4.version>
-		
-	</properties>
-	
-	<build>
-		<finalName>${project.artifactId}</finalName>
-		<plugins>
+        <slf4j.version>1.6.1</slf4j.version>
+        <logback.version>0.9.29</logback.version>
+        <junit.version>4.8.2</junit.version>
+        <hibernate.version>3.6.3.Final</hibernate.version>
+        <cargo.plugin.version>1.1.1</cargo.plugin.version>
+        <catalina.home>C:/Tomcat6</catalina.home>
+        <compiller.plugin.version>2.3.2</compiller.plugin.version>
+        <maven.compiler.source>1.6</maven.compiler.source>
+        <maven.compiler.target>1.6</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <war.plugin.version>2.1.1</war.plugin.version>
+        <maven.tomcat.url>http://localhost:9090/manager/html</maven.tomcat.url>
+        <maven.tomcat.update>true</maven.tomcat.update>
+        <maven.tomcat.mode>war</maven.tomcat.mode>
+        <tomcat.username>deployer</tomcat.username>
+        <tomcat.password>password</tomcat.password>
+        <maven-surefire-plugin.version>2.12.4</maven-surefire-plugin.version>
+        <surefire-junit4.version>2.12.4</surefire-junit4.version>
+
+    </properties>
+
+    <build>
+        <finalName>${project.artifactId}</finalName>
+
+        <plugins>
             <plugin>
                 <groupId>org.mortbay.jetty</groupId>
                 <artifactId>jetty-maven-plugin</artifactId>
@@ -45,121 +47,123 @@
                     <scanIntervalSeconds>0</scanIntervalSeconds>
                 </configuration>
             </plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-war-plugin</artifactId>
-				<version>${war.plugin.version}</version>
-				<configuration>
-					<packagingExcludes>WEB-INF/web.xml</packagingExcludes>
-					<warName>${project.artifactId}</warName>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>${compiller.plugin.version}</version>
-				<configuration>
-					<source>${maven.compiler.source}</source>
-					<target>${maven.compiler.target}</target>
-					<encoding>${project.build.sourceEncoding}</encoding>
-					<showWarnings>true</showWarnings>
-				</configuration>
-			</plugin>
-			<!--<plugin>-->
-            	<!--<groupId>org.codehaus.cargo</groupId>-->
-            	<!--<artifactId>cargo-maven2-plugin</artifactId>-->
-            	<!--<version>${cargo.plugin.version}</version>-->
-            	<!--<configuration>-->
-                	<!--<wait>false</wait>-->
-                	<!--<container>-->
-                    	<!--<containerId>tomcat6x</containerId>-->
-                    	<!--<type>installed</type>-->
-                    	<!--<home>${catalina.home}</home>-->
-                	<!--</container>-->
-                	<!--<configuration>-->
-                    	<!--<type>existing</type> -->
-                    	<!--<home>${catalina.home}</home>-->
-                		<!--<properties>-->
-                        	<!--<cargo.tomcat.manager.url>http://localhost:8080/manager/html</cargo.tomcat.manager.url>-->
-                        	<!--<cargo.remote.username>tomcat</cargo.remote.username>-->
-                        	<!--<cargo.remote.password>tomcat</cargo.remote.password>-->
-                    	<!--</properties>-->
-                	<!--</configuration>-->
-                	<!--<deployer>-->
-                    	<!--<type>installed</type>-->
-                    	<!--<deployables>-->
-                        	<!--<deployable>-->
-                            	<!--<groupId>${project.groupId}</groupId>-->
-                            	<!--<artifactId>${project.artifactId}</artifactId>-->
-                            	<!--<type>${project.packaging}</type>-->
-                            	<!--<properties>-->
-                        			<!--<context>${project.artifactId}</context>-->
-                    			<!--</properties>-->
-                        	<!--</deployable>-->
-                    	<!--</deployables>-->
-                	<!--</deployer>-->
-            	<!--</configuration>-->
-            	<!--<executions>-->
-                	<!--<execution>-->
-                    	<!--<id>start-container</id>-->
-                    	<!--<phase>pre-integration-test</phase>-->
-                    	<!--<goals>-->
-                        	<!--<goal>deployer-deploy</goal>-->
-                    	<!--</goals>-->
-                	<!--</execution>-->
-                	<!--<execution>-->
-                    	<!--<id>stop-container</id>-->
-                    	<!--<phase>post-integration-test</phase>-->
-                    	<!--<goals>-->
-                        	<!--<goal>deployer-undeploy</goal>-->
-                    	<!--</goals>-->
-                	<!--</execution>-->
-                	<!--<execution>-->
-                    	<!--<id>verify-deploy</id>-->
-                    	<!--<phase>package</phase>-->
-                    	<!--<goals>-->
-                        	<!--<goal>deployer-deploy</goal>-->
-                    	<!--</goals>-->
-                	<!--</execution> -->
-                	<!--<execution>-->
-                    	<!--<id>clean-undeploy</id>-->
-                    	<!--<phase>pre-clean</phase>-->
-                    	<!--<goals>-->
-                        	<!--<goal>deployer-undeploy</goal>-->
-                    	<!--</goals>-->
-                	<!--</execution> -->
-            	<!--</executions>-->
-        	<!--</plugin>-->
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-surefire-plugin</artifactId>
-				<version>${maven-surefire-plugin.version}</version>
-				<dependencies>
-					<dependency>
-						<groupId>org.apache.maven.surefire</groupId>
-						<artifactId>surefire-junit4</artifactId>
-						<version>${surefire-junit4.version}</version>
-					</dependency>
-				</dependencies>
-				<configuration>
-					<!--<skipTests>false</skipTests>-->
-					<skipTests>true</skipTests>
-					<failIfNoTests>false</failIfNoTests>
-					<parallel>methods</parallel>
-					<threadCount>20</threadCount>
-					<!--<argLine>${gwt.extraJvmArgs}</argLine>-->
-					<additionalClasspathElements>
-<!--						<additionalClasspathElement>${basedir}/src/main/resources</additionalClasspathElement>-->
-						<additionalClasspathElement>${basedir}/src/test/resources</additionalClasspathElement>
-						<additionalClasspathElement>${basedir}/src/main/webapp</additionalClasspathElement>
-						<additionalClasspathElement>${basedir}/src/main/webapp/WEB-INF/spring</additionalClasspathElement>
-					</additionalClasspathElements>
-				</configuration>
-			</plugin>
-		</plugins>
-	</build>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>${war.plugin.version}</version>
+                <configuration>
+                    <warSourceExcludes>**/*.uncompressed.js</warSourceExcludes>
+                    <packagingExcludes>WEB-INF/web.xml</packagingExcludes>
+                    <warName>${project.artifactId}</warName>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${compiller.plugin.version}</version>
+                <configuration>
+                    <source>${maven.compiler.source}</source>
+                    <target>${maven.compiler.target}</target>
+                    <encoding>${project.build.sourceEncoding}</encoding>
+                    <showWarnings>true</showWarnings>
+                </configuration>
+            </plugin>
+           <!-- <plugin>
+                <groupId>org.codehaus.cargo</groupId>
+                <artifactId>cargo-maven2-plugin</artifactId>
+                <version>${cargo.plugin.version}</version>
+                <configuration>
+                    <wait>false</wait>
+                    <container>
+                        <containerId>tomcat6x</containerId>
+                        <type>installed</type>
+                        <home>${catalina.home}</home>
+                    </container>
+                    <configuration>
+                        <type>existing</type>
+                        <home>${catalina.home}</home>
+                        <properties>
+                            <cargo.tomcat.manager.url>http://localhost:8080/manager/html</cargo.tomcat.manager.url>
+                            <cargo.remote.username>tomcat</cargo.remote.username>
+                            <cargo.remote.password>tomcat</cargo.remote.password>
+                        </properties>
+                    </configuration>
+                    <deployer>
+                        <type>installed</type>
+                        <deployables>
+                            <deployable>
+                                <groupId>${project.groupId}</groupId>
+                                <artifactId>${project.artifactId}</artifactId>
+                                <type>${project.packaging}</type>
+                                <properties>
+                                    <context>${project.artifactId}</context>
+                                </properties>
+                            </deployable>
+                        </deployables>
+                    </deployer>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>start-container</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>deployer-deploy</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>stop-container</id>
+                        <phase>post-integration-test</phase>
+                        <goals>
+                            <goal>deployer-undeploy</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>verify-deploy</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>deployer-deploy</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>clean-undeploy</id>
+                        <phase>pre-clean</phase>
+                        <goals>
+                            <goal>deployer-undeploy</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${maven-surefire-plugin.version}</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.apache.maven.surefire</groupId>
+                        <artifactId>surefire-junit4</artifactId>
+                        <version>${surefire-junit4.version}</version>
+                    </dependency>
+                </dependencies>
+                <configuration>
+                    <!--<skipTests>false</skipTests>-->
+                    <skipTests>true</skipTests>
+                    <failIfNoTests>false</failIfNoTests>
+                    <parallel>methods</parallel>
+                    <threadCount>20</threadCount>
+                    <!--<argLine>${gwt.extraJvmArgs}</argLine>-->
+                    <additionalClasspathElements>
+                        <!--						<additionalClasspathElement>${basedir}/src/main/resources</additionalClasspathElement>-->
+                        <additionalClasspathElement>${basedir}/src/test/resources</additionalClasspathElement>
+                        <additionalClasspathElement>${basedir}/src/main/webapp</additionalClasspathElement>
+                        <additionalClasspathElement>${basedir}/src/main/webapp/WEB-INF/spring
+                        </additionalClasspathElement>
+                    </additionalClasspathElements>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
-	<dependencies>
+    <dependencies>
 
         <dependency>
             <groupId>jstl</groupId>
@@ -187,94 +191,94 @@
 
 
         <!-- Bean Validation Dependencies -->
-		<dependency>
-			<groupId>javax.validation</groupId>
-			<artifactId>validation-api</artifactId>
-			<version>1.0.0.GA</version>
-		</dependency>
+        <dependency>
+            <groupId>javax.validation</groupId>
+            <artifactId>validation-api</artifactId>
+            <version>1.0.0.GA</version>
+        </dependency>
 
-		<!-- JPA Persistence Dependencies -->
-		
-		<!-- Hibernate Dependencies -->
-		<dependency>
-			<groupId>org.hibernate</groupId>
-			<artifactId>hibernate-core</artifactId>
-			<version>${hibernate.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.hibernate</groupId>
-			<artifactId>hibernate-validator</artifactId>
-			<version>4.0.0.GA</version>
-		</dependency>
-		<dependency>
-			<groupId>org.hibernate</groupId>
-			<artifactId>hibernate-entitymanager</artifactId>
-			<version>${hibernate.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.hibernate.javax.persistence</groupId>
-			<artifactId>hibernate-jpa-2.0-api</artifactId>
-			<version>1.0.0.Final</version>
-		</dependency>
+        <!-- JPA Persistence Dependencies -->
 
-		<!-- Spring Dependencies -->
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-context</artifactId>
-			<version>${spring.version}</version>
-			<exclusions>
-				<exclusion>
-					<groupId>commons-logging</groupId>
-					<artifactId>commons-logging</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-webmvc</artifactId>
-			<version>${spring.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-orm</artifactId>
-			<version>${spring.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-tx</artifactId>
-			<version>${spring.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-test</artifactId>
-			<version>${spring.version}</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.ldap</groupId>
-			<artifactId>spring-ldap-core</artifactId>
-			<version>${spring-ldap.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.ldap</groupId>
-			<artifactId>spring-ldap-core-tiger</artifactId>
-			<version>${spring-ldap.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.ldap</groupId>
-			<artifactId>spring-ldap-odm</artifactId>
-			<version>${spring-ldap.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.ldap</groupId>
-			<artifactId>spring-ldap-ldif-core</artifactId>
-			<version>${spring-ldap.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.ldap</groupId>
-			<artifactId>spring-ldap-ldif-batch</artifactId>
-			<version>${spring-ldap.version}</version>
-		</dependency>
+        <!-- Hibernate Dependencies -->
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-core</artifactId>
+            <version>${hibernate.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-validator</artifactId>
+            <version>4.0.0.GA</version>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-entitymanager</artifactId>
+            <version>${hibernate.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate.javax.persistence</groupId>
+            <artifactId>hibernate-jpa-2.0-api</artifactId>
+            <version>1.0.0.Final</version>
+        </dependency>
+
+        <!-- Spring Dependencies -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <version>${spring.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-webmvc</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-orm</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-tx</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <version>${spring.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.ldap</groupId>
+            <artifactId>spring-ldap-core</artifactId>
+            <version>${spring-ldap.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.ldap</groupId>
+            <artifactId>spring-ldap-core-tiger</artifactId>
+            <version>${spring-ldap.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.ldap</groupId>
+            <artifactId>spring-ldap-odm</artifactId>
+            <version>${spring-ldap.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.ldap</groupId>
+            <artifactId>spring-ldap-ldif-core</artifactId>
+            <version>${spring-ldap.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.ldap</groupId>
+            <artifactId>spring-ldap-ldif-batch</artifactId>
+            <version>${spring-ldap.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-web</artifactId>
@@ -303,29 +307,29 @@
         </dependency>
 
         <!-- DB Dependencies -->
-		<dependency>
-			<groupId>commons-dbcp</groupId>
-			<artifactId>commons-dbcp</artifactId>
-			<version>1.4</version>
-		</dependency>
-		<dependency>
-			<groupId>commons-pool</groupId>
-			<artifactId>commons-pool</artifactId>
-			<version>1.5.6</version>
-		</dependency>
-		<dependency>
-			<groupId>postgresql</groupId>
-			<artifactId>postgresql</artifactId>
-			<version>9.0-801.jdbc4</version>	
-		</dependency>
-		
-		<!-- Test Dependencies -->
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>4.8.2</version>
-			<scope>test</scope>
-		</dependency>
+        <dependency>
+            <groupId>commons-dbcp</groupId>
+            <artifactId>commons-dbcp</artifactId>
+            <version>1.4</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-pool</groupId>
+            <artifactId>commons-pool</artifactId>
+            <version>1.5.6</version>
+        </dependency>
+        <dependency>
+            <groupId>postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>9.0-801.jdbc4</version>
+        </dependency>
+
+        <!-- Test Dependencies -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.8.2</version>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-all</artifactId>
@@ -333,103 +337,103 @@
         </dependency>
 
         <!-- logging -->
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-api</artifactId>
-			<version>${slf4j.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>jcl-over-slf4j</artifactId>
-			<version>${slf4j.version}</version>
-			<scope>runtime</scope>
-		</dependency>
-		<dependency>
-			<groupId>ch.qos.logback</groupId>
-			<artifactId>logback-core</artifactId>
-			<version>${logback.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>ch.qos.logback</groupId>
-			<artifactId>logback-classic</artifactId>
-			<version>${logback.version}</version>
-		</dependency>
-		
-		 <!-- View -->
-		<dependency>
-			<groupId>opensymphony</groupId>
-			<artifactId>sitemesh</artifactId>
-			<version>2.4.2</version>
-		</dependency>
-		<dependency>
-			<groupId>taglibs</groupId>
-			<artifactId>standard</artifactId>
-			<version>1.1.2</version>
-		</dependency>
-		<dependency>
-			<groupId>javax.servlet.jsp</groupId>
-			<artifactId>jsp-api</artifactId>
-			<version>2.1</version>
-			<scope>provided</scope>
-		</dependency>
-		<!--<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>jstl</artifactId>
-			<version>1.2</version>
-		</dependency>-->
-		
-		<!-- Servlet -->
-		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>servlet-api</artifactId>
-			<version>2.5</version>
-			<scope>provided</scope>
-		</dependency>
-		
-		<!-- Mail -->
-		<dependency>
-			<groupId>javax.mail</groupId>
-			<artifactId>mail</artifactId>
-			<version>1.4.4</version>
-		</dependency>
-	
-		<!-- Apache Commons -->
-		<dependency>
-			<groupId>commons-lang</groupId>
-			<artifactId>commons-lang</artifactId>
-			<version>2.6</version>
-		</dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${slf4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>jcl-over-slf4j</artifactId>
+            <version>${slf4j.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-core</artifactId>
+            <version>${logback.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>${logback.version}</version>
+        </dependency>
+
+        <!-- View -->
+        <dependency>
+            <groupId>opensymphony</groupId>
+            <artifactId>sitemesh</artifactId>
+            <version>2.4.2</version>
+        </dependency>
+        <dependency>
+            <groupId>taglibs</groupId>
+            <artifactId>standard</artifactId>
+            <version>1.1.2</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.servlet.jsp</groupId>
+            <artifactId>jsp-api</artifactId>
+            <version>2.1</version>
+            <scope>provided</scope>
+        </dependency>
+        <!--<dependency>
+              <groupId>javax.servlet</groupId>
+              <artifactId>jstl</artifactId>
+              <version>1.2</version>
+          </dependency>-->
+
+        <!-- Servlet -->
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
+            <version>2.5</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- Mail -->
+        <dependency>
+            <groupId>javax.mail</groupId>
+            <artifactId>mail</artifactId>
+            <version>1.4.4</version>
+        </dependency>
+
+        <!-- Apache Commons -->
+        <dependency>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
+            <version>2.6</version>
+        </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
             <version>3.1</version>
         </dependency>
         <dependency>
-			<groupId>commons-io</groupId>
-			<artifactId>commons-io</artifactId>
-			<version>2.1</version>
-		</dependency>
-		
-		<!-- Sheduling -->
-		<dependency>
-			<groupId>quartz</groupId>
-			<artifactId>quartz</artifactId>
-			<version>1.5.2</version>
-		</dependency>
-		
-		<!-- Templates -->
-		<dependency>
-			<groupId>org.apache.velocity</groupId>
-			<artifactId>velocity</artifactId>
-			<version>1.6.2</version>
-		</dependency>
-		
-		<!-- File upload -->
-		<dependency>
-			<groupId>commons-fileupload</groupId>
-			<artifactId>commons-fileupload</artifactId>
-			<version>1.2.2</version>
-		</dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.1</version>
+        </dependency>
+
+        <!-- Sheduling -->
+        <dependency>
+            <groupId>quartz</groupId>
+            <artifactId>quartz</artifactId>
+            <version>1.5.2</version>
+        </dependency>
+
+        <!-- Templates -->
+        <dependency>
+            <groupId>org.apache.velocity</groupId>
+            <artifactId>velocity</artifactId>
+            <version>1.6.2</version>
+        </dependency>
+
+        <!-- File upload -->
+        <dependency>
+            <groupId>commons-fileupload</groupId>
+            <artifactId>commons-fileupload</artifactId>
+            <version>1.2.2</version>
+        </dependency>
 
         <!-- Jasper Reports -->
         <dependency>
@@ -456,5 +460,5 @@
             <artifactId>argo</artifactId>
             <version>3.2</version>
         </dependency>
-	</dependencies>
+    </dependencies>
 </project>
