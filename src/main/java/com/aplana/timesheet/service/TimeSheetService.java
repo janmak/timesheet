@@ -298,4 +298,116 @@ public class TimeSheetService {
 
         return JsonUtil.format(result);
     }
+
+    public String getSelectedCalDateJson(TimeSheetForm tsForm) {
+        StringBuilder sb = new StringBuilder();
+        String date = "";
+        sb.append("'");
+        if (DateTimeUtil.isDateValid(tsForm.getCalDate())){
+            date = DateTimeUtil.formatDateString(tsForm.getCalDate());
+            sb.append(date);
+        }
+        sb.append("'");
+        logger.debug("SelectedCalDateJson = {}", date);
+        return sb.toString();
+    }
+
+    public String getSelectedActCategoriesJson(TimeSheetForm tsForm) {
+        StringBuilder sb = new StringBuilder();
+        List<TimeSheetTableRowForm> tablePart = tsForm.getTimeSheetTablePart();
+        if (tablePart != null) {
+            sb.append("[");
+            for (int i = 0; i < tablePart.size(); i++) {
+                sb.append("{row:'").append(i).append("', ");
+                sb.append("actCat:'").append(tablePart.get(i).getActivityCategoryId()).append("'}");
+                if (i < (tablePart.size() - 1)) {
+                    sb.append(", ");
+                }
+            }
+            sb.append("]");
+        } else {
+            sb.append("[{row:'0', actCat:''}]");
+        }
+        return sb.toString();
+    }
+
+    public String getSelectedWorkplaceJson(TimeSheetForm tsForm) {
+        StringBuilder sb = new StringBuilder();
+        List<TimeSheetTableRowForm> tablePart = tsForm.getTimeSheetTablePart();
+        if (tablePart != null) {
+            sb.append("[");
+            for (int i = 0; i < tablePart.size(); i++) {
+                sb.append("{row:'").append(i).append("', ");
+                sb.append("workplace:'").append(tablePart.get(i).getWorkplaceId()).append("'}");
+                if (i < (tablePart.size() - 1)) {
+                    sb.append(", ");
+                }
+            }
+            sb.append("]");
+        } else {
+            sb.append("[{row:'0', workplace:''}]");
+        }
+        return sb.toString();
+    }
+
+    public String getSelectedProjectTasksJson(TimeSheetForm tsForm) {
+        StringBuilder sb = new StringBuilder();
+        List<TimeSheetTableRowForm> tablePart = tsForm.getTimeSheetTablePart();
+        if (tablePart != null) {
+            sb.append("[");
+            for (int i = 0; i < tablePart.size(); i++) {
+                if (!"".equals(tablePart.get(i).getCqId())) {
+                    sb.append("{row:'").append(i).append("', ");
+                    sb.append("task:'").append(tablePart.get(i).getCqId()).append("'}");
+                    if (i < (tablePart.size() - 1)) {
+                        sb.append(", ");
+                    }
+                }
+            }
+            sb.append("]");
+        } else {
+            sb.append("[{row:'0', task:''}]");
+        }
+        return sb.toString();
+    }
+
+    public String getSelectedProjectRolesJson(TimeSheetForm tsForm) {
+        StringBuilder sb = new StringBuilder();
+        List<TimeSheetTableRowForm> tablePart = tsForm.getTimeSheetTablePart();
+        if (tablePart != null) {
+            sb.append("[");
+            for (int i = 0; i < tablePart.size(); i++) {
+                if (!"".equals(tablePart.get(i).getCqId())) {
+                    sb.append("{row:'").append(i).append("', ");
+                    sb.append("role:'").append(tablePart.get(i).getProjectRoleId()).append("'}");
+                    if (i < (tablePart.size() - 1)) {
+                        sb.append(", ");
+                    }
+                }
+            }
+            sb.append("]");
+        } else {
+            sb.append("[{row:'0', role:''}]");
+        }
+        return sb.toString();
+    }
+
+    public String getSelectedProjectsJson(TimeSheetForm tsForm) {
+        StringBuilder sb = new StringBuilder();
+        List<TimeSheetTableRowForm> tablePart = tsForm.getTimeSheetTablePart();
+        if (tablePart != null) {
+            sb.append("[");
+            for (int i = 0; i < tablePart.size(); i++) {
+                sb.append("{row:'").append(i).append("', ");
+                sb.append("project:'").append(tablePart.get(i).getProjectId()).append("'}");
+                if (i < (tablePart.size() - 1)) {
+                    sb.append(", ");
+                }
+            }
+            sb.append("]");
+        } else {
+            sb.append("[{row:'0', project:''}]");
+        }
+        return sb.toString();
+    }
 }
