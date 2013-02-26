@@ -419,11 +419,12 @@
                         </td>
                         <td class="top_align"> <!-- Категория активности/название работы -->
                             <form:select path="timeSheetTablePart[${row.index}].activityCategoryId"
-                                         id="activity_category_id_${row.index}"
+                                         id="activity_category_id_${row.index}" onchange="setActDescription(${row.index})"
                                          onmouseover="tooltip.show(getTitle(this));" onmouseout="tooltip.hide();"
                                          onkeyup="somethingChanged();" onmouseup="somethingChanged();">
                                 <form:option label="" value="0"/>
                             </form:select>
+                            <label id="act_description_${row.index}" style="font-style: italic"/>
                         </td>
                         <td class="top_align"> <!-- Проектная задача -->
                             <form:select path="timeSheetTablePart[${row.index}].cqId" id="cqId_id_${row.index}"
