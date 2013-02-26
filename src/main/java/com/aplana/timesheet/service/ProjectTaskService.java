@@ -1,12 +1,16 @@
 package com.aplana.timesheet.service;
 
+import argo.jdom.JsonArrayNodeBuilder;
 import com.aplana.timesheet.dao.ProjectTaskDAO;
 import com.aplana.timesheet.dao.entity.Project;
 import com.aplana.timesheet.dao.entity.ProjectTask;
+import com.aplana.timesheet.util.JsonUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+
+import static argo.jdom.JsonNodeBuilders.*;
 
 @Service
 public class ProjectTaskService {
@@ -31,31 +35,29 @@ public class ProjectTaskService {
 	}
 
     public String getProjectTaskListJson(List<Project> projects) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("[");
-        for (int i = 0; i < projects.size(); i++) {
-            Integer projectId = projects.get(i).getId();
-            List<ProjectTask> tasks = getProjectTasks(projectId);
-            sb.append("{projId:'");
-            sb.append(projectId);
-            sb.append("', projTasks:[");
-            for (int j = 0; j < tasks.size(); j++) {
-                sb.append("{id:'");
-                sb.append(tasks.get(j).getCqId());
-                sb.append("', value:'");
-                sb.append(tasks.get(j).getCqId());
-                sb.append("'}");
-                if (j < (tasks.size() - 1)) {
-                    sb.append(", ");
-                }
+        final JsonArrayNodeBuilder builder = anArrayBuilder();
+
+        for (Project project : projects) {
+            final Integer projectId = project.getId();
+            final List<ProjectTask> tasks = getProjectTasks(projectId);
+            final JsonArrayNodeBuilder tasksBuilder = anArrayBuilder();
+
+            for (ProjectTask task : tasks) {
+                tasksBuilder.withElement(
+                        anObjectBuilder().
+                                withField("id", aStringBuilder(task.getCqId())).
+                                withField("value", aStringBuilder(task.getCqId()))
+                );
             }
-            sb.append("]}");
-            if (i < (projects.size() - 1)) {
-                sb.append(", ");
-            }
+
+            builder.withElement(
+                    anObjectBuilder().
+                            withField("projId", JsonUtil.aStringBuilder(projectId)).
+                            withField("projTasks", tasksBuilder)
+            );
         }
-        sb.append("]");
-        return sb.toString();
+
+        return JsonUtil.format(builder);
     }
 
 }
