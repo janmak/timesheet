@@ -1,5 +1,6 @@
 package com.aplana.timesheet.service;
 
+import argo.jdom.JsonArrayNodeBuilder;
 import com.aplana.timesheet.dao.AvailableActivityCategoryDAO;
 import com.aplana.timesheet.dao.EmployeeDAO;
 import com.aplana.timesheet.dao.TimeSheetDAO;
@@ -8,7 +9,9 @@ import com.aplana.timesheet.form.TimeSheetForm;
 import com.aplana.timesheet.form.TimeSheetTableRowForm;
 import com.aplana.timesheet.form.entity.DayTimeSheet;
 import com.aplana.timesheet.util.DateTimeUtil;
+import com.aplana.timesheet.util.JsonUtil;
 import com.google.common.collect.Lists;
+import org.apache.commons.lang.StringUtils;
 import org.apache.velocity.app.VelocityEngine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +23,10 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import static argo.jdom.JsonNodeBuilders.aStringBuilder;
+import static argo.jdom.JsonNodeBuilders.anArrayBuilder;
+import static argo.jdom.JsonNodeBuilders.anObjectBuilder;
+import static argo.jdom.JsonNodeFactories.string;
 import static com.aplana.timesheet.enums.TypesOfActivityEnum.ILLNESS;
 import static com.aplana.timesheet.enums.TypesOfActivityEnum.getById;
 
@@ -257,22 +264,28 @@ public class TimeSheetService {
 
     public String getListOfActDescriptoin(){
         List<AvailableActivityCategory> availableActivityCategories = availableActivityCategoryDAO.getAllAvailableActivityCategories();
-        StringBuilder result = new StringBuilder();
-        result.append("[");
+        final JsonArrayNodeBuilder result = anArrayBuilder();
         for (AvailableActivityCategory activityCategory : availableActivityCategories){
-            result.append("{");
-            result.append("actCat:'" + activityCategory.getActCat().getId() + "', ");
-            result.append("actType:'" + activityCategory.getActType().getId() + "', ");
-            result.append("projectRole:'" + activityCategory.getProjectRole().getId() + "', ");
-            result.append("description:'");
-                if (activityCategory.getDescription() != null){
-                    result.append(activityCategory.getDescription());
-                }
-            result.append("'");
-            result.append("}, ");
+            result.withElement(
+                    anObjectBuilder().
+                            withField("actCat", JsonUtil.aNumberBuilder(activityCategory.getActCat().getId())).
+                            withField("actType", JsonUtil.aNumberBuilder(activityCategory.getActType().getId())).
+                            withField("projectRole", JsonUtil.aNumberBuilder(activityCategory.getProjectRole().getId())).
+                            withField("description",
+                                    activityCategory.getDescription() != null ?
+                                    aStringBuilder(activityCategory.getDescription()) :
+                                    string(StringUtils.EMPTY)
+                            )
+            );
         }
-        result.append("{actCat:'0', actType:'0', projectRole:'0', description:''}");
-        result.append("]");
-        return result.toString();
+        result.withElement(
+                anObjectBuilder().
+                            withField("actCat", JsonUtil.aNumberBuilder(0)).
+                            withField("actType", JsonUtil.aNumberBuilder(0)).
+                            withField("projectRole", JsonUtil.aNumberBuilder(0)).
+                            withField("description", string(StringUtils.EMPTY))
+        );
+
+        return JsonUtil.format(result);
     }
 }
