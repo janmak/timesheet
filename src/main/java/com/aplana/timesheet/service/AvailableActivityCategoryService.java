@@ -1,14 +1,19 @@
 package com.aplana.timesheet.service;
 
+import argo.jdom.JsonArrayNodeBuilder;
 import com.aplana.timesheet.dao.AvailableActivityCategoryDAO;
 import com.aplana.timesheet.dao.entity.AvailableActivityCategory;
 import com.aplana.timesheet.dao.entity.DictionaryItem;
 import com.aplana.timesheet.dao.entity.Project;
 import com.aplana.timesheet.dao.entity.ProjectRole;
+import com.aplana.timesheet.util.JsonUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+
+import static argo.jdom.JsonNodeBuilders.anArrayBuilder;
+import static argo.jdom.JsonNodeBuilders.anObjectBuilder;
 
 @Service
 public class AvailableActivityCategoryService {
@@ -52,29 +57,29 @@ public class AvailableActivityCategoryService {
 	}
 
     public String getAvailableActCategoriesJson() {
-        StringBuilder sb = new StringBuilder();
-        List<DictionaryItem> actTypes = dictionaryItemService.getTypesOfActivity();
-        List<ProjectRole> projectRoles = projectRoleService.getProjectRoles();
-        sb.append("[");
-        for (int i = 0; i < actTypes.size(); i++) {
-            for ( ProjectRole projectRole : projectRoles ) {
-                sb.append( "{actType:'" ).append( actTypes.get( i ).getId() ).append( "', " );
-                sb.append( "projRole:'" ).append( projectRole.getId() ).append( "', " );
-                List<AvailableActivityCategory> avActCats = getAvailableActivityCategories( actTypes.get( i ), projectRole );
-                sb.append( "avActCats:[" );
-                for ( int k = 0; k < avActCats.size(); k++ ) {
-                    sb.append( "'" ).append( avActCats.get( k ).getActCat().getId() ).append( "'" );
-                    if ( k < ( avActCats.size() - 1 ) ) {
-                        sb.append( ", " );
-                    }
+        final JsonArrayNodeBuilder builder = anArrayBuilder();
+        final List<DictionaryItem> actTypes = dictionaryItemService.getTypesOfActivity();
+        final List<ProjectRole> projectRoles = projectRoleService.getProjectRoles();
+
+        for (DictionaryItem actType : actTypes) {
+            for (ProjectRole projectRole : projectRoles) {
+                final List<AvailableActivityCategory> avActCats = getAvailableActivityCategories(actType, projectRole);
+                final JsonArrayNodeBuilder avActCatsBuilder = anArrayBuilder();
+
+                for (AvailableActivityCategory avActCat : avActCats) {
+                    avActCatsBuilder.withElement(JsonUtil.aStringBuilder(avActCat.getActCat().getId()));
                 }
-                sb.append( "]}" );
-                if ( i < ( actTypes.size() ) ) {
-                    sb.append( ", " );
-                }
+
+                builder.withElement(
+                        anObjectBuilder().
+                                withField("actType", JsonUtil.aStringBuilder(actType.getId())).
+                                withField("projRole", JsonUtil.aStringBuilder(projectRole.getId())).
+                                withField("avActCats", avActCatsBuilder)
+                );
             }
         }
-        return sb.toString().substring(0, (sb.toString().length() - 2)) + "]";
+
+        return JsonUtil.format(builder);
     }
 
 }
