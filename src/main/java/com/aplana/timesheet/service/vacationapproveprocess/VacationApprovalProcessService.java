@@ -60,6 +60,12 @@ public class VacationApprovalProcessService extends AbstractVacationApprovalProc
             return lineManagerApproval.getResult();
         }
 
+        Boolean manager2VacationApproval = getManager2Result(vacation);     //проверяем результат второго линейного
+        if (manager2VacationApproval != null) {
+            setFinalStatusForVacationAndSendVacationApprovedMessages(vacation, manager2VacationApproval);
+            return manager2VacationApproval;
+        }
+
         return null;
     }
 
@@ -78,6 +84,16 @@ public class VacationApprovalProcessService extends AbstractVacationApprovalProc
         for (Project project : projects) {
             managers.put(project.getManager().getEmail(), project.getManager());
         }
+
+        if (vacation.getEmployee().getManager2() != null) {
+            managers.put(vacation.getEmployee().getManager2().getEmail(), vacation.getEmployee().getManager2());
+        }
+
+        if (managerExists(vacation.getEmployee())) {
+            managers.put(vacation.getEmployee().getManager().getEmail(), vacation.getEmployee().getManager());
+        }
+
+        managers.put(vacation.getEmployee().getEmail(), vacation.getEmployee());
 
         List<VacationApproval> tempVacationApprovals = createTempVacationApprovals(managers, vacation);
         List<String> emails = prepareEmailsListForVacationApprovedMessage(tempVacationApprovals);
@@ -102,7 +118,6 @@ public class VacationApprovalProcessService extends AbstractVacationApprovalProc
 
         return vacationApprovals;
     }
-
 
     /**
      * проверяем, одобрено ли заявление на отпуск руководителями передаваемого проекта

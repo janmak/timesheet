@@ -6,6 +6,7 @@ import com.aplana.timesheet.dao.entity.Vacation;
 import com.aplana.timesheet.dao.entity.VacationApproval;
 import com.aplana.timesheet.exception.service.VacationApprovalServiceException;
 import com.aplana.timesheet.util.DateTimeUtil;
+import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -145,6 +146,11 @@ public class VacationApprovalAutoProcessService extends AbstractVacationApproval
             return true;
         }
 
+        Boolean manager2Result = getManager2Result(vacation);       //если второй линейный отказал - сразу возвращаем отказ
+        if (BooleanUtils.isFalse(manager2Result)) {
+            return manager2Result;
+        }
+
         int lineManagerDaysToApprove = getControlTimeForLineManager(vacation);
         VacationApproval lineManagerApproval = getTopLineManagerApproval(vacation);
 
@@ -155,6 +161,10 @@ public class VacationApprovalAutoProcessService extends AbstractVacationApproval
 
         if (lineManagerHasTimeToApproveVacation(lineManagerDaysToApprove, lineManagerApproval)) { //у линейного еще есть время подумать
             return lineManagerApproval.getResult();
+        }
+
+        if (manager2Result != null) {       //после проверки всех линейных, если они не отвечают и если второй линейный вынес решение - возвращаем его
+            return manager2Result;
         }
 
         VacationApproval approvalResult = prepareApproveLetterForLineManagerOfEmployee(vacation, lineManagerApproval.getManager());
