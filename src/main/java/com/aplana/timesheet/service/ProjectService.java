@@ -1,8 +1,12 @@
 package com.aplana.timesheet.service;
 
+import argo.jdom.JsonArrayNodeBuilder;
+import argo.jdom.JsonObjectNodeBuilder;
 import com.aplana.timesheet.dao.ProjectDAO;
 import com.aplana.timesheet.dao.entity.*;
 import com.aplana.timesheet.properties.TSPropertyProvider;
+import com.aplana.timesheet.util.JsonUtil;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,6 +18,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
+import static argo.jdom.JsonNodeBuilders.*;
 
 @Service
 public class ProjectService {
@@ -22,6 +27,8 @@ public class ProjectService {
     private static final String WRONG_BEFORE_VACATION_DAYS_ERROR = "В настройках указано неверное количество дней до отпуска, по которым будем формировать рассылку!";
 
     private static final Logger logger = LoggerFactory.getLogger(ProjectService.class);
+    private static final String ID = "id";
+    private static final String VALUE = "value";
 
     @Autowired
 	private ProjectDAO projectDAO;
@@ -105,24 +112,21 @@ public class ProjectService {
      *
      */
     public String getProjectListWithOwnerDivisionJson(List<Division> divisions) {
-        StringBuilder result = new StringBuilder();
-        result.append("[");
-        List<Project> projectList = projectDAO.getProjects();
+        final JsonArrayNodeBuilder builder = anArrayBuilder();
+        final List<Project> projectList = projectDAO.getProjects();
+
         for (Project project : projectList) {
-            result.append("{id:'");
-            result.append(project.getId());
-            result.append("', value:'");
-            result.append(project.getName());
-            result.append("', state:'");
-            result.append(project.getState().getId());
-            result.append("', ownerDivisionId:'");
-            result.append(project.getManager().getDivision().getId());
-            result.append("'}");
-            result.append(", ");
+            final JsonObjectNodeBuilder projectBuilder = getProjectBuilder(project);
+
+            projectBuilder.withField(
+                    "ownerDivisionId",
+                    JsonUtil.aStringBuilder(project.getManager().getDivision().getId())
+            );
+
+            builder.withElement(projectBuilder);
         }
-        result.deleteCharAt(result.length() - 2);
-        result.append("]");
-        return result.toString();
+
+        return JsonUtil.format(builder);
     }
 
     /**
@@ -132,41 +136,36 @@ public class ProjectService {
      * @return
      */
     public String getProjectListJson(List<Division> divisions) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("[");
-        for (int i = 0; i < divisions.size(); i++) {
-            sb.append("{divId:'");
-            sb.append(divisions.get(i).getId());
-            Set<Project> projects = divisions.get(i).getProjects();
-            sb.append("', divProjs:[");
-            if (projects.size() > 0) {
-                int count = 0;
-                logger.debug("For division {} available {} projects.", divisions.get(i).getId(), projects.size());
+        final JsonArrayNodeBuilder builder = anArrayBuilder();
+
+        for (Division division : divisions) {
+            final JsonArrayNodeBuilder projectsBuilder = anArrayBuilder();
+            final Set<Project> projects = division.getProjects();
+
+            if (projects.isEmpty()) {
+                projectsBuilder.withElement(
+                        anObjectBuilder().
+                                withField(ID, JsonUtil.aStringBuilder(0)).
+                                withField(VALUE, aStringBuilder(StringUtils.EMPTY))
+                );
+            } else {
+                logger.debug("For division {} available {} projects.", division.getId(), projects.size());
+
                 for (Project project : projects) {
                     if (project.isActive()) {
-                        sb.append("{id:'");
-                        sb.append(project.getId());
-                        sb.append("', value:'");
-                        sb.append(project.getName());
-                        sb.append("', state:'");
-                        sb.append(project.getState().getId());
-                        sb.append("'}");
-                        sb.append(", ");
+                        projectsBuilder.withElement(getProjectBuilder(project));
                     }
-                    count++;
                 }
-                sb.deleteCharAt(sb.length() - 2);
-                sb.append("]}");
-            } else {
-                sb.append("{id:'0', value:''}]}");
             }
 
-            if (i < (divisions.size() - 1)) {
-                sb.append(", ");
-            }
+            builder.withElement(
+                    anObjectBuilder().
+                            withField("divId", JsonUtil.aStringBuilder(division.getId())).
+                            withField("divProjs", projectsBuilder)
+            );
         }
-        sb.append("]");
-        return sb.toString();
+
+        return JsonUtil.format(builder);
     }
 
     /**
@@ -175,52 +174,34 @@ public class ProjectService {
      * @return
      */
     public String getProjectListJson() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("[");
-            List<Project> projects = getProjects();
-            if (projects.size() > 0) {
-                int count = 0;
-                for (Project project : projects) {
-                    if (project.isActive()) {
-                        sb.append("{id:'");
-                        sb.append(project.getId());
-                        sb.append("', value:'");
-                        sb.append(project.getName());
-                        sb.append("', state:'");
-                        sb.append(project.getState().getId());
-                        sb.append("'}");
-                        sb.append(", ");
-                    }
-                    count++;
-                }
-                sb.deleteCharAt(sb.length() - 2);
-            } else {
-                sb.append("{id:'0', value:''}");
-            }
-        sb.append("]");
-        return sb.toString();
+        return getProjectListAsJson(getProjects());
     }
 
-    public String getProjectListAsJson(List<Project> projects){
-        StringBuilder sb = new StringBuilder();
-        sb.append("[");
-        if (projects.size() > 0) {
-            for (Project project : projects) {
-                sb.append("{id:'");
-                sb.append(project.getId());
-                sb.append("', value:'");
-                sb.append(project.getName());
-                sb.append("', state:'");
-                sb.append(project.getState().getId());
-                sb.append("'}");
-                sb.append(", ");
-            }
-            sb.deleteCharAt(sb.length() - 2);
+    public String getProjectListAsJson(List<Project> projects) {
+        final JsonArrayNodeBuilder builder = anArrayBuilder();
+
+        if (projects.isEmpty()) {
+            builder.withElement(
+                    anObjectBuilder().
+                            withField(ID, JsonUtil.aStringBuilder(0)).
+                            withField(VALUE, aStringBuilder(StringUtils.EMPTY))
+            );
         } else {
-            sb.append("{id:'0', value:''}");
+            for (Project project : projects) {
+                builder.withElement(
+                        getProjectBuilder(project)
+                );
+            }
         }
-        sb.append("]");
-        return sb.toString();
+
+        return JsonUtil.format(builder);
+    }
+
+    private JsonObjectNodeBuilder getProjectBuilder(Project project) {
+        return anObjectBuilder().
+                withField(ID, JsonUtil.aStringBuilder(project.getId())).
+                withField(VALUE, aStringBuilder(project.getName())).
+                withField("state", JsonUtil.aStringBuilder(project.getState().getId()));
     }
 
     public List<Project> getEmployeeProjectPlanByDates(Employee employee, HashMap<Integer, Set<Integer>> dates) {

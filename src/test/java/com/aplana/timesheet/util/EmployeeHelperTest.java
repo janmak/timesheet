@@ -1,6 +1,6 @@
 package com.aplana.timesheet.util;
 
-import com.aplana.timesheet.AbstractTest;
+import com.aplana.timesheet.AbstractJsonTest;
 import com.aplana.timesheet.dao.DivisionDAO;
 import com.aplana.timesheet.dao.entity.Division;
 import com.aplana.timesheet.dao.entity.Employee;
@@ -10,16 +10,13 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.List;
-
-import static org.junit.Assert.assertEquals;
 
 /**
  * @author rshamsutdinov
  * @version 1.0
  */
-public class EmployeeHelperTest extends AbstractTest {
+public class EmployeeHelperTest extends AbstractJsonTest {
 
     @Autowired
     private DivisionDAO divisionDAO;
@@ -31,18 +28,16 @@ public class EmployeeHelperTest extends AbstractTest {
     private EmployeeService employeeService;
 
     final Boolean filterFired = Boolean.FALSE;
-    private Division division;
+    private List<Division> divisions;
     private String json;
 
     @Before
     public void setUp() throws Exception {
-        division = divisionDAO.getActiveDivisions().get(0);
+        divisions = divisionDAO.getActiveDivisions();
         json = getJson();
     }
 
     private String getJson() {
-        final List<Division> divisions = Arrays.asList(division);
-
         StringBuilder sb = new StringBuilder();
         sb.append("[");
         for (int i = 0; i < divisions.size(); i++) {
@@ -84,7 +79,7 @@ public class EmployeeHelperTest extends AbstractTest {
 
     @Test
     public void testGetEmployeeListJson() throws Exception {
-        assertEquals(json, employeeHelper.getEmployeeListJson(Arrays.asList(division), filterFired));
+        assertJsonEquals(json, employeeHelper.getEmployeeListJson(divisions, filterFired));
     }
 
 
