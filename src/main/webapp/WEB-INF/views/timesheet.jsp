@@ -38,7 +38,7 @@
         var selectedCalDate = ${selectedCalDateJson};
         var listOfActDescription = ${listOfActDescriptionJson};
         var dateByDefault = ${getDateByDefault};
-        var firstWorkDateString =  "${getFirstWorkDate}";
+        var firstWorkDateString =  ${getFirstWorkDate};
             if (firstWorkDateString != null) {
                 var date = firstWorkDateString.split('.');
                 var firstWorkDate = new Date(date[2], date[1]-1, date[0]);

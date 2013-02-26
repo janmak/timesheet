@@ -95,11 +95,8 @@ public class TimeSheetController {
         mav.addObject("selectedProjectsJson", "[{row:'0', project:''}]");
         mav.addObject("selectedWorkplaceJson", "[{row:'0', workplace:''}]");
         mav.addObject("selectedActCategoriesJson", "[{row:'0', actCat:''}]");
-        mav.addObject("listOfActDescriptionJson", getListOfActDescriptoin());
-        mav.addObject("getDateByDefault", getDateByDefault(tsForm.getEmployeeId()));
-        mav.addObject("getFirstWorkDate", getEmployeeFirstWorkDay(tsForm.getEmployeeId()));
-
         mav.addAllObjects(getListsToMAV());
+
         return mav;
     }
 
@@ -140,9 +137,6 @@ public class TimeSheetController {
             mavWithErrors.addObject("selectedWorkplaceJson", getSelectedWorkplaceJson(tsForm));
             mavWithErrors.addObject("selectedActCategoriesJson", getSelectedActCategoriesJson(tsForm));
             mavWithErrors.addObject("selectedCalDateJson", getSelectedCalDateJson(tsForm));
-            mavWithErrors.addObject("getDateByDefault", getDateByDefault(tsForm.getEmployeeId()));
-            mavWithErrors.addObject("getFirstWorkDate", getEmployeeFirstWorkDay(tsForm.getEmployeeId()));
-            mavWithErrors.addObject("listOfActDescription", getListOfActDescriptoin());
             mavWithErrors.addAllObjects(getListsToMAV());
 
             return mavWithErrors;
@@ -260,6 +254,13 @@ public class TimeSheetController {
             projectRoleListJson.append("'},");
         }
         result.put("projectRoleListJson", projectRoleListJson.toString().substring(0, (projectRoleListJson.toString().length() - 1)) + "]");
+
+        TimeSheetUser securityUser = securityService.getSecurityPrincipal();
+
+        result.put("listOfActDescriptionJson", getListOfActDescriptoin());
+        result.put("getDateByDefault", getDateByDefault(securityUser.getEmployee().getId()));
+        // todo to iziyangirov: перенести в эмплоее лист, после того, как Ришат закомитит
+        result.put("getFirstWorkDate", getEmployeeFirstWorkDay(securityUser.getEmployee().getId()));
 
         return result;
     }
