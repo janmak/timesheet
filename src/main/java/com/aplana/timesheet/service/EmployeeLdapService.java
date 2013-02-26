@@ -38,7 +38,7 @@ public class EmployeeLdapService {
 
 
     private enum EmployeeType {
-        EMPLOYEE, MANAGER, NEW_EMPLOYEE
+        EMPLOYEE, DIVISION_MANAGER, NEW_EMPLOYEE
     }
 	
 	/**
@@ -160,7 +160,7 @@ public class EmployeeLdapService {
 
             EmployeeLdap managerLdap = divLeader.get(0);
 
-            Employee manager = createAndFillEmployee(managerLdap, errors, EmployeeType.MANAGER);
+            Employee manager = createAndFillEmployee(managerLdap, errors, EmployeeType.DIVISION_MANAGER);
 
             managersToSync.add(manager);
 		}
@@ -238,7 +238,7 @@ public class EmployeeLdapService {
                 break;
 
             case EMPLOYEE:
-            case  MANAGER:
+            case DIVISION_MANAGER:
                 //Employee empInDbByObjectSid = employeeService.findByObjectSid( employeeLdap.getObjectSid() );
                 Employee empInDbByMail = employeeService.findByEmail( employeeLdap.getEmail() );
                 if (empInDbByMail != null) {
@@ -257,7 +257,8 @@ public class EmployeeLdapService {
                 break;
         }
 
-        if (employeeType != EmployeeType.MANAGER) {
+        // У руководителя подразделения manager всегда отсутствует
+        if (employeeType != EmployeeType.DIVISION_MANAGER) {
             findAndFillManagerField(employee, employeeLdap, errors);
         }
 
@@ -277,8 +278,10 @@ public class EmployeeLdapService {
     private void findAndFillManagerField(Employee employee, EmployeeLdap employeeLdap, StringBuffer errors) {
         final Division division = employee.getDivision();
 
+        // Сначала ищем руководителя из ldap
         Employee manager = employeeService.findByLdapName(employeeLdap.getManager());
 
+        // Если не нашли и известно подразделение - берем руководителя подразделения
         if (manager == null && division != null) {
             manager = employeeService.find(division.getLeader());
         }
