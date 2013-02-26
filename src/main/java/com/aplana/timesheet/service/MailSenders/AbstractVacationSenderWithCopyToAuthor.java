@@ -3,6 +3,7 @@ package com.aplana.timesheet.service.MailSenders;
 import com.aplana.timesheet.dao.entity.Vacation;
 import com.aplana.timesheet.properties.TSPropertyProvider;
 import com.aplana.timesheet.service.SendMailService;
+import org.apache.commons.lang.StringUtils;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
@@ -29,6 +30,6 @@ public abstract class AbstractVacationSenderWithCopyToAuthor extends AbstractSen
 
     @Override
     final public String getCcEmail(Vacation vacation) {
-        return vacation.getAuthor().getEmail();
+        return (vacation.getEmployee().getId().equals(vacation.getAuthor().getId())) ? StringUtils.EMPTY : vacation.getAuthor().getEmail();
     }
 }

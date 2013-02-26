@@ -1,12 +1,12 @@
 package com.aplana.timesheet.service;
 
 import com.aplana.timesheet.dao.EmployeeAssistantDAO;
-import com.aplana.timesheet.dao.entity.Employee;
 import com.aplana.timesheet.dao.entity.EmployeeAssistant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.NoResultException;
+import java.util.Set;
 
 /**
  * @author rshamsutdinov
@@ -18,13 +18,13 @@ public class EmployeeAssistantService {
     @Autowired
     private EmployeeAssistantDAO employeeAssistantDAO;
 
-    public EmployeeAssistant find(Employee employee) {
-        return employeeAssistantDAO.find(employee);
+    public EmployeeAssistant find(Set<String> managersEmails) {
+        return employeeAssistantDAO.find(managersEmails);
     }
 
-    public  EmployeeAssistant tryFind(Employee employee) {
+    public EmployeeAssistant tryFind(Set<String> managersEmails) {
         try {
-            return find(employee);
+            return find(managersEmails);
         } catch (NoResultException ex) {
             return null;
         }

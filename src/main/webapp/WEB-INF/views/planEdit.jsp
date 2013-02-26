@@ -201,9 +201,11 @@
 
                             width: (49 * scale) + "px",
                             <sec:authorize access="hasRole('ROLE_PLAN_EDIT')">
+                            <c:if test="${editable}">
                             editable: dojo.some(modelFieldsForSave, function(fieldForSave) {
                                 return (field == fieldForSave);
                             })
+                            </c:if>
                             </sec:authorize>
                         };
                     }
@@ -524,13 +526,13 @@
     </table>
 
     <sec:authorize access="hasRole('ROLE_PLAN_EDIT')">
-    <c:if test="${fn:length(jsonDataToShow) > 0}">
     <br/>
+    <c:if test="${fn:length(jsonDataToShow) > 0 and editable}">
     <button style="width:150px;vertical-align: middle;" onclick="save()" type="button">Сохранить планы</button>
+    </c:if>
     <button style="vertical-align: middle;" onclick="createPlanForPeriod()" type="button">
         Запланировать на период
     </button>
-    </c:if>
     </sec:authorize>
 </form:form>
 

@@ -1,8 +1,10 @@
 package com.aplana.timesheet.service.MailSenders;
 
+import com.aplana.timesheet.dao.entity.Vacation;
 import com.aplana.timesheet.dao.entity.VacationApproval;
 import com.aplana.timesheet.properties.TSPropertyProvider;
 import com.aplana.timesheet.service.SendMailService;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateFormatUtils;
 
 import java.util.Arrays;
@@ -53,7 +55,8 @@ public class VacationApprovalAcceptanceSender extends AbstractSenderWithCcAddres
 
     @Override
     final public String getCcEmail(VacationApproval vacationApproval) {
-        return vacationApproval.getVacation().getAuthor().getEmail();
+        Vacation vacation = vacationApproval.getVacation();
+        return (vacation.getEmployee().getId().equals(vacation.getAuthor().getId())) ? StringUtils.EMPTY : vacation.getAuthor().getEmail();
     }
 
 }

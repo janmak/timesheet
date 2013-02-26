@@ -11,7 +11,7 @@ import java.util.List;
  * User: vsergeev
  * Date: 22.02.13
  */
-public abstract class AbstractSenderWithCcAddress<T> extends MailSender<T>
+public abstract class AbstractSenderWithCcAddress<T> extends AbstractSenderWithAssistants<T>
         implements MailWithCcAddresses<T>{
 
     public AbstractSenderWithCcAddress(SendMailService sendMailService, TSPropertyProvider propertyProvider) {

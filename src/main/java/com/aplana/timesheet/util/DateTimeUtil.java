@@ -399,4 +399,19 @@ public class DateTimeUtil {
 
         return daysToLastDate - daysToFirstDate + 1;
     }
+
+    /**
+     *
+     * @param year
+     * @param month (from 1)
+     * @return
+     */
+    public static Calendar getCalendar(int year, int month) {
+        final Calendar calendar = Calendar.getInstance();
+
+        calendar.set(Calendar.YEAR, year);
+        calendar.set(Calendar.MONTH, month - 1);
+
+        return calendar;
+    }
 }

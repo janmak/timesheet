@@ -16,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -38,7 +39,9 @@ public class VacationApprovedSender extends AbstractVacationSenderWithCopyToAuth
         final Employee employee = vacation.getEmployee();
 
         final Collection<String> ccEmails =
-                getAdditionalEmailsForRegion(employee.getRegion());
+                new ArrayList<String>(getAdditionalEmailsForRegion(employee.getRegion()));
+
+        ccEmails.add(getAssistantEmail(getManagersEmails(mail, employee)));
 
         mail.setCcEmails(getNotBlankEmails(ccEmails));
 

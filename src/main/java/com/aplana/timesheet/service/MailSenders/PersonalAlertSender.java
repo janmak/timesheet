@@ -1,5 +1,6 @@
 package com.aplana.timesheet.service.MailSenders;
 
+import com.aplana.timesheet.dao.entity.Employee;
 import com.aplana.timesheet.dao.entity.ReportCheck;
 import com.aplana.timesheet.properties.TSPropertyProvider;
 import com.aplana.timesheet.service.SendMailService;
@@ -45,10 +46,11 @@ public class PersonalAlertSender extends AbstractSenderWithAssistants<List<Repor
 
         for ( ReportCheck currentReportCheck : params ) {
             Mail mail = new TimeSheetMail();
-            mail.setToEmails(Arrays.asList(currentReportCheck.getEmployee().getEmail()));
-            mail.setCcEmails(Arrays.asList(getAssistantEmail(currentReportCheck.getEmployee())));
+            final Employee employee = currentReportCheck.getEmployee();
+            mail.setToEmails(Arrays.asList(employee.getEmail()));
+            mail.setCcEmails(Arrays.asList(getAssistantEmail(getManagersEmails(mail, employee))));
             mail.setSubject(getSubject(currentReportCheck));
-            mail.setEmployeeList(Arrays.asList(currentReportCheck.getEmployee()));
+            mail.setEmployeeList(Arrays.asList(employee));
 
             mail.getPassedDays().put(null, currentReportCheck.getPassedDays());
             mails.add(mail);
