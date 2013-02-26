@@ -547,6 +547,7 @@ function typeActivityChange(obj) {
         setDefaultEmployeeJob(rowIndex);
         fillAvailableActivityCategoryList(rowIndex);
     }
+    setActDescription(rowIndex);
 }
 
 /* Заполняет список доступных проектов/пресейлов */

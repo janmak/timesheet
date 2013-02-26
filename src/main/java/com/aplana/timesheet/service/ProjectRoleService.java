@@ -12,7 +12,7 @@ public class ProjectRoleService {
 
 	@Autowired
 	private ProjectRoleDAO projectRoleDAO;
-	
+
 	/** Возвращает объект класса ProjectRole по указанному идентификатору */
 	public ProjectRole find(Integer id) {
 		return projectRoleDAO.find(id);
@@ -44,4 +44,19 @@ public class ProjectRoleService {
     public ProjectRole getSysRole(Integer roleId) {
         return projectRoleDAO.getSysRole(roleId);
     }
+
+    public String getProjectRoleListJson(Iterable<ProjectRole> projectRoleList) {
+        StringBuilder projectRoleListJson = new StringBuilder();
+        projectRoleListJson.append("[");
+        for (ProjectRole item : projectRoleList) {
+            projectRoleListJson.append("{id:'");
+            projectRoleListJson.append(item.getId().toString());
+            projectRoleListJson.append("', value:'");
+            projectRoleListJson.append(item.getName());
+            projectRoleListJson.append("'},");
+        }
+
+        return projectRoleListJson.toString().substring(0, (projectRoleListJson.toString().length() - 1)) + "]";
+    }
+
 }

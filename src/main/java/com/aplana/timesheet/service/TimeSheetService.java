@@ -1,5 +1,7 @@
 package com.aplana.timesheet.service;
 
+import argo.jdom.JsonArrayNodeBuilder;
+import argo.jdom.JsonObjectNodeBuilder;
 import com.aplana.timesheet.dao.AvailableActivityCategoryDAO;
 import com.aplana.timesheet.dao.EmployeeDAO;
 import com.aplana.timesheet.dao.TimeSheetDAO;
@@ -8,7 +10,9 @@ import com.aplana.timesheet.form.TimeSheetForm;
 import com.aplana.timesheet.form.TimeSheetTableRowForm;
 import com.aplana.timesheet.form.entity.DayTimeSheet;
 import com.aplana.timesheet.util.DateTimeUtil;
+import com.aplana.timesheet.util.JsonUtil;
 import com.google.common.collect.Lists;
+import org.apache.commons.lang.StringUtils;
 import org.apache.velocity.app.VelocityEngine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +24,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import static argo.jdom.JsonNodeBuilders.*;
+import static argo.jdom.JsonNodeFactories.string;
 import static com.aplana.timesheet.enums.TypesOfActivityEnum.ILLNESS;
 import static com.aplana.timesheet.enums.TypesOfActivityEnum.getById;
 
@@ -183,52 +189,52 @@ public class TimeSheetService {
      * @return jsonString
      */
     public String getPlansJson(String date, Integer employeeId) {
-        StringBuilder json = new StringBuilder();
+        final JsonObjectNodeBuilder builder = anObjectBuilder();
 
-        TimeSheet lastTimeSheet = timeSheetDAO.findLastTimeSheetBefore(calendarService.find(date), employeeId);
-        Calendar nextWorkDay = calendarService.getNextWorkDay(calendarService.find(date), employeeService.find(employeeId).getRegion());
-        TimeSheet nextTimeSheet = timeSheetDAO.findNextTimeSheetAfter(nextWorkDay, employeeId);
+        final TimeSheet lastTimeSheet = timeSheetDAO.findLastTimeSheetBefore(calendarService.find(date), employeeId);
+        final Calendar nextWorkDay = calendarService.getNextWorkDay(
+                calendarService.find(date),
+                employeeService.find(employeeId).getRegion()
+        );
+        final TimeSheet nextTimeSheet = timeSheetDAO.findNextTimeSheetAfter(nextWorkDay, employeeId);
 
-        json.append("{");
         if (lastTimeSheet != null) {
-            json.append("\"prev\":{");
-            json.append("\"dateStr\":");
-            json.append( "\"" ).append( DateTimeUtil.formatDate( lastTimeSheet.getCalDate().getCalDate() ) )
-            .append( "\"," );   //преобразование к  yyyy-MM-dd
-            json.append("\"plan\":\"");
-            String lastPlan = lastTimeSheet.getPlanEscaped();
-            if (lastPlan != null)
-                json.append( "" ).append( lastPlan.replace( "\r\n", "\\n" ) );
-            json.append("\"}");
+            builder.withField("prev", getPlanBuilder(lastTimeSheet));
         }
-
-        if (lastTimeSheet != null && nextTimeSheet != null)
-            json.append(",");
 
         if (nextTimeSheet != null &&
             !( ILLNESS == getById(
                     Lists.newArrayList(
-                            nextTimeSheet.getTimeSheetDetails()).get(0).getActType().getId()))) { // <APLANATS-458>
-            json.append("\"next\":{")
-                    .append( "\"dateStr\":" ).append( "\"" )
-                    .append( DateTimeUtil.formatDate( nextTimeSheet.getCalDate().getCalDate() ) )
-                    .append( "\"," )   //преобразование к  yyyy-MM-dd
-                    .append( "\"plan\":\"" );
-            String nextPlan = getStringTimeSheetDetails(nextTimeSheet);
-            if (nextPlan != null)
-                json.append(nextPlan.replace("\r\n","\\n"));
-            json.append("\"}");
+                            nextTimeSheet.getTimeSheetDetails()).get(0).getActType().getId()))
+        ){ // <APLANATS-458>
+            builder.withField("next", getPlanBuilder(nextTimeSheet));
         }
-        json.append("}");
-        return json.toString();
 
+        return JsonUtil.format(builder);
     }
+
+    private JsonObjectNodeBuilder getPlanBuilder(TimeSheet timeSheet) {
+        return anObjectBuilder().
+                withField("dateStr", aStringBuilder(DateTimeUtil.formatDate(timeSheet.getCalDate().getCalDate()))).
+                withField("plan", aStringBuilder(getPlan(timeSheet)));
+    }
+
+    private String getPlan(TimeSheet timeSheet) {
+        String lastPlan = timeSheet.getPlanEscaped();
+        if (lastPlan != null) {
+            lastPlan = lastPlan.replace("\r\n", "\\n");
+        } else {
+            lastPlan = StringUtils.EMPTY;
+        }
+        return lastPlan;
+    }
+
     /**
      * Формирует строку на подобие поля "Что было сделано" из отчета
      * @param timeSheet
      * @return String
      */
-    private String getStringTimeSheetDetails(TimeSheet timeSheet){
+    public String getStringTimeSheetDetails(TimeSheet timeSheet){
         Set<TimeSheetDetail> timeSheetDetails = timeSheet.getTimeSheetDetails();
         StringBuilder sb;
         StringBuilder rezult = new StringBuilder();
@@ -268,22 +274,140 @@ public class TimeSheetService {
 
     public String getListOfActDescriptoin(){
         List<AvailableActivityCategory> availableActivityCategories = availableActivityCategoryDAO.getAllAvailableActivityCategories();
-        StringBuilder result = new StringBuilder();
-        result.append("[");
+        final JsonArrayNodeBuilder result = anArrayBuilder();
         for (AvailableActivityCategory activityCategory : availableActivityCategories){
-            result.append("{");
-            result.append("actCat:'" + activityCategory.getActCat().getId() + "', ");
-            result.append("actType:'" + activityCategory.getActType().getId() + "', ");
-            result.append("projectRole:'" + activityCategory.getProjectRole().getId() + "', ");
-            result.append("description:'");
-                if (activityCategory.getDescription() != null){
-                    result.append(activityCategory.getDescription());
-                }
-            result.append("'");
-            result.append("}, ");
+            result.withElement(
+                    anObjectBuilder().
+                            withField("actCat", JsonUtil.aNumberBuilder(activityCategory.getActCat().getId())).
+                            withField("actType", JsonUtil.aNumberBuilder(activityCategory.getActType().getId())).
+                            withField("projectRole", JsonUtil.aNumberBuilder(activityCategory.getProjectRole().getId())).
+                            withField("description",
+                                    activityCategory.getDescription() != null ?
+                                    aStringBuilder(activityCategory.getDescription()) :
+                                    string(StringUtils.EMPTY)
+                            )
+            );
         }
-        result.append("{actCat:'0', actType:'0', projectRole:'0', description:''}");
-        result.append("]");
-        return result.toString();
+        result.withElement(
+                anObjectBuilder().
+                            withField("actCat", JsonUtil.aNumberBuilder(0)).
+                            withField("actType", JsonUtil.aNumberBuilder(0)).
+                            withField("projectRole", JsonUtil.aNumberBuilder(0)).
+                            withField("description", string(StringUtils.EMPTY))
+        );
+
+        return JsonUtil.format(result);
+    }
+
+    public String getSelectedCalDateJson(TimeSheetForm tsForm) {
+        StringBuilder sb = new StringBuilder();
+        String date = "";
+        sb.append("'");
+        if (DateTimeUtil.isDateValid(tsForm.getCalDate())){
+            date = DateTimeUtil.formatDateString(tsForm.getCalDate());
+            sb.append(date);
+        }
+        sb.append("'");
+        logger.debug("SelectedCalDateJson = {}", date);
+        return sb.toString();
+    }
+
+    public String getSelectedActCategoriesJson(TimeSheetForm tsForm) {
+        StringBuilder sb = new StringBuilder();
+        List<TimeSheetTableRowForm> tablePart = tsForm.getTimeSheetTablePart();
+        if (tablePart != null) {
+            sb.append("[");
+            for (int i = 0; i < tablePart.size(); i++) {
+                sb.append("{row:'").append(i).append("', ");
+                sb.append("actCat:'").append(tablePart.get(i).getActivityCategoryId()).append("'}");
+                if (i < (tablePart.size() - 1)) {
+                    sb.append(", ");
+                }
+            }
+            sb.append("]");
+        } else {
+            sb.append("[{row:'0', actCat:''}]");
+        }
+        return sb.toString();
+    }
+
+    public String getSelectedWorkplaceJson(TimeSheetForm tsForm) {
+        StringBuilder sb = new StringBuilder();
+        List<TimeSheetTableRowForm> tablePart = tsForm.getTimeSheetTablePart();
+        if (tablePart != null) {
+            sb.append("[");
+            for (int i = 0; i < tablePart.size(); i++) {
+                sb.append("{row:'").append(i).append("', ");
+                sb.append("workplace:'").append(tablePart.get(i).getWorkplaceId()).append("'}");
+                if (i < (tablePart.size() - 1)) {
+                    sb.append(", ");
+                }
+            }
+            sb.append("]");
+        } else {
+            sb.append("[{row:'0', workplace:''}]");
+        }
+        return sb.toString();
+    }
+
+    public String getSelectedProjectTasksJson(TimeSheetForm tsForm) {
+        StringBuilder sb = new StringBuilder();
+        List<TimeSheetTableRowForm> tablePart = tsForm.getTimeSheetTablePart();
+        if (tablePart != null) {
+            sb.append("[");
+            for (int i = 0; i < tablePart.size(); i++) {
+                if (!"".equals(tablePart.get(i).getCqId())) {
+                    sb.append("{row:'").append(i).append("', ");
+                    sb.append("task:'").append(tablePart.get(i).getCqId()).append("'}");
+                    if (i < (tablePart.size() - 1)) {
+                        sb.append(", ");
+                    }
+                }
+            }
+            sb.append("]");
+        } else {
+            sb.append("[{row:'0', task:''}]");
+        }
+        return sb.toString();
+    }
+
+    public String getSelectedProjectRolesJson(TimeSheetForm tsForm) {
+        StringBuilder sb = new StringBuilder();
+        List<TimeSheetTableRowForm> tablePart = tsForm.getTimeSheetTablePart();
+        if (tablePart != null) {
+            sb.append("[");
+            for (int i = 0; i < tablePart.size(); i++) {
+                if (!"".equals(tablePart.get(i).getCqId())) {
+                    sb.append("{row:'").append(i).append("', ");
+                    sb.append("role:'").append(tablePart.get(i).getProjectRoleId()).append("'}");
+                    if (i < (tablePart.size() - 1)) {
+                        sb.append(", ");
+                    }
+                }
+            }
+            sb.append("]");
+        } else {
+            sb.append("[{row:'0', role:''}]");
+        }
+        return sb.toString();
+    }
+
+    public String getSelectedProjectsJson(TimeSheetForm tsForm) {
+        StringBuilder sb = new StringBuilder();
+        List<TimeSheetTableRowForm> tablePart = tsForm.getTimeSheetTablePart();
+        if (tablePart != null) {
+            sb.append("[");
+            for (int i = 0; i < tablePart.size(); i++) {
+                sb.append("{row:'").append(i).append("', ");
+                sb.append("project:'").append(tablePart.get(i).getProjectId()).append("'}");
+                if (i < (tablePart.size() - 1)) {
+                    sb.append(", ");
+                }
+            }
+            sb.append("]");
+        } else {
+            sb.append("[{row:'0', project:''}]");
+        }
+        return sb.toString();
     }
 }

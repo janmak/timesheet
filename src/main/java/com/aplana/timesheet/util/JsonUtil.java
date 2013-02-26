@@ -64,4 +64,8 @@ public class JsonUtil {
         return Double.valueOf(jsonNode.getNode(field).getText().replace(',', '.'));
     }
 
+    public static JsonNodeBuilder aStringBuilder(Number n) {
+        return argo.jdom.JsonNodeBuilders.aStringBuilder(n.toString());
+    }
+
 }
