@@ -1,11 +1,15 @@
 package com.aplana.timesheet.service;
 
+import argo.jdom.JsonArrayNodeBuilder;
 import com.aplana.timesheet.dao.ProjectRoleDAO;
 import com.aplana.timesheet.dao.entity.ProjectRole;
+import com.aplana.timesheet.util.JsonUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+
+import static argo.jdom.JsonNodeBuilders.*;
 
 @Service
 public class ProjectRoleService {	
@@ -46,17 +50,17 @@ public class ProjectRoleService {
     }
 
     public String getProjectRoleListJson(Iterable<ProjectRole> projectRoleList) {
-        StringBuilder projectRoleListJson = new StringBuilder();
-        projectRoleListJson.append("[");
+        final JsonArrayNodeBuilder builder = anArrayBuilder();
+
         for (ProjectRole item : projectRoleList) {
-            projectRoleListJson.append("{id:'");
-            projectRoleListJson.append(item.getId().toString());
-            projectRoleListJson.append("', value:'");
-            projectRoleListJson.append(item.getName());
-            projectRoleListJson.append("'},");
+            builder.withElement(
+                    anObjectBuilder().
+                            withField("id", JsonUtil.aStringBuilder(item.getId())).
+                            withField("value", aStringBuilder(item.getName()))
+            );
         }
 
-        return projectRoleListJson.toString().substring(0, (projectRoleListJson.toString().length() - 1)) + "]";
+        return JsonUtil.format(builder);
     }
 
 }
