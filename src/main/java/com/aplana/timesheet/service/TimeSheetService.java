@@ -153,6 +153,17 @@ public class TimeSheetService {
      */
     public List<DayTimeSheet> findDatesAndReportsForEmployee(Integer year, Integer month, Integer employeeId) {
         Employee emp = employeeService.find(employeeId);
+
+        if (emp == null) {
+            emp = new Employee();
+            final Region region = new Region();
+
+            region.setId(-1);
+
+            emp.setId(employeeId);
+            emp.setRegion(region);
+        }
+
         return timeSheetDAO
                 .findDatesAndReportsForEmployee(year, month, emp.getRegion().getId(), emp);
     }
