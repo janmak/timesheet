@@ -33,6 +33,13 @@ import static com.aplana.timesheet.enums.TypesOfActivityEnum.getById;
 public class TimeSheetService {
     private static final Logger logger = LoggerFactory.getLogger(TimeSheetService.class);
 
+    private static final String ROW = "row";
+    private static final String PROJECT = "project";
+    private static final String ROLE = "role";
+    private static final String TASK = "task";
+    private static final String WORKPLACE = "workplace";
+    private static final String ACT_CAT = "actCat";
+
     @Autowired
     private TimeSheetDAO timeSheetDAO;
 
@@ -313,101 +320,120 @@ public class TimeSheetService {
     }
 
     public String getSelectedActCategoriesJson(TimeSheetForm tsForm) {
-        StringBuilder sb = new StringBuilder();
-        List<TimeSheetTableRowForm> tablePart = tsForm.getTimeSheetTablePart();
+        final JsonArrayNodeBuilder builder = anArrayBuilder();
+        final List<TimeSheetTableRowForm> tablePart = tsForm.getTimeSheetTablePart();
+
         if (tablePart != null) {
-            sb.append("[");
             for (int i = 0; i < tablePart.size(); i++) {
-                sb.append("{row:'").append(i).append("', ");
-                sb.append("actCat:'").append(tablePart.get(i).getActivityCategoryId()).append("'}");
-                if (i < (tablePart.size() - 1)) {
-                    sb.append(", ");
-                }
+                builder.withElement(
+                        anObjectBuilder().
+                                withField(ROW, JsonUtil.aStringBuilder(i)).
+                                withField(ACT_CAT, JsonUtil.aStringBuilder(tablePart.get(i).getActivityCategoryId()))
+                );
             }
-            sb.append("]");
         } else {
-            sb.append("[{row:'0', actCat:''}]");
+            builder.withElement(
+                    anObjectBuilder().
+                            withField(ROW, JsonUtil.aStringBuilder(0)).
+                            withField(ACT_CAT, aStringBuilder(StringUtils.EMPTY))
+            );
         }
-        return sb.toString();
+
+        return JsonUtil.format(builder);
     }
 
     public String getSelectedWorkplaceJson(TimeSheetForm tsForm) {
-        StringBuilder sb = new StringBuilder();
-        List<TimeSheetTableRowForm> tablePart = tsForm.getTimeSheetTablePart();
+        final JsonArrayNodeBuilder builder = anArrayBuilder();
+        final List<TimeSheetTableRowForm> tablePart = tsForm.getTimeSheetTablePart();
         if (tablePart != null) {
-            sb.append("[");
             for (int i = 0; i < tablePart.size(); i++) {
-                sb.append("{row:'").append(i).append("', ");
-                sb.append("workplace:'").append(tablePart.get(i).getWorkplaceId()).append("'}");
-                if (i < (tablePart.size() - 1)) {
-                    sb.append(", ");
-                }
+                builder.withElement(
+                        anObjectBuilder().
+                                withField(ROW, JsonUtil.aStringBuilder(i)).
+                                withField(WORKPLACE, JsonUtil.aStringBuilder(tablePart.get(i).getWorkplaceId()))
+                );
             }
-            sb.append("]");
         } else {
-            sb.append("[{row:'0', workplace:''}]");
+            builder.withElement(
+                    anObjectBuilder().
+                            withField(ROW, JsonUtil.aStringBuilder(0)).
+                            withField(WORKPLACE, aStringBuilder(StringUtils.EMPTY))
+            );
         }
-        return sb.toString();
+
+        return JsonUtil.format(builder);
     }
 
     public String getSelectedProjectTasksJson(TimeSheetForm tsForm) {
-        StringBuilder sb = new StringBuilder();
-        List<TimeSheetTableRowForm> tablePart = tsForm.getTimeSheetTablePart();
+        final JsonArrayNodeBuilder builder = anArrayBuilder();
+        final List<TimeSheetTableRowForm> tablePart = tsForm.getTimeSheetTablePart();
+
         if (tablePart != null) {
-            sb.append("[");
             for (int i = 0; i < tablePart.size(); i++) {
-                if (!"".equals(tablePart.get(i).getCqId())) {
-                    sb.append("{row:'").append(i).append("', ");
-                    sb.append("task:'").append(tablePart.get(i).getCqId()).append("'}");
-                    if (i < (tablePart.size() - 1)) {
-                        sb.append(", ");
-                    }
+                if (StringUtils.isNotBlank(tablePart.get(i).getCqId())) {
+                    builder.withElement(
+                            anObjectBuilder().
+                                    withField(ROW, JsonUtil.aStringBuilder(i)).
+                                    withField(TASK, aStringBuilder(tablePart.get(i).getCqId()))
+                    );
                 }
             }
-            sb.append("]");
         } else {
-            sb.append("[{row:'0', task:''}]");
+            builder.withElement(
+                    anObjectBuilder().
+                            withField(ROW, JsonUtil.aStringBuilder(0)).
+                            withField(TASK, aStringBuilder(StringUtils.EMPTY))
+            );
         }
-        return sb.toString();
+
+        return JsonUtil.format(builder);
     }
 
     public String getSelectedProjectRolesJson(TimeSheetForm tsForm) {
-        StringBuilder sb = new StringBuilder();
-        List<TimeSheetTableRowForm> tablePart = tsForm.getTimeSheetTablePart();
+        final JsonArrayNodeBuilder builder = anArrayBuilder();
+        final List<TimeSheetTableRowForm> tablePart = tsForm.getTimeSheetTablePart();
+
         if (tablePart != null) {
-            sb.append("[");
             for (int i = 0; i < tablePart.size(); i++) {
-                if (!"".equals(tablePart.get(i).getCqId())) {
-                    sb.append("{row:'").append(i).append("', ");
-                    sb.append("role:'").append(tablePart.get(i).getProjectRoleId()).append("'}");
-                    if (i < (tablePart.size() - 1)) {
-                        sb.append(", ");
-                    }
+                if (StringUtils.isNotBlank(tablePart.get(i).getCqId())) {
+                    builder.withElement(
+                            anObjectBuilder().
+                                    withField(ROW, JsonUtil.aStringBuilder(i)).
+                                    withField(ROLE, JsonUtil.aStringBuilder(tablePart.get(i).getProjectRoleId()))
+                    );
                 }
             }
-            sb.append("]");
         } else {
-            sb.append("[{row:'0', role:''}]");
+            builder.withElement(
+                    anObjectBuilder().
+                            withField(ROW, JsonUtil.aStringBuilder(0)).
+                            withField(ROLE, aStringBuilder(StringUtils.EMPTY))
+            );
         }
-        return sb.toString();
+
+        return JsonUtil.format(builder);
     }
 
     public String getSelectedProjectsJson(TimeSheetForm tsForm) {
-        StringBuilder sb = new StringBuilder();
-        List<TimeSheetTableRowForm> tablePart = tsForm.getTimeSheetTablePart();
+        final JsonArrayNodeBuilder builder = anArrayBuilder();
+        final List<TimeSheetTableRowForm> tablePart = tsForm.getTimeSheetTablePart();
+
         if (tablePart != null) {
-            sb.append("[");
             for (int i = 0; i < tablePart.size(); i++) {
-                sb.append("{row:'").append(i).append("', ");
-                sb.append("project:'").append(tablePart.get(i).getProjectId()).append("'}");
-                if (i < (tablePart.size() - 1)) {
-                    sb.append(", ");
-                }
+                builder.withElement(
+                        anObjectBuilder().
+                                withField(ROW, JsonUtil.aStringBuilder(i)).
+                                withField(PROJECT, JsonUtil.aStringBuilder(tablePart.get(i).getProjectId()))
+                );
             }
-            sb.append("]");
         } else {
-            sb.append("[{row:'0', project:''}]");
+            builder.withElement(
+                    anObjectBuilder().
+                            withField(ROW, JsonUtil.aStringBuilder(0)).
+                            withField(PROJECT, aStringBuilder(StringUtils.EMPTY))
+            );
         }
-        return sb.toString();
+
+        return JsonUtil.format(builder);
     }
 }

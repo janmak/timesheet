@@ -5,15 +5,21 @@ import com.aplana.timesheet.dao.AvailableActivityCategoryDAO;
 import com.aplana.timesheet.dao.TimeSheetDAO;
 import com.aplana.timesheet.dao.entity.AvailableActivityCategory;
 import com.aplana.timesheet.dao.entity.Calendar;
+import com.aplana.timesheet.dao.entity.Project;
 import com.aplana.timesheet.dao.entity.TimeSheet;
+import com.aplana.timesheet.form.TimeSheetForm;
+import com.aplana.timesheet.form.TimeSheetTableRowForm;
 import com.aplana.timesheet.util.DateTimeUtil;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.time.DateFormatUtils;
+import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Random;
 
 import static com.aplana.timesheet.enums.TypesOfActivityEnum.ILLNESS;
 import static com.aplana.timesheet.enums.TypesOfActivityEnum.getById;
@@ -22,6 +28,7 @@ public class TimeSheetServiceTest extends AbstractJsonTest {
 
     private static final int EMPLOYEE_ID = 1;
     private static final String DATE = DateFormatUtils.format(new Date(), DateTimeUtil.DATE_PATTERN);
+    private static final Random RANDOM = new Random();
 
     @Autowired
     TimeSheetService timeSheetService;
@@ -38,7 +45,36 @@ public class TimeSheetServiceTest extends AbstractJsonTest {
     @Autowired
     private EmployeeService employeeService;
 
-    public String getListOfActDescriptoinForTest(){
+    @Autowired
+    private ProjectService projectService;
+
+    private TimeSheetForm timeSheetForm = new TimeSheetForm();
+
+    @Before
+    public void initTimeSheetForm() {
+        final int rowsCount = 5;
+        final ArrayList<TimeSheetTableRowForm> tableRowForms = new ArrayList<TimeSheetTableRowForm>(rowsCount);
+        final List<Project> projects = projectService.getAll();
+
+        for (int i = 0; i < rowsCount; i++) {
+            addTimeSheetTableRow(tableRowForms, projects);
+        }
+
+        timeSheetForm.setTimeSheetTablePart(tableRowForms);
+        timeSheetForm.setCalDate(DATE);
+    }
+
+    private void addTimeSheetTableRow(ArrayList<TimeSheetTableRowForm> tableRowForms, List<Project> projects) {
+        final TimeSheetTableRowForm timeSheetTableRowForm = new TimeSheetTableRowForm();
+
+        timeSheetTableRowForm.setProjectId(projects.get(tableRowForms.size() % projects.size()).getId());
+        timeSheetTableRowForm.setCqId(String.valueOf(RANDOM.nextLong()));
+        timeSheetTableRowForm.setProjectRoleId(RANDOM.nextInt());
+        timeSheetTableRowForm.setWorkplaceId(RANDOM.nextInt());
+        timeSheetTableRowForm.setActivityCategoryId(RANDOM.nextInt());
+    }
+
+    private String getListOfActDescriptoinForTest(){
         List<AvailableActivityCategory> availableActivityCategories = availableActivityCategoryDAO.getAllAvailableActivityCategories();
         StringBuilder result = new StringBuilder();
         result.append("[");
@@ -101,6 +137,105 @@ public class TimeSheetServiceTest extends AbstractJsonTest {
 
     }
 
+    private String getSelectedProjectsJson(TimeSheetForm tsForm) {
+        StringBuilder sb = new StringBuilder();
+        List<TimeSheetTableRowForm> tablePart = tsForm.getTimeSheetTablePart();
+        if (tablePart != null) {
+            sb.append("[");
+            for (int i = 0; i < tablePart.size(); i++) {
+                sb.append("{\"row\":\"").append(i).append("\",");
+                sb.append("\"project\":\"").append(tablePart.get(i).getProjectId()).append("\"}");
+                if (i < (tablePart.size() - 1)) {
+                    sb.append(",");
+                }
+            }
+            sb.append("]");
+        } else {
+            sb.append("[{\"row\":\"0\",\"project\":\"\"}]");
+        }
+        return sb.toString();
+    }
+
+    private String getSelectedProjectRolesJson(TimeSheetForm tsForm) {
+        StringBuilder sb = new StringBuilder();
+        List<TimeSheetTableRowForm> tablePart = tsForm.getTimeSheetTablePart();
+        if (tablePart != null) {
+            sb.append("[");
+            for (int i = 0; i < tablePart.size(); i++) {
+                if (!"".equals(tablePart.get(i).getCqId())) {
+                    sb.append("{\"row\":\"").append(i).append("\",");
+                    sb.append("\"role\":\"").append(tablePart.get(i).getProjectRoleId()).append("\"}");
+                    if (i < (tablePart.size() - 1)) {
+                        sb.append(",");
+                    }
+                }
+            }
+            sb.append("]");
+        } else {
+            sb.append("[{\"row\":\"0\",\"role\":\"\"}]");
+        }
+        return sb.toString();
+    }
+
+    private String getSelectedProjectTasksJson(TimeSheetForm tsForm) {
+        StringBuilder sb = new StringBuilder();
+        List<TimeSheetTableRowForm> tablePart = tsForm.getTimeSheetTablePart();
+        if (tablePart != null) {
+            sb.append("[");
+            for (int i = 0; i < tablePart.size(); i++) {
+                if (!"".equals(tablePart.get(i).getCqId())) {
+                    sb.append("{\"row\":\"").append(i).append("\",");
+                    sb.append("\"task\":\"").append(tablePart.get(i).getCqId()).append("\"}");
+                    if (i < (tablePart.size() - 1)) {
+                        sb.append(",");
+                    }
+                }
+            }
+            sb.append("]");
+        } else {
+            sb.append("[{\"row\":\"0\",\"task\":\"\"}]");
+        }
+        return sb.toString();
+    }
+
+    private String getSelectedWorkplaceJson(TimeSheetForm tsForm) {
+        StringBuilder sb = new StringBuilder();
+        List<TimeSheetTableRowForm> tablePart = tsForm.getTimeSheetTablePart();
+        if (tablePart != null) {
+            sb.append("[");
+            for (int i = 0; i < tablePart.size(); i++) {
+                sb.append("{\"row\":\"").append(i).append("\",");
+                sb.append("\"workplace\":\"").append(tablePart.get(i).getWorkplaceId()).append("\"}");
+                if (i < (tablePart.size() - 1)) {
+                    sb.append(",");
+                }
+            }
+            sb.append("]");
+        } else {
+            sb.append("[{\"row\":\"0\",\"workplace\":\"\"}]");
+        }
+        return sb.toString();
+    }
+
+    private String getSelectedActCategoriesJson(TimeSheetForm tsForm) {
+        StringBuilder sb = new StringBuilder();
+        List<TimeSheetTableRowForm> tablePart = tsForm.getTimeSheetTablePart();
+        if (tablePart != null) {
+            sb.append("[");
+            for (int i = 0; i < tablePart.size(); i++) {
+                sb.append("{\"row\":\"").append(i).append("\",");
+                sb.append("\"actCat\":\"").append(tablePart.get(i).getActivityCategoryId()).append("\"}");
+                if (i < (tablePart.size() - 1)) {
+                    sb.append(",");
+                }
+            }
+            sb.append("]");
+        } else {
+            sb.append("[{\"row\":\"0\",\"actCat\":\"\"}]");
+        }
+        return sb.toString();
+    }
+
     @Test
     public void testGetListOfActDescriptoin(){
         String currentResult = timeSheetService.getListOfActDescriptoin();
@@ -111,6 +246,37 @@ public class TimeSheetServiceTest extends AbstractJsonTest {
     @Test
     public void testGetPlansJson() {
         assertJsonEquals(getPlansJson(DATE, EMPLOYEE_ID), timeSheetService.getPlansJson(DATE, EMPLOYEE_ID));
+    }
+
+    @Test
+    public void testGetSelectedProjectsJson() {
+        assertJsonEquals(getSelectedProjectsJson(timeSheetForm), timeSheetService.getSelectedProjectsJson(timeSheetForm));
+    }
+
+    @Test
+    public void testGetSelectedProjectRolesJson() {
+        assertJsonEquals(
+                getSelectedProjectRolesJson(timeSheetForm),
+                timeSheetService.getSelectedProjectRolesJson(timeSheetForm)
+        );
+    }
+
+    @Test
+    public void testGetSelectedProjectTasksJson() {
+        assertJsonEquals(getSelectedProjectTasksJson(timeSheetForm), timeSheetService.getSelectedProjectTasksJson(timeSheetForm));
+    }
+
+    @Test
+    public void testGetSelectedWorkplaceJson() {
+        assertJsonEquals(getSelectedWorkplaceJson(timeSheetForm), timeSheetService.getSelectedWorkplaceJson(timeSheetForm));
+    }
+
+    @Test
+    public void testGetSelectedActCategoriesJson() {
+        assertJsonEquals(
+                getSelectedActCategoriesJson(timeSheetForm),
+                timeSheetService.getSelectedActCategoriesJson(timeSheetForm)
+        );
     }
 
 }
