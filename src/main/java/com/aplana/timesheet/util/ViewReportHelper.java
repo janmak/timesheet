@@ -1,5 +1,6 @@
 package com.aplana.timesheet.util;
 
+import argo.jdom.JsonObjectNodeBuilder;
 import com.aplana.timesheet.form.entity.DayTimeSheet;
 import com.aplana.timesheet.service.TimeSheetService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +10,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.text.SimpleDateFormat;
 import java.util.List;
 
+import static argo.jdom.JsonNodeBuilders.aStringBuilder;
+import static argo.jdom.JsonNodeBuilders.anObjectBuilder;
+
 @Service
 public class ViewReportHelper {
 
@@ -16,26 +20,22 @@ public class ViewReportHelper {
     TimeSheetService timeSheetService;
     @Transactional
     public String getDateReportsListJson(Integer year, Integer month, Integer employeeId) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("{");
-        List<DayTimeSheet> calTSList = timeSheetService.findDatesAndReportsForEmployee(year, month, employeeId);
+        final JsonObjectNodeBuilder builder = anObjectBuilder();
+        final List<DayTimeSheet> calTSList = timeSheetService.findDatesAndReportsForEmployee(year, month, employeeId);
 
-        for (int i = 0; i < calTSList.size(); i++) {
-            DayTimeSheet queryResult = calTSList.get(i);
-            sb.append("\"");
-            String day = new SimpleDateFormat(DateTimeUtil.DATE_PATTERN).format(queryResult.getCalDate());
-            sb.append(day);
-            sb.append("\":\"");
+        for (DayTimeSheet queryResult : calTSList) {
+            final String day = new SimpleDateFormat(DateTimeUtil.DATE_PATTERN).format(queryResult.getCalDate());
+
+            Integer value = 0; //если нет отчета
+
             if (queryResult.getId() != null)
-                sb.append("1\"");   //если есть отчет
+                value = 1;   //если есть отчет
             else if (!queryResult.getWorkDay())
-                sb.append("2\"");   //если выходной или праздничный день
-            else
-                sb.append("0\"");   //если нет отчета
-            if (i < (calTSList.size() - 1))
-                sb.append(", ");
+                value = 2;   //если выходной или праздничный день
+
+            builder.withField(day, aStringBuilder(value.toString()));
         }
-        sb.append("}");
-        return sb.toString();
+
+        return JsonUtil.format(builder.build());
     }
 }
