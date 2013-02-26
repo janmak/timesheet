@@ -19,8 +19,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -180,28 +178,6 @@ public class TimeSheetController {
         return "redirect:" + httpRequest.getHeader("Referer");
     }
 
-    /*  <APLANATS-474>
-     * Возвращает дату (dd.mm.yyyy) для того чтобы установить ее на форме по умолчанию
-    */
-    private String getDateByDefault(Integer id){
-        return dateToJsonString(
-                timeSheetService.getLastWorkdayWithoutTimesheet(id));
-    }
-
-    /*
-     * <APLANATS-412>
-     * Возвращает дату начала работы сотрудника
-     */
-    private String getEmployeeFirstWorkDay(Integer id){
-        return dateToJsonString(
-                timeSheetService.getEmployeeFirstWorkDay(id));
-    }
-
-    private String dateToJsonString(Date date){
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");
-        return "'" + dateFormat.format( date ) + "'";
-    };
-
     /*
       * Возвращает HashMap со значениями для заполнения списков сотрудников,
       * проектов, пресейлов, проектных задач, типов и категорий активности на
@@ -258,10 +234,7 @@ public class TimeSheetController {
         result.put("projectRoleListJson", projectRoleService.getProjectRoleListJson(projectRoleList));
 
         result.put("listOfActDescriptionJson", getListOfActDescriptoin());
-        result.put("getDateByDefault", getDateByDefault(securityUser.getEmployee().getId()));
-        // todo to iziyangirov: перенести в эмплоее лист, после того, как Ришат закомитит
-        result.put("getFirstWorkDate", getEmployeeFirstWorkDay(securityUser.getEmployee().getId()));
-        
+
         return result;
     }
 

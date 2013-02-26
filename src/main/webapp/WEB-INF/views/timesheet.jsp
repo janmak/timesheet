@@ -37,12 +37,7 @@
         var selectedWorkplace = ${selectedWorkplaceJson};
         var selectedCalDate = ${selectedCalDateJson};
         var listOfActDescription = ${listOfActDescriptionJson};
-        var dateByDefault = ${getDateByDefault};
-        var firstWorkDateString =  ${getFirstWorkDate};
-            if (firstWorkDateString != null) {
-                var date = firstWorkDateString.split('.');
-                var firstWorkDate = new Date(date[2], date[1]-1, date[0]);
-            }
+
         var root = getRootEventListener();
         var month = correctLength(new Date().getMonth() + 1);
 
@@ -60,7 +55,7 @@
                         return 'classDateRedText';
                         break;
                     case "0":   //день без отчета
-                        if (date <= firstWorkDate) // день раньше начала работы
+                        if (date <= getFirstWorkDate()) // день раньше начала работы
                             return '';
                         if (date <= new Date())
                             return 'classDateRedBack';
@@ -121,7 +116,7 @@
             } else {
                 addNewRows(2);
             }
-            setDuringDate();
+            setDefaultDate(dojo.byId("employeeId").value);
             reloadTimeSheetState();
             recalculateDuration();
             refreshPlans(dijit.byId('calDate').value, dojo.byId('employeeId').value);
@@ -309,13 +304,13 @@
         <form:select path="employeeId" id="employeeId" class="without_dojo" onmouseover="tooltip.show(getTitle(this));" cssStyle="width: auto"
                      onmouseout="tooltip.hide();" onchange="setDefaultEmployeeJob(-1);
                      colorDayWithReportFromThreeMonth(dateInfoHolder, new Date().getFullYear(), correctLength(new Date().getMonth() + 1), this.value);
-                     refreshPlans(dijit.byId('calDate').value, this.value);">
+                     refreshPlans(dijit.byId('calDate').value, this.value); setDefaultDate(this.value)">
             <form:option label="" value="0"/>
         </form:select>
         <span class="label">за дату</span>
         <form:input path="calDate" id="calDate" class="date_picker" data-dojo-type="DateTextBox" data-dojo-id="reportDate"
                      required="true" onMouseOver="tooltip.show(getTitle(this));" onMouseOut="tooltip.hide();"
-                     onChange="validateReportDate(this.value);refreshPlans(this.value, dojo.byId('employeeId').value);reportDate.constraints.min = firstWorkDate;"/>
+                     onChange="validateReportDate(this.value);refreshPlans(this.value, dojo.byId('employeeId').value);reportDate.constraints.min = getFirstWorkDate();"/>
         <span id="date_warning"></span>
     </div>
 

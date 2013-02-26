@@ -329,10 +329,34 @@ function planBoxNotEmpty() {
     else return !!planBox.value;
 }
 
+function findEmployeeById(employeeId){
+    for (var i = 0; i < employeeList.length; i++){
+        for (var j = 0; j < employeeList[i].divEmps.length ; j++){
+            if (employeeList[i].divEmps[j].id == employeeId){
+                return employeeList[i].divEmps[j];
+            }
+        }
+    }
+}
+
 /* Устанавливает компоненту calDate дату по умолчанию. */
-function setDuringDate() {
+function setDefaultDate(employeeId) {
+    var employee = findEmployeeById(employeeId);
     var date_picker = dijit.byId("calDate");
-    date_picker.set("displayedValue", dateByDefault);
+    date_picker.set("displayedValue", employee.dateByDefault);
+}
+
+// возвращает первый рабочий день сотрудника
+// конечно бы я записал это в глобальную переменную, но я думаю это только усложнит логику
+function getFirstWorkDate(){
+    var employeeId = dojo.byId("employeeId").value;
+    var employee = findEmployeeById(employeeId);
+    var firstWorkDateString =  employee.firstWorkDate;
+    if (firstWorkDateString != null) {
+        var date = firstWorkDateString.split('.');
+        var firstWorkDate = new Date(date[2], date[1]-1, date[0]);
+    }
+    return firstWorkDate;
 }
 
 /* Создает cookie с указанными параметрами */
