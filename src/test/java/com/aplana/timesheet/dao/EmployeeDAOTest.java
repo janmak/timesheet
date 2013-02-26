@@ -25,11 +25,11 @@ public class EmployeeDAOTest {
     @Autowired
     private EmployeeDAO employeeDAO;
 
-    @Test
+    /*@Test
     public void testFindByObjectSid() throws Exception {
         Employee byObjectSid = employeeDAO.findByObjectSid("S-1-5-21-725345543-1454471165-1801674531-8646");
         Assert.assertNotNull(byObjectSid);
-    }
+    }*/
 
     @Test
     public void testGetActiveEmployeesNotInList() {

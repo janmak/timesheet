@@ -145,8 +145,8 @@
                     </dependency>
                 </dependencies>
                 <configuration>
-                    <!--<skipTests>false</skipTests>-->
-                    <skipTests>true</skipTests>
+                    <skipTests>false</skipTests>
+                    <!--<skipTests>true</skipTests>-->
                     <failIfNoTests>false</failIfNoTests>
                     <parallel>methods</parallel>
                     <threadCount>20</threadCount>

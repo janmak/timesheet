@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RunWith(SpringJUnit4ClassRunner.class)
 @TransactionConfiguration(transactionManager = "transactionManager", defaultRollback = true)
 @ContextConfiguration(locations = {"classpath:testApplicationContext.xml"})
-public class AbstractTimeSheetTest {
+public abstract class AbstractTimeSheetTest {
 
 	@Value("${test.username}")
 	private String testUserName;
