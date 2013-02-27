@@ -26,11 +26,10 @@
         <security:intercept-url pattern="/managertools" access="hasAnyRole('ROLE_ADMIN', 'ROLE_MANAGER')"/>
         <security:intercept-url pattern="/timesheetDel/**" access="hasRole('ROLE_ADMIN')"/>
         <security:intercept-url pattern="/adminMessage" access="isAnonymous()"/>
-        <security:intercept-url pattern="/planEdit" access="hasAnyRole('ROLE_PLAN_EDIT', 'ROLE_PLAN_VIEW')" method="GET" />
-        <security:intercept-url pattern="/planEdit/**" access="hasAnyRole('ROLE_PLAN_EDIT', 'ROLE_PLAN_VIEW')"
-                                method="GET" />
-        <security:intercept-url pattern="/planEdit" access="hasRole('ROLE_PLAN_EDIT')" method="POST" />
-        <security:intercept-url pattern="/planEdit/**" access="hasRole('ROLE_PLAN_EDIT')" method="POST" />
+        <security:intercept-url pattern="/planEdit" access="hasAnyRole('ROLE_PLAN_EDIT', 'ROLE_PLAN_VIEW')" />
+        <security:intercept-url pattern="/planEdit/**" access="hasAnyRole('ROLE_PLAN_EDIT', 'ROLE_PLAN_VIEW')" />
+        <security:intercept-url pattern="/planSave" access="hasRole('ROLE_PLAN_EDIT')" />
+        <security:intercept-url pattern="/planSave/**" access="hasRole('ROLE_PLAN_EDIT')" />
         <security:intercept-url pattern="/createPlanForPeriod" access="hasRole('ROLE_PLAN_EDIT')" />
         <security:intercept-url pattern="/createPlanForPeriod/**" access="hasRole('ROLE_PLAN_EDIT')" />
         <security:intercept-url pattern="/**" access="hasRole('ROLE_USER')"/>
