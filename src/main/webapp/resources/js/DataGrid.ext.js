@@ -368,15 +368,6 @@ function updateGridStructure(grid) {
         var scrollBoxes = dojo.query(".dojoxGridMasterView .dojoxGridView .dojoxGridScrollbox", dojo.byId(grid.id));
         var scrollableBox = scrollBoxes[scrollableViewIndex];
 
-        function getDocHeight() {
-            var D = document;
-            return Math.max(
-                    Math.max(D.body.scrollHeight, D.documentElement.scrollHeight),
-                    Math.max(D.body.offsetHeight, D.documentElement.offsetHeight),
-                    Math.max(D.body.clientHeight, D.documentElement.clientHeight)
-            );
-        }
-
         dojo.forEach(scrollBoxes, function(scrollBox) {
             if (scrollBox == scrollableBox) {
                 return;
@@ -386,7 +377,6 @@ function updateGridStructure(grid) {
                 try {
                     var scroll = e[(!dojo.isMozilla ? "wheelDelta" : "detail")] * (!dojo.isMozilla ? 1 : -1);
 
-//                    window.scrollBy(0, -scroll);
                     scrollableBox.scrollTop -= scroll;
                 } catch(ex) {
                     console.log(ex);
