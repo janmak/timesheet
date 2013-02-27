@@ -52,7 +52,7 @@ public class ManagerAlertSender extends MailSender<List<ReportCheck>> {
             addReportToManagerLists(reportCheck.getEmployee(), reportCheck, managerMap);
         }
 
-        List<Mail> mails = new ArrayList<Mail>(params.size());
+        List<Mail> mails = new ArrayList<Mail>();
 
         // Для каждого руководителя формируем отдельное письмо со списком отчетов по его подчиненным
         for (Map.Entry<Employee, List> entry : managerMap.entrySet()) {
@@ -69,7 +69,7 @@ public class ManagerAlertSender extends MailSender<List<ReportCheck>> {
                 mail.setToEmails(Arrays.asList(currentManager.getEmail()));
                 mail.setSubject(getSubject(currentReportCheckList));
                 mail.setDivision(currentReportCheckList.get(0).getDivision());
-                mail.setEmployeeList(Arrays.asList(currentManager));
+                mail.setEmployeeList(getEmployeeList(currentManager, currentReportCheckList));
                 mail.getPassedDays().putAll(getPassedDays(currentReportCheckList));
 
                 mails.add(mail);
@@ -128,6 +128,14 @@ public class ManagerAlertSender extends MailSender<List<ReportCheck>> {
                     }
                 }))
         );
+    }
+
+    private List<Employee> getEmployeeList(Employee manager, List<ReportCheck> reportCheckList){
+        List<Employee> employeeList = new ArrayList<Employee>();
+        for (ReportCheck reportCheck : reportCheckList){
+            employeeList.add(reportCheck.getEmployee());
+        }
+        return employeeList;
     }
 
 }

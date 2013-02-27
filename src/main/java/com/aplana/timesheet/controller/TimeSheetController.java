@@ -19,8 +19,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -97,11 +95,8 @@ public class TimeSheetController {
         mav.addObject("selectedProjectsJson", "[{row:'0', project:''}]");
         mav.addObject("selectedWorkplaceJson", "[{row:'0', workplace:''}]");
         mav.addObject("selectedActCategoriesJson", "[{row:'0', actCat:''}]");
-        mav.addObject("listOfActDescriptionJson", getListOfActDescriptoin());
-        mav.addObject("getDateByDefault", getDateByDefault(tsForm.getEmployeeId()));
-        mav.addObject("getFirstWorkDate", getEmployeeFirstWorkDay(tsForm.getEmployeeId()));
-
         mav.addAllObjects(getListsToMAV());
+
         return mav;
     }
 
@@ -145,9 +140,6 @@ public class TimeSheetController {
                     timeSheetService.getSelectedActCategoriesJson(tsForm)
             );
             mavWithErrors.addObject("selectedCalDateJson", timeSheetService.getSelectedCalDateJson(tsForm));
-            mavWithErrors.addObject("getDateByDefault", getDateByDefault(tsForm.getEmployeeId()));
-            mavWithErrors.addObject("getFirstWorkDate", getEmployeeFirstWorkDay(tsForm.getEmployeeId()));
-            mavWithErrors.addObject("listOfActDescription", getListOfActDescriptoin());
             mavWithErrors.addAllObjects(getListsToMAV());
 
             return mavWithErrors;
@@ -185,28 +177,6 @@ public class TimeSheetController {
 
         return "redirect:" + httpRequest.getHeader("Referer");
     }
-
-    /*  <APLANATS-474>
-     * Возвращает дату (dd.mm.yyyy) для того чтобы установить ее на форме по умолчанию
-    */
-    private String getDateByDefault(Integer id){
-        return dateToJsonString(
-                timeSheetService.getLastWorkdayWithoutTimesheet(id));
-    }
-
-    /*
-     * <APLANATS-412>
-     * Возвращает дату начала работы сотрудника
-     */
-    private String getEmployeeFirstWorkDay(Integer id){
-        return dateToJsonString(
-                timeSheetService.getEmployeeFirstWorkDay(id));
-    }
-
-    private String dateToJsonString(Date date){
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");
-        return "'" + dateFormat.format( date ) + "'";
-    };
 
     /*
       * Возвращает HashMap со значениями для заполнения списков сотрудников,
@@ -262,6 +232,8 @@ public class TimeSheetController {
 
         result.put("projectRoleList", projectRoleList);
         result.put("projectRoleListJson", projectRoleService.getProjectRoleListJson(projectRoleList));
+
+        result.put("listOfActDescriptionJson", getListOfActDescriptoin());
 
         return result;
     }
