@@ -65,7 +65,9 @@ public class JsonUtil {
     }
 
     public static JsonNodeBuilder aStringBuilder(Number n) {
-        return argo.jdom.JsonNodeBuilders.aStringBuilder(n.toString());
+        return argo.jdom.JsonNodeBuilders.aStringBuilder(
+                n != null ? n.toString() : "0"
+        );
     }
 
 }

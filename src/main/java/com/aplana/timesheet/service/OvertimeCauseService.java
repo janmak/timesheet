@@ -3,6 +3,7 @@ package com.aplana.timesheet.service;
 import com.aplana.timesheet.constants.TimeSheetConstants;
 import com.aplana.timesheet.dao.DictionaryItemDAO;
 import com.aplana.timesheet.dao.OvertimeCauseDAO;
+import com.aplana.timesheet.dao.entity.DictionaryItem;
 import com.aplana.timesheet.dao.entity.OvertimeCause;
 import com.aplana.timesheet.dao.entity.TimeSheet;
 import com.aplana.timesheet.enums.OvertimeCausesEnum;
@@ -72,6 +73,7 @@ public class OvertimeCauseService {
     }
 
     public Integer getDictId(Integer overtimeCauseId) {
-        return dictionaryItemDAO.find(overtimeCauseId).getDictionary().getId();
+        DictionaryItem overtimeCause = dictionaryItemDAO.find(overtimeCauseId);
+        return overtimeCause != null ? overtimeCause.getDictionary().getId() : null;
     }
 }
