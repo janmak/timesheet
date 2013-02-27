@@ -221,7 +221,8 @@ public class EmployeeLdapService {
         employee.setEmail(StringUtils.trim(employeeLdap.getEmail()));
         employee.setLdap( employeeLdap.getLdapCn() );
 
-		if (employee.getJob() != null) {
+        // Роли из БД по умолчанию ставятся только для новых сотрудников
+		if ((employee.getJob() != null) && (employeeType.equals(EmployeeType.NEW_EMPLOYEE))){
             setEmployeePermission(employee);
 		} else {
             employee.setPermissions(new HashSet<Permission>());
