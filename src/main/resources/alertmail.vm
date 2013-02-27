@@ -24,7 +24,7 @@
                 </td>
                 <td>
                     <ol>
-                        #foreach($day in ${passedDays.get(employee)})
+                        #foreach($day in ${passedDays.get($employee)})
                             <li><b> $day </b></li>
                         #end
                     </ol>
@@ -43,7 +43,7 @@
             </b></td>
             <td>
             <ol>
-               #foreach($day in ${passedDays.get(employee)})
+               #foreach($day in ${passedDays.get($employee)})
                 <li><b> $day </b></li>
                 #end
             </ol>

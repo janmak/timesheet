@@ -264,7 +264,7 @@ public class TimeSheetService {
         Calendar calendar = timeSheetDAO.getDateNextAfterLastDayWithTS(employee);
         Date result = new Date();
         if (calendar == null){
-            return result;
+            return getEmployeeFirstWorkDay(employeeId);
         } else{
             result.setTime(calendar.getCalDate().getTime());
             return result;

@@ -19,7 +19,7 @@ import java.util.Map;
  * @author eshangareev
  * @version 1.0
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+/*@RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {"classpath:WEB-INF/spring/testApplicationContext.xml"})
 public class LdapDAOTest {
     private static final Logger logger = LoggerFactory.getLogger(LdapDAOTest.class);
@@ -65,4 +65,4 @@ public class LdapDAOTest {
     }
 
 
-}
+}*/

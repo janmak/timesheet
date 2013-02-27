@@ -378,6 +378,10 @@ public class DateTimeUtil {
         return new SimpleDateFormat(DATE_PATTERN).format(date);
     }
 
+    public static String dateToString(Date date, String format){
+        return new SimpleDateFormat(format).format(date);
+    }
+
     public static Date createDate(int year, int month) {
         final Calendar calendar = Calendar.getInstance();
 

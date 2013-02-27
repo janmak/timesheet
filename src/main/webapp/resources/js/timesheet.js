@@ -11,8 +11,9 @@ function al() {
     alert("!!");
 }
 
-/* Добавляет новую строку в табличную часть отчёта. */
+
 function fillWorkplaceSelect(workplaceSelect) {
+    insertEmptyOption(workplaceSelect);
     for (var i = 0; i < workplaceList.length; i++) {
         var workplaceOption = dojo.doc.createElement("option");
         dojo.attr(workplaceOption, {
@@ -24,6 +25,8 @@ function fillWorkplaceSelect(workplaceSelect) {
         workplaceSelect.appendChild(workplaceOption);
     }
 }
+
+/* Добавляет новую строку в табличную часть отчёта. */
 function addNewRow() {
     var tsTable = dojo.byId("time_sheet_table");
     var tsRows = dojo.query(".time_sheet_row");
@@ -95,7 +98,6 @@ function addNewRow() {
         name:"timeSheetTablePart[" + newRowIndex + "].workplaceId"
     });
     dojo.addClass(workplaceSelect, "workplace");
-    insertEmptyOption(workplaceSelect);
     fillWorkplaceSelect(workplaceSelect);
     workplaceCell.appendChild(workplaceSelect);
     // Ячейка с типами активности
@@ -166,7 +168,7 @@ function addNewRow() {
     dojo.attr(labelDescription, {
         id:"act_description_" + newRowIndex,
         style:"font-style: italic"
-    })
+    });
     actCatCell.appendChild(labelDescription);
     // Ячейка с проектными задачами
     var projectTasksCell = newTsRow.insertCell(7);
@@ -246,10 +248,11 @@ function addNewRow() {
 }
 
 function setActDescription(rowIndex){
+    var label = dojo.byId("act_description_" + rowIndex);
+    if (label == null) { return; }
     var actCat = (dojo.byId("activity_category_id_" + rowIndex)).value;
     var actType = (dojo.byId("activity_type_id_" + rowIndex)).value;
     var projectRole = (dojo.byId("project_role_id_" + rowIndex)).value;
-    var label = dojo.byId("act_description_" + rowIndex);
     var finded = false;
     for (var i = 0; i < listOfActDescription.length; i++) {
         if (listOfActDescription[i].actCat == actCat &&
@@ -326,10 +329,34 @@ function planBoxNotEmpty() {
     else return !!planBox.value;
 }
 
+function findEmployeeById(employeeId){
+    for (var i = 0; i < employeeList.length; i++){
+        for (var j = 0; j < employeeList[i].divEmps.length ; j++){
+            if (employeeList[i].divEmps[j].id == employeeId){
+                return employeeList[i].divEmps[j];
+            }
+        }
+    }
+}
+
 /* Устанавливает компоненту calDate дату по умолчанию. */
-function setDuringDate() {
+function setDefaultDate(employeeId) {
+    var employee = findEmployeeById(employeeId);
     var date_picker = dijit.byId("calDate");
-    date_picker.set("displayedValue", dateByDefault);
+    date_picker.set("displayedValue", employee.dateByDefault);
+}
+
+// возвращает первый рабочий день сотрудника
+// конечно бы я записал это в глобальную переменную, но я думаю это только усложнит логику
+function getFirstWorkDate(){
+    var employeeId = dojo.byId("employeeId").value;
+    var employee = findEmployeeById(employeeId);
+    var firstWorkDateString =  employee.firstWorkDate;
+    if (firstWorkDateString != null) {
+        var date = firstWorkDateString.split('.');
+        var firstWorkDate = new Date(date[2], date[1]-1, date[0]);
+    }
+    return firstWorkDate;
 }
 
 /* Создает cookie с указанными параметрами */
@@ -486,7 +513,7 @@ function typeActivityChange(obj) {
     var selectId = dojo.attr(select, "id");
     var rowIndex = selectId.substring(selectId.lastIndexOf("_") + 1, selectId.length);
     // Проект или Пресейл
-    if ((select.value == "12") || (select.value == "13")) {
+    if ((select.value == "12") || (select.value == "13") || (select.value == "42")) {
         dojo.removeAttr("project_id_" + rowIndex, "disabled");
         dojo.removeAttr("project_role_id_" + rowIndex, "disabled");
         fillProjectList(rowIndex, select.value);
@@ -529,6 +556,7 @@ function typeActivityChange(obj) {
     } else if (select.value == "18") { //Не рабочий день
         resetRowState(rowIndex, false);
     }
+
     if (select.value == "13") {
         dojo.attr("cqId_id_" + rowIndex, {
             disabled:"disabled",
@@ -726,16 +754,9 @@ function reloadRowsState() {
     var rowsCount = dojo.query(".time_sheet_row").length;
     var rows = dojo.query(".time_sheet_row");
     for (var i = 0; i < rowsCount; i++) {
-        var actTypeSelect = dojo.byId("activity_type_id_" + i);
-        typeActivityChange(actTypeSelect);
-        var projectSelect = dojo.byId("project_id_" + i);
-
         var workplaceSelect = dojo.byId("workplace_id_" + i);
-
-        if (workplaceSelect.options.length < 2) {
-            fillWorkplaceSelect(workplaceSelect);
-        }
-
+        workplaceSelect.options.length = 0;
+        fillWorkplaceSelect(workplaceSelect);
         for (var l = 0; l < selectedWorkplace.length; l++) {
             if (selectedWorkplace[l].row == i) {
                 dojo.attr(workplaceSelect, { value:selectedWorkplace[l].workplace });
@@ -743,6 +764,10 @@ function reloadRowsState() {
         }
         workplaceChange(workplaceSelect);
 
+        var actTypeSelect = dojo.byId("activity_type_id_" + i);
+        typeActivityChange(actTypeSelect);
+
+        var projectSelect = dojo.byId("project_id_" + i);
         if (dojo.attr(projectSelect, "disabled") != "disabled") {
             for (var k = 0; k < selectedProjects.length; k++) {
                 if (selectedProjects[k].row == i) {
@@ -751,6 +776,7 @@ function reloadRowsState() {
             }
             projectChange(projectSelect);
         }
+
         var projectRoleSelect = dojo.byId("project_role_id_" + i);
         if (dojo.attr(projectRoleSelect, "disabled") != "disabled") {
             for (var p = 0; p < selectedProjectRoles.length; p++) {
@@ -759,20 +785,23 @@ function reloadRowsState() {
                 }
             }
         }
-        var taskSelect = dojo.byId("cqId_id_" + i);
-        if (dojo.attr(taskSelect, "disabled") != "disabled") {
-            for (var j = 0; j < selectedProjectTasks.length; j++) {
-                if (selectedProjectTasks[j].row == i) {
-                    dojo.attr(taskSelect, { value:selectedProjectTasks[j].task });
-                }
-            }
-        }
+
         var actCatSelect = dojo.byId("activity_category_id_" + i);
         if ((dojo.attr(actCatSelect, "disabled") != "disabled")) {
             for (var q = 0; q < selectedActCategories.length; q++) {
                 if (selectedActCategories[q].row == i) {
                     fillAvailableActivityCategoryList(i);
                     dojo.attr(actCatSelect, { value:selectedActCategories[q].actCat });
+                }
+            }
+        }
+        setActDescription(i);
+
+        var taskSelect = dojo.byId("cqId_id_" + i);
+        if (dojo.attr(taskSelect, "disabled") != "disabled") {
+            for (var j = 0; j < selectedProjectTasks.length; j++) {
+                if (selectedProjectTasks[j].row == i) {
+                    dojo.attr(taskSelect, { value:selectedProjectTasks[j].task });
                 }
             }
         }
