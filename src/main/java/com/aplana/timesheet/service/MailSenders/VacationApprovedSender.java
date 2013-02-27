@@ -29,14 +29,20 @@ public class VacationApprovedSender extends AbstractVacationSenderWithCopyToAuth
 
     protected static final Logger logger = LoggerFactory.getLogger(VacationApprovedSender.class);
 
-    public VacationApprovedSender(SendMailService sendMailService, TSPropertyProvider propertyProvider) {
+    private final List<String> emails;
+
+    public VacationApprovedSender(SendMailService sendMailService, TSPropertyProvider propertyProvider,
+                                  List<String> emails) {
         super(sendMailService, propertyProvider);
+        this.emails = emails;
     }
 
     @Override
     public List<Mail> getMainMailList (Vacation vacation) {
         final Mail mail = new TimeSheetMail();
         final Employee employee = vacation.getEmployee();
+
+        mail.setToEmails(emails);
 
         final Collection<String> ccEmails =
                 new ArrayList<String>(getAdditionalEmailsForRegion(employee.getRegion()));
@@ -106,7 +112,7 @@ public class VacationApprovedSender extends AbstractVacationSenderWithCopyToAuth
         return table;
     }
 
-        private String getSubject(Vacation vacation) {
+    private String getSubject(Vacation vacation) {
         String beginDateStr = DateFormatUtils.format(vacation.getBeginDate(), DATE_FORMAT);
         String endDateStr = DateFormatUtils.format(vacation.getEndDate(), DATE_FORMAT);
 

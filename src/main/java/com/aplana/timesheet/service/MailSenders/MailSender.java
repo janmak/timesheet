@@ -43,20 +43,6 @@ public class MailSender<T> {
         }
     }
 
-    public final void sendMessageToEmails(T params, List<String> emails){
-        try {
-            List<Mail> messages = getMailList(params);
-            for (Mail message : messages) {
-                message.setToEmails(emails);
-            }
-            initAndSendMessage(messages);
-        } catch (NoSuchProviderException e) {
-            logger.error("Provider for {} protocol not found.", propertyProvider.getMailTransportProtocol(), e);
-        } catch (MessagingException e) {
-            logger.error("Error while sending email message.", e);
-        }
-    }
-
     protected void initAndSendMessage(List<Mail> mailList) throws MessagingException {
         Transport transport = null;
         try {
@@ -126,9 +112,19 @@ public class MailSender<T> {
             message.setRecipients(MimeMessage.RecipientType.TO, InternetAddress.parse(mailDebugAddress));
             message.setRecipients(MimeMessage.RecipientType.CC, "");
             if (message.getContent() instanceof MimeMultipart){   // если это сложное письмо (напр, с вл. файлами)
-                message.setText(
-                        debugInfo + ((Multipart) message.getContent()).getBodyPart(0).getDataHandler().getContent(),
-                        "UTF-8", "html");
+                final Multipart multipart = (Multipart) message.getContent();
+                final StringBuilder builder = new StringBuilder(debugInfo + multipart.getBodyPart(0).getDataHandler().getContent())
+                        .append("<br>");
+
+                for (int i = 1; i < multipart.getCount(); i++) {
+                    final BodyPart bodyPart = multipart.getBodyPart(i);
+
+                    if (StringUtils.isNotBlank(bodyPart.getFileName())) {
+                        builder.append("<br>Attached file: ").append(bodyPart.getFileName());
+                    }
+                }
+
+                message.setText(builder.toString(), "UTF-8", "html");
             } else{                                               // обычный текст
                 message.setText(debugInfo + message.getContent(), "UTF-8", "html");
             }

@@ -309,9 +309,18 @@ public abstract class AbstractVacationApprovalProcessService {
      */
     public void sendVacationApproveRequestMessages(Vacation vacation) throws VacationApprovalServiceException {
         try {
-            List<Project> projects = projectService.getProjectsForVacation(vacation);
-            if (projects.isEmpty()) {       //если нет проектов ни в планах, ни в списаниях
-                setApprovementWithLineManagerStatusAndSendMessages(vacation);       //сразу утверждаем у линейного
+            final List<Project> projects = projectService.getProjectsForVacation(vacation);
+            final Employee employee = vacation.getEmployee();
+
+            boolean isProjectParticipantInAllProjects = true;
+
+            for (Project project : projects) {
+                isProjectParticipantInAllProjects &= (employee.equals(project.getManager()));
+            }
+
+            if (isProjectParticipantInAllProjects) {
+                // если нет проектов ни в планах, ни в списаниях - сразу утверждаем у линейного
+                setApprovementWithLineManagerStatusAndSendMessages(vacation);
             } else {
                 Map<String, VacationApproval> juniorProjectManagersVacationApprovals = prepareJuniorProjectManagersVacationApprovals(projects, vacation);
                 Map<String, VacationApproval> allManagerVacationApprovals = prepareProjectManagersVacationApprovals(juniorProjectManagersVacationApprovals, projects, vacation);

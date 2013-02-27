@@ -22,12 +22,12 @@ public abstract class AbstractSenderWithCcAddress<T> extends AbstractSenderWithA
     final protected List<Mail> getMailList(T params) {
         List<Mail> mailList = getMainMailList(params);
         String ccEmail = getCcEmail(params);
-        addAdressToCcEmails(mailList, ccEmail);
+        addAddressToCcEmails(mailList, ccEmail);
 
         return mailList;
     }
 
-    final protected List<Mail> addAdressToCcEmails(List<Mail> mailList, String ccEmail) {
+    final protected List<Mail> addAddressToCcEmails(List<Mail> mailList, String ccEmail) {
         for (Mail mail : mailList) {
             ArrayList<String> emails = Lists.newArrayList(mail.getCcEmails());
             emails.add(ccEmail);
