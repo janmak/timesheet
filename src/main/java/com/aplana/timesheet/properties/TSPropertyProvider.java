@@ -1,5 +1,6 @@
 package com.aplana.timesheet.properties;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -7,7 +8,9 @@ import org.springframework.stereotype.Component;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.InvalidPropertiesFormatException;
+import java.util.List;
 import java.util.Properties;
 
 /**
@@ -158,6 +161,12 @@ public class TSPropertyProvider {
         return getProperties().getProperty("feedback.mail.marker", "[TS FEEDBACK] Сообщение от пользователя системы списания занятости");
     }
 
+    public List<String> getExceptionsIgnoreClassNames() {
+        final String ignoreClassNames = getProperties().getProperty("exceptions.ignoreClassNames", StringUtils.EMPTY);
+
+        return Arrays.asList(ignoreClassNames.split("\\s*,\\s*"));
+    }
+
     public static String getFooterText() {
         return getProperties().getProperty("footer.text");
     }
@@ -201,5 +210,4 @@ public class TSPropertyProvider {
     public static String getProperiesFilePath() {
         return System.getProperty("pathToTsProperties");
     }
-
 }
