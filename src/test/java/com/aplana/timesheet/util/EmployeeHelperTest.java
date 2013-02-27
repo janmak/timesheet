@@ -5,12 +5,15 @@ import com.aplana.timesheet.dao.DivisionDAO;
 import com.aplana.timesheet.dao.entity.Division;
 import com.aplana.timesheet.dao.entity.Employee;
 import com.aplana.timesheet.service.EmployeeService;
+import com.aplana.timesheet.service.TimeSheetService;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.text.SimpleDateFormat;
 import java.util.List;
+
+import static com.aplana.timesheet.util.DateTimeUtil.dateToString;
 
 /**
  * @author rshamsutdinov
@@ -27,6 +30,9 @@ public class EmployeeHelperTest extends AbstractJsonTest {
     @Autowired
     private EmployeeService employeeService;
 
+    @Autowired
+    private TimeSheetService timeSheetService;
+
     final Boolean filterFired = Boolean.FALSE;
     private List<Division> divisions;
     private String json;
@@ -36,6 +42,8 @@ public class EmployeeHelperTest extends AbstractJsonTest {
         divisions = divisionDAO.getActiveDivisions();
         json = getJson();
     }
+
+    private static final String DATE_FORMAT = "dd.MM.yyyy";
 
     private String getJson() {
         StringBuilder sb = new StringBuilder();
@@ -59,6 +67,10 @@ public class EmployeeHelperTest extends AbstractJsonTest {
                     }
                     sb.append("\",\"jobId\":\"");
                     sb.append(employees.get(j).getJob().getId());
+                    sb.append("\",\"dateByDefault\":\"");
+                    sb.append(dateToString(timeSheetService.getLastWorkdayWithoutTimesheet(employees.get(j).getId()), DATE_FORMAT));
+                    sb.append("\",\"firstWorkDate\":\"");
+                    sb.append(dateToString(timeSheetService.getEmployeeFirstWorkDay(employees.get(j).getId()), DATE_FORMAT));
                     sb.append("\"}");
                     if (j < (employees.size() - 1)) {
                         sb.append(",");

@@ -276,7 +276,7 @@ function switchColDisplay(button, colField, /* Boolean */ hide, /* Boolean */ up
     dojo.cookie(COOKIE_PREFIX + colField, hide, { expire: 999999999 });
 
     if (updateStructure) {
-        grid.setStructure(grid.structure);
+        updateGridStructure(grid);
     }
 }
 
@@ -338,7 +338,7 @@ function restoreHiddenStateFromCookie(grid) {
         });
     });
 
-    grid.setStructure(grid.structure);
+    updateGridStructure(grid);
 }
 
 function cellHasBeenEdited(grid, field, row) {
@@ -350,5 +350,38 @@ function cellHasBeenEdited(grid, field, row) {
         });
     });
 
+    updateGridStructure(grid);
+}
+
+function updateGridStructure(grid) {
     grid.setStructure(grid.structure);
+
+    var scrollableViewIndex = -1;
+
+    dojo.forEach(grid.structure, function(view, idx) {
+        if (!view.noscroll) {
+            scrollableViewIndex = idx;
+        }
+    });
+
+    if (scrollableViewIndex >= 0) {
+        var scrollBoxes = dojo.query(".dojoxGridMasterView .dojoxGridView .dojoxGridScrollbox", dojo.byId(grid.id));
+        var scrollableBox = scrollBoxes[scrollableViewIndex];
+
+        dojo.forEach(scrollBoxes, function(scrollBox) {
+            if (scrollBox == scrollableBox) {
+                return;
+            }
+
+            dojo.connect(scrollBox, (!dojo.isMozilla ? "onmousewheel" : "DOMMouseScroll"), function(e) {
+                try {
+                    var scroll = e[(!dojo.isMozilla ? "wheelDelta" : "detail")] * (!dojo.isMozilla ? 1 : -1);
+
+                    scrollableBox.scrollTop -= scroll;
+                } catch(ex) {
+                    console.log(ex);
+                }
+            });
+        });
+    }
 }
