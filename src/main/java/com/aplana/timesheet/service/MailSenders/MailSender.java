@@ -9,11 +9,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.mail.*;
-import javax.mail.internet.AddressException;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
-import javax.mail.internet.MimeMultipart;
+import javax.mail.internet.*;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
@@ -120,7 +118,7 @@ public class MailSender<T> {
                     final BodyPart bodyPart = multipart.getBodyPart(i);
 
                     if (StringUtils.isNotBlank(bodyPart.getFileName())) {
-                        builder.append("<br>Attached file: ").append(bodyPart.getFileName());
+                        builder.append("<br>Присоединенный файл: ").append(bodyPart.getFileName());
                     }
                 }
 
@@ -182,7 +180,11 @@ public class MailSender<T> {
     void initMessageSubject(Mail mail, MimeMessage message) throws MessagingException {
         String messageSubject = String.format(getSubjectFormat(), mail.getSubject());
         logger.debug("Message subject: {}", messageSubject);
-        message.setSubject(messageSubject, "koi8-r");
+        try {
+            message.setSubject(MimeUtility.encodeText(messageSubject, "utf-8", "B"));
+        } catch (UnsupportedEncodingException e) {
+            logger.error("Error encoding message subject", e);
+        }
     }
 
     /**
