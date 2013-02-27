@@ -106,7 +106,7 @@ public class MailSender<T> {
     private void addDebugInfoAndChangeReceiver(MimeMessage message, String mailDebugAddress){
         try{
             String debugInfo = getDebugInfo(message);
-            message.setSubject("[TSDEBUG] " + message.getSubject());
+            message.setSubject("[TSDEBUG] " + message.getSubject(), "UTF-8");
             message.setRecipients(MimeMessage.RecipientType.TO, InternetAddress.parse(mailDebugAddress));
             message.setRecipients(MimeMessage.RecipientType.CC, "");
             if (message.getContent() instanceof MimeMultipart){   // если это сложное письмо (напр, с вл. файлами)
@@ -180,11 +180,7 @@ public class MailSender<T> {
     void initMessageSubject(Mail mail, MimeMessage message) throws MessagingException {
         String messageSubject = String.format(getSubjectFormat(), mail.getSubject());
         logger.debug("Message subject: {}", messageSubject);
-        try {
-            message.setSubject(MimeUtility.encodeText(messageSubject, "utf-8", "B"));
-        } catch (UnsupportedEncodingException e) {
-            logger.error("Error encoding message subject", e);
-        }
+        message.setSubject(messageSubject, "utf-8");
     }
 
     /**

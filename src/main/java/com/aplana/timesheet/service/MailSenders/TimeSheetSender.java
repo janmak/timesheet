@@ -78,7 +78,7 @@ public class TimeSheetSender extends MailSender<TimeSheetForm> {
 
     private String getSubject(TimeSheetForm params) {
         return  propertyProvider.getTimesheetMailMarker()+ //APLANATS-571
-                " Status report - " + params.getCalDate();
+                " Списание занятости - " + params.getCalDate();
     }
 
     private Collection<String> getToEmails(TimeSheetForm params) {
