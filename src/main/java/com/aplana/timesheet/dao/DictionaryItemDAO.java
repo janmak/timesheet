@@ -41,6 +41,6 @@ public class DictionaryItemDAO {
 
     @Transactional(readOnly = true)
 	public DictionaryItem find(Integer id) {
-        return entityManager.find(DictionaryItem.class, id);
+        return id != null ? entityManager.find(DictionaryItem.class, id) : null;
 	}
 }
