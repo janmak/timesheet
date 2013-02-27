@@ -1,5 +1,6 @@
 package com.aplana.timesheet.controller;
 
+import com.aplana.timesheet.properties.TSPropertyProvider;
 import com.aplana.timesheet.service.EmployeeService;
 import com.aplana.timesheet.service.SecurityService;
 import com.aplana.timesheet.service.SendMailService;
@@ -28,6 +29,9 @@ public class ExceptionHandler implements HandlerExceptionResolver {
     @Autowired
     private EmployeeService employeeService;
 
+    @Autowired
+    private TSPropertyProvider tsPropertyProvider;
+
     protected static final Logger logger = LoggerFactory.getLogger(ExceptionHandler.class);
 
     public ModelAndView resolveException(HttpServletRequest request,
@@ -41,28 +45,40 @@ public class ExceptionHandler implements HandlerExceptionResolver {
         }
 
         try {
-            model.put("errors", "Unexpected error: " + exception.getMessage());
-            // получим ФИО пользователя
-            String FIO = "<не определен>";
-            TimeSheetUser securityUser = securityService.getSecurityPrincipal();
-            if (securityUser != null) {
-                int employeeId = securityUser.getEmployee().getId();
-                FIO = employeeService.find(employeeId).getName();
+            if (!tsPropertyProvider.getExceptionsIgnoreClassNames().
+                    contains(getLastCause(exception).getClass().getName())
+            ) {
+                model.put("errors", "Unexpected error: " + exception.getMessage());
+                // получим ФИО пользователя
+                String FIO = "<не определен>";
+                TimeSheetUser securityUser = securityService.getSecurityPrincipal();
+                if (securityUser != null) {
+                    int employeeId = securityUser.getEmployee().getId();
+                    FIO = employeeService.find(employeeId).getName();
+                }
+                // Отправим сообщение админам
+                StringBuilder sb = new StringBuilder();
+                sb.append("У пользователя " + FIO + " произошла следующая ошибка:<br>");
+                sb.append(exception.getMessage() != null ? exception.getMessage() : "");
+                sb.append("<br><br>");
+                sb.append("Stack trace: <br>");
+                sb.append(Arrays.toString(exception.getStackTrace()));
+                sendMailService.performExceptionSender(sb.toString());
             }
-            // Отправим сообщение админам
-            StringBuilder sb = new StringBuilder();
-            sb.append("У пользователя " + FIO + " произошла следующая ошибка:<br>");
-            sb.append(exception.getMessage() != null ? exception.getMessage() : "");
-            sb.append("<br><br>");
-            sb.append("Stack trace: <br>");
-            sb.append(Arrays.toString(exception.getStackTrace()));
-            sendMailService.performExceptionSender(sb.toString());
         } finally {
             // Выведем в лог
             logger.error("Произошла неожиданная ошибка:", exception);
-            return new ModelAndView("exception", model);
         }
+
+        return new ModelAndView("exception", model);
     }
 
+    private Throwable getLastCause(Throwable throwable) {
+        while (throwable.getCause() != null) {
+            throwable = throwable.getCause();
+        }
+
+        return throwable;
+    }
 
 }

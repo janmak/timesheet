@@ -264,6 +264,10 @@
             background-color: #f58383 !important;
         }
 
+        .time_sheet_row select {
+            width: 100%;
+        }
+
     </style>
 </head>
 <body>
