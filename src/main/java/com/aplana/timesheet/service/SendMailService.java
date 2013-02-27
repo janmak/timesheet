@@ -222,7 +222,7 @@ public class SendMailService{
     }
 
     public void performVacationApprovedSender (Vacation vacation, List<String> emails) {
-        new VacationApprovedSender(this, propertyProvider).sendMessageToEmails(vacation, emails);
+        new VacationApprovedSender(this, propertyProvider, emails).sendMessage(vacation);
     }
 
     public void performExceptionSender(String problem){

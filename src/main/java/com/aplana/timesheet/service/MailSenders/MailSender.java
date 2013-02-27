@@ -43,20 +43,6 @@ public class MailSender<T> {
         }
     }
 
-    public final void sendMessageToEmails(T params, List<String> emails){
-        try {
-            List<Mail> messages = getMailList(params);
-            for (Mail message : messages) {
-                message.setToEmails(emails);
-            }
-            initAndSendMessage(messages);
-        } catch (NoSuchProviderException e) {
-            logger.error("Provider for {} protocol not found.", propertyProvider.getMailTransportProtocol(), e);
-        } catch (MessagingException e) {
-            logger.error("Error while sending email message.", e);
-        }
-    }
-
     protected void initAndSendMessage(List<Mail> mailList) throws MessagingException {
         Transport transport = null;
         try {
