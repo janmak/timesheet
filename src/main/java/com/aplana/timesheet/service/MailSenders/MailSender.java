@@ -112,9 +112,19 @@ public class MailSender<T> {
             message.setRecipients(MimeMessage.RecipientType.TO, InternetAddress.parse(mailDebugAddress));
             message.setRecipients(MimeMessage.RecipientType.CC, "");
             if (message.getContent() instanceof MimeMultipart){   // если это сложное письмо (напр, с вл. файлами)
-                message.setText(
-                        debugInfo + ((Multipart) message.getContent()).getBodyPart(0).getDataHandler().getContent(),
-                        "UTF-8", "html");
+                final Multipart multipart = (Multipart) message.getContent();
+                final StringBuilder builder = new StringBuilder(debugInfo + multipart.getBodyPart(0).getDataHandler().getContent())
+                        .append("<br>");
+
+                for (int i = 1; i < multipart.getCount(); i++) {
+                    final BodyPart bodyPart = multipart.getBodyPart(i);
+
+                    if (StringUtils.isNotBlank(bodyPart.getFileName())) {
+                        builder.append("<br>Attached file: ").append(bodyPart.getFileName());
+                    }
+                }
+
+                message.setText(builder.toString(), "UTF-8", "html");
             } else{                                               // обычный текст
                 message.setText(debugInfo + message.getContent(), "UTF-8", "html");
             }
