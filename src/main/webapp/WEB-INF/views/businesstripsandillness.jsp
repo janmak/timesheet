@@ -83,9 +83,8 @@
 
         function createBusinessTripOrIllness() {
             var empId = ${employeeId};
-            <sec:authorize access="hasAnyRole('VIEW_ILLNESS_BUSINESS_TRIP', 'CHANGE_ILLNESS_BUSINESS_TRIP')">
-                var empId = dojo.byId("employeeId").value;
-            </sec:authorize>
+            var empId = dojo.byId("employeeId").value;
+
             if (empId != null && empId != 0) {
                 businesstripsandillness.action = "<%=request.getContextPath()%>/businesstripsandillnessadd/" + empId;
                 businesstripsandillness.submit();
@@ -274,12 +273,12 @@
         <table id="reporttable">
             <thead>
                 <tr>
+                    <sec:authorize access="hasRole('CHANGE_ILLNESS_BUSINESS_TRIP')">
                     <th width="15" class="iconbutton">
                         <img src="<c:url value="/resources/img/add.gif"/>" title="Создать" onclick="createBusinessTripOrIllness();"/>
                     </th>
-                    <sec:authorize access="hasRole('CHANGE_ILLNESS_BUSINESS_TRIP')">
-                        <th class="tight"/>
-                        <th class="tight"/>
+                    <th class="tight"></th>
+                    <th class="tight"></th>
                     </sec:authorize>
                     <th width="120">Дата с</th>
                     <th width="120">Дата по</th>
@@ -301,8 +300,8 @@
                     <tbody>
                         <c:forEach var="report" items="${reports.periodicalsList}">
                             <tr>
-                                <td></td>
                                 <sec:authorize access="hasRole('CHANGE_ILLNESS_BUSINESS_TRIP')">
+                                <td></td>
                                 <td>
                                         <div class="iconbutton">
                                             <img src="<c:url value="/resources/img/edit.png"/>" title="Редактировать"

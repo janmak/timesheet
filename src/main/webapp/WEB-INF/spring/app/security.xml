@@ -32,6 +32,9 @@
         <security:intercept-url pattern="/planSave/**" access="hasRole('ROLE_PLAN_EDIT')" />
         <security:intercept-url pattern="/createPlanForPeriod" access="hasRole('ROLE_PLAN_EDIT')" />
         <security:intercept-url pattern="/createPlanForPeriod/**" access="hasRole('ROLE_PLAN_EDIT')" />
+        <security:intercept-url pattern="/businesstripsandillnessadd" access="hasRole('CHANGE_ILLNESS_BUSINESS_TRIP')" />
+        <security:intercept-url pattern="/businesstripsandillnessadd/**"
+                                access="hasRole('CHANGE_ILLNESS_BUSINESS_TRIP')" />
         <security:intercept-url pattern="/**" access="hasRole('ROLE_USER')"/>
         <security:form-login  login-page="/login" default-target-url="/timesheet"
                                             authentication-failure-url="/loginfailed"/>
