@@ -49,7 +49,7 @@ public class VacationApprovalController {
 
     final String BUTTONS_INVISIBLE = "style=\"display: none\"";
 
-    final private AtomicInteger GLOBAL_WRONG_REQUEST_COUNTER = new AtomicInteger(0);
+    final private AtomicInteger GLOBAL_WRONG_REQUEST_COUNTER = new AtomicInteger(1);
 
     @RequestMapping(value = "/vacation_approval", method = RequestMethod.GET)
     public ModelAndView vacationApprovalShow(
