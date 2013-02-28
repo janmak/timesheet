@@ -198,52 +198,76 @@
     <h1><fmt:message key="businesstripsandillness"/></h1>
     <br>
     <form:form method="post" commandName="businesstripsandillness" name="mainForm">
-
         <sec:authorize access="hasAnyRole('VIEW_ILLNESS_BUSINESS_TRIP', 'CHANGE_ILLNESS_BUSINESS_TRIP')">
-
-            <span class="lowspace">Подразделение:</span>
-            <form:select path="divisionId" id="divisionId" cssClass="date_picker" onchange="divisionChange(this)" class="without_dojo"
-                         onmouseover="tooltip.show(getTitle(this));" onmouseout="tooltip.hide();">
-                <form:option label="" value="0"/>
-                <form:options items="${divisionList}" itemLabel="name" itemValue="id"/>
-            </form:select>
-
-            <span class="lowspace">Отчет сотрудника:</span>
-            <form:select path="employeeId" id="employeeId" class="without_dojo" cssClass="date_picker" onmouseover="tooltip.show(getTitle(this));"
-                         onmouseout="tooltip.hide();" onchange="setDefaultEmployeeJob(-1);">
-                <form:option items="${employeeList}" label="" value="0"/>
-            </form:select>
-            <br><br>
-
-       </sec:authorize>
-        <span class="lowspace">Год: </span>
-        <form:select path="year" id="year" class="without_dojo" cssClass="date_picker" onchange="yearChange(this)"
-                     onmouseover="tooltip.show(getTitle(this));" onmouseout="tooltip.hide();">
-            <form:option label="" value="0"/>
-            <form:options items="${yearsList}" itemLabel="year" itemValue="year"/>
-        </form:select>
-        <span class="lowspace">Месяц:</span>
-        <form:select path="month" id="month" class="without_dojo" cssClass="date_picker" onmouseover="tooltip.show(getTitle(this));"
-                     onmouseout="tooltip.hide();">
-            <form:option label="" value="0"/>
-        </form:select>
-
-        <br><br>
-
-        <div class="floatleft lowspace">
-            <span class="lowspace">Тип:</span>
-        </div>
-        <div class="floatleft lowspace">
-            <form:select path="reportType" id="reportType" onMouseOver="tooltip.show(getTitle(this));"
-                         onMouseOut="tooltip.hide();" multiple="false" cssClass="date_picker">
-                <form:options items="${businesstripsandillness.reportTypes}" itemLabel="name" itemValue="id" required="true"/>
-            </form:select>
-        </div>
-        <div class="floatleft lowspace">
-            <button id="show" class="butt block " onclick="showBusinessTripsAndIllnessReport()">
-                Показать
-            </button>
-        </div>
+        <table class="no_border" style="margin-bottom: 20px;">
+            <tr>
+                <td>
+                    <span class="lowspace">Подразделение:</span>
+                </td>
+                <td>
+                    <form:select path="divisionId" id="divisionId" cssClass="date_picker" onchange="divisionChange(this)" class="without_dojo"
+                                 onmouseover="tooltip.show(getTitle(this));" onmouseout="tooltip.hide();">
+                        <form:option label="" value="0"/>
+                        <form:options items="${divisionList}" itemLabel="name" itemValue="id"/>
+                    </form:select>
+                </td>
+                <td>
+                    <span class="lowspace">Отчет сотрудника:</span>
+                </td>
+                <td>
+                    <form:select path="employeeId" id="employeeId" class="without_dojo" cssClass="date_picker" onmouseover="tooltip.show(getTitle(this));"
+                                 onmouseout="tooltip.hide();" onchange="setDefaultEmployeeJob(-1);">
+                        <form:option items="${employeeList}" label="" value="0"/>
+                    </form:select>
+                </td>
+            </tr>
+        </table>
+        </sec:authorize>
+        <table class="no_border">
+            <tr>
+                <td>
+                    <span class="lowspace">Год: </span>
+                </td>
+                <td>
+                    <form:select path="year" id="year" class="without_dojo" cssClass="date_picker" onchange="yearChange(this)"
+                                 onmouseover="tooltip.show(getTitle(this));" onmouseout="tooltip.hide();">
+                        <form:option label="" value="0"/>
+                        <form:options items="${yearsList}" itemLabel="year" itemValue="year"/>
+                    </form:select>
+                </td>
+                <td>
+                    <span class="lowspace">Месяц:</span>
+                </td>
+                <td>
+                    <form:select path="month" id="month" class="without_dojo" cssClass="date_picker" onmouseover="tooltip.show(getTitle(this));"
+                                 onmouseout="tooltip.hide();">
+                        <form:option label="" value="0"/>
+                    </form:select>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <div class="floatleft lowspace">
+                        <span>Тип:</span>
+                    </div>
+                </td>
+                <td>
+                    <div class="floatleft">
+                        <form:select path="reportType" id="reportType" onMouseOver="tooltip.show(getTitle(this));"
+                                     onMouseOut="tooltip.hide();" multiple="false" cssClass="date_picker">
+                            <form:options items="${businesstripsandillness.reportTypes}" itemLabel="name" itemValue="id" required="true"/>
+                        </form:select>
+                    </div>
+                </td>
+                <td colspan="2">
+                    <div class="floatleft lowspace">
+                        <button id="show" class="butt block " onclick="showBusinessTripsAndIllnessReport()">
+                            Показать
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        </table>
         <br>
         <br>
         <br>

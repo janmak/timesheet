@@ -45,3 +45,7 @@
 .lowspace {
     margin: 6px;
 }
+
+table.no_border, table.no_border td {
+    border: none;
+}
