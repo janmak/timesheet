@@ -44,6 +44,17 @@
 			<pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{45} - %msg%n</pattern>
 		</encoder>
     </appender>
+
+    <appender name="mail" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOGS_PATH}/mail.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOGS_PATH}/mail.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>10</maxHistory>
+        </rollingPolicy>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{45} - %msg%n</pattern>
+        </encoder>
+    </appender>
     
 	<logger name="com.aplana.timesheet" level="debug">
 		<appender-ref ref="timesheet" />
@@ -72,6 +83,10 @@
 	<logger name="org.hibernate.tool" level="info" additivity="false">
 		<appender-ref ref="hibernate" />
 	</logger>
+
+    <logger name="com.aplana.timesheet.service.MailSenders.MailSender" level="info" additivity="false">
+        <appender-ref ref="mail" />
+    </logger>
 
 	<root level="debug">
 		<appender-ref ref="console" />

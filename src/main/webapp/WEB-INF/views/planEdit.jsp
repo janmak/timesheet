@@ -43,6 +43,10 @@
             padding-left: 2px;
         }
 
+        #footer {
+            display: none;
+        }
+
     </style>
 
     <script type="text/javascript">
@@ -541,7 +545,7 @@
 <c:if test="${fn:length(jsonDataToShow) > 0}">
 <div dojoType="dojox.layout.ContentPane" style="width: 100%; min-width: 1260px;">
     <div id="myTable" jsId="<%= GRID_JS_ID %>" dojoType="dojox.grid.DataGrid" store="myStore"
-           selectionMode="none" canSort="false" query="myQuery" <%--autoHeight="true"--%> style="height: 435px;"
+           selectionMode="none" canSort="false" query="myQuery" <%--autoHeight="true"--%> style="height: 450px;"
            structure="myLayout"></div>
 </div>
 </c:if>
