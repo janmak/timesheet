@@ -33,11 +33,11 @@ import java.util.*;
 public class SendMailService{
     private static final Logger logger = LoggerFactory.getLogger(SendMailService.class);
 
-    private final Predicate<RenameMe> LEAVE_PRESALE_AND_PROJECTS_ONLY =
-            Predicates.and(Predicates.notNull(), new Predicate<RenameMe>() {
+    private final Predicate<ProjectActivityInfo> LEAVE_PRESALE_AND_PROJECTS_ONLY =
+            Predicates.and(Predicates.notNull(), new Predicate<ProjectActivityInfo>() {
                 @Override
-                public boolean apply(@Nullable RenameMe renameMe) {
-                    TypesOfActivityEnum actType = renameMe.getTypeOfActivity();
+                public boolean apply(@Nullable ProjectActivityInfo projectActivityInfo) {
+                    TypesOfActivityEnum actType = projectActivityInfo.getTypeOfActivity();
                     return actType == TypesOfActivityEnum.PROJECT || actType == TypesOfActivityEnum.PRESALE;
                 }
             });
@@ -49,10 +49,10 @@ public class SendMailService{
         }
     };
 
-    private Function<RenameMe,String> GET_EMAILS_OF_INTERESTED_PARTICIPANTS_FROM_PROJECT_FOR_CURRENT_ROLE
-            = new Function<RenameMe, String>() {
+    private Function<ProjectActivityInfo,String> GET_EMAILS_OF_INTERESTED_PARTICIPANTS_FROM_PROJECT_FOR_CURRENT_ROLE
+            = new Function<ProjectActivityInfo, String>() {
         @Nullable @Override
-        public String apply(@Nullable RenameMe input) {
+        public String apply(@Nullable ProjectActivityInfo input) {
             final ProjectRolesEnum roleInCurrentProject = input.getProjectRole();
 
             final Project project = projectService.find(input.getProjectId());
@@ -143,10 +143,10 @@ public class SendMailService{
 
         return Joiner.on(",").join(Iterables.transform(
                 Iterables.filter(transformTimeSheetTableRowForm(tsRows), LEAVE_PRESALE_AND_PROJECTS_ONLY),
-                new Function<RenameMe, String>() {
+                new Function<ProjectActivityInfo, String>() {
                     @Nullable
                     @Override
-                    public String apply(@Nullable RenameMe input) {
+                    public String apply(@Nullable ProjectActivityInfo input) {
                         return getEmployeeEmail(projectService.find(input.getProjectId()).getManager().getId());
                     }
                 }));
@@ -174,7 +174,7 @@ public class SendMailService{
         return getProjectParticipantsEmails(transformTimeSheetDetail(ts.getTimeSheetDetails()));
     }
 
-    private String getProjectParticipantsEmails(Iterable<RenameMe> details) {
+    private String getProjectParticipantsEmails(Iterable<ProjectActivityInfo> details) {
         return StringUtils.join(
                 Lists.newArrayList(Iterables.transform(
                         Iterables.filter(details, LEAVE_PRESALE_AND_PROJECTS_ONLY),
@@ -311,18 +311,18 @@ public class SendMailService{
         return emails;
     }
 
-    interface RenameMe {
+    interface ProjectActivityInfo {
         TypesOfActivityEnum getTypeOfActivity();
         ProjectRolesEnum getProjectRole();
         Integer getProjectId();
     }
 
-    public Iterable<RenameMe> transformTimeSheetTableRowForm(Iterable<TimeSheetTableRowForm> tsRows) {
-        return Iterables.transform(tsRows, new Function<TimeSheetTableRowForm, RenameMe>() {
+    public Iterable<ProjectActivityInfo> transformTimeSheetTableRowForm(Iterable<TimeSheetTableRowForm> tsRows) {
+        return Iterables.transform(tsRows, new Function<TimeSheetTableRowForm, ProjectActivityInfo>() {
             @Nullable
             @Override
-            public RenameMe apply(@Nullable final TimeSheetTableRowForm input) {
-                return new RenameMe() {
+            public ProjectActivityInfo apply(@Nullable final TimeSheetTableRowForm input) {
+                return new ProjectActivityInfo() {
                     @Override
                     public TypesOfActivityEnum getTypeOfActivity() {
                         return TypesOfActivityEnum.getById(input.getActivityTypeId());
@@ -342,12 +342,12 @@ public class SendMailService{
         });
     }
 
-    public Iterable<RenameMe> transformTimeSheetDetail(Iterable<TimeSheetDetail> details) {
-        return Iterables.transform(details, new Function<TimeSheetDetail, RenameMe>() {
+    public Iterable<ProjectActivityInfo> transformTimeSheetDetail(Iterable<TimeSheetDetail> details) {
+        return Iterables.transform(details, new Function<TimeSheetDetail, ProjectActivityInfo>() {
             @Nullable
             @Override
-            public RenameMe apply(@Nullable final TimeSheetDetail input) {
-                return new RenameMe() {
+            public ProjectActivityInfo apply(@Nullable final TimeSheetDetail input) {
+                return new ProjectActivityInfo() {
                     @Override
                     public TypesOfActivityEnum getTypeOfActivity() {
                         return TypesOfActivityEnum.getById(input.getActType().getId());
