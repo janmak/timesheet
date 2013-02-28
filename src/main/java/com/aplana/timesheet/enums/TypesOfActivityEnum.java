@@ -68,6 +68,10 @@ public enum TypesOfActivityEnum implements TSEnum {
                 || PROJECT_PRESALE == typeOfActivity;
     }
 
+    public static boolean isProjectOrPresale(TypesOfActivityEnum typesOfActivityEnum) {
+        return (typesOfActivityEnum == PROJECT || typesOfActivityEnum == PRESALE);
+    }
+
     public static boolean isNotEfficientActivity( int id ) {
         return ! isEfficientActivity( id );
     }

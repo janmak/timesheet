@@ -10,6 +10,7 @@ import com.aplana.timesheet.form.TimeSheetTableRowForm;
 import com.aplana.timesheet.properties.TSPropertyProvider;
 import com.aplana.timesheet.service.MailSenders.*;
 import com.aplana.timesheet.util.DateTimeUtil;
+import com.aplana.timesheet.util.EnumsUtils;
 import com.aplana.timesheet.util.TimeSheetUser;
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
@@ -284,6 +285,30 @@ public class SendMailService{
 
     public EmployeeAssistant getEmployeeAssistant(Set<String> managersEmails) {
         return employeeAssistantService.tryFind(managersEmails);
+    }
+
+    public String getProjectsManagersEmails(TimeSheet timeSheet) {
+        return StringUtils.join(getProjectsManagersEmails(timeSheet.getTimeSheetDetails()), ',');
+    }
+
+    private Collection getProjectsManagersEmails(Set<TimeSheetDetail> timeSheetDetails) {
+        final Set<String> emails = new HashSet<String>();
+
+        Project project;
+
+        for (TimeSheetDetail timeSheetDetail : timeSheetDetails) {
+            project = timeSheetDetail.getProject();
+
+            if (project != null && project.getManager() != null  &&
+                    TypesOfActivityEnum.isProjectOrPresale(
+                            EnumsUtils.tryFindById(timeSheetDetail.getActType().getId(), TypesOfActivityEnum.class)
+                    )
+            ) {
+                emails.add(project.getManager().getEmail());
+            }
+        }
+
+        return emails;
     }
 
     interface RenameMe {
