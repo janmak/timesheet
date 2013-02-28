@@ -1,3 +1,4 @@
+<%@ page import="static com.aplana.timesheet.util.ResourceUtils.getResRealPath" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
@@ -12,22 +13,13 @@
 
 <body>
 
-<script type="text/javascript" src="<%= request.getContextPath()%>/resources/js/report.js"></script>
+<script type="text/javascript" src="<%= getResRealPath("/resources/js/report.js", application) %>"></script>
 <script type="text/javascript">
     dojo.ready(function () {
         dojo.require("dijit.form.DateTextBox");
 
-        divisionChange(reportForm.divisionId);
+        fillEmployeeListByDivision(reportForm.divisionId);
 
-        var filter = dojo.byId("allRegions");
-        var target = "regionIds";
-        dojo.connect(filter, "onchange", function () {
-            if (filter.checked) {
-                dojo.attr(target, {disabled:"disabled"});
-            } else {
-                dojo.removeAttr(target, "disabled");
-            }
-        })
     });
 	var employeeList = ${employeeListJson};
 </script>
@@ -54,9 +46,9 @@
             <tr>
                 <td><span class="label">Центр</span></td>
                 <td><form:select id="divisionId" name="divisionOwnerId" cssClass="without_dojo"
-                                 onmouseover="tooltip.show(getTitle(this));" onchange="divisionChange(this)"
+                                 onmouseover="tooltip.show(getTitle(this));" onchange="fillEmployeeListByDivision(this)"
                                  onmouseout="tooltip.hide();" path="divisionOwnerId">
-                    <form:option label="Все центры" value="0"/>
+                    <form:option label="Все" value="0"/>
                     <form:options items="${divisionList}" itemLabel="name" itemValue="id"/>
                 </form:select></td>
 			</tr>
@@ -65,7 +57,7 @@
                 <td><form:select path="employeeId" id="employeeId" class="without_dojo"
                                  onmouseover="tooltip.show(getTitle(this));"
                                  onmouseout="tooltip.hide();" onchange="setDefaultEmployeeJob(-1);">
-                    <form:option label="Все сотрудники" value="0"/>
+                    <form:option label="Все" value="0"/>
                 </form:select></td>
             </tr>
             <tr>
@@ -90,7 +82,8 @@
                     <span class="label" style="float:left">Регион</span>
 							<span style="float: right">
 								<span>
-									<form:checkbox  id="allRegions" name="allRegions"  path="allRegions"/>
+									<form:checkbox  id="allRegions" name="allRegions"  path="allRegions"
+                                                    onchange="allRegionsCheckBoxChange(this.checked)" />
 								</span>
 								<span>Все регионы</span>
 							</span>
@@ -98,14 +91,12 @@
             </tr>
             <tr>
                 <td>
-					<span class="without_dojo">
-						<form:select id="regionIds" name="regionIds"
-                                     onmouseover="tooltip.show(getTitle(this));"
-                                     onmouseout="tooltip.hide();" path="regionIds" multiple="true"
-                                     cssClass ="region">
-                            <form:options items="${regionList}" itemLabel="name" itemValue="id"/>
-                        </form:select>
-					</span>
+                    <form:select id="regionIds" name="regionIds"
+                                 onmouseover="tooltip.show(getTitle(this));"
+                                 onmouseout="tooltip.hide();" path="regionIds" multiple="true"
+                                 cssClass ="region">
+                        <form:options items="${regionList}" itemLabel="name" itemValue="id"/>
+                    </form:select>
                 </td>
             </tr>
         </table>

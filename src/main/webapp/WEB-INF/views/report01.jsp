@@ -1,3 +1,4 @@
+<%@ page import="static com.aplana.timesheet.util.ResourceUtils.getResRealPath" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
@@ -12,23 +13,10 @@
 
     <body>
 
-        <script type="text/javascript" src="<%= request.getContextPath()%>/resources/js/report.js"></script>
+        <script type="text/javascript" src="<%= getResRealPath("/resources/js/report.js", application) %>"></script>
         <script type="text/javascript">
             dojo.ready(function () {
                 dojo.require("dijit.form.DateTextBox");
-
-                //reportForm.divisionId.value = <sec:authentication property="principal.employee.division.id"/>;
-
-                var filter = dojo.byId("allRegions");
-                var target = "regionIds";
-                dojo.connect(filter, "onchange", function () {
-                    if (filter.checked) {
-                        dojo.attr(target, {disabled:"disabled"});
-                    } else {
-                        dojo.removeAttr(target, "disabled");
-                    }
-                })
-
             });
         </script>
 
@@ -56,20 +44,18 @@
                         <td><form:select id="divisionId" name="divisionOwnerId" cssClass="without_dojo"
                                          onmouseover="tooltip.show(getTitle(this));"
                                          onmouseout="tooltip.hide();" path="divisionOwnerId">
-                            <form:option label="Все центры" value="0"/>
+                            <form:option label="Все" value="0"/>
                             <form:options items="${divisionList}" itemLabel="name" itemValue="id"/>
                         </form:select></td>
+                    </tr>
+                    <tr>
                         <td><span class="label">Категория переработок</span><span style="color:red">*</span></td>
                         <td>
                             <form:select path="category" id="category" name="category" cssClass="without_dojo"
                                          onmouseover="tooltip.show(getTitle(this));"
                                          onmouseout="tooltip.hide();">
-                                <%--<form:option id="0"/>--%>
                                 <form:options items="${categoryList}" itemLabel="title"/>
                             </form:select>
-                        </td>
-                        <td rowspan="2" colspan="2">
-
                         </td>
                     </tr>
                     <tr>
@@ -94,7 +80,8 @@
                             <span style="color:red">*</span>
 							<span style="float: right">
 								<span>
-									<form:checkbox  id="allRegions" name="allRegions"  path="allRegions"/>
+									<form:checkbox  id="allRegions" name="allRegions"  path="allRegions"
+                                                    onchange="allRegionsCheckBoxChange(this.checked)" />
 								</span>
 								<span>Все регионы</span>
 							</span>
@@ -102,15 +89,13 @@
                     </tr>
                     <tr>
                         <td>
-							<span class="without_dojo">
-								<form:select id="regionIds" name="regionIds"
-                                             onmouseover="tooltip.show(getTitle(this));"
-                                             onmouseout="tooltip.hide();" path="regionIds" multiple="true"
-                                             cssClass ="region">
-                                    <form:options items="${regionList}" itemLabel="name" itemValue="id"/>
-                                </form:select>
-							</span>
-                        </td>
+                            <form:select id="regionIds" name="regionIds"
+                                         onmouseover="tooltip.show(getTitle(this));"
+                                         onmouseout="tooltip.hide();" path="regionIds" multiple="true"
+                                         cssClass ="region">
+                                <form:options items="${regionList}" itemLabel="name" itemValue="id"/>
+                            </form:select>
+	                    </td>
                     </tr>
                 </table>
                 <div class="radiogroup">

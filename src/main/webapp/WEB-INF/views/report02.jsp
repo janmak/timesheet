@@ -1,9 +1,10 @@
+<%@ page import="static com.aplana.timesheet.util.ResourceUtils.getResRealPath" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
-<%@page contentType="text/html" pageEncoding="UTF-8" %>
+<%@ page contentType="text/html" pageEncoding="UTF-8" %>
 
 <html>
 	<head>
@@ -11,35 +12,21 @@
 	</head>
 
 	<body>
-        <script type="text/javascript" src="<%= request.getContextPath()%>/resources/js/report.js"></script>
+
+        <script type="text/javascript" src="<%= getResRealPath("/resources/js/report.js", application) %>"></script>
 		<script type="text/javascript">		
 			this.dojo.ready(function () {
 				dojo.require("dijit.form.DateTextBox");
 				fillProjectListByDivision(reportForm.divisionId);
-			
+
 				var emplDivisionId = "${reportForm.emplDivisionId}";
 				var selectedEmployee = "${reportForm.employeeId}";
 				reportForm.emplDivisionId.value = emplDivisionId;
 				fillEmployeeListByDivision(reportForm.emplDivisionId);
 				reportForm.employeeId.value = selectedEmployee;
 				reportForm.projectId.value = "${reportForm.projectId}";
-
-                var filter = dojo.byId("allRegions");
-                var target = "regionIds";
-                var region = dojo.byId(target);
-                if (region.value == "") {
-                    filter.checked = true;
-                    region.disabled = true;
-                }
-                dojo.connect(filter, "onchange", function () {
-                    if (filter.checked) {
-                        dojo.attr(target, {disabled:"disabled"});
-                    } else {
-                        dojo.removeAttr(target, "disabled");
-                    }
-                })
 			});
-		
+
 			var projectList = ${projectListJson};
 			var fullProjectList = ${fullProjectListJson};
             var projectListWithOwnerDivision = ${projectListWithOwnerDivisionJson};
@@ -65,13 +52,13 @@
 			<div id="form_header">
 				<table class="report_params" cellspacing="3">
 					<tr>
-						<td><span class="label">Центр владельца проекта</span><span style="color:red">*</span></td>
+						<td  style="width: 225px"><span class="label">Центр владельца проекта</span><span style="color:red">*</span></td>
 						<td><form:select id="divisionId" name="divisionOwnerId" cssClass="without_dojo"
 									 onmouseover="tooltip.show(getTitle(this));"
 									 onmouseout="tooltip.hide();" path="divisionOwnerId"
 									 onchange="fillProjectListByDivision(this)"
 									 oninit="">
-								<form:option label="" value="0"/>
+								<form:option label="Все" value="0"/>
 								<form:options items="${divisionList}" itemLabel="name" itemValue="id"/>
 							</form:select></td>
 						<td colspan="2" align="right"><form:checkbox path="filterProjects" name="filterProjects" id="filterProjects"
@@ -93,14 +80,14 @@
 									 onmouseover="tooltip.show(getTitle(this));"
 									 onmouseout="tooltip.hide();" path="emplDivisionId"
 									 onchange="fillEmployeeListByDivision(this)">
-								<form:option label="Все центры" value="0"/>
+								<form:option label="Все" value="0"/>
 								<form:options items="${divisionList}" itemLabel="name" itemValue="id"/>
 							</form:select></td>
 						<td><span class="label">Сотрудник</span></td>
 						<td><form:select path="employeeId" id="employeeId" class="without_dojo"
 									 onmouseover="tooltip.show(getTitle(this));"
 									 onmouseout="tooltip.hide();">
-								<form:option label="" value="0"/>
+								<form:option label="Все" value="0"/>
 							</form:select></td>
 					</tr>
 					<tr>
@@ -110,22 +97,22 @@
 									data-dojo-type='dijit/form/DateTextBox'
 									required="false"
 									onmouseover="tooltip.show(getTitle(this));"
-									onmouseout="tooltip.hide();"/></td> <%--onChange="toDate.constraints.min = arguments[0];"--%>
+									onmouseout="tooltip.hide();"/></td>
 						<td><span class="label">Окончание периода</span><span style="color:red">*</span></td>
 						<td><form:input path="endDate" id="endDate" name="endDate" class="date_picker"
 									data-dojo-id="toDate"
 									data-dojo-type='dijit/form/DateTextBox'
 									required="false"
 									onmouseover="tooltip.show(getTitle(this));"
-									onmouseout="tooltip.hide();"/></td>  <%--onChange="fromDate.constraints.max = arguments[0];"--%>
+									onmouseout="tooltip.hide();"/></td>
 					</tr>
                     <tr>
                         <td style="width: 225px">
-                            <span class="label" style="float:left">Регион</span>
-                            <span style="color:red">*</span>
+                            <span class="label" style="float:left">Регион</span><span style="color:red">*</span>
 							<span style="float: right">
 								<span>
-									<form:checkbox  id="allRegions" name="allRegions"  path="allRegions"/>
+									<form:checkbox  id="allRegions" name="allRegions"  path="allRegions"
+                                                    onchange="allRegionsCheckBoxChange(this.checked)" />
 								</span>
 								<span>Все регионы</span>
 							</span>
@@ -133,14 +120,12 @@
                     </tr>
                     <tr>
                         <td>
-							<span class="without_dojo">
-								<form:select id="regionIds" name="regionIds"
-                                             onmouseover="tooltip.show(getTitle(this));"
-                                             onmouseout="tooltip.hide();" path="regionIds" multiple="true"
-                                             cssClass ="region">
-                                    <form:options items="${regionList}" itemLabel="name" itemValue="id"/>
-                                </form:select>
-							</span>
+                            <form:select id="regionIds" name="regionIds"
+                                         onmouseover="tooltip.show(getTitle(this));"
+                                         onmouseout="tooltip.hide();" path="regionIds" multiple="true"
+                                         cssClass ="region">
+                                <form:options items="${regionList}" itemLabel="name" itemValue="id"/>
+                            </form:select>
                         </td>
                     </tr>
 				</table>
