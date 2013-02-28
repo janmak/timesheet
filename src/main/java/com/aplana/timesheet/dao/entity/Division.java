@@ -56,6 +56,9 @@ public class Division implements Identifiable {
     @Column(name = "sync_employee")
     private Boolean syncEmployye;
 
+    @Column(name = "email", length = 255)
+    private String email;
+
     public Division() {	}
 
     public Employee getLeaderId() {
@@ -156,6 +159,14 @@ public class Division implements Identifiable {
 
     public void setSyncEmployye(Boolean syncEmployye) {
         this.syncEmployye = syncEmployye;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public String toString() {
