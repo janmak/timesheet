@@ -1,3 +1,4 @@
+<%@ page import="static com.aplana.timesheet.util.ResourceUtils.getResRealPath" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
@@ -11,20 +12,10 @@
 
 <body>
 
-<script type="text/javascript" src="<%= request.getContextPath()%>/resources/js/report.js"></script>
+<script type="text/javascript" src="<%= getResRealPath("/resources/js/report.js", application) %>"></script>
 <script type="text/javascript">
     dojo.ready(function () {
         dojo.require("dijit.form.DateTextBox");
-
-        var filter = dojo.byId("allRegions");
-        var target = "regionIds";
-        dojo.connect(filter, "onchange", function () {
-            if (filter.checked) {
-                dojo.attr(target, {disabled:"disabled"});
-            } else {
-                dojo.removeAttr(target, "disabled");
-            }
-        })
     });
 </script>
 
@@ -77,7 +68,8 @@
                     <span class="label" style="float:left">Регион</span>
 							<span style="float: right">
 								<span>
-									<form:checkbox  id="allRegions" name="allRegions"  path="allRegions"/>
+									<form:checkbox  id="allRegions" name="allRegions"  path="allRegions"
+                                                    onchange="allRegionsCheckBoxChange(this.checked)" />
 								</span>
 								<span>Все регионы</span>
 							</span>
@@ -85,14 +77,12 @@
             </tr>
             <tr>
                 <td>
-					<span class="without_dojo">
-						<form:select id="regionIds" name="regionIds"
-                                     onmouseover="tooltip.show(getTitle(this));"
-                                     onmouseout="tooltip.hide();" path="regionIds" multiple="true"
-                                     cssClass ="region">
-                            <form:options items="${regionList}" itemLabel="name" itemValue="id"/>
-                        </form:select>
-					</span>
+                    <form:select id="regionIds" name="regionIds"
+                                 onmouseover="tooltip.show(getTitle(this));"
+                                 onmouseout="tooltip.hide();" path="regionIds" multiple="true"
+                                 cssClass ="region">
+                        <form:options items="${regionList}" itemLabel="name" itemValue="id"/>
+                    </form:select>
                 </td>
             </tr>
         </table>

@@ -1,5 +1,6 @@
 package com.aplana.timesheet.dao;
 
+import com.aplana.timesheet.enums.OvertimeCategory;
 import com.aplana.timesheet.enums.Report07PeriodTypeEnum;
 import com.aplana.timesheet.properties.TSPropertyProvider;
 import com.aplana.timesheet.reports.*;
@@ -163,9 +164,9 @@ public class JasperReportDAO {
 
         String workDaySeparator = "";
 
-        if(OverTimeCategory.Holiday.equals(report.getCategory())) {
+        if(OvertimeCategory.HOLIDAY.equals(report.getCategory())) {
             workDaySeparator="and holidays.calDate is not null ";
-        } else if(OverTimeCategory.Simple.equals(report.getCategory())) {
+        } else if(OvertimeCategory.SIMPLE.equals(report.getCategory())) {
             workDaySeparator="and holidays.calDate is null ";
         }
 
@@ -521,18 +522,18 @@ public class JasperReportDAO {
                         "td.description, " +
                         "td.problem, " +
                         "r.name " +
-                "from TimeSheetDetail td " +
-                    "left outer join td.projectTask as pt " +
-                    "inner join td.timeSheet ts " +
-                    "inner join ts.employee empl " +
-                    "join empl.division d " +
-                    "join empl.region r " +
-                "where " +
-                    ( withDivisionClause ? DIVISION_CLAUSE : WITHOUT_CLAUSE ) +
-                    ( withRegionClause   ? REGION_CLAUSE   : WITHOUT_CLAUSE ) +
-                    ( withEmployeeClasue ? EMPLOYEE_CLAUSE : WITHOUT_CLAUSE ) +
-                    "td.timeSheet.calDate.calDate between :beginDate and :endDate " +
-                "order by td.timeSheet.employee.name,td.timeSheet.calDate.calDate");
+                        "from TimeSheetDetail td " +
+                        "left outer join td.projectTask as pt " +
+                        "inner join td.timeSheet ts " +
+                        "inner join ts.employee empl " +
+                        "join empl.division d " +
+                        "join empl.region r " +
+                        "where " +
+                        (withDivisionClause ? DIVISION_CLAUSE : WITHOUT_CLAUSE) +
+                        (withRegionClause ? REGION_CLAUSE : WITHOUT_CLAUSE) +
+                        (withEmployeeClasue ? EMPLOYEE_CLAUSE : WITHOUT_CLAUSE) +
+                        "td.timeSheet.calDate.calDate between :beginDate and :endDate " +
+                        "order by td.timeSheet.employee.name,td.timeSheet.calDate.calDate");
 
         if (withRegionClause) {
 			query.setParameter("regionIds", report.getRegionIds());

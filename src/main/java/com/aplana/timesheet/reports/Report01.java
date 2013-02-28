@@ -1,5 +1,6 @@
 package com.aplana.timesheet.reports;
 
+import com.aplana.timesheet.enums.OvertimeCategory;
 import net.sf.jasperreports.engine.JRDataSource;
 
 public class Report01 extends BaseReport {
@@ -8,7 +9,7 @@ public class Report01 extends BaseReport {
 
     public static final String jrNameFile = "Отчет №1. Переработки, работа в выходные и праздничные дни";
 	
-	private OverTimeCategory category;
+	private OvertimeCategory category;
 
     @Override
     public String getJRName() {
@@ -20,7 +21,7 @@ public class Report01 extends BaseReport {
         return jrNameFile;
     }
 
-	public OverTimeCategory getCategory() {
+	public OvertimeCategory getCategory() {
 		return category;
 	}
 
@@ -29,7 +30,7 @@ public class Report01 extends BaseReport {
         return reportDAO.getReportData(this);
     }
 
-	public void setCategory(OverTimeCategory category) {
+	public void setCategory(OvertimeCategory category) {
 		this.category = category;
 	}
 }

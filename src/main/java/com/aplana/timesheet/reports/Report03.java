@@ -64,4 +64,12 @@ public class Report03 extends BaseReport {
     public void setProjectId(Integer projectId) {
         this.projectId = projectId;
     }
+
+    public Integer getDivisionId() {
+        return divisionId;
+    }
+
+    public void setDivisionId(Integer divisionId) {
+        this.divisionId = divisionId;
+    }
 }

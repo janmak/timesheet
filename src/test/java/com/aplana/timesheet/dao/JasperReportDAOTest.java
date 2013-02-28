@@ -1,8 +1,8 @@
 package com.aplana.timesheet.dao;
 
+import com.aplana.timesheet.enums.OvertimeCategory;
 import com.aplana.timesheet.enums.RegionsEnum;
 import com.aplana.timesheet.reports.BaseReport;
-import com.aplana.timesheet.reports.OverTimeCategory;
 import com.aplana.timesheet.reports.Report01;
 import com.aplana.timesheet.reports.Report06;
 import com.aplana.timesheet.util.DateTimeUtil;
@@ -30,7 +30,7 @@ public class JasperReportDAOTest {
     @Test
     public void testGetResultList() {
         Report01 report = getPrefilledBaseReport(new Report01());
-        report.setCategory(OverTimeCategory.All);
+        report.setCategory(OvertimeCategory.ALL);
         report.setDivisionOwnerId(1);
         dao.getResultList(report);
 

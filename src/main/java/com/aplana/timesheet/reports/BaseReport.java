@@ -1,9 +1,10 @@
 package com.aplana.timesheet.reports;
 
 import com.aplana.timesheet.dao.JasperReportDAO;
-import com.aplana.timesheet.util.DateTimeUtil;
 
 import java.util.List;
+
+import static com.aplana.timesheet.util.DateTimeUtil.*;
 
 public abstract class BaseReport implements TSJasperReport {
 
@@ -16,13 +17,13 @@ public abstract class BaseReport implements TSJasperReport {
 
     @Override
     public void checkParams() {
-        this.beginDate = "".equals(this.beginDate) ? DateTimeUtil.MIN_DATE : this.beginDate;
-        this.endDate = "".equals(this.endDate) ? DateTimeUtil.MAX_DATE : this.endDate;
+        this.beginDate = "".equals(this.beginDate) ? MIN_DATE : this.beginDate;
+        this.endDate = "".equals(this.endDate) ? MAX_DATE : this.endDate;
     }
 
-    protected String beginDate;
+    protected String beginDate = currentMonthFirstDay();
 
-    protected String endDate;
+    protected String endDate = currentDay();
 
     public Integer getDivisionOwnerId() {
         return divisionOwnerId;

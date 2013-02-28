@@ -70,20 +70,6 @@ function addNewRow() {
         deleteRow(newRowIndex);
     }
     deleteCell.appendChild(img);
-    //dojo.connect(dojo.byId("img"), "onclick", function update() { alert('click!'); });
-
-    // Первая ячейка новой строки с чекбоксом
-    //убрано
-//    var cbCell = newTsRow.insertCell(0);
-//    dojo.addClass(cbCell, "text_center_align");
-//    var cbInput = dojo.doc.createElement("input");
-//    dojo.attr(cbInput, {
-//        type:"checkbox",
-//        name:"selectedRow[" + newRowIndex + "]",
-//        id:"selected_row_id_" + newRowIndex
-//    });
-//    dojo.addClass(cbInput, "selectedRow");
-//    cbCell.appendChild(cbInput);
 
     // Ячейка с номером строки
     var rowNumCell = newTsRow.insertCell(1);
@@ -347,7 +333,6 @@ function setDefaultDate(employeeId) {
 }
 
 // возвращает первый рабочий день сотрудника
-// конечно бы я записал это в глобальную переменную, но я думаю это только усложнит логику
 function getFirstWorkDate(){
     var employeeId = dojo.byId("employeeId").value;
     var employee = findEmployeeById(employeeId);
@@ -434,11 +419,7 @@ function divisionChange(obj) {
     var divisionId = null;
     var employeeSelect = dojo.byId("employeeId");
     var employeeOption = null;
-//    нет кнопки
-//    var but = document.getElementById("view_reports_button");
-//    if (but != null) {
-//        dojo.attr("view_reports_button", {disabled:"disabled"});
-//    }
+
     if (obj.target == null) {
         divisionId = obj.value;
     }
@@ -629,6 +610,18 @@ function insertEmptyOption(select) {
     select.appendChild(option);
 }
 
+/* Добавляет в указанный select пустой option с указанной подписью. */
+function insertEmptyOptionWithCaptionInHead(select, caption) {
+    var option = dojo.doc.createElement("option");
+    dojo.attr(option, {
+        value:"0"
+    });
+    option.innerHTML = caption;
+    insertEmptyOption(select);
+    select.options[0] = option;
+    select.value = 0;
+}
+
 /*
  * Срабатывает при смене значения в списке проектов\пресейлов.
  * Управляет доступностью и содержимым списка проектных задач.
@@ -674,16 +667,7 @@ function setDefaultEmployeeJob(rowIndex) {
     var selectedEmployeeId = dojo.byId("employeeId").value;
     var divisionId = dojo.byId("divisionId").value;
     var defaultEmployeeJobId = 0;
-//    кнопки нет
-//    var but = document.getElementById("view_reports_button");
-//    if (but != null) {
-//        if (selectedEmployeeId != 0) {
-//            //dojo.removeAttr("view_reports_button", "disabled");
-//        }
-//        if (selectedEmployeeId == 0) {
-//            //dojo.attr("view_reports_button", {disabled:"disabled"});
-//        }
-    //}
+
     for (var i = 0; i < employeeList.length; i++) {
         if (divisionId == employeeList[i].divId) {
             for (var j = 0; j < employeeList[i].divEmps.length; j++) {
@@ -840,15 +824,6 @@ function reloadRowsState() {
 
 /* Восстанавливает содержимое компонентов отчёта после возврата страницы валидатором. */
 function reloadTimeSheetState() {
-    /* После аутентификации ldap id сотрудника приходит с сервера
-     dojo.byId("divisionId").onchange();
-     //если айди сотрудника есть в куки - берем его иначе выставляем ноль
-     if (existsCookie('aplanaEmployee')) {
-     dojo.byId("employeeId").value = CookieValue('aplanaEmployee');
-     }
-     else {
-     dojo.byId("employeeId").value = "0";
-     } */
 
     if (selectedCalDate !== "") {
         var date_picker = dijit.byId("calDate");
@@ -1377,101 +1352,6 @@ var tooltip = function () {
     };
 }();
 
-/* Заполняет список доступных проектов/пресейлов */
-function fillProjectListByDivision(division) {
-
-    var checkBox = dojo.byId("filterProjects");
-
-    if (division == null) {
-        division = dojo.byId("divisionId");
-
-        if ((checkBox.checked) && (division.value == 0))
-            division.value = defaultDivision;
-    }
-
-    var divisionId = division.value;
-
-    var projectSelect = dojo.byId("projectId");
-
-    projectSelect.options.length = 0;
-    if (divisionId == 0) {
-        dojo.attr("filterProjects", {disabled:"disabled", checked:false});
-        dojo.attr("projectId", {disabled:"disabled"});
-    } else {
-        dojo.removeAttr("filterProjects", "disabled");
-        dojo.removeAttr("projectId", "disabled");
-        if (checkBox.checked) {
-            dojo.removeAttr("divisionId", "disabled");
-
-            insertEmptyOption(projectSelect);
-            for (var i = 0; i < projectListWithOwnerDivision.length; i++) {
-                if (divisionId == projectListWithOwnerDivision[i].ownerDivisionId) {
-                    projectOption = dojo.doc.createElement("option");
-                        dojo.attr(projectOption, {
-                            value:projectListWithOwnerDivision[i].id
-                        });
-                        projectOption.title = projectListWithOwnerDivision[i].value;
-                        projectOption.innerHTML = projectListWithOwnerDivision[i].value;
-                        projectSelect.appendChild(projectOption);
-                }
-            }
-		}
-		else {
-
-            /*division.value = 0;
-
-             dojo.attr("divisionId", {
-             disabled:"disabled"
-             });  */
-
-            insertEmptyOption(projectSelect);
-            for (var i = 0; i < fullProjectList.length; i++) {
-                projectOption = dojo.doc.createElement("option");
-                dojo.attr(projectOption, {
-                    value:fullProjectList[i].id
-                });
-                projectOption.title = fullProjectList[i].value;
-                projectOption.innerHTML = fullProjectList[i].value;
-                projectSelect.appendChild(projectOption);
-            }
-        }
-        sortSelectOptions(projectSelect);
-    }
-}
-
-function fillEmployeeListByDivision(division) {
-    var employeeSelect = dojo.byId("employeeId");
-    var employeeOption = null;
-
-    var divisionId = division.value;
-    //Очищаем список сотрудников.
-    employeeSelect.options.length = 0;
-    for (var i = 0; i < employeeList.length; i++) {
-        if (divisionId == employeeList[i].divId) {
-            insertEmptyOption(employeeSelect);
-            for (var j = 0; j < employeeList[i].divEmps.length; j++) {
-                if (employeeList[i].divEmps[j].id != 0) {
-                    employeeOption = dojo.doc.createElement("option");
-                    dojo.attr(employeeOption, {
-                        value:employeeList[i].divEmps[j].id
-                    });
-                    employeeOption.title = employeeList[i].divEmps[j].value;
-                    employeeOption.innerHTML = employeeList[i].divEmps[j].value;
-                    employeeSelect.appendChild(employeeOption);
-                }
-            }
-        }
-    }
-    sortSelectOptions(employeeSelect);
-    if (divisionId == 0) {
-        insertEmptyOption(employeeSelect);
-    }
-
-    var rows = dojo.query(".row_number");
-    for (var i = 0; i < rows.length; i++) {
-        fillProjectList(i, dojo.byId("activity_type_id_" + i).value);
-    }
-}
 
 function getRootEventListener() {
     return window.addEventListener || window.attachEvent ? window : document.addEventListener ? document : null;

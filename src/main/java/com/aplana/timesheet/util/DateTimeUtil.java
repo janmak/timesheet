@@ -158,12 +158,7 @@ public class DateTimeUtil {
      * @return String
      */
     public static String currentDay() {
-        SimpleDateFormat sdf = new SimpleDateFormat(DATE_PATTERN);
-        Date curDate = new Date(System.currentTimeMillis());
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(curDate);
-        logger.debug("Present day " + sdf.format(calendar.getTime()));
-        return sdf.format(calendar.getTime());
+        return dateToString(new Date());
     }
 
     /**

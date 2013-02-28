@@ -1,6 +1,6 @@
 package com.aplana.timesheet.controller.report;
 
-import com.aplana.timesheet.reports.OverTimeCategory;
+import com.aplana.timesheet.enums.OvertimeCategory;
 import com.aplana.timesheet.reports.Report01;
 import com.aplana.timesheet.reports.TSJasperReport;
 import org.springframework.stereotype.Component;
@@ -20,10 +20,10 @@ public class Report01ModelAndViewGenerator extends AbstractJasperReportModelAndV
     protected void fillSpecificProperties( ModelAndView mav ) {
         fillDivisionList( mav );
 
-        List<OverTimeCategory> ls = new ArrayList<OverTimeCategory>();
-        ls.add(OverTimeCategory.All);
-        ls.add(OverTimeCategory.Holiday);
-        ls.add(OverTimeCategory.Simple);
+        List<OvertimeCategory> ls = new ArrayList<OvertimeCategory>();
+        ls.add(OvertimeCategory.ALL);
+        ls.add(OvertimeCategory.HOLIDAY);
+        ls.add(OvertimeCategory.SIMPLE);
         mav.addObject("categoryList", ls);
     }
 
