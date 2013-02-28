@@ -4,14 +4,17 @@ import com.aplana.timesheet.properties.TSPropertyProvider;
 import com.aplana.timesheet.service.SendMailService;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.mail.*;
-import javax.mail.internet.*;
+import javax.mail.internet.AddressException;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
@@ -53,6 +56,12 @@ public class MailSender<T> {
                 MimeMessage message = new MimeMessage(session);
 
                 initMessageHead(mail, message);
+
+                if (ArrayUtils.isEmpty(message.getAllRecipients())) {
+                    logger.info("No recipients in mail. Skipping...");
+                    continue;
+                }
+
                 initMessageBody(mail, message);
 
                 logger.info("Sending message.");
