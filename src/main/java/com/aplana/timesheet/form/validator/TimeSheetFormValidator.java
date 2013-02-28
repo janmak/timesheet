@@ -382,7 +382,7 @@ public class TimeSheetFormValidator extends AbstractValidator {
                         OvertimeCausesEnum cause = EnumsUtils.tryFindById(tsForm.getOvertimeCause(), OvertimeCausesEnum.class);
                         checkCause(cause, tsForm.getOvertimeCauseComment(), concreteName, errors);
                     } else {
-                        UnfinishedDayCausesEnum cause = EnumsUtils.tryFindById(tsForm.getOvertimeCause(), UnfinishedDayCausesEnum.class);
+                        UndertimeCausesEnum cause = EnumsUtils.tryFindById(tsForm.getOvertimeCause(), UndertimeCausesEnum.class);
                         checkCause(cause, tsForm.getOvertimeCauseComment(), concreteName, errors);
                     }
                 }
