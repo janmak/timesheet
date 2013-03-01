@@ -21,7 +21,6 @@ import java.util.List;
 public class VacationApproveRequestSender extends AbstractVacationSender<VacationApproval> {
 
     protected static final Logger logger = LoggerFactory.getLogger(VacationApproveRequestSender.class);
-    private static final String DEFAULT_TIMESHEET_URL = "http://timesheet.aplana.com";
 
     public VacationApproveRequestSender(SendMailService sendMailService, TSPropertyProvider propertyProvider) {
         super(sendMailService, propertyProvider);
@@ -73,12 +72,7 @@ public class VacationApproveRequestSender extends AbstractVacationSender<Vacatio
     }
 
     private String getTimeSheetURL() {
-        try {
-            String url = propertyProvider.getTimeSheetURL();
-            return (StringUtils.isBlank(url)) ? DEFAULT_TIMESHEET_URL : url;
-        } catch (NullPointerException ex) {
-            return DEFAULT_TIMESHEET_URL;
-        }
+        return propertyProvider.getTimeSheetURL();
     }
 
     private String getSubject(Vacation vacation) {

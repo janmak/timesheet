@@ -2,7 +2,6 @@ package com.aplana.timesheet.service.MailSenders;
 
 import com.aplana.timesheet.properties.TSPropertyProvider;
 import com.aplana.timesheet.service.SendMailService;
-import org.apache.commons.lang3.StringUtils;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
@@ -13,25 +12,13 @@ import javax.mail.internet.MimeMessage;
  */
 public abstract class AbstractVacationSender<T> extends AbstractSenderWithAssistants<T>{
 
-    private static final String DEFAULT_VACATION_APPROVAL_MAIL_MARKER = "[VACATION REQUEST]";
-
     public AbstractVacationSender(SendMailService sendMailService, TSPropertyProvider propertyProvider) {
         super(sendMailService, propertyProvider);
     }
 
     @Override
     final protected String getSubjectFormat() {
-        String marker = null;
-
-        try {
-            marker = propertyProvider.getVacationMailMarker();
-        } catch (NullPointerException ex) {
-            // do nothing
-        }
-
-        if (StringUtils.isBlank(marker)) {
-            marker = DEFAULT_VACATION_APPROVAL_MAIL_MARKER;
-        }
+        String marker = propertyProvider.getVacationMailMarker();
 
         return marker + " %s";
     }

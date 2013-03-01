@@ -115,7 +115,7 @@ public class TSPropertyProvider {
     }
 
     public String getVacationMailMarker() {
-        return getProperties().getProperty("vacation.mail.marker");
+        return getProperties().getProperty("vacation.mail.marker", "[VACATION REQUEST]");
     }
 
     final String DEFAULT_TIMESHEET_MAIL_MARKER = "[TIMESHEET]";
@@ -154,7 +154,7 @@ public class TSPropertyProvider {
     }
 
     public String getTimeSheetURL() {
-        return getProperties().getProperty("timesheet.url");
+        return getProperties().getProperty("timesheet.url", "http://timesheet.aplana.com");
     }
 
     public String getFeedbackMarker() {
