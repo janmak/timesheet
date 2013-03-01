@@ -11,53 +11,54 @@
 </head>
 <body>
 
-<script type="text/javascript">
+    <script type="text/javascript">
 
 
-    dojo.ready(function () {
-        setFilter();
-    });
+        dojo.ready(function () {
+            setFilter();
+        });
 
-    function setFilter(){
-        var division = ${currentUserDivisionId};
-        var filter = dojo.byId("filter");
-        filter.value = division;
-    }
-
-    function filterChange(obj){
-        var divisionId = obj.value;
-        if (${editable}) {
-            mainForm.action = "<%=request.getContextPath()%>/admin/update/assignmentleaders/" + divisionId + "/edit";
-        }else{
-            mainForm.action = "<%=request.getContextPath()%>/admin/update/assignmentleaders/" + divisionId + "/view";
+        function setFilter(){
+            var division = ${currentUserDivisionId};
+            var filter = dojo.byId("filter");
+            filter.value = division;
         }
-        mainForm.submit();
-    }
 
-    function saveResult(obj){
-        var divisionId = obj.value;
-        mainForm.action = "<%=request.getContextPath()%>/admin/update/assignmentleaders/save/" + divisionId;
-        mainForm.submit();
-    }
+        function filterChange(obj){
+            var divisionId = obj.value;
+            if (${editable}) {
+                mainForm.action = "<%=request.getContextPath()%>/admin/update/assignmentleaders/" + divisionId + "/edit";
+            }else{
+                mainForm.action = "<%=request.getContextPath()%>/admin/update/assignmentleaders/" + divisionId + "/view";
+            }
+            mainForm.submit();
+        }
 
-    function edit(obj){
-        var divisionId = obj.value;
-        mainForm.action = "<%=request.getContextPath()%>/admin/update/assignmentleaders/" + divisionId +"/edit";
-        mainForm.submit();
-    }
+        function saveResult(obj){
+            var divisionId = obj.value;
+            mainForm.action = "<%=request.getContextPath()%>/admin/update/assignmentleaders/save/" + divisionId;
+            mainForm.submit();
+        }
 
-    function cancel(obj){
-        var divisionId = obj.value;
-        mainForm.action = "<%=request.getContextPath()%>/admin/update/assignmentleaders/" + divisionId +"/view";
-        mainForm.submit();
-    }
+        function edit(obj){
+            var divisionId = obj.value;
+            mainForm.action = "<%=request.getContextPath()%>/admin/update/assignmentleaders/" + divisionId +"/edit";
+            mainForm.submit();
+        }
 
-</script>
+        function cancel(obj){
+            var divisionId = obj.value;
+            mainForm.action = "<%=request.getContextPath()%>/admin/update/assignmentleaders/" + divisionId +"/view";
+            mainForm.submit();
+        }
 
+    </script>
 
+<h1><fmt:message key="title.assigmentleaders"/></h1>
 
 <br/><br/>
 <form:form method="post" modelAttribute="assignmentLeadersForm" name="mainForm">
+
 
     <div id="filter_element">
         <span class="label">Подразделение</span>
@@ -98,7 +99,7 @@
                         <!-- Руководитель -->
                         <c:if test="${editable == true}">
                             <td>
-                                <form:select cssStyle="border: none; width: 300" path="tableRows[${row.index}].leaderId" id="leader_id_${row.index}"
+                                <form:select cssStyle="border: none; width: 300px" path="tableRows[${row.index}].leaderId" id="leader_id_${row.index}"
                                              onmouseover="tooltip.show(getTitle(this));" onmouseout="tooltip.hide();">
                                     <form:option label="" value="0"/>
                                     <form:options items="${assignmentLeadersForm.tableRows[row.index].regionDivisionEmployees}"
