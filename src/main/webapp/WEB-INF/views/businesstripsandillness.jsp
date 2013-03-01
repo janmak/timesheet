@@ -82,14 +82,13 @@
         }
 
         function createBusinessTripOrIllness() {
-            var empId = ${employeeId};
             var empId = dojo.byId("employeeId").value;
 
             if (empId != null && empId != 0) {
                 businesstripsandillness.action = "<%=request.getContextPath()%>/businesstripsandillnessadd/" + empId;
                 businesstripsandillness.submit();
             } else {
-                error += ("Необходимо выбрать сотрудника!\n");
+                alert("Необходимо выбрать сотрудника!\n");
             }
         }
 
