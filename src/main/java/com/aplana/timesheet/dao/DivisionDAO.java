@@ -1,17 +1,17 @@
 package com.aplana.timesheet.dao;
 
 import com.aplana.timesheet.dao.entity.Division;
-import java.util.List;
-import javax.persistence.EntityManager;
-import javax.persistence.NoResultException;
-import javax.persistence.PersistenceContext;
-import javax.persistence.Query;
-
 import org.hibernate.Hibernate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
+import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
+import java.util.List;
 
 @Repository
 public class DivisionDAO {
@@ -92,5 +92,18 @@ public class DivisionDAO {
             entityManager.persist(division);
         }
         entityManager.flush();
+    }
+
+    @Transactional
+    public String setDivisions(List<Division> divisionsToSync) {
+        final StringBuilder builder = new StringBuilder();
+
+        for (Division division : divisionsToSync) {
+            builder.append(String.format("Set leader %s to division %s\n", division.getLeader(), division.getName()));
+
+            save(division);
+        }
+
+        return builder.toString();
     }
 }
