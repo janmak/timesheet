@@ -15,6 +15,7 @@
     <script type="text/javascript">
         dojo.require("dojo.NodeList-traverse");
         dojo.require("dojox.html.entities");
+        require(["dojo/parser", "dijit/TitlePane"]);
 
         dojo.ready(function() {
             window.focus();
@@ -149,7 +150,35 @@
                     </div>
                 </sec:authorize>
             </td>
-            <td class="centered">${vacation.status.value}</td>
+            <td class="centered">
+                ${vacation.status.value}
+                <c:if test="${(vacation.status.id eq 57 or vacation.status.id eq 59) and fn:length(vacation.vacationApprovals) > 0}">
+                <div data-dojo-type="dijit/TitlePane" data-dojo-props="title: 'Согласующие', open: false"
+                     style="margin: 3px; padding: 0;">
+                    <table class="centered">
+                        <c:forEach var="va" items="${vacation.vacationApprovals}">
+                        <tr>
+                            <td>${va.manager.name}</td>
+                            <td>
+                                <c:choose>
+                                    <c:when test="${va.result}">
+                                        Согласовано
+                                        <br>
+                                        <fmt:formatDate value="${va.responseDate}" pattern="dd.MM.yyyy" />
+                                    </c:when>
+                                    <c:otherwise>
+                                        Запрос отправлен
+                                        <br>
+                                        <fmt:formatDate value="${va.requestDate}" pattern="dd.MM.yyyy" />
+                                    </c:otherwise>
+                                </c:choose>
+                            </td>
+                        </tr>
+                        </c:forEach>
+                    </table>
+                </div>
+                </c:if>
+            </td>
             <td class="centered">${vacation.type.value}</td>
             <td class="date"><fmt:formatDate value="${vacation.beginDate}" pattern="dd.MM.yyyy"/></td>
             <td class="date"><fmt:formatDate value="${vacation.endDate}" pattern="dd.MM.yyyy"/></td>

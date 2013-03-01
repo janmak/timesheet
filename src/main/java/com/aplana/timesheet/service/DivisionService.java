@@ -5,6 +5,7 @@ import com.aplana.timesheet.dao.ProjectDAO;
 import com.aplana.timesheet.dao.entity.Division;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
 
 @Service("divisionService")
@@ -42,4 +43,8 @@ public class DivisionService {
 	public Division find(Integer division) {
 		return divisionDAO.find(division);
 	}
+
+    public String setDivisions(List<Division> divisionsToSync) {
+        return divisionDAO.setDivisions(divisionsToSync);
+    }
 }

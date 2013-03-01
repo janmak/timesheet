@@ -16,7 +16,7 @@ dojo.declare(CALENDAR_EXT_PATH + ".Calendar", dijit.Calendar, {
         var dateInfo;
         if (info == null) {
             dateInfoHolder[year + "-" + month + ":" + employeeId] = {}; //Создаем пустой объект, чтобы показать, что за этот месяц запрос уже отправлен
-            colorDayWithReportFromThreeMonth(year, month, employeeId)
+            colorDayWithReportFromThreeMonth(year, month, employeeId, this);
         }
         info = dateInfoHolder[year + "-" + month  + ":" + employeeId];
         dateInfo = info[year + "-" + month + "-" + day];
@@ -44,15 +44,15 @@ function initCurrentDateInfo(employeeId, date) {
         date = new Date();
     }
 
-    colorDayWithReportFromThreeMonth(date.getFullYear(), correctLength(date.getMonth() + 1), employeeId);
+    colorDayWithReportFromThreeMonth(date.getFullYear(), correctLength(date.getMonth() + 1), employeeId, null);
 }
 
-function colorDayWithReportFromThreeMonth(/* int */ year, /* int */ month, employeeId) {
+function colorDayWithReportFromThreeMonth(/* int */ year, /* int */ month, employeeId, calendar) {
     if (typeof employeeId == typeof undefined || employeeId == null || employeeId == 0) {
         employeeId = 0;
     }
 
-    loadCalendarColors(year, month, employeeId, true);
+    loadCalendarColors(year, month, employeeId);
     var monthPrev =  parseInt(month, 10) - 1;
     var yearPrev = year;
     if (monthPrev <= 0){
@@ -60,7 +60,7 @@ function colorDayWithReportFromThreeMonth(/* int */ year, /* int */ month, emplo
         yearPrev = parseInt(year, 10) - 1;
     }
     if (dateInfoHolder[yearPrev + "-" + correctLength(monthPrev) + ":" + employeeId] == null)
-        loadCalendarColors(yearPrev, correctLength(monthPrev), employeeId, false);
+        loadCalendarColors(yearPrev, correctLength(monthPrev), employeeId);
     var monthNext =  parseInt(month, 10) + 1;
     var yearNext = year;
     if (monthNext > 12){
@@ -68,10 +68,10 @@ function colorDayWithReportFromThreeMonth(/* int */ year, /* int */ month, emplo
         yearNext = parseInt(year, 10) + 1;
     }
     if (dateInfoHolder[yearNext + "-" + correctLength(monthNext) + ":" + employeeId] == null)
-        loadCalendarColors(yearNext, correctLength(monthNext), employeeId, false);
+        loadCalendarColors(yearNext, correctLength(monthNext), employeeId);
 
     //загружает список дней с раскраской календаря за месяц
-    function loadCalendarColors(/* int */ year, /* int */ month, /* int */ employeeId, /* Boolean */ sync) {
+    function loadCalendarColors(/* int */ year, /* int */ month, /* int */ employeeId) {
         dojo.xhrGet({
             url: getContextPath() + "/calendar/dates",
             headers: {
@@ -80,7 +80,6 @@ function colorDayWithReportFromThreeMonth(/* int */ year, /* int */ month, emplo
             handleAs:"text",
             timeout:1000,
             content:{queryYear:year, queryMonth:month, employeeId:employeeId},
-            sync: sync,
             load:function (dataAsText, ioArgs) {
                 var data;
 
@@ -90,6 +89,10 @@ function colorDayWithReportFromThreeMonth(/* int */ year, /* int */ month, emplo
 
                 if (data && ioArgs && ioArgs.args && ioArgs.args.content) {
                     dateInfoHolder[ioArgs.args.content.queryYear + "-" + ioArgs.args.content.queryMonth  + ":" + ioArgs.args.content.employeeId] = data;
+
+                    if (calendar) {
+                        calendar._populateGrid();
+                    }
                 }
             },
             error:function (err, ioArgs) {

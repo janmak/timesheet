@@ -227,6 +227,9 @@ public class EmployeeDAO {
 		entityManager.flush();
 		logger.info("Persistence context synchronized to the underlying database.");
 		logger.debug("Flushed Employee object id = {}", empMerged.getId());
+
+        employee.setId(empMerged.getId());
+
         return empMerged;
 	}
 

@@ -76,8 +76,13 @@ public class EmployeeLdapService {
 		logger.info("Synchronization with ldap started.");
 		trace.append("Synchronization with ldap started.\n\n");
 		try {
+            final Map<Integer, Employee> divisionLeaders = new HashMap<Integer, Employee>();
+
             //Синхронизируем руководителей подразделений.
-			syncDivisionLeaders(ldapDao);
+			syncDivisionLeaders(ldapDao, divisionLeaders);
+
+            // Синхронизация подразделений
+            syncDivisions(divisionLeaders);
 
 			//Синхронизируем активных сотрудников.
 		    syncActiveEmployees(ldapDao);
@@ -91,8 +96,8 @@ public class EmployeeLdapService {
 		trace.append("Synchronization with ldap finished.\n\n");
 		logger.info("Synchronization with ldap finished.");
 	}
-	
-	/**
+
+    /**
 	 * Синхронизует неактивных сотрудников из ldap с сотрудниками из базы
 	 * системы списания занятости.
 	 * @param ldapDao – дао
@@ -137,13 +142,14 @@ public class EmployeeLdapService {
             logger.info("Nothing to sync.");
         }
 	}
-	
+
 	/**
-	 * Синхронизует руководителей подразделений из ldap 
+	 * Синхронизует руководителей подразделений из ldap
 	 * с базой данных системы списания занятости.
-	 * @param ldapDao - дао
-	 */
-	private String syncDivisionLeaders(LdapDAO ldapDao) {
+     * @param ldapDao - дао
+     * @param divisionLeaders
+     */
+	private String syncDivisionLeaders(LdapDAO ldapDao, Map<Integer, Employee> divisionLeaders) {
 		logger.info("Start synchronize division leaders.");
 		trace.append("Start synchronize division leaders.\n\n");
 		List<Division> divisions = divisionService.getDivisions();
@@ -163,6 +169,7 @@ public class EmployeeLdapService {
             Employee manager = createAndFillEmployee(managerLdap, errors, EmployeeType.DIVISION_MANAGER);
 
             managersToSync.add(manager);
+            divisionLeaders.put(division.getId(), manager);
 		}
 		if (!managersToSync.isEmpty()) {
             trace.append(employeeService.setEmployees(managersToSync));
@@ -173,7 +180,32 @@ public class EmployeeLdapService {
         return errors.toString();
 	}
 
+    private void syncDivisions(Map<Integer, Employee> divisionLeaders) {
+        final String start = "Start synchronize divisions...";
+        logger.info(start);
+        trace.append(start).append("\n\n");
 
+        final List<Division> divisionsToSync = new ArrayList<Division>();
+
+        for (Map.Entry<Integer, Employee> entry : divisionLeaders.entrySet()) {
+            final Employee employee = entry.getValue();
+
+            if (employee.getId() != null) {
+                final Division division = divisionService.find(entry.getKey());
+
+                division.setLeader(employee.getName());
+                division.setLeaderId(employee);
+
+                divisionsToSync.add(division);
+            }
+        }
+
+        if (divisionsToSync.isEmpty()) {
+            logger.info("Nothing to sync.");
+        } else {
+            trace.append(divisionService.setDivisions(divisionsToSync)).append("\n\n");
+        }
+    }
 
 	/**
 	 * Синхронизует активных сотрудников из ldap 
@@ -278,13 +310,18 @@ public class EmployeeLdapService {
 
     private void findAndFillManagerField(Employee employee, EmployeeLdap employeeLdap, StringBuffer errors) {
         final Division division = employee.getDivision();
+        final Employee divisionLeader = (division == null) ? null : employeeService.find(division.getLeader());
+
+        if (divisionLeader != null && employeeLdap.getLdapCn().equalsIgnoreCase(divisionLeader.getLdap())) {
+            return;
+        }
 
         // Сначала ищем руководителя из ldap
         Employee manager = employeeService.findByLdapName(employeeLdap.getManager());
 
         // Если не нашли и известно подразделение - берем руководителя подразделения
-        if (manager == null && division != null) {
-            manager = employeeService.find(division.getLeader());
+        if (manager == null) {
+            manager = divisionLeader;
         }
 
         if (manager != null) {

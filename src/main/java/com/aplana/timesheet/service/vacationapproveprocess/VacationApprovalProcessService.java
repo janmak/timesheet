@@ -55,6 +55,11 @@ public class VacationApprovalProcessService extends AbstractVacationApprovalProc
 
         VacationApproval lineManagerApproval = getTopLineManagerApproval(vacation);
 
+        // Согласования ЛР еще не отправлялись
+        if (lineManagerApproval == null) {
+           return false;
+        }
+
         if (lineManagerApproval.getResult() != null) {    //нашли результат у одного из линейных
             setFinalStatusForVacationAndSendVacationApprovedMessages(vacation, lineManagerApproval.getResult());
             return lineManagerApproval.getResult();

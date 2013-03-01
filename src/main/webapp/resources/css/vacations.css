@@ -43,3 +43,7 @@ table.without_borders td {
 .activity-indicator {
     cursor: wait;
 }
+
+.dijitTitlePaneContentInner {
+    padding: 0 !important;
+}

@@ -4,6 +4,7 @@ import org.hibernate.annotations.ForeignKey;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.Set;
 
 /**
  * @author rshamsutdinov
@@ -50,6 +51,10 @@ public class Vacation {
     @JoinColumn(name = "author_id")
     @ForeignKey(name = "fk_author")
     private Employee author;
+
+    @OneToMany(mappedBy = "vacation", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OrderBy("requestDate, responseDate ASC")
+    private Set<VacationApproval> vacationApprovals;
 
     public Integer getId() {
         return id;
@@ -121,6 +126,14 @@ public class Vacation {
 
     public void setCreationDate(Date creationDate) {
         this.creationDate = creationDate;
+    }
+
+    public Set<VacationApproval> getVacationApprovals() {
+        return vacationApprovals;
+    }
+
+    public void setVacationApprovals(Set<VacationApproval> vacationApprovals) {
+        this.vacationApprovals = vacationApprovals;
     }
 
     @Override
