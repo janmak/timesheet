@@ -92,6 +92,7 @@ public abstract class AbstractVacationApprovalProcessService {
     /**
      * поднимаемся по руководителям (employee.manager.manager...) пока не найдем последнего,
      * кому отправлялся запрос согласования. (начинаем подниматься...)
+     * Вернет null, если ЛР еще не согласовывали
      */
     protected VacationApproval getTopLineManagerApproval(Vacation vacation) throws VacationApprovalServiceException {
         Employee manager = vacation.getEmployee().getManager();
@@ -228,7 +229,7 @@ public abstract class AbstractVacationApprovalProcessService {
                 return null;
             }
             employee = employee.getManager();
-            vacationApproval = tryGetManagerApproval(vacation, employee.getManager());
+            vacationApproval = tryGetManagerApproval(vacation, employee);
         } while (vacationApproval != null);
 
         return employee;
