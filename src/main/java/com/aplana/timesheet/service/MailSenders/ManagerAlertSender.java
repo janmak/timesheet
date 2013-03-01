@@ -16,7 +16,7 @@ import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import java.util.*;
 
-public class ManagerAlertSender extends MailSender<List<ReportCheck>> {
+public class ManagerAlertSender extends AbstractSenderWithAssistants<List<ReportCheck>> {
 
     public ManagerAlertSender(SendMailService sendMailService, TSPropertyProvider propertyProvider) {
         super(sendMailService, propertyProvider);
@@ -67,6 +67,7 @@ public class ManagerAlertSender extends MailSender<List<ReportCheck>> {
                 List<ReportCheck> currentReportCheckList = entry.getValue();
 
                 mail.setToEmails(Arrays.asList(currentManager.getEmail()));
+                mail.setCcEmails(Arrays.asList(getAssistantEmail(getManagersEmails(mail, currentManager))));
                 mail.setSubject(getSubject(currentReportCheckList));
                 mail.setDivision(currentReportCheckList.get(0).getDivision());
                 mail.setEmployeeList(getEmployeeList(currentManager, currentReportCheckList));

@@ -48,7 +48,6 @@ public class PersonalAlertSender extends AbstractSenderWithAssistants<List<Repor
             Mail mail = new TimeSheetMail();
             final Employee employee = currentReportCheck.getEmployee();
             mail.setToEmails(Arrays.asList(employee.getEmail()));
-            mail.setCcEmails(Arrays.asList(getAssistantEmail(getManagersEmails(mail, employee))));
             mail.setSubject(getSubject(currentReportCheck));
             mail.setEmployeeList(Arrays.asList(employee));
 
