@@ -12,8 +12,7 @@
     <security:http pattern="/favicon.ico" security="none" />
 
     <security:http pattern="/login*" security="none"/>
-    <security:http pattern="/vacation_approval/***" security="none"/>
-    <security:http pattern="/vacation_approval*" security="none"/>
+    <security:http pattern="/vacation_approval/**" security="none"/>
 
 <!-- 
     <security:http use-expressions="true"  entry-point-ref="spnegoEntryPoint">
