@@ -342,12 +342,12 @@
                     <c:choose>
                         <c:when test="${reportFormed == 6}">
                             <tbody>
-                                <td colspan="9"><b>В выбранном месяце сотрудник на больничном небыл!</b></td>
+                                <td colspan="9"><b>В выбранном месяце сотрудник на больничном не был!</b></td>
                             </tbody>
                         </c:when>
                         <c:when test="${reportFormed == 7}">
                             <tbody>
-                                <td colspan="9"><b>В выбранном месяце сотрудник в командировках небыл!</b></td>
+                                <td colspan="9"><b>В выбранном месяце сотрудник в командировках не был!</b></td>
                             </tbody>
                         </c:when>
                     </c:choose>
