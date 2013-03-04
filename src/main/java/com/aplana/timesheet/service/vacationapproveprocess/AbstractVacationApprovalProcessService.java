@@ -20,8 +20,6 @@ import java.util.*;
  */
 public abstract class AbstractVacationApprovalProcessService {
 
-    private static final Integer VACATION_CRAEATE_TRESHOLD_DEFAULT = 14;
-
     private List<Integer> approvedByProjectManager = Arrays.asList(VacationStatusEnum.APPROVED_BY_PM.getId(),
             VacationStatusEnum.APPROVEMENT_WITH_LM.getId(), VacationStatusEnum.APPROVED.getId(), VacationStatusEnum.REJECTED.getId());
 
@@ -295,15 +293,8 @@ public abstract class AbstractVacationApprovalProcessService {
      * согласовывать отпуск в обычном режиме или в ускоренном
      */
     public Integer getVacationTreshold() throws VacationApprovalServiceException {
-        try {
-            return propertyProvider.getVacationCreateThreshold();
-        } catch (NullPointerException ex) {
-            return VACATION_CRAEATE_TRESHOLD_DEFAULT;
-        } catch (NumberFormatException ex) {
-            logger.error("В файле настроек указано неверное число в vacationCreateThreshold!", ex);
-            return VACATION_CRAEATE_TRESHOLD_DEFAULT;
-        }
-    }    
+        return propertyProvider.getVacationCreateThreshold();
+    }
 
     /**
      * подготавливаем данные для рассылки писем об утверждении отпуска

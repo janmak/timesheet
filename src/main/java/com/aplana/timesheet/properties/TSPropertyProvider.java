@@ -134,7 +134,11 @@ public class TSPropertyProvider {
         return Integer.parseInt(getProperties().getProperty("vacations.before.vacation.days"));
     }
     public Integer getVacationCreateThreshold() {
-        return Integer.parseInt(getProperties().getProperty("vacations.vacation.create.threshold"));
+        try {
+            return Integer.parseInt(getProperties().getProperty("vacations.vacation.create.threshold", "14"));
+        } catch (NumberFormatException ex) {
+            return 14;
+        }
     }
 
     public Integer getVacationProjectManagerOverrideThreshold() {

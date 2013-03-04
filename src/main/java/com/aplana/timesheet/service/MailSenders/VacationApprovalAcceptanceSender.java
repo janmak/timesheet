@@ -59,4 +59,8 @@ public class VacationApprovalAcceptanceSender extends AbstractSenderWithCcAddres
         return (vacation.getEmployee().getId().equals(vacation.getAuthor().getId())) ? StringUtils.EMPTY : vacation.getAuthor().getEmail();
     }
 
+    @Override
+    protected String getSubjectFormat() {
+        return propertyProvider.getVacationMailMarker() + " %s";
+    }
 }
