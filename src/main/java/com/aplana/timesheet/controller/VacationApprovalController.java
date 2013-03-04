@@ -120,9 +120,11 @@ public class VacationApprovalController {
         String dateEnd = getOnlyDate(vacationApproval.getVacation().getEndDate());
 
         vacationApproval.setResult(acceptance);
+        vacationApproval.setResponseDate(new Date());
+
         if (acceptance){
             vaForm.setMessage(String.format(ACCEPT_ANSWER, matchingFIO, vacationType, employeeFIO, region, dateBegin, dateEnd));
-        }else{
+        } else{
             vaForm.setMessage(String.format(REFUSE_ANSWER, matchingFIO, vacationType, employeeFIO, region, dateBegin, dateEnd));
         }
 
