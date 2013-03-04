@@ -25,6 +25,8 @@ public class VacationApprovalAutoProcessService extends AbstractVacationApproval
 
     private static final Logger LOGGER = LoggerFactory.getLogger(VacationApprovalAutoProcessService.class);
 
+    private static final Logger logger = LoggerFactory.getLogger(VacationApprovalAutoProcessService.class);
+
     /**
      * запускаем проверку для всех несогласованных отпусков
      */
@@ -215,42 +217,6 @@ public class VacationApprovalAutoProcessService extends AbstractVacationApproval
         }
 
         return getTopLineManagerApprovalRecursive(managerOfManagerApproval);       //проверяем следующего по иерархии линейного руководителя
-    }
-
-    /**
-     * Проверяем, успевает ли линейный руководитель вынести решение по заявлению на отпуск
-     */
-    private boolean lineManagerHasTimeToApproveVacation(int lineManagerDaysToApprove, VacationApproval lineManagerApproval) {
-        Date lastLineManagerApproveDate = lineManagerApproval.getRequestDate();
-        return DateTimeUtil.getAllDaysCount(lastLineManagerApproveDate, new Date()) >= lineManagerDaysToApprove;
-    }
-
-    /**
-     * получаем мексимальное количество дней, за которое линейный руководитель должен утвердить заявление на отпуск
-     */
-    private Integer getControlTimeForLineManager(Vacation vacation) throws VacationApprovalServiceException {
-        Long daysForApprove = DateTimeUtil.getAllDaysCount(vacation.getCreationDate(), vacation.getBeginDate());
-        Integer vacationTreshold = getVacationTreshold();
-        if (daysForApprove >= vacationTreshold) {
-            return getVacationLineManagerOverrideThreshold();
-        } else {
-            return getVacationUrgentLineManagerOverrideThreshold();
-        }
-    }
-
-    /**
-     * получаем количество дней, за которые линейный руководитель должен согласовать заявление на отпуск
-     */
-    private Integer getVacationLineManagerOverrideThreshold() {
-        return propertyProvider.getVacationLineManagerOverrideThreshold();
-    }
-
-    /**
-     * получаем количество дней, за которые линейный руководитель должен согласовать заявление на отпуск
-     * в ускоренном режиме
-     */
-    private Integer getVacationUrgentLineManagerOverrideThreshold() {
-        return propertyProvider.getVacationUrgentLineManagerOverrideThreshold();
     }
 
     /***

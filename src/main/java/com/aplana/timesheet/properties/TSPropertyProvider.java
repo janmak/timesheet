@@ -111,7 +111,7 @@ public class TSPropertyProvider {
     }
 
     public Double getOvertimeThreshold() {
-        return new Double(getProperties().getProperty("overtime.threshold"));
+        return new Double(getProperties().getProperty("overtime.threshold", "1"));
     }
 
     public String getVacationMailMarker() {
