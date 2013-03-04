@@ -26,8 +26,6 @@ public class VacationApprovalAutoProcessService extends AbstractVacationApproval
 
     private static final Integer VACATION_PROJECT_MANAGER_OVERRIDE_TRESHOLD_DEFAULT = 7;
     private static final Integer VACATION_URGENT_PROJECT_MANAGER_OVERRIDE_TRESHOLD_DEFAULT = 3;
-    private static final Integer VACATION_LINE_MANAGER_OVERRIDE_TRESHOLD_DEFAULT = 5;
-    private static final Integer VACATION_URGENT_LINE_MANAGER_OVERRIDE_TRESHOLD_DEFAULT = 2;
 
     private static final Logger logger = LoggerFactory.getLogger(VacationApprovalAutoProcessService.class);
 
@@ -209,56 +207,6 @@ public class VacationApprovalAutoProcessService extends AbstractVacationApproval
         }
 
         return getTopLineManagerApprovalRecursive(managerOfManagerApproval);       //проверяем следующего по иерархии линейного руководителя
-    }
-
-    /**
-     * Проверяем, успевает ли линейный руководитель вынести решение по заявлению на отпуск
-     */
-    private boolean lineManagerHasTimeToApproveVacation(int lineManagerDaysToApprove, VacationApproval lineManagerApproval) {
-        Date lastLineManagerApproveDate = lineManagerApproval.getRequestDate();
-        return DateTimeUtil.getAllDaysCount(lastLineManagerApproveDate, new Date()) >= lineManagerDaysToApprove;
-    }
-
-    /**
-     * получаем мексимальное количество дней, за которое линейный руководитель должен утвердить заявление на отпуск
-     */
-    private Integer getControlTimeForLineManager(Vacation vacation) throws VacationApprovalServiceException {
-        Long daysForApprove = DateTimeUtil.getAllDaysCount(vacation.getCreationDate(), vacation.getBeginDate());
-        Integer vacationTreshold = getVacationTreshold();
-        if (daysForApprove >= vacationTreshold) {
-            return getVacationLineManagerOverrideThreshold();
-        } else {
-            return getVacationUrgentLineManagerOverrideThreshold();
-        }
-    }
-
-    /**
-     * получаем количество дней, за которые линейный руководитель должен согласовать заявление на отпуск
-     */
-    private Integer getVacationLineManagerOverrideThreshold() {
-        try {
-            return propertyProvider.getVacationLineManagerOverrideThreshold();
-        } catch (NullPointerException ex) {
-            return VACATION_LINE_MANAGER_OVERRIDE_TRESHOLD_DEFAULT;
-        } catch (NumberFormatException ex) {
-            logger.error("В файле настроек указано неверное число в vacationLineManagerOverrideThreshold!", ex);
-            return VACATION_LINE_MANAGER_OVERRIDE_TRESHOLD_DEFAULT;
-        }
-    }
-
-    /**
-     * получаем количество дней, за которые линейный руководитель должен согласовать заявление на отпуск
-     * в ускоренном режиме
-     */
-    private Integer getVacationUrgentLineManagerOverrideThreshold() {
-        try {
-            return propertyProvider.getVacationUrgentLineManagerOverrideThreshold();
-        } catch (NullPointerException ex) {
-            return VACATION_URGENT_LINE_MANAGER_OVERRIDE_TRESHOLD_DEFAULT;
-        } catch (NumberFormatException ex) {
-            logger.error("В файле настроек указано неверное число в vacationUrgentLineManagerOverrideThreshold!", ex);
-            return VACATION_URGENT_LINE_MANAGER_OVERRIDE_TRESHOLD_DEFAULT;
-        }
     }
 
     /***

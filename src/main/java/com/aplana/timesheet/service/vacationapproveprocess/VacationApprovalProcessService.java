@@ -21,28 +21,11 @@ public class VacationApprovalProcessService extends AbstractVacationApprovalProc
     private static final Logger logger = LoggerFactory.getLogger(VacationApprovalProcessService.class);
 
     /**
-     * рекурсивно поднимаемся по руководителям (employee.manager.manager...) пока не найдем последнего,
-     * кому отправлялся запрос согласования. (продолаем рекурсивно подниматься)
+     * рекурсивно поднимаемся по руководителям только при автоматической проверке.
+     * Здесь же просто возвращаем результат ЛР сотрудника
      */
     protected VacationApproval getTopLineManagerApprovalRecursive(VacationApproval vacationApproval) throws VacationApprovalServiceException {
-
-        if (vacationApproval.getResult() != null) {        //линейный вынес решение об отпуске
-            return vacationApproval;
-        }
-
-        Employee manager = vacationApproval.getManager();
-
-        if (! managerExists(manager)) {  //у линейного нет руководителя или он сам себе руководитель
-            return vacationApproval;
-        }
-
-        Vacation vacation = vacationApproval.getVacation();
-        VacationApproval managerOfManagerApproval = tryGetManagerApproval(vacation, manager.getManager());
-        if (managerOfManagerApproval == null) {  //письмо линейному руководителю этого линейного еще не посылалось
-            return vacationApproval;
-        }
-
-        return getTopLineManagerApprovalRecursive(managerOfManagerApproval);       //проверяем следующего по иерархии линейного руководителя
+        return vacationApproval;
     }
 
     /**
