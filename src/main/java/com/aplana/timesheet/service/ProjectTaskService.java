@@ -7,6 +7,7 @@ import com.aplana.timesheet.dao.entity.ProjectTask;
 import com.aplana.timesheet.util.JsonUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -22,7 +23,8 @@ public class ProjectTaskService {
 	 * @param projectId идентификатор проекта в базе данных
 	 * @return список проектных задач
 	 */
-	public List<ProjectTask> getProjectTasks(Integer projectId) {
+    @Transactional(readOnly = true)
+    public List<ProjectTask> getProjectTasks(Integer projectId) {
 		return projectTaskDAO.getProjectTasks(projectId);
 	}
 	
@@ -30,10 +32,12 @@ public class ProjectTaskService {
 	 * Возвращает активную проектную задачу, относящуюся к указанному проекту,
 	 * либо null, если проект или код задачи null, или такой задачи нет.
 	 */
-	public ProjectTask find(Integer projectId, String cqId) {
+    @Transactional(readOnly = true)
+    public ProjectTask find(Integer projectId, String cqId) {
 		return projectTaskDAO.find(projectId, cqId);
 	}
 
+    @Transactional(readOnly = true)
     public String getProjectTaskListJson(List<Project> projects) {
         final JsonArrayNodeBuilder builder = anArrayBuilder();
 

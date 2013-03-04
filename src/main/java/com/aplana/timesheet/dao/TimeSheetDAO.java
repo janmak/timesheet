@@ -1,16 +1,14 @@
 package com.aplana.timesheet.dao;
 
 import com.aplana.timesheet.dao.entity.Calendar;
-import com.aplana.timesheet.form.entity.DayTimeSheet;
 import com.aplana.timesheet.dao.entity.Employee;
 import com.aplana.timesheet.dao.entity.TimeSheet;
 import com.aplana.timesheet.enums.TypesOfActivityEnum;
+import com.aplana.timesheet.form.entity.DayTimeSheet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheAnnotationParser;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -36,7 +34,6 @@ public class TimeSheetDAO {
     @PersistenceContext
     private EntityManager entityManager;
 
-    @Transactional
     public void storeTimeSheet(TimeSheet timeSheet) {
         if (timeSheet.getId() == null){  //создается новый отчет, а не редактируется старый
             timeSheet.setCreationDate(new java.util.Date());
@@ -50,7 +47,6 @@ public class TimeSheetDAO {
     }
 
     @SuppressWarnings("unchecked")
-    @Transactional(readOnly = true)
     public TimeSheet findForDateAndEmployee(Calendar date, Integer employeeId) {
         Query query = entityManager.createQuery(
                 "select ts from TimeSheet as ts where ts.calDate = :calDate and ts.employee.id = :employeeId"
@@ -70,7 +66,6 @@ public class TimeSheetDAO {
      * @return List<DayTimeSheet>
      */
     @SuppressWarnings("unchecked")
-    @Transactional(readOnly = true)
     public List<DayTimeSheet> findDatesAndReportsForEmployee(Integer year, Integer month, Integer region, Employee employee) {
 
         // Я не знаю как написать это на HQL, но на SQL пишется легко и непринужденно.
@@ -146,7 +141,6 @@ public class TimeSheetDAO {
      * @return отчет И МОЖЕТ быть null
      */
     @SuppressWarnings("unchecked")
-    @Transactional(readOnly = true)
     public TimeSheet findLastTimeSheetBefore(Calendar date, Integer employeeId) {
         Query query = entityManager.createQuery(
                 "select ts "
@@ -169,7 +163,6 @@ public class TimeSheetDAO {
      * @return отчет
      */
     @SuppressWarnings("unchecked")
-    @Transactional(readOnly = true)
     public TimeSheet findNextTimeSheetAfter(Calendar nextDate, Integer employeeId) {
         Query query = entityManager.createQuery(""
                 + "select ts "
@@ -202,7 +195,6 @@ public class TimeSheetDAO {
         }
     }
 
-    @Transactional
     public void delete(TimeSheet timeSheet) {
         entityManager.remove(timeSheet);
     }

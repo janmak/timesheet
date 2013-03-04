@@ -5,6 +5,7 @@ import com.aplana.timesheet.dao.TimeSheetDAO;
 import com.aplana.timesheet.dao.VacationDAO;
 import com.aplana.timesheet.dao.entity.Employee;
 import com.aplana.timesheet.dao.entity.TimeSheet;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
@@ -223,11 +224,13 @@ public class DayTimeSheet implements Comparable<DayTimeSheet> {
     }
 
     // является данный день больничным или нет
+    @Transactional
     public Boolean getIllnessDay(){
         return illnessDAO.isDayIllness(emp, new Date(calDate.getTime()));
     }
 
     // является данный день отпуском или нет
+    @Transactional
     public Boolean getVacationDay(){
         return vacationDAO.isDayVacation(emp, new Date(calDate.getTime()));
     }

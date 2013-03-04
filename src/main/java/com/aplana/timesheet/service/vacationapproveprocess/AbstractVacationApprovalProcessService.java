@@ -18,7 +18,7 @@ import java.util.*;
  * User: vsergeev
  * Date: 19.02.13
  */
-public abstract class AbstractVacationApprovalProcessService {
+public abstract class AbstractVacationApprovalProcessService extends AbstractServiceWithTransactionManagement {
 
     private List<Integer> approvedByProjectManager = Arrays.asList(VacationStatusEnum.APPROVED_BY_PM.getId(),
             VacationStatusEnum.APPROVEMENT_WITH_LM.getId(), VacationStatusEnum.APPROVED.getId(), VacationStatusEnum.REJECTED.getId());

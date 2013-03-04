@@ -8,6 +8,7 @@ import com.aplana.timesheet.dao.entity.Manager;
 import com.aplana.timesheet.dao.entity.Region;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  *
@@ -22,6 +23,7 @@ public class ManagerService {
     RegionDAO regionDAO;
 
 
+    @Transactional(readOnly = true)
     public Manager getManagerByDevisionAndRegion(Integer divisionId, Integer regionId){
 
         Division division = divisionDAO.find(divisionId);
@@ -41,14 +43,17 @@ public class ManagerService {
         return managerDAO.getDivisionRegionManager(division, region);
     }
 
+    @Transactional
     public void deleteManager(Manager manager){
         managerDAO.deleteManager(manager);
     }
 
+    @Transactional
     public void insertManager(Manager manager){
         managerDAO.updateInsertManager(manager);
     }
 
+    @Transactional
     public void updateManager(Manager manager){
         managerDAO.updateInsertManager(manager);
     }

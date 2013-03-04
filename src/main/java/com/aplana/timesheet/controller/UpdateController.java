@@ -1,17 +1,12 @@
 package com.aplana.timesheet.controller;
 
 import com.aplana.timesheet.constants.TimeSheetConstants;
-import com.aplana.timesheet.dao.DivisionDAO;
-import com.aplana.timesheet.dao.EmployeeDAO;
 import com.aplana.timesheet.dao.LdapDAO;
 import com.aplana.timesheet.dao.entity.Division;
 import com.aplana.timesheet.dao.entity.Employee;
 import com.aplana.timesheet.dao.entity.ldap.EmployeeLdap;
 import com.aplana.timesheet.properties.TSPropertyProvider;
-import com.aplana.timesheet.service.EmployeeLdapService;
-import com.aplana.timesheet.service.EmployeeService;
-import com.aplana.timesheet.service.OQProjectSyncService;
-import com.aplana.timesheet.service.ReportCheckService;
+import com.aplana.timesheet.service.*;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import org.apache.commons.lang3.StringUtils;
@@ -41,13 +36,11 @@ public class UpdateController {
     @Autowired
     private EmployeeLdapService employeeLdapService;
     @Autowired
-    private EmployeeService employeeService;
-    @Autowired
-    private DivisionDAO divisionDAO;
+    private DivisionService divisionService;
     @Autowired
     private LdapDAO ldapDAO;
     @Autowired
-    private EmployeeDAO employeeDAO;
+    private EmployeeService employeeService;
 
     public void setEmployeeLdapService(EmployeeLdapService employeeLdapService) {
         this.employeeLdapService = employeeLdapService;
@@ -122,7 +115,7 @@ public class UpdateController {
 
     @RequestMapping(value = "/update/objectSid")
     public String updateObjectSids() {
-        Iterable<Division> divisionsFromDb = Iterables.filter(divisionDAO.getAllDivisions(), new Predicate<Division>() {
+        Iterable<Division> divisionsFromDb = Iterables.filter(divisionService.getAllDivisions(), new Predicate<Division>() {
             @Override
             public boolean apply(@Nullable Division input) {
                 return !input.getNotToSyncWithLdap();
@@ -142,11 +135,11 @@ public class UpdateController {
                     }
                 });
                 division.setObjectSid(LdapUtils.convertBinarySidToString((byte[]) map.get(LdapDAO.SID)));
-                divisionDAO.save(division);
+                divisionService.setDivision(division);
             }
         }
 
-        List<Employee> employeesForSync = employeeDAO.getEmployeesForSync();
+        List<Employee> employeesForSync = employeeService.getEmployeesForSync();
 
         for (Employee employee : employeesForSync) {
             if (StringUtils.isBlank(employee.getObjectSid())) {
@@ -157,7 +150,7 @@ public class UpdateController {
                 }
 
                 employee.setObjectSid(employeeFromLdap.getObjectSid());
-                employeeDAO.save(employee);
+                employeeService.setEmployee(employee);
             }
         }
 

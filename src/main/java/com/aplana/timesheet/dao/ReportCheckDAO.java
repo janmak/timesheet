@@ -5,7 +5,6 @@ import com.aplana.timesheet.dao.entity.ReportCheck;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -19,17 +18,12 @@ public class ReportCheckDAO{
 	@PersistenceContext
 	private EntityManager entityManager;
 
-	@Transactional(readOnly = true)
-	public ReportCheck find(Integer id) {
-		return entityManager.find(ReportCheck.class, id);
-	}
-/**
- * Возвращает отчет по дате и человеку 
- * @param date
- * @param employee
- * @return ReportCheck
- */
-	@Transactional(readOnly = true)
+    /**
+     * Возвращает отчет по дате и человеку
+     * @param date
+     * @param employee
+     * @return ReportCheck
+     */
 	@SuppressWarnings("unchecked")
 	public ReportCheck getDayEmpReportCheck(String date, Employee employee) {
 		Query query = entityManager.createQuery(
@@ -41,11 +35,11 @@ public class ReportCheckDAO{
 
         return result.isEmpty() ? null : result.get(0);
 	}
-/**
- * Заносит в базу запись по пропущенным отчетам
- * @param reportCheck
- */
-	@Transactional
+
+    /**
+     * Заносит в базу запись по пропущенным отчетам
+     * @param reportCheck
+     */
 	public void setReportCheck(ReportCheck reportCheck) {
         ReportCheck existedReportCheck = getDayEmpReportCheck( reportCheck.getCheckDate(), reportCheck.getEmployee() );
         logger.info("reportcheck {} found in base",existedReportCheck);
@@ -59,11 +53,10 @@ public class ReportCheckDAO{
             logger.warn( "Record already exist in database!" );
         }
 	}
-/**
- * Заносит в базу записи по пропущенным отчетам в виде списка
- * @param reportchecks
- */
-	@Transactional
+    /**
+     * Заносит в базу записи по пропущенным отчетам в виде списка
+     * @param reportchecks
+     */
 	public void setReportChecks(List<ReportCheck> reportchecks) {
 		if (reportchecks != null){
 			logger.info("reportchecks trying to merge.");

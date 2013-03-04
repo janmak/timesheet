@@ -6,8 +6,8 @@ import com.aplana.timesheet.dao.entity.Employee;
 import com.aplana.timesheet.dao.entity.EmployeePlan;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.NoResultException;
 import java.util.List;
 
 /**
@@ -24,19 +24,15 @@ public class EmployeePlanService {
         return employeePlanDAO.find(employee, year, month);
     }
 
+    @Transactional
     public void store(List<EmployeePlan> employeePlans) {
         for (EmployeePlan employeePlan : employeePlans) {
             employeePlanDAO.store(employeePlan);
         }
-
     }
 
     public EmployeePlan tryFind(Employee employee, Integer year, Integer month, DictionaryItem dictionaryItem) {
-        try {
-            return employeePlanDAO.find(employee, year, month, dictionaryItem);
-        } catch (NoResultException nre) {
-            return null;
-        }
+        return employeePlanDAO.tryFind(employee, year, month, dictionaryItem);
     }
 
     public void remove(List<EmployeePlan> employeePlansToDelete) {

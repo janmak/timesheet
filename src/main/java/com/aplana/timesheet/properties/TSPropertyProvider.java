@@ -135,26 +135,42 @@ public class TSPropertyProvider {
     }
     public Integer getVacationCreateThreshold() {
         try {
-            return Integer.parseInt(getProperties().getProperty("vacations.vacation.create.threshold", "14"));
+            return Integer.parseInt(getProperties().getProperty("vacations.vacation.create.threshold"));
         } catch (NumberFormatException ex) {
             return 14;
         }
     }
 
     public Integer getVacationProjectManagerOverrideThreshold() {
-        return Integer.parseInt(getProperties().getProperty("vacations.vacation.project.manager.override.threshold"));
+        try {
+            return Integer.parseInt(getProperties().getProperty("vacations.vacation.project.manager.override.threshold"));
+        } catch (NumberFormatException ex) {
+            return 7;
+        }
     }
 
     public Integer getVacationUrgentProjectManagerOverrideThreshold() {
-        return Integer.parseInt(getProperties().getProperty("vacations.vacation.urgent.project.manager.override.threshold"));
+        try {
+            return Integer.parseInt(getProperties().getProperty("vacations.vacation.urgent.project.manager.override.threshold"));
+        } catch (NumberFormatException ex) {
+            return 3;
+        }
     }
 
     public Integer getVacationLineManagerOverrideThreshold() {
-        return Integer.parseInt(getProperties().getProperty("vacations.vacation.line.manager.override.threshold"));
+        try {
+            return Integer.parseInt(getProperties().getProperty("vacations.vacation.line.manager.override.threshold"));
+        } catch (NumberFormatException ex) {
+            return 5;
+        }
     }
 
     public Integer getVacationUrgentLineManagerOverrideThreshold() {
-        return Integer.parseInt(getProperties().getProperty("vacations.vacation.urgent.manager.override.threshold"));
+        try {
+            return Integer.parseInt(getProperties().getProperty("vacations.vacation.urgent.manager.override.threshold"));
+        } catch (NumberFormatException ex) {
+            return 3;
+        }
     }
 
     public String getTimeSheetURL() {

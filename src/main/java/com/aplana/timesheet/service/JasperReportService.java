@@ -1,13 +1,14 @@
 package com.aplana.timesheet.service;
 
-import com.aplana.timesheet.reports.TSJasperReport;
 import com.aplana.timesheet.exception.JReportBuildError;
+import com.aplana.timesheet.reports.TSJasperReport;
 import net.sf.jasperreports.engine.*;
 import net.sf.jasperreports.engine.export.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.mail.internet.MimeUtility;
 import javax.servlet.ServletContext;
@@ -56,6 +57,7 @@ public class JasperReportService {
         return sb.toString();
     }
 
+    @Transactional(readOnly = true)
     public boolean makeReport(TSJasperReport report, int printtype, HttpServletResponse response, HttpServletRequest httpServletRequest) throws JReportBuildError {
 
         report.checkParams();

@@ -5,7 +5,6 @@ import com.aplana.timesheet.dao.entity.EmployeeToken;
 import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -32,7 +31,6 @@ public class EmployeeTokenDAO {
         return this.entityManager.find(EmployeeToken.class, key).getEmployee();
     }
 
-    @Transactional
     public EmployeeToken create(int empId) {
         EmployeeToken token = new EmployeeToken();
         token.setEmployee(employeeDAO.find(empId));
@@ -40,7 +38,6 @@ public class EmployeeTokenDAO {
         return token;
     }
 
-    @Transactional
     public EmployeeToken create(String name) {
         EmployeeToken token = new EmployeeToken();
         token.setEmployee(employeeDAO.find(name));
@@ -49,7 +46,6 @@ public class EmployeeTokenDAO {
         return token;
     }
     
-    @Transactional
     public void delete(EmployeeToken token) {
         entityManager.remove(token);
     }

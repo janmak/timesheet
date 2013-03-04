@@ -4,7 +4,6 @@ import com.aplana.timesheet.dao.entity.Division;
 import com.aplana.timesheet.dao.entity.Manager;
 import com.aplana.timesheet.dao.entity.Region;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -36,13 +35,11 @@ public class ManagerDAO {
         return (Manager)query.getSingleResult();
     }
 
-    @Transactional
     public void deleteManager(Manager manager){
         entityManager.remove(manager);
         entityManager.flush();
     }
 
-    @Transactional
     public void updateInsertManager(Manager manager){
         entityManager.merge(manager);
         entityManager.flush();

@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Nullable;
 import javax.servlet.http.Cookie;
@@ -35,6 +36,7 @@ public class EmployeeService {
      * @return объект класса Employee либо null, если сотрудник
      *         с указанным id не найден.
      */
+    @Transactional(readOnly = true)
     public Employee find(Integer id) {
         return employeeDAO.find(id);
     }
@@ -52,6 +54,8 @@ public class EmployeeService {
         }
         return isShowAll;
     }
+
+    @Transactional(readOnly = true)
     public Employee findByEmail(String mail)
     {
         return employeeDAO.findByEmail(mail);
@@ -67,6 +71,7 @@ public class EmployeeService {
      * @return объект класса Employee либо null, если сотрудник
      *         с указанным именем не найден.
      */
+    @Transactional(readOnly = true)
     public Employee find(String name) {
         return employeeDAO.find(name);
     }
@@ -78,6 +83,7 @@ public class EmployeeService {
      * @param filterFired Отоброжать ли уволленных сотрудников
      * @return список действующих сотрудников.
      */
+    @Transactional(readOnly = true)
     public List<Employee> getEmployees(Division division, Boolean filterFired) {
         List<Employee> result;
         if (filterFired == true) {
@@ -88,6 +94,7 @@ public class EmployeeService {
         return result;
     }
 
+    @Transactional(readOnly = true)
     public List<Employee> getAllEmployeesDivision(Division division) {
         return employeeDAO.getAllEmployeesDivision(division);
     }
@@ -98,6 +105,7 @@ public class EmployeeService {
      *                 иначе с учётом подразделения
      * @return список сотрудников для синхронизации
      */
+    @Transactional(readOnly = true)
     public List<Employee> getEmployeesForSync(Division division) {
         return employeeDAO.getEmployeesForSync(division);
     }
@@ -107,6 +115,7 @@ public class EmployeeService {
      * существующего сотрудника.
      * @param employee
      */
+    @Transactional
     public void setEmployee(Employee employee) {
         employeeDAO.save(employee);
     }
@@ -116,10 +125,12 @@ public class EmployeeService {
      * существующих сотрудников.
      * @param employees
      */
+    @Transactional
     public StringBuffer setEmployees(List<Employee> employees) {
         return employeeDAO.setEmployees(employees);
     }
-    
+
+    @Transactional(readOnly = true)
     public List<Employee> getRegionManager(Integer employeeId) {
         return this.employeeDAO.getRegionManager(employeeId);
     }
@@ -198,5 +209,9 @@ public class EmployeeService {
         }
 
         return managersAndProjects;
+    }
+
+    public List<Employee> getEmployeesForSync() {
+        return employeeDAO.getEmployeesForSync();
     }
 }

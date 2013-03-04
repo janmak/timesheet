@@ -11,7 +11,7 @@ import org.apache.commons.lang.time.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.TransactionStatus;
 
 import java.util.Date;
 import java.util.List;
@@ -21,25 +21,31 @@ import java.util.List;
  * Date: 19.02.13
  */
 @Service
-@Transactional(noRollbackFor = Throwable.class)
 public class VacationApprovalAutoProcessService extends AbstractVacationApprovalProcessService {
 
-    private static final Integer VACATION_PROJECT_MANAGER_OVERRIDE_TRESHOLD_DEFAULT = 7;
-    private static final Integer VACATION_URGENT_PROJECT_MANAGER_OVERRIDE_TRESHOLD_DEFAULT = 3;
-    private static final Integer VACATION_LINE_MANAGER_OVERRIDE_TRESHOLD_DEFAULT = 5;
-    private static final Integer VACATION_URGENT_LINE_MANAGER_OVERRIDE_TRESHOLD_DEFAULT = 2;
-
-    private static final Logger logger = LoggerFactory.getLogger(VacationApprovalAutoProcessService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(VacationApprovalAutoProcessService.class);
 
     /**
      * запускаем проверку для всех несогласованных отпусков
      */
     public void checkAllVacations () throws VacationApprovalServiceException {
+        final TransactionStatus transactionStatus = getNewTransaction();
+
         List<Integer> vacations = vacationService.getAllNotApprovedVacationsIds();
         for (Integer vacationId : vacations) {
-            Vacation vacation = vacationService.findVacation(vacationId);
-            checkVacationIsApproved(vacation);
+            final TransactionStatus internalTransactionStatus = getNewTransaction();
+
+            try {
+                Vacation vacation = vacationService.findVacation(vacationId);
+                checkVacationIsApproved(vacation);
+
+                commit(internalTransactionStatus);
+            } catch (Exception ex) {
+                LOGGER.error("Error occured ", ex);
+            }
         }
+
+        commit(transactionStatus);
     }
 
     /**
@@ -236,14 +242,7 @@ public class VacationApprovalAutoProcessService extends AbstractVacationApproval
      * получаем количество дней, за которые линейный руководитель должен согласовать заявление на отпуск
      */
     private Integer getVacationLineManagerOverrideThreshold() {
-        try {
-            return propertyProvider.getVacationLineManagerOverrideThreshold();
-        } catch (NullPointerException ex) {
-            return VACATION_LINE_MANAGER_OVERRIDE_TRESHOLD_DEFAULT;
-        } catch (NumberFormatException ex) {
-            logger.error("В файле настроек указано неверное число в vacationLineManagerOverrideThreshold!", ex);
-            return VACATION_LINE_MANAGER_OVERRIDE_TRESHOLD_DEFAULT;
-        }
+        return propertyProvider.getVacationLineManagerOverrideThreshold();
     }
 
     /**
@@ -251,42 +250,21 @@ public class VacationApprovalAutoProcessService extends AbstractVacationApproval
      * в ускоренном режиме
      */
     private Integer getVacationUrgentLineManagerOverrideThreshold() {
-        try {
-            return propertyProvider.getVacationUrgentLineManagerOverrideThreshold();
-        } catch (NullPointerException ex) {
-            return VACATION_URGENT_LINE_MANAGER_OVERRIDE_TRESHOLD_DEFAULT;
-        } catch (NumberFormatException ex) {
-            logger.error("В файле настроек указано неверное число в vacationUrgentLineManagerOverrideThreshold!", ex);
-            return VACATION_URGENT_LINE_MANAGER_OVERRIDE_TRESHOLD_DEFAULT;
-        }
+        return propertyProvider.getVacationUrgentLineManagerOverrideThreshold();
     }
 
     /***
      * получаем максимальное количество дней для согласования отпуска руководителем проекта в обычном режиме
      */
     public Integer getVacationProjectManagerOverrideThreshold() throws VacationApprovalServiceException {
-        try {
-            return propertyProvider.getVacationProjectManagerOverrideThreshold();
-        } catch (NullPointerException ex) {
-            return VACATION_PROJECT_MANAGER_OVERRIDE_TRESHOLD_DEFAULT;
-        } catch (NumberFormatException ex) {
-            logger.error("В файле настроек указано неверное число в vacationProjectManagerOverrideThreshold !", ex);
-            return VACATION_PROJECT_MANAGER_OVERRIDE_TRESHOLD_DEFAULT;
-        }
+        return propertyProvider.getVacationProjectManagerOverrideThreshold();
     }
 
     /**
      * получаем максимальное количество дней для согласования отпуска руководителем проекта в ускоренном режиме
      */
-    public Integer getVacationUrgentProjectManagerOverrideThreshold() throws VacationApprovalServiceException {
-        try {
-            return propertyProvider.getVacationUrgentProjectManagerOverrideThreshold(); //kss 25.02.2013, похоже была опечатка (getVacationUrgentLineManagerOverrideThreshold)
-        } catch (NullPointerException ex) {
-            return VACATION_URGENT_PROJECT_MANAGER_OVERRIDE_TRESHOLD_DEFAULT;
-        } catch (NumberFormatException ex) {
-            logger.error("В файле настроек указано неверное число в vacationUrgentProjectManagerOverrideThreshold!", ex);
-            return VACATION_URGENT_PROJECT_MANAGER_OVERRIDE_TRESHOLD_DEFAULT;
-        }
+    private Integer getVacationUrgentProjectManagerOverrideThreshold() throws VacationApprovalServiceException {
+        return propertyProvider.getVacationUrgentProjectManagerOverrideThreshold(); //kss 25.02.2013, похоже была опечатка (getVacationUrgentLineManagerOverrideThreshold)
     }
 
 }

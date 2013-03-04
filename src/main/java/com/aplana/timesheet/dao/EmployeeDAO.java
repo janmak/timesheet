@@ -9,7 +9,6 @@ import org.hibernate.Hibernate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
@@ -18,7 +17,6 @@ import java.util.Date;
 import java.util.List;
 
 @Service
-@Transactional
 public class EmployeeDAO {
 
     public static final int ALL_REGIONS = -1;
@@ -35,7 +33,6 @@ public class EmployeeDAO {
 	 * @return объект класса Employee либо null, если сотрудник
 	 *         с указанным id не найден.
 	 */
-	@Transactional(readOnly = true)
 	public Employee find(Integer id) {
 		if (id == null) {
 			logger.warn("For unknown reasons, the Employee ID is null.");
@@ -50,7 +47,6 @@ public class EmployeeDAO {
 	 * @return объект класса Employee либо null, если сотрудник
 	 *         с указанным именем не найден.
 	 */
-	@Transactional(readOnly = true)
 	public Employee find(String name) {
 		if ("".equals(name)) { return null; }
 
@@ -74,7 +70,6 @@ public class EmployeeDAO {
      *         с указанным именем не найден.
      */
 
-    @Transactional(readOnly = true)
     public Employee findByEmail(String email) {
         if ("".equals(email)) { return null; }
 
@@ -115,7 +110,6 @@ public class EmployeeDAO {
 	 * 				   иначе с учётом подразделения
 	 * @return список сотрудников для синхронизации
 	 */
-	@Transactional(readOnly = true)
 	@SuppressWarnings("unchecked")
 	public List<Employee> getEmployeesForSync(Division division) {
 		Query query;
@@ -134,7 +128,6 @@ public class EmployeeDAO {
         return query.getResultList();
 	}
 
-    @Transactional(readOnly = true)
     @SuppressWarnings("unchecked")
     public List<Employee> getAllEmployeesDivision(Division division) {
         Query query;
@@ -153,7 +146,6 @@ public class EmployeeDAO {
      * @param employeeId
      * @return List<Employee>
      */
-    @Transactional(readOnly = true)
     public List<Employee> getRegionManager (Integer employeeId) {
         Query query = this.entityManager.createQuery(
                 "select m.employee from  Employee e, Manager m " +
@@ -186,7 +178,6 @@ public class EmployeeDAO {
 	 * @param division подразделениe
 	 * @return список сотрудников подразделения с идентификатором division
 	 */
-	@Transactional(readOnly = true)
 	@SuppressWarnings("unchecked")
 	public List<Employee> getEmployees(Division division) {
 		Query query;
@@ -305,7 +296,6 @@ public class EmployeeDAO {
         return new Date(result.getTime());
     }
 
-    @Transactional(readOnly = true)
     public Employee findByObjectSid(String objectSid) {
         Employee employee = (Employee) Iterables.getFirst(entityManager.createQuery(
                 "FROM Employee emp WHERE objectSid = :objectSid"
@@ -323,7 +313,6 @@ public class EmployeeDAO {
         return employee;
     }
 
-    @Transactional(readOnly = true)
     public List<Employee> getActiveEmployeesNotInList(List<Integer> syncedEmployees) {
         return entityManager.createQuery(
                 "FROM Employee AS emp " +

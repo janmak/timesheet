@@ -4,7 +4,6 @@ import com.aplana.timesheet.dao.entity.TimeSheetDetail;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -16,7 +15,6 @@ public class TimeSheetDetailDAO {
 	@PersistenceContext
 	private EntityManager entityManager;
 
-	@Transactional
 	public void storeTimeSheetDetail(TimeSheetDetail timeSheetDetail) {
 		TimeSheetDetail tsdMerged = entityManager.merge(timeSheetDetail);
 		logger.info("timeSheetDetail merged.");

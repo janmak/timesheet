@@ -33,4 +33,11 @@ public class EmployeeAssistantDAO {
         return (EmployeeAssistant) query.getSingleResult();
     }
 
+    public EmployeeAssistant tryFind(Set<String> managersEmails) {
+        try {
+            return find(managersEmails);
+        } catch (NoResultException ex) {
+            return null;
+        }
+    }
 }

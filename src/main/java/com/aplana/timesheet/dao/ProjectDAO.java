@@ -6,7 +6,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
@@ -38,7 +37,6 @@ public class ProjectDAO {
     /**
      * Возвращает все активные проекты\пресейлы.
      */
-    @Transactional(readOnly = true)
     public List<Project> getAll() {
         Query query = entityManager.createQuery(
                 "from Project as p where p.active=:active"
@@ -50,7 +48,6 @@ public class ProjectDAO {
     /**
      * Возвращает активные проекты без разделения по подразделениям.
      */
-    @Transactional(readOnly = true)
     @SuppressWarnings("unchecked")
     public List<Project> getProjects() {
         Query query = entityManager.createQuery(
@@ -63,7 +60,6 @@ public class ProjectDAO {
     /**
      * Возвращает активные пресейлы без разделения по подразделениям.
      */
-    @Transactional(readOnly = true)
     @SuppressWarnings("unchecked")
     public List<Project> getPresales() {
         final Integer ANACCOUNTED_PRESALE_ID = 18;
@@ -79,7 +75,6 @@ public class ProjectDAO {
     /**
      * Возвращает объект класса Project по указанному идентификатору
      */
-    @Transactional(readOnly = true)
     public Project find(Integer id) {
         if (id == null) {
             logger.warn("Project ID is null.");
@@ -92,7 +87,6 @@ public class ProjectDAO {
      * Возвращает объект класса Project по указанному идентификатору,
      * соответсвующий активному проекту, либо null.
      */
-    @Transactional(readOnly = true)
     public Project findActive(Integer id) {
         Query query = entityManager.createQuery(
                 "from Project as p where p.id=:id and p.active=:active"
@@ -109,7 +103,6 @@ public class ProjectDAO {
      * Возвращает все активные проекты\пресейлы для которых в CQ заведены
      * проектные задачи. (cq_required=true)
      */
-    @Transactional(readOnly = true)
     public List<Project> getProjectsWithCq() {
         Query query = entityManager.createQuery(
                 "from Project as p where p.cqRequired=true and p.active=:active"
@@ -124,7 +117,6 @@ public class ProjectDAO {
      * @param project
      * @return
      */
-    @Transactional(readOnly = true)
     public List<ProjectParticipant> getParticipants(Project project) {
         Query query = entityManager.createQuery(
                 "from ProjectParticipant as pp where pp.active=:active and pp.project=:project"
@@ -139,7 +131,6 @@ public class ProjectDAO {
      * @param project, employee
      * @return
      */
-    @Transactional(readOnly = true)
     public List<ProjectParticipant> getEmployeeProjectRoles(Project project, Employee employee) {
         Query query = entityManager.createQuery(
                 "from ProjectParticipant as pp where pp.active=:active and pp.project=:project and pp.employee=:employee"
@@ -148,17 +139,6 @@ public class ProjectDAO {
         return query.getResultList();
     }
 
-    @Transactional(readOnly = true)
-    public Project findByName(String name) {
-        Query query = entityManager.createQuery(
-                "from Project as p where p.name=:name"
-        ).setParameter( "name", name );
-
-        List resultList = query.getResultList();
-        return resultList.isEmpty()? null : (Project) resultList.get( 0 );
-    }
-
-    @Transactional(readOnly = true)
     public Project findByProjectId(String projectId) {
         Query query = entityManager.createQuery(
                 "select p from Project p where p.projectId=:projectId"
@@ -168,7 +148,6 @@ public class ProjectDAO {
         return result.isEmpty() ? null : (Project) result.get(0);
     }
 
-    @Transactional
     public void store(Project project) {
         final DictionaryItem item = dictionaryItemDAO.find(TypesOfActivityEnum.PROJECT.getId()); // Проект
         final Project existingProject = findByProjectId(project.getProjectId());

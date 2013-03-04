@@ -5,15 +5,15 @@ import com.aplana.timesheet.dao.entity.Vacation;
 import com.aplana.timesheet.enums.VacationStatusEnum;
 import org.hibernate.Hibernate;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import java.util.Date;
 import java.util.List;
 
-import static com.aplana.timesheet.enums.VacationStatusEnum.*;
+import static com.aplana.timesheet.enums.VacationStatusEnum.APPROVED;
 
 /**
  * @author rshamsutdinov
@@ -36,7 +36,6 @@ public class VacationDAO {
         return query.getResultList();
     }
 
-    @Transactional
     public void store(Vacation vacation) {
         final Vacation mergedVacation = entityManager.merge(vacation);
 
@@ -45,7 +44,6 @@ public class VacationDAO {
         vacation.setId(mergedVacation.getId());
     }
 
-    @Transactional
     public void delete(Vacation vacation) {
         Hibernate.initialize(vacation);
 
@@ -64,13 +62,11 @@ public class VacationDAO {
         return (Long) query.getSingleResult();
     }
 
-    @Transactional
     public Vacation findVacation(Integer vacationId) {
         final Query query = entityManager.createQuery("from Vacation v where v.id = :id").setParameter("id", vacationId);
         return (Vacation) query.getSingleResult();
     }
 
-    @Transactional
     public Boolean isDayVacation(Employee employee, Date date){
         Query query = entityManager.createQuery(
                 "SELECT i FROM Vacation AS i WHERE i.employee = :employee AND :date BETWEEN i.beginDate AND i.endDate AND i.status.id = :statusId"
@@ -81,7 +77,6 @@ public class VacationDAO {
         return true;
     }
 
-    @Transactional
     public List<Integer> getAllNotApprovedVacationsIds() {
         return entityManager.createQuery("select v.id from Vacation as v where v.status.id in :notApprovedStatuses")
                 .setParameter("notApprovedStatuses", VacationStatusEnum.getNotApprovedStatuses()).getResultList();
@@ -113,5 +108,13 @@ public class VacationDAO {
                 setParameter("region", employee.getRegion().getId());
 
         return ((Number) query.getSingleResult()).intValue();
+    }
+
+    public Vacation tryFindVacation(Integer vacationId) {
+        try {
+            return findVacation(vacationId);
+        } catch (NoResultException ex) {
+            return null;
+        }
     }
 }

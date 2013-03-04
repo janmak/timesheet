@@ -3,7 +3,6 @@ package com.aplana.timesheet.dao;
 import com.aplana.timesheet.dao.entity.DictionaryItem;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -19,13 +18,11 @@ public class DictionaryItemDAO {
     @Autowired
     private DictionaryDAO dictionaryDAO;
 
-	@Transactional(readOnly = true)
 	@SuppressWarnings("unchecked")
 	public List<DictionaryItem> getItemsByDictionaryId(Integer dictionaryId) {
         return getDictionaryItemsByDictId(dictionaryId, "value desc");
 	}
 
-    @Transactional(readOnly = true)
     @SuppressWarnings("unchecked")
     public List<DictionaryItem> getItemsByDictionaryIdAndOrderById(Integer dictionaryId) {
         return getDictionaryItemsByDictId(dictionaryId, "id asc");
@@ -39,7 +36,6 @@ public class DictionaryItemDAO {
         return query.getResultList();
     }
 
-    @Transactional(readOnly = true)
 	public DictionaryItem find(Integer id) {
         return id != null ? entityManager.find(DictionaryItem.class, id) : null;
 	}

@@ -31,7 +31,7 @@ public class CalendarService
 	 * @param String date Дата в виде строки.
 	 * @return объект типа Calendar, либо null, если объект не найден.
 	 */
-    @Transactional
+    @Transactional(readOnly = true)
 	public Calendar find(String date)
 	{		
 		return calendarDAO.find(DateTimeUtil.stringToTimestamp(date, DateTimeUtil.DATE_PATTERN));
@@ -42,7 +42,7 @@ public class CalendarService
 	 * @param long date Дата в миллисекундах.
 	 * @return объект типа Calendar, либо null, если объект не найден.
 	 */
-    @Transactional
+    @Transactional(readOnly = true)
 	public Calendar find(long date)
 	{		
 		return calendarDAO.find(new Timestamp(date));
@@ -53,7 +53,7 @@ public class CalendarService
 	 * @param Timestamp date Дата.
 	 * @return объект типа Calendar, либо null, если объект не найден.
 	 */
-    @Transactional
+    @Transactional(readOnly = true)
 	public Calendar find(Timestamp date)
 	{		
 		return calendarDAO.find(date);
@@ -95,7 +95,8 @@ public class CalendarService
 	 * @param month
 	 * @return
 	 */
-	public List<Calendar> getDateList(Integer year, Integer month){
+    @Transactional(readOnly = true)
+    public List<Calendar> getDateList(Integer year, Integer month){
         return calendarDAO.getDateList(year, month);
 	}
 	

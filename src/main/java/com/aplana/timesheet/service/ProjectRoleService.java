@@ -6,6 +6,7 @@ import com.aplana.timesheet.dao.entity.ProjectRole;
 import com.aplana.timesheet.util.JsonUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -18,7 +19,8 @@ public class ProjectRoleService {
 	private ProjectRoleDAO projectRoleDAO;
 
 	/** Возвращает объект класса ProjectRole по указанному идентификатору */
-	public ProjectRole find(Integer id) {
+    @Transactional(readOnly = true)
+    public ProjectRole find(Integer id) {
 		return projectRoleDAO.find(id);
 	}
 	
@@ -26,16 +28,19 @@ public class ProjectRoleService {
 	 * Возвращает объект класса ProjectRole по указанному идентификатору,
 	 * соответсвующий активной проектой роли, либо null.
 	 */
-	public ProjectRole findActive(Integer id) {
+    @Transactional(readOnly = true)
+    public ProjectRole findActive(Integer id) {
 		return projectRoleDAO.findActive(id);
 	}
 	
 	/** Возвращает активную проектную роль по названию */
-	public ProjectRole find(String title) {
+    @Transactional(readOnly = true)
+    public ProjectRole find(String title) {
 		return projectRoleDAO.find(title);
 	}
 	/** Возвращает активные проектные роли. */
-	public List<ProjectRole> getProjectRoles() {
+    @Transactional(readOnly = true)
+    public List<ProjectRole> getProjectRoles() {
 		return projectRoleDAO.getProjectRoles();
 	}
 	

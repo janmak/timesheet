@@ -13,7 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.TransactionStatus;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.NodeList;
@@ -33,8 +33,10 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
+import static com.aplana.timesheet.util.ExceptionUtils.getRealLastCause;
+
 @Service("oqProgectSyncService")
-public class OQProjectSyncService {
+public class OQProjectSyncService extends AbstractServiceWithTransactionManagement {
 
     private static final String DATE_FORMAT = "dd.MM.yyyy";
 
@@ -89,8 +91,9 @@ public class OQProjectSyncService {
      *     </workgroup>
      * </project>
     */
-    @Transactional
     public void sync() {
+        final TransactionStatus transactionStatus = getNewTransaction();
+
         trace.setLength(0);
         try {
             trace.append("Начало синхронизации\n");
@@ -107,11 +110,15 @@ public class OQProjectSyncService {
             trace.append("Синхронизация завершена\n");
         } catch (Exception e) {
             logger.error("oq project sync error: ", e);
-            trace.append("Синхронизация прервана из-за ошибки: ").append(e.getMessage()).append("\n");
+            trace.append("Синхронизация прервана из-за ошибки: ").append(getRealLastCause(e).getMessage()).append("\n");
         }
+
+        commit(transactionStatus);
     }
 
     public void createOrUpdateProject(NamedNodeMap nodeMap, ProjectDAO dao, DictionaryItem state) {
+        final TransactionStatus transactionStatus = getNewTransaction();
+
         Project project = new Project();      // проект из БД
 
         // поля синхронизации
@@ -144,6 +151,8 @@ public class OQProjectSyncService {
             setDivision(project, hcLdap);  // установим подразделение пользователя
         }
         dao.store(project); // запишем в БД
+
+        commit(transactionStatus);
     }
 
     private DictionaryItem getProjectState() {

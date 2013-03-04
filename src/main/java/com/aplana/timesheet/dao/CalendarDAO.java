@@ -7,7 +7,6 @@ import com.aplana.timesheet.util.DateTimeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Nullable;
 import javax.persistence.EntityManager;
@@ -39,7 +38,6 @@ public class CalendarDAO {
     @PersistenceContext
 	private EntityManager entityManager;
 
-	@Transactional
 	public Calendar find(Timestamp date) {
 		Query query = entityManager.createQuery(
                 "select c from Calendar as c where c.calDate=:calDate"
@@ -90,7 +88,6 @@ public class CalendarDAO {
 	 * Возвращает все даты
 	 */
 	@SuppressWarnings("unchecked")
-	@Transactional(readOnly = true)
 	public List<Calendar> getDateList(Integer year, Integer month) {
 		Query query = entityManager.createQuery(
                 "from Calendar as c where c.year=:yearPar and c.month=:monthPar order by c.calDate asc"

@@ -15,7 +15,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -66,7 +65,6 @@ public class JasperReportDAO {
     private TSPropertyProvider propertyProvider;
 
 
-    @Transactional(readOnly = true)
     public HibernateQueryResultDataSource getReportData(BaseReport report) {
         List resultList     = getResultList     ( report );
 
@@ -588,7 +586,6 @@ public class JasperReportDAO {
         return query.getResultList();
     }
 
-    @Transactional(readOnly = true)
     public HibernateQueryResultDataSource getReport07Data(Report07 report) {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         try {

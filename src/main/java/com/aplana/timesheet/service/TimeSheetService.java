@@ -18,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.LinkedHashSet;
@@ -73,6 +74,7 @@ public class TimeSheetService {
     @Autowired
     public SecurityService securityService;
 
+    @Transactional
     public TimeSheet storeTimeSheet(TimeSheetForm tsForm) {
         TimeSheet timeSheet = new TimeSheet();
         logger.debug("Selected employee id = {}", tsForm.getEmployeeId());
@@ -137,6 +139,7 @@ public class TimeSheetService {
      * @param employeeId Идентификатор сотрудника в базе данных.
      * @return объект типа Timesheet, либо null, если объект не найден.
      */
+    @Transactional(readOnly = true)
     public TimeSheet findForDateAndEmployee(String calDate, Integer employeeId) {
         return timeSheetDAO
                 .findForDateAndEmployee(calendarService.find(calDate), employeeId); // Котов. Убрал вызов employeeService.find, здесь достаточно Id, а работать будет на порядок быстрее
@@ -150,6 +153,7 @@ public class TimeSheetService {
      * @param month
      * @return List DayTimeSheet объектов. Первое поле - дата, второе - рабочий/нерабочий день, третье - id работы, если есть.
      */
+    @Transactional(readOnly = true)
     public List<DayTimeSheet> findDatesAndReportsForEmployee(Employee employee, Integer year, Integer month) {
         return timeSheetDAO
                 .findDatesAndReportsForEmployee(year, month, employee.getRegion().getId(), employee);
@@ -164,6 +168,7 @@ public class TimeSheetService {
      * @param employeeId
      * @return List DayTimeSheet объектов. Первое поле - дата, второе - рабочий/нерабочий день, третье - id работы, если есть.
      */
+    @Transactional(readOnly = true)
     public List<DayTimeSheet> findDatesAndReportsForEmployee(Integer year, Integer month, Integer employeeId) {
         Employee emp = employeeService.find(employeeId);
 
@@ -185,6 +190,7 @@ public class TimeSheetService {
         return timeSheetDAO.find(id);
     }
 
+    @Transactional
     public void delete(TimeSheet timeSheet) {
         timeSheetDAO.delete(timeSheet);
     }
@@ -195,6 +201,7 @@ public class TimeSheetService {
      * @param employeeId
      * @return jsonString
      */
+    @Transactional(readOnly = true)
     public String getPlansJson(String date, Integer employeeId) {
         final JsonObjectNodeBuilder builder = anObjectBuilder();
 
@@ -259,6 +266,7 @@ public class TimeSheetService {
         return rezult.toString();
     }
 
+    @Transactional(readOnly = true)
     public Date getLastWorkdayWithoutTimesheet(Integer employeeId){
         Employee employee = employeeDAO.find(employeeId);
         Calendar calendar = timeSheetDAO.getDateNextAfterLastDayWithTS(employee);
@@ -279,6 +287,7 @@ public class TimeSheetService {
         return timeSheetDAO.getTimeSheetsForEmployee(employee, year, month);
     }
 
+    @Transactional(readOnly = true)
     public String getListOfActDescriptoin(){
         List<AvailableActivityCategory> availableActivityCategories = availableActivityCategoryDAO.getAllAvailableActivityCategories();
         final JsonArrayNodeBuilder result = anArrayBuilder();

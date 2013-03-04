@@ -19,6 +19,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.aplana.timesheet.util.ExceptionUtils.getLastCause;
+
 @Controller
 public class ExceptionHandler implements HandlerExceptionResolver {
 
@@ -71,14 +73,6 @@ public class ExceptionHandler implements HandlerExceptionResolver {
         }
 
         return new ModelAndView("exception", model);
-    }
-
-    private Throwable getLastCause(Throwable throwable) {
-        while (throwable.getCause() != null) {
-            throwable = throwable.getCause();
-        }
-
-        return throwable;
     }
 
 }

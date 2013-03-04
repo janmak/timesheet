@@ -11,6 +11,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -23,11 +24,13 @@ public class DictionaryItemService {
     @Autowired
 	private DictionaryItemDAO dictionaryItemDAO;
 
-	public List<DictionaryItem> getCategoryOfActivity() {
+    @Transactional(readOnly = true)
+    public List<DictionaryItem> getCategoryOfActivity() {
 		return dictionaryItemDAO.getItemsByDictionaryId(DictionaryEnum.CATEGORY_OF_ACTIVITY.getId());
 	}
 
-	public List<DictionaryItem> getTypesOfActivity() {
+    @Transactional(readOnly = true)
+    public List<DictionaryItem> getTypesOfActivity() {
         List<DictionaryItem> actTypes = dictionaryItemDAO.getItemsByDictionaryId(DictionaryEnum.TYPES_OF_ACTIVITY.getId());
 
         return Lists.newArrayList(Iterables.filter(actTypes, new Predicate<DictionaryItem>() {      //убираем из результатов отпуск
@@ -38,22 +41,27 @@ public class DictionaryItemService {
         }));
     }
 
-	public DictionaryItem find(Integer id) {
+    @Transactional(readOnly = true)
+    public DictionaryItem find(Integer id) {
 		return dictionaryItemDAO.find(id);
 	}
 
+    @Transactional(readOnly = true)
     public List<DictionaryItem> getWorkplaces() {
         return dictionaryItemDAO.getItemsByDictionaryId(DictionaryEnum.WORKPLACE.getId());
     }
 
+    @Transactional(readOnly = true)
     public List<DictionaryItem> getOvertimeCauses() {
         return dictionaryItemDAO.getItemsByDictionaryIdAndOrderById(DictionaryEnum.OVERTIME_CAUSE.getId());
     }
 
+    @Transactional(readOnly = true)
     public List<DictionaryItem> getUnfinishedDayCauses() {
         return dictionaryItemDAO.getItemsByDictionaryIdAndOrderById(DictionaryEnum.UNDERTIME_CAUSE.getId());
     }
 
+    @Transactional(readOnly = true)
     public Object getItemsByDictionaryId(int dictId) {
         return dictionaryItemDAO.getItemsByDictionaryId(dictId);
     }

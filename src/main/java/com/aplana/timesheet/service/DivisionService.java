@@ -5,6 +5,7 @@ import com.aplana.timesheet.dao.ProjectDAO;
 import com.aplana.timesheet.dao.entity.Division;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -16,7 +17,8 @@ public class DivisionService {
 	@Autowired
 	ProjectDAO projectDAO;
 
-	public List<Division> getDivisions() {
+    @Transactional(readOnly = true)
+    public List<Division> getDivisions() {
 		return divisionDAO.getActiveDivisions();
 	}
 
@@ -26,10 +28,12 @@ public class DivisionService {
 	 * @param title название подразделение
 	 * @return объект типа Division или null, если подразделение не найдено.
 	 */
-	public Division find(String title) {
+    @Transactional(readOnly = true)
+    public Division find(String title) {
 		return divisionDAO.find(title);
 	}
 
+    @Transactional(readOnly = true)
     public List<Division> getDivisionCheck() {
         return divisionDAO.getDivisionCheck();
     }
@@ -40,11 +44,23 @@ public class DivisionService {
 	 * @param division идентификатор подразделение
 	 * @return объект типа Division или null, если подразделение не найдено.
 	 */
-	public Division find(Integer division) {
+    @Transactional(readOnly = true)
+    public Division find(Integer division) {
 		return divisionDAO.find(division);
 	}
 
+    @Transactional
     public String setDivisions(List<Division> divisionsToSync) {
         return divisionDAO.setDivisions(divisionsToSync);
+    }
+
+    @Transactional
+    public void setDivision(Division division) {
+        divisionDAO.save(division);
+    }
+
+    @Transactional(readOnly = true)
+    public Iterable<Division> getAllDivisions() {
+        return divisionDAO.getAllDivisions();
     }
 }

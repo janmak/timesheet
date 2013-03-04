@@ -4,6 +4,7 @@ import com.aplana.timesheet.dao.VacationApprovalResultDAO;
 import com.aplana.timesheet.dao.entity.VacationApprovalResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * User: vsergeev
@@ -15,6 +16,7 @@ public class VacationApprovalResultService {
     @Autowired
     private VacationApprovalResultDAO vacationApprovalResultDAO;
 
+    @Transactional
     public VacationApprovalResult store(VacationApprovalResult vacationApprovalResult) {
         return vacationApprovalResultDAO.store(vacationApprovalResult);
     }

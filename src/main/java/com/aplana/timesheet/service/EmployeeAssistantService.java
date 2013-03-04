@@ -5,7 +5,6 @@ import com.aplana.timesheet.dao.entity.EmployeeAssistant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.NoResultException;
 import java.util.Set;
 
 /**
@@ -23,11 +22,7 @@ public class EmployeeAssistantService {
     }
 
     public EmployeeAssistant tryFind(Set<String> managersEmails) {
-        try {
-            return find(managersEmails);
-        } catch (NoResultException ex) {
-            return null;
-        }
+        return employeeAssistantDAO.tryFind(managersEmails);
     }
 
 }
