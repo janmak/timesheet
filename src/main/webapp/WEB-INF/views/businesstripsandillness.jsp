@@ -210,7 +210,7 @@
                     </form:select>
                 </td>
                 <td>
-                    <span class="lowspace">Отчет сотрудника:</span>
+                    <span class="lowspace">Сотрудник:</span>
                 </td>
                 <td>
                     <form:select path="employeeId" id="employeeId" class="without_dojo" cssClass="date_picker" onmouseover="tooltip.show(getTitle(this));"
