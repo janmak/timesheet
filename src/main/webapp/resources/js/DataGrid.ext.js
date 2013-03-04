@@ -353,9 +353,7 @@ function cellHasBeenEdited(grid, field, row) {
     updateGridStructure(grid);
 }
 
-function updateGridStructure(grid) {
-    grid.setStructure(grid.structure);
-
+function getScrollableView(grid) {
     var scrollableViewIndex = -1;
 
     dojo.forEach(grid.structure, function(view, idx) {
@@ -366,10 +364,37 @@ function updateGridStructure(grid) {
 
     if (scrollableViewIndex >= 0) {
         var scrollBoxes = dojo.query(".dojoxGridMasterView .dojoxGridView .dojoxGridScrollbox", dojo.byId(grid.id));
-        var scrollableBox = scrollBoxes[scrollableViewIndex];
+
+        return scrollBoxes[scrollableViewIndex];
+    }
+
+    return null;
+}
+
+function updateGridStructure(grid) {
+    var scrollableView = getScrollableView(grid);
+    var srcScroll = null;
+
+    if (scrollableView) {
+        srcScroll = scrollableView.scrollTop;
+    }
+
+    grid.setStructure(grid.structure);
+
+    // да-да, именно дважды! ибо после изменения структуры въюхи пересоздаются
+    scrollableView = getScrollableView(grid);
+
+    if (scrollableView) {
+        if (srcScroll) {
+            setTimeout(function() {
+                scrollableView.scrollTop = srcScroll;
+            }, 1);
+        }
+
+        var scrollBoxes = dojo.query(".dojoxGridMasterView .dojoxGridView .dojoxGridScrollbox", dojo.byId(grid.id));
 
         dojo.forEach(scrollBoxes, function(scrollBox) {
-            if (scrollBox == scrollableBox) {
+            if (scrollBox == scrollableView) {
                 return;
             }
 
@@ -377,7 +402,7 @@ function updateGridStructure(grid) {
                 try {
                     var scroll = e[(!dojo.isMozilla ? "wheelDelta" : "detail")] * (!dojo.isMozilla ? 1 : -1);
 
-                    scrollableBox.scrollTop -= scroll;
+                    scrollableView.scrollTop -= scroll;
                 } catch(ex) {
                     console.log(ex);
                 }
