@@ -25,8 +25,6 @@ public class VacationApprovalAutoProcessService extends AbstractVacationApproval
 
     private static final Logger LOGGER = LoggerFactory.getLogger(VacationApprovalAutoProcessService.class);
 
-    private static final Logger logger = LoggerFactory.getLogger(VacationApprovalAutoProcessService.class);
-
     /**
      * запускаем проверку для всех несогласованных отпусков
      */
