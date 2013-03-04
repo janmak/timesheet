@@ -28,7 +28,6 @@
         });
 
         var employeeList = ${employeeListJson};
-        var vacationsNeedToBeApproved = ${vacationsNeedToBeApprovedByCurrnetUser};
 
         function showVacations() {
             var empId = dojo.byId("employeeId").value;
@@ -90,7 +89,7 @@
         <form:options items="${divisionList}" itemLabel="name" itemValue="id"/>
     </form:select>
 
-    <span class="label">Отчет:</span>
+    <span class="label">Сотрудник:</span>
     <form:select path="employeeId" id="employeeId" class="without_dojo" onmouseover="tooltip.show(getTitle(this));"
                  onmouseout="tooltip.hide();" onchange="setDefaultEmployeeJob(-1);">
         <form:option items="${employeeList}" label="" value="0"/>
