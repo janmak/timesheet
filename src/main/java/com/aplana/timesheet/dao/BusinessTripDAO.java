@@ -2,7 +2,7 @@ package com.aplana.timesheet.dao;
 
 import com.aplana.timesheet.dao.entity.BusinessTrip;
 import com.aplana.timesheet.dao.entity.Employee;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -14,7 +14,7 @@ import java.util.List;
  * User: vsergeev
  * Date: 24.01.13
  */
-@Service
+@Repository
 public class BusinessTripDAO {
 
     @PersistenceContext
