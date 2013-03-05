@@ -167,7 +167,7 @@
                                         <fmt:formatDate value="${va.responseDate}" pattern="dd.MM.yyyy" />
                                     </c:when>
                                     <c:when test="${va.manager.id == curEmployee.id}">
-                                        <a href="<%= request.getContextPath() %>/vacation_approval?uid=${va.uid}">
+                                        <a href="<%= request.getContextPath() %>/vacation_approval?uid=${va.uid}" target="blank">
                                                 Ожидается Ваше согласование</a>
                                     </c:when>
                                     <c:otherwise>
