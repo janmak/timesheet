@@ -23,12 +23,13 @@ import java.util.List;
 @Service
 public class VacationApprovalAutoProcessService extends AbstractVacationApprovalProcessService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(VacationApprovalAutoProcessService.class);
+    private static final Logger logger = LoggerFactory.getLogger(VacationApprovalAutoProcessService.class);
 
     /**
      * запускаем проверку для всех несогласованных отпусков
      */
     public void checkAllVacations () throws VacationApprovalServiceException {
+        logger.info("Start automatic vacations check");
         final TransactionStatus transactionStatus = getNewTransaction();
 
         List<Integer> vacations = vacationService.getAllNotApprovedVacationsIds();
@@ -41,11 +42,12 @@ public class VacationApprovalAutoProcessService extends AbstractVacationApproval
 
                 commit(internalTransactionStatus);
             } catch (Exception ex) {
-                LOGGER.error("Error occured ", ex);
+                logger.error("Error occured ", ex);
             }
         }
 
         commit(transactionStatus);
+        logger.info("Finish automatic vacations check");
     }
 
     /**
@@ -55,7 +57,7 @@ public class VacationApprovalAutoProcessService extends AbstractVacationApproval
     protected Boolean getManagersApproveResultForVacationByProject(Project project, Vacation vacation) throws VacationApprovalServiceException {
         List<VacationApproval> projectManagerApprovals = vacationApprovalService.getProjectManagerApprovalsForVacationByProject(vacation, project);
         boolean timeIsOver = checkTimeIsOverForProjectManagers(vacation);
-        if ( ! timeIsOver) {
+        if (!timeIsOver) {
             return checkAllManagerApprovedVacation(projectManagerApprovals);
         } else {
             return checkOneManagerApprovedVacation(projectManagerApprovals, project);
@@ -68,20 +70,11 @@ public class VacationApprovalAutoProcessService extends AbstractVacationApproval
     private boolean checkTimeIsOverForProjectManagers(Vacation vacation) throws VacationApprovalServiceException {
         Integer controlTimeForProjectManager = getControlTimeForProjectManager(vacation);
         Date date = new Date();
-        return (date.before(DateUtils.addDays(vacation.getCreationDate(), controlTimeForProjectManager)));
+        return (date.after(DateUtils.addDays(vacation.getCreationDate(), controlTimeForProjectManager)));
     }
 
     /**
-     * проверяет, закончилось ли у линейного руководителя время для согласования отпуска
-     */
-    private boolean checkTimeIsOverForLineManagers(Vacation vacation) throws VacationApprovalServiceException {
-        Integer controlTimeForProjectManager = getControlTimeForProjectManager(vacation);
-        Date date = new Date();
-        return (date.before(DateUtils.addDays(vacation.getCreationDate(), controlTimeForProjectManager)));
-    }
-
-    /**
-     * получаем мексимальное количество дней, за которое руководители проекта должны согласовать заявление на отпуск
+     * получаем максимальное количество дней, за которое руководители проекта должны согласовать заявление на отпуск
      */
     private Integer getControlTimeForProjectManager(Vacation vacation) throws VacationApprovalServiceException {
         Long daysForApprove = DateTimeUtil.getAllDaysCount(vacation.getCreationDate(), vacation.getBeginDate());

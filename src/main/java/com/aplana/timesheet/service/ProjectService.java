@@ -24,9 +24,6 @@ import static argo.jdom.JsonNodeBuilders.*;
 @Service
 public class ProjectService {
 
-    private static final Integer BEFORE_VACATION_DAYS_DEFAULT = 14;
-    private static final String WRONG_BEFORE_VACATION_DAYS_ERROR = "В настройках указано неверное количество дней до отпуска, по которым будем формировать рассылку!";
-
     private static final Logger logger = LoggerFactory.getLogger(ProjectService.class);
     private static final String ID = "id";
     private static final String VALUE = "value";
@@ -250,27 +247,12 @@ public class ProjectService {
     public List<Project> getProjectsForVacation (Vacation vacation) {
         List<Project> employeeProjects = getEmployeeProjectPlanByDates(vacation.getBeginDate(), vacation.getEndDate(), vacation.getEmployee());
         if (employeeProjects.isEmpty()) {
-            Integer beforeVacationDays = getBeforeVacationDays();
+            Integer beforeVacationDays = propertyProvider.getBeforeVacationDays();
             Date periodBeginDate = DateUtils.addDays(vacation.getCreationDate(), 0 - beforeVacationDays);
             employeeProjects = getEmployeeProjectsFromTimeSheetByDates(periodBeginDate, vacation.getCreationDate(), vacation.getEmployee());
         }
 
         return employeeProjects;
-    }
-
-    /**
-     * получаем количество дней, которое вычтем из даты создания заявления на отпуск и будем искать для утверждения
-     * заявления на отпуск менеджеров проектов, по которым сотрудник списывал занятость в этом промежутке времени
-     */
-    private Integer getBeforeVacationDays() {
-        try {
-            return propertyProvider.getBeforeVacationDays();
-        } catch (NullPointerException ex){
-            return BEFORE_VACATION_DAYS_DEFAULT;
-        } catch (NumberFormatException ex) {
-            logger.error(WRONG_BEFORE_VACATION_DAYS_ERROR);
-            return BEFORE_VACATION_DAYS_DEFAULT;
-        }
     }
 
     public List<Project> getProjectsForPeriod(Date fromDate, Date toDate) {
