@@ -60,8 +60,8 @@ public class ProjectRoleDAO {
 	 */
 	public ProjectRole find(String title) {
 		Query query = entityManager.createQuery(
-                "from ProjectRole as pr where pr.active=:active and pr.ldapTitle like :title"
-        ).setParameter("active", true).setParameter("title", "%"+title+"%");
+                "from ProjectRole as pr where pr.active=:active and lower(pr.ldapTitle) like :title"
+        ).setParameter("active", true).setParameter("title", "%"+title.toLowerCase()+"%");
         try {
             logger.debug("Title {}", title);
             return  (ProjectRole) query.getSingleResult();
