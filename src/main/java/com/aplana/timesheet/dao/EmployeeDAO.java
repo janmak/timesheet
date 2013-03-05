@@ -382,9 +382,11 @@ public class EmployeeDAO {
      */
     public List<Employee> getProjectManagersThatDoesntApproveVacation(Project project, Vacation vacation) {
         Query query = entityManager.createQuery("select pp.employee from ProjectParticipant as pp " +
-                "where pp.project = :project and pp.projectRole.id = :roleId and pp.employee not in " +
+                "where pp.project = :project and pp.active=:active and " +
+                "pp.projectRole.id = :roleId and pp.employee not in " +
                 "(select va.manager from VacationApproval as va where va.vacation = :vacation and va.result is not null)")
                 .setParameter("project", project)
+                .setParameter("active", true)
                 .setParameter("roleId", vacation.getEmployee().getJob().getId())
                 .setParameter("vacation", vacation);
 
