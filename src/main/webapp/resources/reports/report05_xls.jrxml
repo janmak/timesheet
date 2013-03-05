@@ -38,23 +38,6 @@
 			</band>
 		</groupHeader>
 	</group>
-	<group name="Group2">
-		<groupExpression><![CDATA[new SimpleDateFormat("dd-MM-yyyy").format($F{calDate})]]></groupExpression>
-		<groupHeader>
-			<band height="13">
-				<textField>
-					<reportElement uuid="1ec55f05-74e9-4c9f-814b-0e3287fad448" style="SubTitle" x="0" y="0" width="126" height="13"/>
-					<textElement/>
-					<textFieldExpression><![CDATA[$F{name}]]></textFieldExpression>
-				</textField>
-				<textField>
-					<reportElement uuid="d4848534-de15-49db-93a2-cfee4b508ad8" style="SubTitle" x="184" y="0" width="60" height="13"/>
-					<textElement/>
-					<textFieldExpression><![CDATA[new SimpleDateFormat("dd-MM-yyyy").format($F{calDate})]]></textFieldExpression>
-				</textField>
-			</band>
-		</groupHeader>
-	</group>
 	<title>
 		<band height="125" splitType="Stretch">
 			<staticText>
