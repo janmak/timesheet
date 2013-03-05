@@ -1,7 +1,5 @@
 package com.aplana.timesheet.reports;
 
-import net.sf.jasperreports.engine.JRDataSource;
-
 public class Report03 extends BaseReport {
 
     public static final String jrName = "report03";
@@ -16,11 +14,6 @@ public class Report03 extends BaseReport {
     @Override
     public String getJRNameFile() {
         return jrNameFile;
-    }
-
-    @Override
-    public JRDataSource prepareDataSource() {
-        return reportDAO.getReportData(this);
     }
 
     private boolean filterProjects = true;

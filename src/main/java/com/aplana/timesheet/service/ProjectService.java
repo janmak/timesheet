@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -22,9 +23,6 @@ import static argo.jdom.JsonNodeBuilders.*;
 
 @Service
 public class ProjectService {
-
-    private static final Integer BEFORE_VACATION_DAYS_DEFAULT = 14;
-    private static final String WRONG_BEFORE_VACATION_DAYS_ERROR = "В настройках указано неверное количество дней до отпуска, по которым будем формировать рассылку!";
 
     private static final Logger logger = LoggerFactory.getLogger(ProjectService.class);
     private static final String ID = "id";
@@ -42,21 +40,24 @@ public class ProjectService {
 	/**
 	 * Возвращает активные проекты без разделения по подразделениям.
 	 */
-	public List<Project> getProjects() {
+    @Transactional(readOnly = true)
+    public List<Project> getProjects() {
 		return projectDAO.getProjects();
 	}
 
 	/**
 	 * Возвращает все активные проекты\пресейлы.
 	 */
-	public List<Project> getAll() {
+    @Transactional(readOnly = true)
+    public List<Project> getAll() {
 		return projectDAO.getAll();
 	}
 
 	/**
 	 * Возвращает активные пресейлы без разделения по подразделениям.
 	 */
-	public List<Project> getPresales() {
+    @Transactional(readOnly = true)
+    public List<Project> getPresales() {
 		return projectDAO.getPresales();
 	}
 
@@ -64,7 +65,8 @@ public class ProjectService {
 	 * Возвращает объект класса Project по указанному идентификатору
 	 * либо null.
 	 */
-	public Project find(Integer id) {
+    @Transactional(readOnly = true)
+    public Project find(Integer id) {
 		return projectDAO.find(id);
 	}
 	
@@ -72,7 +74,8 @@ public class ProjectService {
 	 * Возвращает объект класса Project по указанному идентификатору,
 	 * соответсвующий активному проекту, либо null.
 	 */
-	public Project findActive(Integer id) {
+    @Transactional(readOnly = true)
+    public Project findActive(Integer id) {
 		return projectDAO.findActive(id);
 	}
 
@@ -80,7 +83,8 @@ public class ProjectService {
 	 * Возвращает все активные проекты\пресейлы для которых в CQ заведены
 	 * проектные задачи. (cq_required=true)
 	 */
-	public List<Project> getProjectsWithCq() {
+    @Transactional(readOnly = true)
+    public List<Project> getProjectsWithCq() {
 		return projectDAO.getProjectsWithCq();
 	}
 	
@@ -89,7 +93,8 @@ public class ProjectService {
 	 * @param project
 	 * @return
 	 */
-	public List<ProjectParticipant> getParticipants(Project project) {
+    @Transactional(readOnly = true)
+    public List<ProjectParticipant> getParticipants(Project project) {
 		return projectDAO.getParticipants(project);
 	}
 	
@@ -99,7 +104,8 @@ public class ProjectService {
 	 *@param Employee employee сотрудник
 	 *@return List<ProjectRole> список проектных ролей
 	 */
-	public List<ProjectParticipant> getEmployeeProjectRoles(Project project, Employee employee){
+    @Transactional(readOnly = true)
+    public List<ProjectParticipant> getEmployeeProjectRoles(Project project, Employee employee){
 		return projectDAO.getEmployeeProjectRoles(project, employee);
 	}
 
@@ -111,6 +117,7 @@ public class ProjectService {
      * Возвращает список проектов с указанием подразделения РП проекта
      *
      */
+    @Transactional(readOnly = true)
     public String getProjectListWithOwnerDivisionJson(List<Division> divisions) {
         final JsonArrayNodeBuilder builder = anArrayBuilder();
         final List<Project> projectList = projectDAO.getProjects();
@@ -240,27 +247,12 @@ public class ProjectService {
     public List<Project> getProjectsForVacation (Vacation vacation) {
         List<Project> employeeProjects = getEmployeeProjectPlanByDates(vacation.getBeginDate(), vacation.getEndDate(), vacation.getEmployee());
         if (employeeProjects.isEmpty()) {
-            Integer beforeVacationDays = getBeforeVacationDays();
+            Integer beforeVacationDays = propertyProvider.getBeforeVacationDays();
             Date periodBeginDate = DateUtils.addDays(vacation.getCreationDate(), 0 - beforeVacationDays);
             employeeProjects = getEmployeeProjectsFromTimeSheetByDates(periodBeginDate, vacation.getCreationDate(), vacation.getEmployee());
         }
 
         return employeeProjects;
-    }
-
-    /**
-     * получаем количество дней, которое вычтем из даты создания заявления на отпуск и будем искать для утверждения
-     * заявления на отпуск менеджеров проектов, по которым сотрудник списывал занятость в этом промежутке времени
-     */
-    private Integer getBeforeVacationDays() {
-        try {
-            return propertyProvider.getBeforeVacationDays();
-        } catch (NullPointerException ex){
-            return BEFORE_VACATION_DAYS_DEFAULT;
-        } catch (NumberFormatException ex) {
-            logger.error(WRONG_BEFORE_VACATION_DAYS_ERROR);
-            return BEFORE_VACATION_DAYS_DEFAULT;
-        }
     }
 
     public List<Project> getProjectsForPeriod(Date fromDate, Date toDate) {

@@ -6,6 +6,7 @@ import com.aplana.timesheet.exception.service.CalendarServiceException;
 import com.aplana.timesheet.exception.service.VacationApprovalServiceException;
 import com.aplana.timesheet.properties.TSPropertyProvider;
 import com.aplana.timesheet.service.*;
+import com.aplana.timesheet.util.DateTimeUtil;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.BooleanUtils;
 import org.slf4j.Logger;
@@ -18,7 +19,7 @@ import java.util.*;
  * User: vsergeev
  * Date: 19.02.13
  */
-public abstract class AbstractVacationApprovalProcessService {
+public abstract class AbstractVacationApprovalProcessService extends AbstractServiceWithTransactionManagement {
 
     private List<Integer> approvedByProjectManager = Arrays.asList(VacationStatusEnum.APPROVED_BY_PM.getId(),
             VacationStatusEnum.APPROVEMENT_WITH_LM.getId(), VacationStatusEnum.APPROVED.getId(), VacationStatusEnum.REJECTED.getId());
@@ -146,7 +147,7 @@ public abstract class AbstractVacationApprovalProcessService {
         List<Project> projectsForVacation = projectService.getProjectsAssignedToVacation(vacation);
         Map<Project, Boolean> managerApproveResult = checkManagerApproveResultForVacationByProjects(vacation, projectsForVacation);
 
-        if (managerApproveResult.values().contains(false)) {        //один из менеджеров отказал в отпуке! :(
+        if (managerApproveResult.values().contains(false)) {        //один из менеджеров отказал в отпуске! :(
             return setFinalStatusForVacationAndSendVacationApprovedMessages(vacation, false);
         }
         
@@ -430,4 +431,26 @@ public abstract class AbstractVacationApprovalProcessService {
 
         return (lineManager2Approval != null) ? lineManager2Approval.getResult() : null;
     }
+
+    /**
+     * получаем мексимальное количество дней, за которое линейный руководитель должен утвердить заявление на отпуск
+     */
+    protected Integer getControlTimeForLineManager(Vacation vacation) throws VacationApprovalServiceException {
+        Long daysForApprove = DateTimeUtil.getAllDaysCount(vacation.getCreationDate(), vacation.getBeginDate());
+        Integer vacationTreshold = getVacationTreshold();
+        if (daysForApprove >= vacationTreshold) {
+            return propertyProvider.getVacationLineManagerOverrideThreshold();
+        } else {
+            return propertyProvider.getVacationUrgentLineManagerOverrideThreshold();
+        }
+    }
+
+    /**
+     * Проверяем, успевает ли линейный руководитель вынести решение по заявлению на отпуск
+     */
+    protected boolean lineManagerHasTimeToApproveVacation(int lineManagerDaysToApprove, VacationApproval lineManagerApproval) {
+        Date lastLineManagerApproveDate = lineManagerApproval.getRequestDate();
+        return DateTimeUtil.getAllDaysCount(lastLineManagerApproveDate, new Date()) <= lineManagerDaysToApprove; // kss 05.03.2013. Было >=, исправил на <=
+    }
+
 }

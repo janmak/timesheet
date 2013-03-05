@@ -1,7 +1,6 @@
 package com.aplana.timesheet.reports;
 
 import com.aplana.timesheet.util.DateTimeUtil;
-import net.sf.jasperreports.engine.JRDataSource;
 
 public class Report04 extends BaseReport {
 
@@ -17,11 +16,6 @@ public class Report04 extends BaseReport {
     @Override
     public String getJRNameFile() {
         return jrNameFile;
-    }
-
-    @Override
-    public JRDataSource prepareDataSource() {
-        return reportDAO.getReportData(this);
     }
 
     @Override

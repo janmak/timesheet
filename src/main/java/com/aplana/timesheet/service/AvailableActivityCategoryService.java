@@ -9,6 +9,7 @@ import com.aplana.timesheet.dao.entity.ProjectRole;
 import com.aplana.timesheet.util.JsonUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -35,7 +36,8 @@ public class AvailableActivityCategoryService {
 	 * @return List<AvailableActivityCategory>
 	 * 			Список доступных категорий активности.
 	 */
-	public List<AvailableActivityCategory> getAvailableActivityCategories(
+    @Transactional(readOnly = true)
+    public List<AvailableActivityCategory> getAvailableActivityCategories(
 														DictionaryItem actType, ProjectRole projectRole) {
 		return availableActivityCategoryDAO.getAvailableActivityCategories(actType, projectRole);
 	}
@@ -51,11 +53,13 @@ public class AvailableActivityCategoryService {
 	 * @return List<AvailableActivityCategory>
 	 * 			Список доступных категорий активности.
 	 */
-	public List<AvailableActivityCategory> getAvailableActivityCategories(
+    @Transactional(readOnly = true)
+    public List<AvailableActivityCategory> getAvailableActivityCategories(
 										DictionaryItem actType, Project project, ProjectRole projectRole) {
 		return availableActivityCategoryDAO.getAvailableActivityCategories(actType, project, projectRole);
 	}
 
+    @Transactional(readOnly = true)
     public String getAvailableActCategoriesJson() {
         final JsonArrayNodeBuilder builder = anArrayBuilder();
         final List<DictionaryItem> actTypes = dictionaryItemService.getTypesOfActivity();

@@ -5,7 +5,6 @@ import com.aplana.timesheet.dao.entity.Project;
 import com.aplana.timesheet.dao.entity.Vacation;
 import com.aplana.timesheet.dao.entity.VacationApproval;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
@@ -40,7 +39,6 @@ public class VacationApprovalDAO {
         return (VacationApproval)query.getSingleResult();
     }
 
-    @Transactional
     public VacationApproval store(VacationApproval vacationApproval){
         vacationApproval = entityManager.merge(vacationApproval);
         entityManager.flush();

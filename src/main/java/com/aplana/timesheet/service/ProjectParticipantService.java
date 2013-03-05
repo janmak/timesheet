@@ -4,7 +4,7 @@ import com.aplana.timesheet.dao.ProjectParticipantDAO;
 import com.aplana.timesheet.dao.entity.ProjectParticipant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class ProjectParticipantService {
@@ -14,7 +14,8 @@ public class ProjectParticipantService {
 	/**
 	 * Возвращает объект класса ProjectParticipant по указанному идентификатору
 	 */
-	public ProjectParticipant find(Integer id) {
+    @Transactional(readOnly = true)
+    public ProjectParticipant find(Integer id) {
 		return projectParticipantDAO.find(id);
 	}
 

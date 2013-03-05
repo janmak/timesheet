@@ -9,14 +9,16 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.TransactionStatus;
 
 import java.sql.Timestamp;
 import java.util.*;
 
+import static com.aplana.timesheet.util.ExceptionUtils.getRealLastCause;
+
 @Service("employeeLdapService")
-public class EmployeeLdapService {
+public class EmployeeLdapService extends AbstractServiceWithTransactionManagement {
 	private static final Logger logger = LoggerFactory.getLogger(EmployeeLdapService.class);
 	private StringBuffer trace = new StringBuffer();
 	
@@ -45,7 +47,17 @@ public class EmployeeLdapService {
 	 * Отображение ProjectRole --> роль в системе списания занятости.
 	 */
     public String synchronizeOneEmployee(String email) {
-        return syncOneActiveEmployee(ldapDao,email);
+        TransactionStatus transactionStatus = null;
+
+        try {
+            transactionStatus = getNewTransaction();
+
+            return syncOneActiveEmployee(ldapDao,email);
+        } finally {
+            if (transactionStatus != null) {
+                commit(transactionStatus);
+            }
+        }
     }
 
     /**
@@ -72,10 +84,12 @@ public class EmployeeLdapService {
     }
 
 	public void synchronize() {
-		trace.setLength(0);
+        trace.setLength(0);
 		logger.info("Synchronization with ldap started.");
 		trace.append("Synchronization with ldap started.\n\n");
 		try {
+            final TransactionStatus transactionStatus = getNewTransaction();
+
             final Map<Integer, Employee> divisionLeaders = new HashMap<Integer, Employee>();
 
             //Синхронизируем руководителей подразделений.
@@ -89,9 +103,11 @@ public class EmployeeLdapService {
 
 			//Синхронизируем уволенных сотрудников
 			syncDisabledEmployees(ldapDao);
-		} catch (DataAccessException e) {
+
+            commit(transactionStatus);
+		} catch (Exception e) {
 			logger.error("Error occured " + e.getCause());
-            trace.append("Error occured ").append(e.getCause());
+            trace.append("Error occured ").append(getRealLastCause(e));
 		}
 		trace.append("Synchronization with ldap finished.\n\n");
 		logger.info("Synchronization with ldap finished.");
@@ -105,6 +121,8 @@ public class EmployeeLdapService {
 	private void syncDisabledEmployees(LdapDAO ldapDao) {
 		logger.info("Start synchronize disabled employees.");
 		trace.append("Start synchronize disabled employees.\n\n");
+
+        final TransactionStatus transactionStatus = getNewTransaction();
 
         //берем удаленных сотрудников из LDAP
 		List<EmployeeLdap> disabledEmployeesLdap = ldapDao.getDisabledEmployyes();
@@ -141,6 +159,8 @@ public class EmployeeLdapService {
         } else {
             logger.info("Nothing to sync.");
         }
+
+        commit(transactionStatus);
 	}
 
 	/**
@@ -150,9 +170,12 @@ public class EmployeeLdapService {
      * @param divisionLeaders
      */
 	private String syncDivisionLeaders(LdapDAO ldapDao, Map<Integer, Employee> divisionLeaders) {
-		logger.info("Start synchronize division leaders.");
-		trace.append("Start synchronize division leaders.\n\n");
-		List<Division> divisions = divisionService.getDivisions();
+        logger.info("Start synchronize division leaders.");
+        trace.append("Start synchronize division leaders.\n\n");
+
+        final TransactionStatus transactionStatus = getNewTransaction();
+
+        List<Division> divisions = divisionService.getDivisions();
 		List<Employee> managersToSync = new ArrayList<Employee>();
         StringBuffer errors = new StringBuffer();
         for (Division division : divisions) {
@@ -177,6 +200,8 @@ public class EmployeeLdapService {
             logger.info("Nothing to sync.");
         }
 
+        commit(transactionStatus);
+
         return errors.toString();
 	}
 
@@ -184,6 +209,8 @@ public class EmployeeLdapService {
         final String start = "Start synchronize divisions...";
         logger.info(start);
         trace.append(start).append("\n\n");
+
+        final TransactionStatus transactionStatus = getNewTransaction();
 
         final List<Division> divisionsToSync = new ArrayList<Division>();
 
@@ -205,6 +232,8 @@ public class EmployeeLdapService {
         } else {
             trace.append(divisionService.setDivisions(divisionsToSync)).append("\n\n");
         }
+
+        commit(transactionStatus);
     }
 
 	/**
@@ -215,6 +244,9 @@ public class EmployeeLdapService {
     private String syncActiveEmployees(LdapDAO ldapDao) {
         logger.info("Start synchronize active employees.");
         trace.append("Start synchronize active employees.\n\n");
+
+        final TransactionStatus transactionStatus = getNewTransaction();
+
         List<EmployeeLdap> employeesLdap;
 
         StringBuffer errors = new StringBuffer();
@@ -238,6 +270,8 @@ public class EmployeeLdapService {
         } else {
             logger.info("Nothing to sync.");
         }
+
+        commit(transactionStatus);
 
         return errors.toString();
     }
@@ -331,7 +365,7 @@ public class EmployeeLdapService {
         }
     }
 
-    public void setEmployeePermission(Employee employee){
+    void setEmployeePermission(Employee employee){
         Set<Permission> permissions = new HashSet<Permission>();
 
         permissions.add(

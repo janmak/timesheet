@@ -4,7 +4,6 @@ import com.aplana.timesheet.dao.entity.Project;
 import com.aplana.timesheet.dao.entity.ProjectTask;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
@@ -27,7 +26,6 @@ public class ProjectTaskDAO {
 	 *            идентификатор проекта в базе данных
 	 * @return список проектных задач
 	 */
-	@Transactional(readOnly = true)
 	@SuppressWarnings("unchecked")
 	public List<ProjectTask> getProjectTasks(Integer projectId) {
 		Query query = entityManager.createQuery(
@@ -41,8 +39,7 @@ public class ProjectTaskDAO {
 	 * Возвращает активную проектную задачу, относящуюся к указанному проекту,
 	 * либо null, если проект или код задачи null, или такой задачи нет.
 	 */
-	@Transactional(readOnly = true)
-	public ProjectTask find(Integer project, String task) {
+    public ProjectTask find(Integer project, String task) {
 		Project proj = projectDAO.findActive(project);
 		if (proj == null || task == null) { return null; }
 

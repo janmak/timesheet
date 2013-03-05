@@ -241,12 +241,12 @@ public class Employee implements Identifiable {
 
         final Integer employeeId = employee.getId();
 
-        return (id != null ? id.equals(employeeId) : employeeId == null);
+        return (getId() != null ? getId().equals(employeeId) : employeeId == null);
     }
 
     @Override
     public int hashCode() {
-        return id != null ? id.hashCode() : 0;
+        return getId() != null ? getId().hashCode() : 0;
     }
 
     @Override

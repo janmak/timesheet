@@ -1,7 +1,6 @@
 package com.aplana.timesheet.service;
 
 import com.aplana.timesheet.constants.TimeSheetConstants;
-import com.aplana.timesheet.dao.DictionaryItemDAO;
 import com.aplana.timesheet.dao.OvertimeCauseDAO;
 import com.aplana.timesheet.dao.entity.DictionaryItem;
 import com.aplana.timesheet.dao.entity.OvertimeCause;
@@ -16,6 +15,7 @@ import com.aplana.timesheet.util.EnumsUtils;
 import com.google.common.base.Preconditions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author eshangareev
@@ -27,18 +27,19 @@ public class OvertimeCauseService {
     @Autowired
     private OvertimeCauseDAO dao;
     @Autowired
-    private DictionaryItemDAO dictionaryItemDAO;
+    private DictionaryItemService dictionaryItemService;
     @Autowired
     private TSPropertyProvider propertyProvider;
 
 
+    @Transactional
     public void store(TimeSheet timeSheet, TimeSheetForm tsForm) {
         double totalDuration = calculateTotalDuration(tsForm);
 
         if (!isOvertimeCauseNeeeded(totalDuration)) return;
 
         OvertimeCause overtimeCause = new OvertimeCause();
-        overtimeCause.setOvertimeCause( dictionaryItemDAO.find(tsForm.getOvertimeCause()) );
+        overtimeCause.setOvertimeCause( dictionaryItemService.find(tsForm.getOvertimeCause()) );
         overtimeCause.setTimeSheet(timeSheet);
         overtimeCause.setComment(tsForm.getOvertimeCauseComment());
 
@@ -64,7 +65,7 @@ public class OvertimeCauseService {
         if (cause == OvertimeCausesEnum.OTHER || cause == UndertimeCausesEnum.OTHER) {
             return Preconditions.checkNotNull(tsForm.getOvertimeCauseComment());
         } else {
-            return dictionaryItemDAO.find(overtimeCauseId).getValue();
+            return dictionaryItemService.find(overtimeCauseId).getValue();
         }
     }
 
@@ -73,7 +74,7 @@ public class OvertimeCauseService {
     }
 
     public Integer getDictId(Integer overtimeCauseId) {
-        DictionaryItem overtimeCause = dictionaryItemDAO.find(overtimeCauseId);
+        DictionaryItem overtimeCause = dictionaryItemService.find(overtimeCauseId);
         return overtimeCause != null ? overtimeCause.getDictionary().getId() : null;
     }
 }

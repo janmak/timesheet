@@ -9,8 +9,8 @@ import com.aplana.timesheet.exception.service.DeleteVacationException;
 import com.aplana.timesheet.util.EnumsUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.NoResultException;
 import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
@@ -34,14 +34,17 @@ public class VacationService {
     @Autowired
     private EmployeeService employeeService;
 
+    @Transactional
     public void store(Vacation vacation) {
         vacationDAO.store(vacation);
     }
 
+    @Transactional
     public Boolean isDayVacation(Employee employee, Date date){
         return vacationDAO.isDayVacation(employee, date);
     }
 
+    @Transactional
     public List<Integer> getAllNotApprovedVacationsIds() {
         return vacationDAO.getAllNotApprovedVacationsIds();
     }
@@ -58,18 +61,17 @@ public class VacationService {
         return vacationDAO.findVacations(employeeId, year);
     }
 
+    @Transactional
     public Vacation tryFindVacation(Integer vacationId) {
-        try {
-            return vacationDAO.findVacation(vacationId);
-        } catch (NoResultException ex) {
-            return null;
-        }
+        return vacationDAO.tryFindVacation(vacationId);
     }
 
+    @Transactional
     public void delete(Vacation vacation) {
         vacationDAO.delete(vacation);
     }
 
+    @Transactional
     public void deleteVacation(Integer vacationId) {
         final Vacation vacation = tryFindVacation(vacationId);
 
@@ -107,6 +109,7 @@ public class VacationService {
         throw new DeleteVacationException("Ошибка доступа");
     }
 
+    @Transactional
     public Vacation findVacation(Integer vacationId) {
         return vacationDAO.findVacation(vacationId);
     }

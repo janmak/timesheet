@@ -10,6 +10,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -48,6 +49,7 @@ public class RememberService implements RememberMeServices, InitializingBean, Lo
     }
 
     @Override
+    @Transactional
     public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
         Cookie cookie = getCookie(request);
         if (cookie == null) {
@@ -63,6 +65,7 @@ public class RememberService implements RememberMeServices, InitializingBean, Lo
     }
 
     @Override
+    @Transactional
     public final void loginSuccess(HttpServletRequest request, HttpServletResponse response, Authentication successfulAuthentication) {
         String value = request.getParameter(TimeSheetConstants.POST_REMEMBER);
         if (value == null) {

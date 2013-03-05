@@ -10,6 +10,8 @@ import com.aplana.timesheet.util.JsonUtil;
 import org.apache.commons.lang.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.Calendar;
@@ -38,6 +40,7 @@ public class PlanEditService {
     @Autowired
     private DictionaryItemService dictionaryItemService;
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void savePlans(JsonRootNode rootNode, Integer year, Integer month) {
         final Calendar calendar = DateTimeUtil.getCalendar(year, month);
 

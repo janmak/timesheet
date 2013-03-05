@@ -5,7 +5,6 @@ import org.hibernate.Hibernate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
@@ -23,7 +22,6 @@ public class DivisionDAO {
     /**
      * Возвращает список активных подразделений
      */
-	@Transactional(readOnly = true)
 	@SuppressWarnings("unchecked")
 	public List<Division> getActiveDivisions() {
         Query query = entityManager.createQuery(
@@ -33,7 +31,6 @@ public class DivisionDAO {
         return query.getResultList();
     }
 
-    @Transactional(readOnly = true)
 	@SuppressWarnings("unchecked")
 	public List<Division> getAllDivisions() {
         return  entityManager.createQuery(
@@ -41,14 +38,12 @@ public class DivisionDAO {
         ).getResultList();
 	}
 
-    @Transactional(readOnly = true)
     public List<Division> getDivisionCheck() {
         return  entityManager.createQuery(
                 "from Division as d where d.isCheck = true"
         ).getResultList();
     }
 
-	@Transactional(readOnly = true)
 	public Division find(Integer id) {
         Division division = entityManager.find(Division.class, id);
         Hibernate.initialize(division.getLeaderId());
@@ -60,7 +55,6 @@ public class DivisionDAO {
 	 * @param title название подразделение
 	 * @return объект типа Division или null, если подразделение не найдено.
 	 */
-	@Transactional(readOnly = true)
 	public Division find(String title) {
 		Query query = entityManager.createQuery(
                 "from Division as d where d.active=:active and lower(d.ldapName)=:title"
@@ -74,7 +68,6 @@ public class DivisionDAO {
 		}
 	}
 
-    @Transactional(readOnly = true)
     public Division findByDepartmentName(String departmentName) {
         logger.debug("findByDepartmentName: departmentName = {}", departmentName);
         Integer id = (Integer) entityManager.createNativeQuery(
@@ -83,7 +76,6 @@ public class DivisionDAO {
         return (Division) find(id);
     }
 
-    @Transactional
     public void save(Division division) {
         if (division.getId() != null) {
             entityManager.merge(division);
@@ -94,7 +86,6 @@ public class DivisionDAO {
         entityManager.flush();
     }
 
-    @Transactional
     public String setDivisions(List<Division> divisionsToSync) {
         final StringBuilder builder = new StringBuilder();
 

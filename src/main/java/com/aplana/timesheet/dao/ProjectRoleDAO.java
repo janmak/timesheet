@@ -4,7 +4,6 @@ import com.aplana.timesheet.dao.entity.ProjectRole;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
@@ -22,7 +21,6 @@ public class ProjectRoleDAO {
 	/**
 	 * Возвращает объект класса ProjectRole по указанному идентификатору или null.
 	 */
-	@Transactional(readOnly = true)
 	public ProjectRole find(Integer id) {
 		if (id == null) { return null; }
 		return entityManager.find(ProjectRole.class, id);
@@ -32,7 +30,6 @@ public class ProjectRoleDAO {
 	 * Возвращает объект класса ProjectRole по указанному идентификатору,
 	 * соответсвующий активной проектой роли, либо null.
 	 */
-	@Transactional(readOnly = true)
 	public ProjectRole findActive(Integer id) {
 		if (id == null) { return null; }
 
@@ -49,7 +46,6 @@ public class ProjectRoleDAO {
 	/**
 	 * Возвращает активные проектные роли.
 	 */
-	@Transactional(readOnly = true)
 	@SuppressWarnings("unchecked")
 	public List<ProjectRole> getProjectRoles() {
 		Query query = entityManager.createQuery(
@@ -62,7 +58,6 @@ public class ProjectRoleDAO {
 	/**
 	 * Возвращает активную проектную роль по названию
 	 */
-	@Transactional(readOnly = true)
 	public ProjectRole find(String title) {
 		Query query = entityManager.createQuery(
                 "from ProjectRole as pr where pr.active=:active and pr.ldapTitle like :title"

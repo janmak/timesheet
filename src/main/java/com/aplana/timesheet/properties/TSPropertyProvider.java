@@ -25,6 +25,16 @@ public class TSPropertyProvider {
     private static boolean needUpdate = true;
     private static Properties properties;
 
+    private Integer readIntProperty(String keyName, Integer defaultValue) {
+        try {
+            return Integer.parseInt(getProperties().getProperty(keyName));
+        } catch (NullPointerException ex){
+            return defaultValue;
+        } catch (NumberFormatException ex) {
+            return defaultValue;
+        }
+    }
+
     public String getJiraIssueCreateUrl() {
         return getProperties().getProperty("jira.issue.create.url");
     }
@@ -111,50 +121,64 @@ public class TSPropertyProvider {
     }
 
     public Double getOvertimeThreshold() {
-        return new Double(getProperties().getProperty("overtime.threshold"));
+        return new Double(getProperties().getProperty("overtime.threshold", "1"));
     }
 
+    public static final String DEFAULT_VACATION_MAIL_MARKER = "[VACATION REQUEST]";
     public String getVacationMailMarker() {
-        return getProperties().getProperty("vacation.mail.marker", "[VACATION REQUEST]");
+        return getProperties().getProperty("vacation.mail.marker", DEFAULT_VACATION_MAIL_MARKER);
     }
 
     final String DEFAULT_TIMESHEET_MAIL_MARKER = "[TIMESHEET]";
     public String getTimesheetMailMarker() {
-        String result = getProperties().getProperty("ts.mail.marker=");
-        return (result == null || result == "") ? DEFAULT_TIMESHEET_MAIL_MARKER : result;
+        return getProperties().getProperty("ts.mail.marker=", DEFAULT_TIMESHEET_MAIL_MARKER);
     }
 
     final Integer DEFAULT_VACATION_APPROVAL_ERROR_THRESHOLD = 100;
     public Integer getVacationApprovalErrorThreshold(){
-        String result = getProperties().getProperty("vacation.approval.error.threshold");
-        return (result == null || result == "") ? DEFAULT_VACATION_APPROVAL_ERROR_THRESHOLD : new Integer(result);
+        return readIntProperty("vacation.approval.error.threshold", DEFAULT_VACATION_APPROVAL_ERROR_THRESHOLD);
     }
 
+    private static final Integer BEFORE_VACATION_DAYS_DEFAULT = 14;
+    /**
+     * получаем количество дней, которое вычтем из даты создания заявления на отпуск и будем искать для утверждения
+     * заявления на отпуск менеджеров проектов, по которым сотрудник списывал занятость в этом промежутке времени
+     */
     public Integer getBeforeVacationDays() {
-        return Integer.parseInt(getProperties().getProperty("vacations.before.vacation.days"));
+        return readIntProperty("vacations.before.vacation.days", BEFORE_VACATION_DAYS_DEFAULT);
     }
+
+    public static final int VACATION_CREATE_THRESHOLD = 14;
     public Integer getVacationCreateThreshold() {
-        try {
-            return Integer.parseInt(getProperties().getProperty("vacations.vacation.create.threshold", "14"));
-        } catch (NumberFormatException ex) {
-            return 14;
-        }
+        return readIntProperty("vacations.vacation.create.threshold", VACATION_CREATE_THRESHOLD);
     }
 
+    public static final int VACATION_PROJECT_MANAGER_OVERRIDE_THRESHOLD = 7;
     public Integer getVacationProjectManagerOverrideThreshold() {
-        return Integer.parseInt(getProperties().getProperty("vacations.vacation.project.manager.override.threshold"));
+        return readIntProperty("vacations.vacation.project.manager.override.threshold", VACATION_PROJECT_MANAGER_OVERRIDE_THRESHOLD);
     }
 
+    public static final int VACATION_URGENT_PROJECT_MANAGER_OVERRIDE_THRESHOLD = 3;
     public Integer getVacationUrgentProjectManagerOverrideThreshold() {
-        return Integer.parseInt(getProperties().getProperty("vacations.vacation.urgent.project.manager.override.threshold"));
+        return readIntProperty("vacations.vacation.urgent.project.manager.override.threshold", VACATION_URGENT_PROJECT_MANAGER_OVERRIDE_THRESHOLD);
     }
 
+    private static final Integer VACATION_LINE_MANAGER_OVERRIDE_TRESHOLD_DEFAULT = 5;
+    /**
+     * получаем количество дней, за которые линейный руководитель должен согласовать заявление на отпуск
+     * в обычном режиме
+     */
     public Integer getVacationLineManagerOverrideThreshold() {
-        return Integer.parseInt(getProperties().getProperty("vacations.vacation.line.manager.override.threshold"));
+        return readIntProperty("vacations.vacation.line.manager.override.threshold", VACATION_LINE_MANAGER_OVERRIDE_TRESHOLD_DEFAULT);
     }
 
+    private static final Integer VACATION_URGENT_LINE_MANAGER_OVERRIDE_TRESHOLD_DEFAULT = 2;
+    /**
+     * получаем количество дней, за которые линейный руководитель должен согласовать заявление на отпуск
+     * в ускоренном режиме
+     */
     public Integer getVacationUrgentLineManagerOverrideThreshold() {
-        return Integer.parseInt(getProperties().getProperty("vacations.vacation.urgent.manager.override.threshold"));
+        return readIntProperty("vacations.vacation.urgent.manager.override.threshold", VACATION_URGENT_LINE_MANAGER_OVERRIDE_TRESHOLD_DEFAULT);
     }
 
     public String getTimeSheetURL() {
@@ -182,7 +206,6 @@ public class TSPropertyProvider {
     /**
      * Единый метод для загрузки почтовых настроек
      *
-     * @param mailConfig
      */
     public static Properties getProperties() {
         if (needUpdate || properties == null) {

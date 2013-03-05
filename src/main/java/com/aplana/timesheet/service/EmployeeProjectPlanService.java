@@ -6,8 +6,8 @@ import com.aplana.timesheet.dao.entity.EmployeeProjectPlan;
 import com.aplana.timesheet.dao.entity.Project;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.NoResultException;
 import java.util.List;
 
 /**
@@ -24,6 +24,7 @@ public class EmployeeProjectPlanService {
         return employeeProjectPlanDAO.find(employee, year, month);
     }
 
+    @Transactional
     public void store(List<EmployeeProjectPlan> employeeProjectPlans) {
         for (EmployeeProjectPlan employeeProjectPlan : employeeProjectPlans) {
             employeeProjectPlanDAO.store(employeeProjectPlan);
@@ -31,18 +32,16 @@ public class EmployeeProjectPlanService {
 
     }
 
+    @Transactional
     public void store(EmployeeProjectPlan employeeProjectPlan) {
         employeeProjectPlanDAO.store(employeeProjectPlan);
     }
 
     public EmployeeProjectPlan tryFind(Employee employee, Integer year, Integer month, Project project) {
-        try {
-            return employeeProjectPlanDAO.find(employee, year, month, project);
-        } catch (NoResultException nre) {
-            return null;
-        }
+        return employeeProjectPlanDAO.tryFind(employee, year, month, project);
     }
 
+    @Transactional
     public void remove(Employee employee, Integer year, Integer month) {
         employeeProjectPlanDAO.remove(employee, year, month);
     }

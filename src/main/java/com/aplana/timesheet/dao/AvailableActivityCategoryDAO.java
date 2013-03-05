@@ -5,7 +5,6 @@ import com.aplana.timesheet.dao.entity.DictionaryItem;
 import com.aplana.timesheet.dao.entity.Project;
 import com.aplana.timesheet.dao.entity.ProjectRole;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -27,7 +26,6 @@ public class AvailableActivityCategoryDAO {
 	 * 			Список доступных категорий активности.
 	 */
 	@SuppressWarnings("unchecked")
-	@Transactional(readOnly = true)
 	public List<AvailableActivityCategory> getAvailableActivityCategories(
            DictionaryItem actType, ProjectRole projectRole
     ) {
@@ -50,7 +48,6 @@ public class AvailableActivityCategoryDAO {
 	 * 			Список доступных категорий активности.
 	 */
 	@SuppressWarnings("unchecked")
-	@Transactional(readOnly = true)
 	public List<AvailableActivityCategory> getAvailableActivityCategories(
            DictionaryItem actType, Project project, ProjectRole projectRole
     ) {
@@ -62,7 +59,6 @@ public class AvailableActivityCategoryDAO {
         return query.getResultList();
 	}
 
-    @Transactional(readOnly = true)
     public List<AvailableActivityCategory> getAllAvailableActivityCategories(){
         Query query = entityManager.createQuery("from AvailableActivityCategory as aac");
         return query.getResultList();

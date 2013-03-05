@@ -12,7 +12,9 @@ import com.aplana.timesheet.util.DateTimeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
@@ -23,7 +25,7 @@ import static com.aplana.timesheet.util.DateTimeUtil.DATE_PATTERN;
 import static com.aplana.timesheet.util.DateTimeUtil.stringToDate;
 
 @Service
-@Transactional
+@Transactional(propagation = Propagation.REQUIRES_NEW, noRollbackFor = DataAccessException.class)
 public class ReportCheckService {
     private static final Logger logger = LoggerFactory.getLogger(ReportCheckService.class);
 

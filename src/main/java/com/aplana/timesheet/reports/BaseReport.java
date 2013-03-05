@@ -1,6 +1,7 @@
 package com.aplana.timesheet.reports;
 
 import com.aplana.timesheet.dao.JasperReportDAO;
+import net.sf.jasperreports.engine.JRDataSource;
 
 import java.util.List;
 
@@ -120,4 +121,9 @@ public abstract class BaseReport implements TSJasperReport {
 		}
 		return sb.toString();
 	}
+
+    @Override
+    public JRDataSource prepareDataSource() {
+        return reportDAO.getReportData(this);
+    }
 }

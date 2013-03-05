@@ -4,9 +4,9 @@ import com.aplana.timesheet.dao.entity.DictionaryItem;
 import com.aplana.timesheet.dao.entity.Employee;
 import com.aplana.timesheet.dao.entity.EmployeePlan;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import java.util.List;
@@ -29,7 +29,6 @@ public class EmployeePlanDAO {
         return query.getResultList();
     }
 
-    @Transactional
     public void store(EmployeePlan employeePlan) {
         final EmployeePlan merged = entityManager.merge(employeePlan);
 
@@ -47,5 +46,13 @@ public class EmployeePlanDAO {
 
     public void remove(EmployeePlan employeePlan) {
         entityManager.remove(employeePlan);
+    }
+
+    public EmployeePlan tryFind(Employee employee, Integer year, Integer month, DictionaryItem dictionaryItem) {
+        try {
+            return find(employee, year, month, dictionaryItem);
+        } catch (NoResultException nre) {
+            return null;
+        }
     }
 }
