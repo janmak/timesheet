@@ -28,13 +28,13 @@
 			var file2 = feedbackForm.file2Path.files[0];
 			var size1;
 			var size2;
-			
+
 			if (file1 != null) {
 				size1 = file1.size;
 			} else {
 				size1 = 0;
 			}
-			
+
 			if (file2 != null) {
 				size2 = file2.size;
 			} else {
@@ -45,7 +45,7 @@
 				return true;
 			} else {
 				return false;
-			}				
+			}
 		}		
 
         //проверяем и отсылаем форму
@@ -61,13 +61,6 @@
                 feedbackForm.submit();
             } else {
                 alert("Поле 'Текст сообщения' не определено.");
-            }
-        }
-
-        //закрываем окно
-        function cancel() {
-            if (confirmCancelWindow()) {
-                self.close();
             }
         }
 
@@ -131,22 +124,16 @@
 
 </head>
 <body>
-<c:if test="${fn:length(errors) > 0}">
-    <div class="errors_box">
-        <c:forEach items="${errors}" var="error">
-            <fmt:message key="${error.code}"/>
-        </c:forEach>
-    </div>
-</c:if>
-
 	<c:if test="${jiraIssueCreateUrl != null}">
 		<h2><a target="_blank" href=${jiraIssueCreateUrl}>Перейти к созданию запроса в Jira</a></h2>
 	</c:if>
-<h1><fmt:message key="feedback"/></h1>
-
+    <h1><fmt:message key="feedback"/></h1>
 
 <form:form method="post" commandName="feedbackForm" name="mainForm" enctype="multipart/form-data" cssClass="noborder">
 
+    <div id="errorboxdiv" name="errorboxdiv" class="errorbox">
+        <form:errors path="*" delimiter="<br/><br/>" />
+    </div>
 
     <div id="form_table">
         <table id="time_sheet_table">

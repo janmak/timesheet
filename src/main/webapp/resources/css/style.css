@@ -166,6 +166,12 @@ div.menu_holder table td {
     color: #F00;
 }
 
+.errorbox{
+    background-color: #FFFF00;
+    width: 90%;
+    color: #FF0000;
+}
+
 .info-gray {
     border: solid 1px #DEDEDE;
     background: #EFEFEF;

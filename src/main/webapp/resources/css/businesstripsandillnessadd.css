@@ -47,10 +47,7 @@
 .noborder{
     border: 0px;
 }
-.errorbox{
-    background-color: #FFFF00;
-    color: #FF0000;
-}
+
 .blackonwhite {
     color: #000000;
     background-color: transparent;

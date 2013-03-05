@@ -1,12 +1,8 @@
 package com.aplana.timesheet.controller;
 
-import com.aplana.timesheet.dao.entity.Division;
-import com.aplana.timesheet.dao.entity.Employee;
 import com.aplana.timesheet.form.FeedbackForm;
 import com.aplana.timesheet.form.validator.FeedbackFormValidator;
 import com.aplana.timesheet.properties.TSPropertyProvider;
-import com.aplana.timesheet.service.DivisionService;
-import com.aplana.timesheet.service.EmployeeService;
 import com.aplana.timesheet.service.SecurityService;
 import com.aplana.timesheet.service.SendMailService;
 import com.aplana.timesheet.util.TimeSheetUser;
@@ -22,19 +18,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 
-import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 @Controller
 public class FeedbackController {
 	private static final Logger logger = LoggerFactory.getLogger(TimeSheetController.class);
 
-	@Autowired
-	private DivisionService divisionService;
-	@Autowired
-	private EmployeeService employeeService;
 	@Autowired
 	private FeedbackFormValidator fbFormValidator;
     @Autowired
@@ -80,13 +69,7 @@ public class FeedbackController {
 		//Если ошибки есть
 		if (result.hasErrors()) {
 			logger.info("FeedbackForm for employee {} has errors.", fbForm.getEmployeeId());
-			ModelAndView mavWithErrors = new ModelAndView("feedback");
-			//передаем ID подразделения и сотрудника в форму
-			mavWithErrors.addObject("divId", fbForm.getDivisionId());
-			mavWithErrors.addObject("empId", fbForm.getEmployeeId());
-			mavWithErrors.addObject("errors", result.getAllErrors());
-
-			return mavWithErrors;
+			return new ModelAndView("feedback");
 		}
 		//Если ошибок нет
 		fbForm.setFeedbackTypeName(messageSource.getMessage(FEEDBACK_TYPE_NAME_KEYS[ fbForm.getFeedbackType() ], null, locale));
@@ -128,9 +111,8 @@ public class FeedbackController {
 		ModelAndView mav = new ModelAndView("feedback");
         if (StringUtils.isNotBlank(exceptionText)) {
             String message =  messageSource.getMessage(exceptionText, new Object[]{}, null);
-            result.rejectValue("feedbackDescription", message, "Слишком большой фаил");
+            result.rejectValue("feedbackDescription", message, "Размер вложенных файлов больше 8 Мб!");
         }
-        mav.addObject("errors", result.getAllErrors());
 		mav.addObject("feedbackForm", fbForm);
 		mav.addObject("jiraIssueCreateUrl", jiraIssueCreateUrl);
 
