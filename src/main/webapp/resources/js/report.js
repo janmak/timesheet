@@ -121,7 +121,7 @@ function validateAndAddNewOption(hasAny, divisionId, select){
     }
 }
 
-function setDefaultValues(){
+function setDefaultValuesForReport2And3(){
     reportForm.emplDivisionId.value = 0;
     reportForm.employeeId.value = 0;
     fillProjectListByDivision(reportForm.divisionId);

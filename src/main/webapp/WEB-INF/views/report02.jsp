@@ -17,7 +17,7 @@
 		<script type="text/javascript">		
 			dojo.ready(function () {
 				dojo.require("dijit.form.DateTextBox");
-                setDefaultValues();
+                setDefaultValuesForReport2And3();
 			});
 
 			var projectList = ${projectListJson};
