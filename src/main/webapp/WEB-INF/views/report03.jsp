@@ -17,21 +17,13 @@
         <script type="text/javascript">
             dojo.ready(function () {
                 dojo.require("dijit.form.DateTextBox");
-                fillProjectListByDivision(reportForm.divisionId);
-
-                var emplDivisionId = "${reportForm.emplDivisionId}";
-                var selectedEmployee = "${reportForm.employeeId}";
-                reportForm.emplDivisionId.value = emplDivisionId;
-                fillEmployeeListByDivision(reportForm.emplDivisionId);
-                reportForm.employeeId.value = selectedEmployee;
-                reportForm.projectId.value = "${reportForm.projectId}";
+                setDefaultValues();
             });
 
             var projectList = ${projectListJson};
             var fullProjectList = ${fullProjectListJson};
             var projectListWithOwnerDivision = ${projectListWithOwnerDivisionJson};
             var employeeList = ${employeeListJson};
-
         </script>
 
         <h1><fmt:message key="title.reportparams"/></h1>
@@ -40,7 +32,6 @@
 
         <c:url value="/managertools/report/3" var="formUrl"/>
         <form:form commandName="reportForm" method="post" action="${formUrl}">
-
             <c:if test="${fn:length(errors) > 0}">
                 <div class="errors_box">
                     <c:forEach items="${errors}" var="error">

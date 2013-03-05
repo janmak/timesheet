@@ -66,7 +66,7 @@ function fillProjectListByDivision(division) {
         division = dojo.byId("divisionId");
 
         if ((checkBox.checked) && (division.value == 0))
-            division.value = defaultDivision;
+            division.value = defaultDivisionId;
     }
     var divisionId = division.value;
     var projectSelect = dojo.byId("projectId");
@@ -112,7 +112,6 @@ function fillProjectListByDivision(division) {
     }
 }
 
-
 function validateAndAddNewOption(hasAny, divisionId, select){
     if (hasAny || divisionId == 0){
         insertEmptyOptionWithCaptionInHead(select, "Все");
@@ -120,4 +119,12 @@ function validateAndAddNewOption(hasAny, divisionId, select){
         insertEmptyOptionWithCaptionInHead(select, "Пусто");
         dojo.attr(select, {disabled:"disabled"});
     }
+}
+
+function setDefaultValues(){
+    reportForm.emplDivisionId.value = 0;
+    reportForm.employeeId.value = 0;
+    fillProjectListByDivision(reportForm.divisionId);
+    fillEmployeeListByDivision(reportForm.emplDivisionId);
+    reportForm.projectId.value = 0;
 }

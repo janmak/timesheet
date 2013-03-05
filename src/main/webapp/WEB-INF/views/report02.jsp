@@ -15,16 +15,9 @@
 
         <script type="text/javascript" src="<%= getResRealPath("/resources/js/report.js", application) %>"></script>
 		<script type="text/javascript">		
-			this.dojo.ready(function () {
+			dojo.ready(function () {
 				dojo.require("dijit.form.DateTextBox");
-				fillProjectListByDivision(reportForm.divisionId);
-
-				var emplDivisionId = "${reportForm.emplDivisionId}";
-				var selectedEmployee = "${reportForm.employeeId}";
-				reportForm.emplDivisionId.value = emplDivisionId;
-				fillEmployeeListByDivision(reportForm.emplDivisionId);
-				reportForm.employeeId.value = selectedEmployee;
-				reportForm.projectId.value = "${reportForm.projectId}";
+                setDefaultValues();
 			});
 
 			var projectList = ${projectListJson};
