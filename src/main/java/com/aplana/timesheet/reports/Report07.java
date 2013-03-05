@@ -24,18 +24,9 @@ public class Report07 extends BaseReport{
         return jrNameFile;
     }
 
-    private Boolean filterDivisionOwner = true;
     private Integer divisionOwner;
     private Integer divisionEmployee;
     private Integer periodType = Report07PeriodTypeEnum.PERIOD_TYPE_MONTH.getMonthsCount();
-
-    public Boolean getFilterDivisionOwner() {
-        return filterDivisionOwner;
-    }
-
-    public void setFilterDivisionOwner(Boolean filterDivisionOwner) {
-        this.filterDivisionOwner = filterDivisionOwner;
-    }
 
     public Integer getDivisionOwner() {
         return divisionOwner;

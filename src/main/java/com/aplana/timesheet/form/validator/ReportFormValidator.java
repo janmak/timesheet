@@ -3,8 +3,6 @@ package com.aplana.timesheet.form.validator;
 import com.aplana.timesheet.enums.Report07PeriodTypeEnum;
 import com.aplana.timesheet.reports.*;
 import com.aplana.timesheet.util.DateTimeUtil;
-import com.aplana.timesheet.util.EnumsUtils;
-import com.aplana.timesheet.util.report.Report7Period;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -62,7 +60,7 @@ public class ReportFormValidator implements Validator {
     private void validateReport07(Object o, Errors errors) {
         Report07 report = (Report07) o;
 
-        if (report.getFilterDivisionOwner() && report.getDivisionOwner() == null) {
+        if (report.getDivisionOwner() == null) {
             errors.rejectValue("filterDivisionOwner", "error.reportform.noprojectdivision");
         }
 

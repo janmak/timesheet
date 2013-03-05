@@ -47,16 +47,13 @@
                         <td  style="width: 225px"><span class="label">Центр владельца проекта</span><span style="color:red">*</span></td>
                         <td>
                             <form:select path="divisionOwner" class="without_dojo">
+                                <form:option label="Все" value="0"/>
                                 <form:options items="${divisionList}" itemLabel="name" itemValue="id"/>
                             </form:select>
                         </td>
-                        <td colspan="2" align="right">
-                            <form:checkbox path="filterDivisionOwner" cssClass="checkbox_without_dojo"
-                                           label="Показывать только проекты/пресейлы центра"/>
-                        </td>
                     </tr>
                     <tr>
-                        <td style="width: 225px">Центр сотрудников <span style="color:red">*</span> </td>
+                        <td><span class="label">Центр сотрудников </span><span style="color:red">*</span></td>
                         <td colspan="2">
                             <form:select path="divisionEmployee" class="without_dojo">
                                 <form:option value="0">Все</form:option>
@@ -65,7 +62,7 @@
                         </td>
                     </tr>
                     <tr>
-                        <td>Отчетный период <span style="color:red">*</span> </td>
+                        <td><span class="label">Отчетный период </span><span style="color:red">*</span></td>
                         <td colspan="2">
                             <form:select path="periodType" class="without_dojo">
                                 <form:option value="1">Месяц</form:option>
@@ -76,12 +73,12 @@
                         </td>
                     </tr>
                     <tr>
-                        <td>Начало периода <span style="color:red">*</span> </td>
+                        <td><span class="label">Начало периода</span><span style="color:red">*</span> </td>
                         <td><form:input path="beginDate" id="beginDate" name="beginDate" class="date_picker"
                                         data-dojo-id="fromDate"
                                         data-dojo-type='dijit/form/DateTextBox'
                                         required="false"/></td>
-                        <td>Окончание периода <span style="color:red">*</span> </td>
+                        <td><span class="label">Окончание периода</span><span style="color:red">*</span> </td>
                         <td><form:input path="endDate" id="endDate" name="endDate" class="date_picker"
                                         data-dojo-id="toDate"
                                         data-dojo-type='dijit/form/DateTextBox'
