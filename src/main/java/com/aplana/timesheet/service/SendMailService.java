@@ -311,6 +311,17 @@ public class SendMailService{
         return emails;
     }
 
+    public String getEmployeesAdditionalManagerEmail(Integer employeeId) {
+        final Employee employee = employeeService.find(employeeId);
+        final Employee manager2 = employee.getManager2();
+
+        if (manager2 != null) {
+            return manager2.getEmail();
+        }
+
+        return StringUtils.EMPTY;
+    }
+
     interface ProjectActivityInfo {
         TypesOfActivityEnum getTypeOfActivity();
         ProjectRolesEnum getProjectRole();
