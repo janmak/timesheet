@@ -134,7 +134,7 @@
             dojo.xhrGet({
                 url: "${pageContext.request.contextPath}" + "/timesheet/plans",
                 handleAs:"json",
-                timeout:1000,
+                timeout:10000,
                 content:{date:corretDate, employeeId:employeeId},
                 load:function (data, ioArgs) {
                     if (data && ioArgs && ioArgs.args && ioArgs.args.content) {

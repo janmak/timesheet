@@ -78,7 +78,7 @@ function colorDayWithReportFromThreeMonth(/* int */ year, /* int */ month, emplo
                 "If-Modified-Since":"Sat, 1 Jan 2000 00:00:00 GMT"
             },
             handleAs:"text",
-            timeout:1000,
+            timeout:10000,
             content:{queryYear:year, queryMonth:month, employeeId:employeeId},
             load:function (dataAsText, ioArgs) {
                 var data;
