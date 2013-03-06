@@ -79,6 +79,7 @@ function colorDayWithReportFromThreeMonth(/* int */ year, /* int */ month, emplo
             },
             handleAs:"text",
             timeout:1000,
+            failOk: true,
             content:{queryYear:year, queryMonth:month, employeeId:employeeId},
             load:function (dataAsText, ioArgs) {
                 var data;
