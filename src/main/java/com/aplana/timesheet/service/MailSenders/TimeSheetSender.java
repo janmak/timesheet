@@ -21,7 +21,7 @@ import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import java.util.*;
 
-import static com.aplana.timesheet.enums.DictionaryEnum.*;
+import static com.aplana.timesheet.enums.DictionaryEnum.UNDERTIME_CAUSE;
 
 public class TimeSheetSender extends MailSender<TimeSheetForm> {
 
@@ -82,8 +82,10 @@ public class TimeSheetSender extends MailSender<TimeSheetForm> {
     }
 
     private Collection<String> getToEmails(TimeSheetForm params) {
+        final Integer employeeId = params.getEmployeeId();
+
         Set<String> toEmails = Sets.newHashSet(Iterables.transform(
-                sendMailService.getRegionManagerList(params.getEmployeeId()),
+                sendMailService.getRegionManagerList(employeeId),
                 new Function<Employee, String>() {
                     @Nullable
                     @Override
@@ -92,10 +94,12 @@ public class TimeSheetSender extends MailSender<TimeSheetForm> {
                     }
                 }));
 
-        toEmails.add(sendMailService.getEmployeeEmail(params.getEmployeeId()));
-        toEmails.add(sendMailService.getEmployeesManagersEmails(params.getEmployeeId()));
+        toEmails.add(sendMailService.getEmployeeEmail(employeeId));
+        toEmails.add(sendMailService.getEmployeesManagersEmails(employeeId));
+        toEmails.add(sendMailService.getEmployeesAdditionalManagerEmail(employeeId));
         toEmails.add(sendMailService.getProjectsManagersEmails(params));
         toEmails.add(sendMailService.getProjectParticipantsEmails(params));
+
         return toEmails;
     }
 
