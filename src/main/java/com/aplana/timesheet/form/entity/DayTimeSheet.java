@@ -224,13 +224,13 @@ public class DayTimeSheet implements Comparable<DayTimeSheet> {
     }
 
     // является данный день больничным или нет
-    @Transactional
+    @Transactional(readOnly = true)
     public Boolean getIllnessDay(){
         return illnessDAO.isDayIllness(emp, new Date(calDate.getTime()));
     }
 
     // является данный день отпуском или нет
-    @Transactional
+    @Transactional(readOnly = true)
     public Boolean getVacationDay(){
         return vacationDAO.isDayVacation(emp, new Date(calDate.getTime()));
     }

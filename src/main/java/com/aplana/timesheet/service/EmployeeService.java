@@ -80,7 +80,7 @@ public class EmployeeService {
      * Возвращает список сотрудников
      * @param division Если null, то поиск осуществляется без учета подразделения,
      *                 иначе с учётом подразделения
-     * @param filterFired Отоброжать ли уволленных сотрудников
+     * @param filterFired Отоброжать ли уволенных сотрудников
      * @return список действующих сотрудников.
      */
     @Transactional(readOnly = true)

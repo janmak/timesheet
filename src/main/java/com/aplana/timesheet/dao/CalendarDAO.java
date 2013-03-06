@@ -120,10 +120,11 @@ public class CalendarDAO {
 
     /**
      * Возвращает последний рабочий день месяца для переданной даты (включая саму дату).
+     *
      * @param day
      * @return Calendar
      */
-    public Calendar getLastWorkDay(Calendar day, Region region) {
+    public Calendar getLastWorkDay(Calendar day) {
         Date monthLastDay = DateTimeUtil.stringToTimestamp(DateTimeUtil.endMonthDay(day.getCalDate()));
 
         Query query = entityManager.createQuery(
@@ -145,11 +146,11 @@ public class CalendarDAO {
         Query query = entityManager.createQuery(
                 "select c " +
                         "from Calendar as c " +
-                        "left outer join c.holidays as h with h.region.id is null " +
+                        "left outer join c.holidays as h with h.region.id is null or h.region.id=:region " +
                         "where c.calDate>:calDatePar and h.id is null " +
                         "order by c.calDate asc " +
                         "limit 1"
-        ).setParameter("calDatePar", new Date(day.getCalDate().getTime()));
+        ).setParameter("calDatePar", new Date(day.getCalDate().getTime())).setParameter("region", region.getId());
 
         return ( Calendar ) query.getResultList().get( 0 );
     }

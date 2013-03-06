@@ -195,7 +195,7 @@ public class ReportCheckService {
             sendMailService.performManagerMailing(reportCheckList);
 
             // Если последний рабочий день месяца (по стране, без учета регионов)- рассылаем напоминания о заполнении отчетов для всех у кого нет долгов по отчетности
-            Calendar workDay = calendarService.getLastWorkDay(currentCalendar, null);
+            Calendar workDay = calendarService.getLastWorkDay(currentCalendar);
             if (workDay.getCalDate().equals(DateTimeUtil.stringToTimestamp(currentDay, DateTimeUtil.DATE_PATTERN)))
                 sendMailService.performEndMonthMailing(reportCheckList);
         } else

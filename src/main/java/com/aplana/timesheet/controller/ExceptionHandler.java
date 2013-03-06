@@ -60,7 +60,7 @@ public class ExceptionHandler implements HandlerExceptionResolver {
                 }
                 // Отправим сообщение админам
                 StringBuilder sb = new StringBuilder();
-                sb.append("У пользователя " + FIO + " произошла следующая ошибка:<br>");
+                sb.append("У пользователя ").append(FIO).append(" произошла следующая ошибка:<br>");
                 sb.append(exception.getMessage() != null ? exception.getMessage() : getLastCause(exception).getClass().getName());
                 sb.append("<br><br>");
                 sb.append("Stack trace: <br>");

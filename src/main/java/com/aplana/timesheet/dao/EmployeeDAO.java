@@ -285,17 +285,6 @@ public class EmployeeDAO {
 
     }
 
-    /**
-     * @param employeeId
-     * @return Date - дата начала работы сотрудника
-     */
-    public Date getEmployeeFirstWorkDay(Integer employeeId){
-        Query query = entityManager.createQuery(
-                "SELECT startDate FROM Employee empl WHERE empl.id = :emplId").setParameter("emplId", employeeId);
-        Timestamp result = (Timestamp) query.getResultList().get(0);
-        return new Date(result.getTime());
-    }
-
     public Employee findByObjectSid(String objectSid) {
         Employee employee = (Employee) Iterables.getFirst(entityManager.createQuery(
                 "FROM Employee emp WHERE objectSid = :objectSid"
