@@ -307,7 +307,7 @@
         <span class="label">Отчет сотрудника</span>
         <form:select path="employeeId" id="employeeId" class="without_dojo" onmouseover="tooltip.show(getTitle(this));" cssStyle="width: auto"
                      onmouseout="tooltip.hide();" onchange="setDefaultEmployeeJob(-1);
-                     colorDayWithReportFromThreeMonth(dateInfoHolder, new Date().getFullYear(), correctLength(new Date().getMonth() + 1), this.value);
+                     initCurrentDateInfo(this.value, dijit.byId('calDate').value);
                      refreshPlans(dijit.byId('calDate').value, this.value); setDefaultDate(this.value)">
             <form:option label="" value="0"/>
         </form:select>
