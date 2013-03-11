@@ -18,7 +18,7 @@
 		#set ($problem = $"")
         #set ($workplaceId = $tsDetail.getWorkplace().getId())
 		#set ($actTypeId = $tsDetail.getActType().getId())
-		#set ($cqId = $tsDetail.getCqId())
+		#set ($cqId = $tsDetail.getProjectTask().getCqId())
 		#set ($duration = $tsDetail.getDuration())
 		#set ($description = $tsDetail.getDescriptionEscaped())
 		#set ($actCatId = $tsDetail.getActCat().getId())
@@ -47,7 +47,7 @@
 			#if ($actCatId != $null && $actCatId > 0) 
 		<b> - $dictionaryItemService.find($actCatId).getValue() </b>
 			#end
-			#if ($cqId != $null && $cqId.equals($"") != $true) 
+			#if ($cqId != $null && $cqId.equals($"") != $true)
 		<b> - $cqId </b>
 			#end
 			#if ($duration != $null && $duration.equals($"") != $true) 
