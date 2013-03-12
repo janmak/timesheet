@@ -334,9 +334,15 @@ public class TimeSheetFormValidator extends AbstractValidator {
     private void validateDuration(TimeSheetForm tsForm, int notNullRowNumber, Employee employee, Errors errors) {
         double totalDuration = 0;
         List<TimeSheetTableRowForm> tsTablePart = tsForm.getTimeSheetTablePart();
+        boolean checkOvertime = true;
 
         for ( TimeSheetTableRowForm rowForm : tsTablePart ) {
             String durationStr = rowForm.getDuration();
+            final TypesOfActivityEnum activityType = EnumsUtils.tryFindById(rowForm.getActivityTypeId(), TypesOfActivityEnum.class);
+
+            if (TypesOfActivityEnum.isNotCheckableForOvertime(activityType)) {
+                checkOvertime = false;
+            }
 
             // Необходимо указать часы
             if (durationStr != null) {
@@ -378,7 +384,9 @@ public class TimeSheetFormValidator extends AbstractValidator {
                         employee
             );
 
-            if (Math.abs(totalDuration - WORK_DAY_DURATION) > propertyProvider.getOvertimeThreshold() || isHoliday) {
+            if (Math.abs(totalDuration - WORK_DAY_DURATION) > propertyProvider.getOvertimeThreshold() && checkOvertime ||
+                isHoliday
+            ) {
                 boolean isOvertime = totalDuration - WORK_DAY_DURATION > 0;
                 String concreteName = isHoliday ? "работы в выходной день" : (isOvertime ? "переработок": "недоработок");
                 final Integer overtimeCause = tsForm.getOvertimeCause();

@@ -97,4 +97,11 @@ public enum TypesOfActivityEnum implements TSEnum {
         result.add(NON_PROJECT.getId());
         return result;
     }
+
+    public static boolean isNotCheckableForOvertime(TypesOfActivityEnum activityType) {
+        return (
+                activityType == VACATION || activityType == ILLNESS || activityType == COMPENSATORY_HOLIDAY ||
+                activityType == TIME_OFF_FOR_OVERTIME || activityType == HOLIDAY
+        );
+    }
 }

@@ -5,10 +5,7 @@ import com.aplana.timesheet.dao.OvertimeCauseDAO;
 import com.aplana.timesheet.dao.entity.DictionaryItem;
 import com.aplana.timesheet.dao.entity.OvertimeCause;
 import com.aplana.timesheet.dao.entity.TimeSheet;
-import com.aplana.timesheet.enums.OvertimeCausesEnum;
-import com.aplana.timesheet.enums.TSEnum;
-import com.aplana.timesheet.enums.UndertimeCausesEnum;
-import com.aplana.timesheet.enums.WorkOnHolidayCausesEnum;
+import com.aplana.timesheet.enums.*;
 import com.aplana.timesheet.form.TimeSheetForm;
 import com.aplana.timesheet.form.TimeSheetTableRowForm;
 import com.aplana.timesheet.properties.TSPropertyProvider;
@@ -35,9 +32,7 @@ public class OvertimeCauseService {
 
     @Transactional
     public void store(TimeSheet timeSheet, TimeSheetForm tsForm) {
-        double totalDuration = calculateTotalDuration(tsForm);
-
-        if (!isOvertimeCauseNeeeded(totalDuration)) return;
+        if (!isOvertimeCauseNeeeded(tsForm, calculateTotalDuration(tsForm))) return;
 
         OvertimeCause overtimeCause = new OvertimeCause();
         overtimeCause.setOvertimeCause( dictionaryItemService.find(tsForm.getOvertimeCause()) );
@@ -59,7 +54,7 @@ public class OvertimeCauseService {
 
     public String getCauseName(TimeSheetForm tsForm) {
         final Integer overtimeCauseId = tsForm.getOvertimeCause();
-        if (!isOvertimeCauseNeeeded(tsForm.getTotalDuration()) || overtimeCauseId == null) return null;
+        if (!isOvertimeCauseNeeeded(tsForm, tsForm.getTotalDuration()) || overtimeCauseId == null) return null;
 
         final OvertimeCausesEnum overtimeCause = EnumsUtils.tryFindById(overtimeCauseId, OvertimeCausesEnum.class);
         final UndertimeCausesEnum unfinishedDayCauses = EnumsUtils.tryFindById(overtimeCauseId, UndertimeCausesEnum.class);
@@ -83,7 +78,20 @@ public class OvertimeCauseService {
         }
     }
 
-    public boolean isOvertimeCauseNeeeded(double totalDuration) {
+    public boolean isOvertimeCauseNeeeded(TimeSheetForm tsForm, double totalDuration) {
+        for (TimeSheetTableRowForm rowForm : tsForm.getTimeSheetTablePart()) {
+            if (
+                    TypesOfActivityEnum.isNotCheckableForOvertime(
+                        EnumsUtils.tryFindById(
+                                rowForm.getActivityTypeId(),
+                                TypesOfActivityEnum.class
+                        )
+                    )
+            ) {
+                return false;
+            }
+        }
+
         return Math.abs(totalDuration - TimeSheetConstants.WORK_DAY_DURATION) > propertyProvider.getOvertimeThreshold();
     }
 

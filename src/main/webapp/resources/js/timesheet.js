@@ -522,14 +522,14 @@ function typeActivityChange(obj) {
         }
     } else if ((select.value == "15") || (select.value == "24")) { //Отгулы
         var duration = parseFloat(dojo.attr("duration_id_" + rowIndex, "value"));
-        var description = dojo.byId("description_id_" + rowIndex).innerHTML;
+        var description = dojo.byId("description_id_" + rowIndex).value;
         resetRowState(rowIndex, false);
         dojo.removeAttr("duration_id_" + rowIndex, "disabled");
         dojo.removeAttr("description_id_" + rowIndex, "disabled");
         if (rowIndex == GetFirstIdDescription()) {
             dojo.removeAttr("add_in_comments", "disabled");
         }
-        dojo.byId("description_id_" + rowIndex).innerHTML = description;
+        dojo.byId("description_id_" + rowIndex).value = description;
         if (!isNaN(duration)) {
             dojo.attr("duration_id_" + rowIndex, { value:duration });
         }
