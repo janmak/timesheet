@@ -8,6 +8,7 @@ import com.aplana.timesheet.dao.entity.TimeSheet;
 import com.aplana.timesheet.enums.OvertimeCausesEnum;
 import com.aplana.timesheet.enums.TSEnum;
 import com.aplana.timesheet.enums.UndertimeCausesEnum;
+import com.aplana.timesheet.enums.WorkOnHolidayCausesEnum;
 import com.aplana.timesheet.form.TimeSheetForm;
 import com.aplana.timesheet.form.TimeSheetTableRowForm;
 import com.aplana.timesheet.properties.TSPropertyProvider;
@@ -42,6 +43,7 @@ public class OvertimeCauseService {
         overtimeCause.setOvertimeCause( dictionaryItemService.find(tsForm.getOvertimeCause()) );
         overtimeCause.setTimeSheet(timeSheet);
         overtimeCause.setComment(tsForm.getOvertimeCauseComment());
+        overtimeCause.setCompensation(dictionaryItemService.find(tsForm.getTypeOfCompensation()));
 
         dao.store(overtimeCause);
     }
@@ -56,13 +58,25 @@ public class OvertimeCauseService {
     }
 
     public String getCauseName(TimeSheetForm tsForm) {
-        Integer overtimeCauseId = tsForm.getOvertimeCause();
+        final Integer overtimeCauseId = tsForm.getOvertimeCause();
         if (!isOvertimeCauseNeeeded(tsForm.getTotalDuration()) || overtimeCauseId == null) return null;
 
-        OvertimeCausesEnum overtimeCause = EnumsUtils.tryFindById(overtimeCauseId, OvertimeCausesEnum.class);
-        UndertimeCausesEnum unfinishedDayCauses = EnumsUtils.tryFindById(overtimeCauseId, UndertimeCausesEnum.class);
-        TSEnum cause = Preconditions.checkNotNull(overtimeCause == null? unfinishedDayCauses : overtimeCause);
-        if (cause == OvertimeCausesEnum.OTHER || cause == UndertimeCausesEnum.OTHER) {
+        final OvertimeCausesEnum overtimeCause = EnumsUtils.tryFindById(overtimeCauseId, OvertimeCausesEnum.class);
+        final UndertimeCausesEnum unfinishedDayCauses = EnumsUtils.tryFindById(overtimeCauseId, UndertimeCausesEnum.class);
+        final WorkOnHolidayCausesEnum workOnHolidayCausesEnum =
+                EnumsUtils.tryFindById(overtimeCauseId, WorkOnHolidayCausesEnum.class);
+
+        final TSEnum cause = Preconditions.checkNotNull(
+                overtimeCause == null
+                        ? (workOnHolidayCausesEnum == null
+                            ? unfinishedDayCauses
+                            : workOnHolidayCausesEnum
+                        )
+                        : overtimeCause
+        );
+        if (cause == OvertimeCausesEnum.OTHER || cause == UndertimeCausesEnum.OTHER ||
+            cause == WorkOnHolidayCausesEnum.OTHER
+        ) {
             return Preconditions.checkNotNull(tsForm.getOvertimeCauseComment());
         } else {
             return dictionaryItemService.find(overtimeCauseId).getValue();

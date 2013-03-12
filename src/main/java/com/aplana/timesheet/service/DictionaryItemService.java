@@ -62,7 +62,7 @@ public class DictionaryItemService {
     }
 
     @Transactional(readOnly = true)
-    public Object getItemsByDictionaryId(int dictId) {
+    public List<DictionaryItem> getItemsByDictionaryId(int dictId) {
         return dictionaryItemDAO.getItemsByDictionaryId(dictId);
     }
 
@@ -80,4 +80,7 @@ public class DictionaryItemService {
         return JsonUtil.format(builder);
     }
 
+    public String getDictionaryItemsInJson(int dictId) {
+        return getDictionaryItemsInJson(getItemsByDictionaryId(dictId));
+    }
 }

@@ -2,6 +2,7 @@ package com.aplana.timesheet.service.MailSenders;
 
 import com.aplana.timesheet.dao.entity.Employee;
 import com.aplana.timesheet.enums.CategoriesOfActivityEnum;
+import com.aplana.timesheet.enums.DictionaryEnum;
 import com.aplana.timesheet.enums.TypesOfActivityEnum;
 import com.aplana.timesheet.enums.WorkPlacesEnum;
 import com.aplana.timesheet.form.TimeSheetForm;
@@ -40,6 +41,7 @@ public class TimeSheetSender extends MailSender<TimeSheetForm> {
     public static final String SENDER_NAME = "senderName";
     public static final String OVERTIME_CAUSE = "overtimeCause";
     public static final String OVERTIME_CAUSE_ID = "overtimeCauseId";
+    public static final String TYPE_OF_COMPENSATION = "typeOfCompensation";
 
     public TimeSheetSender(SendMailService sendMailService, TSPropertyProvider propertyProvider) {
         super(sendMailService, propertyProvider);
@@ -52,6 +54,7 @@ public class TimeSheetSender extends MailSender<TimeSheetForm> {
 
         model.put("paramsForGenerateBody", mail.getParamsForGenerateBody());
         model.put("undertimeDictId", UNDERTIME_CAUSE.getId());
+        model.put("overtimeDictId", DictionaryEnum.OVERTIME_CAUSE.getId());
 
         logger.info("follows initialization output from velocity");
         String messageBody = VelocityEngineUtils.mergeTemplateIntoString(
@@ -142,6 +145,7 @@ public class TimeSheetSender extends MailSender<TimeSheetForm> {
             putIfIsNotBlank(FIRST, result, OVERTIME_CAUSE, sendMailService.getOvertimeCause(tsForm) );
             Integer overtimeCauseId = sendMailService.getOverUnderTimeDictId(tsForm.getOvertimeCause());
             putIfIsNotBlank(FIRST, result, OVERTIME_CAUSE_ID, overtimeCauseId != null ? overtimeCauseId.toString() : null);
+            putIfIsNotBlank(FIRST, result, TYPE_OF_COMPENSATION, sendMailService.getTypeOfCompensation(tsForm));
         }
 
         return result;

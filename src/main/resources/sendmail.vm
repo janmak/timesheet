@@ -56,16 +56,24 @@
         #end
         #if ($paramsForGenerateBody.get($first, "overtimeCause")!=$null)
             <li><h2><b>
-                #if ($paramsForGenerateBody.get($first, "overtimeCauseId") == $undertimeDictId)
-                    Причина недоработок:
+                Причина
+                #set ($overtimeCauseId = $paramsForGenerateBody.get($first, "overtimeCauseId"))
+                #if ($overtimeCauseId == $undertimeDictId)
+                    переработок:
+                #elseif ($overtimeCauseId == $overtimeDictId)
+                    недоработок:
                 #else
-                    Причина переработок:
+                    работы в выходной день:
                 #end
             </b></h2></li>
             #set ($overtimeCauseStrings = $paramsForGenerateBody.get($first, "overtimeCause").split("\n"))
             #foreach ($overtimeCauseString in $overtimeCauseStrings)
                 <span>$overtimeCauseString</span><br>
             #end
+        #end
+        #if ($paramsForGenerateBody.get($first, "typeOfCompensation") != $null)
+            <li><h2><b>Тип компенсации:</b></h2></li>
+            $paramsForGenerateBody.get($first, "typeOfCompensation")
         #end
         #if ($paramsForGenerateBody.get($first, "planStrings") != $null)
             <li><h2><b>Что планируется сделать на следующий день:</b></h2></li>

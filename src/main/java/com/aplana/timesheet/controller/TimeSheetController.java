@@ -4,6 +4,7 @@ import com.aplana.timesheet.dao.entity.DictionaryItem;
 import com.aplana.timesheet.dao.entity.Division;
 import com.aplana.timesheet.dao.entity.ProjectRole;
 import com.aplana.timesheet.dao.entity.TimeSheet;
+import com.aplana.timesheet.enums.DictionaryEnum;
 import com.aplana.timesheet.form.TimeSheetForm;
 import com.aplana.timesheet.form.validator.TimeSheetFormValidator;
 import com.aplana.timesheet.properties.TSPropertyProvider;
@@ -234,6 +235,14 @@ public class TimeSheetController {
         result.put("projectRoleListJson", projectRoleService.getProjectRoleListJson(projectRoleList));
 
         result.put("listOfActDescriptionJson", getListOfActDescriptoin());
+        result.put(
+                "typesOfCompensation",
+                dictionaryItemService.getItemsByDictionaryId(DictionaryEnum.TYPES_OF_COMPENSATION.getId())
+        );
+        result.put(
+                "workOnHolidayCauseJson",
+                dictionaryItemService.getDictionaryItemsInJson(DictionaryEnum.WORK_ON_HOLIDAY_CAUSE.getId())
+        );
 
         return result;
     }

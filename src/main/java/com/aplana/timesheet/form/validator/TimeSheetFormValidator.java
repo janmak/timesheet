@@ -1,5 +1,6 @@
 package com.aplana.timesheet.form.validator;
 
+import com.aplana.timesheet.controller.AbstractController;
 import com.aplana.timesheet.dao.entity.Employee;
 import com.aplana.timesheet.dao.entity.Project;
 import com.aplana.timesheet.enums.*;
@@ -84,7 +85,7 @@ public class TimeSheetFormValidator extends AbstractValidator {
 
             int notNullRowNumber = 0;
 
-            validateDuration( tsForm, notNullRowNumber, errors );
+            validateDuration( tsForm, notNullRowNumber, employee, errors );
 
             for (TimeSheetTableRowForm formRow : tsTablePart) {
                 TypesOfActivityEnum actType = TypesOfActivityEnum.getById(formRow.getActivityTypeId());
@@ -330,7 +331,7 @@ public class TimeSheetFormValidator extends AbstractValidator {
         }
     }
 
-    private void validateDuration( TimeSheetForm tsForm, int notNullRowNumber, Errors errors ) {
+    private void validateDuration(TimeSheetForm tsForm, int notNullRowNumber, Employee employee, Errors errors) {
         double totalDuration = 0;
         List<TimeSheetTableRowForm> tsTablePart = tsForm.getTimeSheetTablePart();
 
@@ -372,19 +373,32 @@ public class TimeSheetFormValidator extends AbstractValidator {
 
         logger.debug("Total duration is {}", totalDuration);
         if (tsTablePart != null && !tsTablePart.isEmpty()) {
-            if (Math.abs(totalDuration - WORK_DAY_DURATION) > propertyProvider.getOvertimeThreshold()) {
+            boolean isHoliday = calendarService.isHoliday(
+                        DateTimeUtil.stringToDate(tsForm.getCalDate(), AbstractController.DATE_FORMAT),
+                        employee
+            );
+
+            if (Math.abs(totalDuration - WORK_DAY_DURATION) > propertyProvider.getOvertimeThreshold() || isHoliday) {
                 boolean isOvertime = totalDuration - WORK_DAY_DURATION > 0;
-                String concreteName = isOvertime ? "переработок": "недоработок";
-                if (isNotChoosed(tsForm.getOvertimeCause())) {
+                String concreteName = isHoliday ? "работы в выходной день" : (isOvertime ? "переработок": "недоработок");
+                final Integer overtimeCause = tsForm.getOvertimeCause();
+
+                if (isNotChoosed(overtimeCause)) {
                     errors.rejectValue("overtimeCause", "error.tsform.overtimecause.notchoosed", "Не указана причина " + concreteName);
-                }else{
-                    if (isOvertime) {
-                        OvertimeCausesEnum cause = EnumsUtils.tryFindById(tsForm.getOvertimeCause(), OvertimeCausesEnum.class);
-                        checkCause(cause, tsForm.getOvertimeCauseComment(), concreteName, errors);
-                    } else {
-                        UndertimeCausesEnum cause = EnumsUtils.tryFindById(tsForm.getOvertimeCause(), UndertimeCausesEnum.class);
-                        checkCause(cause, tsForm.getOvertimeCauseComment(), concreteName, errors);
-                    }
+                } else {
+                    final TSEnum cause = isHoliday
+                            ? EnumsUtils.tryFindById(overtimeCause, WorkOnHolidayCausesEnum.class)
+                            : (
+                                isOvertime
+                                        ? EnumsUtils.tryFindById(overtimeCause, OvertimeCausesEnum.class)
+                                        : EnumsUtils.tryFindById(overtimeCause, UndertimeCausesEnum.class)
+                            );
+
+                    checkCause(cause, tsForm.getOvertimeCauseComment(), concreteName, errors);
+                }
+
+                if (isHoliday) {
+                    checkTypeOfCompensation(tsForm, errors);
                 }
             }
         }
@@ -394,6 +408,18 @@ public class TimeSheetFormValidator extends AbstractValidator {
             errors.rejectValue("totalDuration",
                     "error.tsform.total.duration.max",
                     "Сумма часов не должна превышать 24.");
+        }
+    }
+
+    private void checkTypeOfCompensation(TimeSheetForm tsForm, Errors errors) {
+        final Integer typeOfCompensation = tsForm.getTypeOfCompensation();
+
+        if (isNotChoosed(typeOfCompensation)) {
+            errors.rejectValue(
+                    "typeOfCompensation",
+                    "error.tsform.typeOfCompensation.notChoosed",
+                    "Не указан тип компенсации"
+            );
         }
     }
 

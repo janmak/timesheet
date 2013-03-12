@@ -98,7 +98,8 @@ public abstract class AbstractQuickReportGenerator <T extends QuickReport, K ext
 
     private T addCommonPartOfPeriodicleToMounthStatistics(T report, K periodical) {
         Long calendarDaysCount = DateTimeUtil.getAllDaysCount(periodical.getBeginDate(), periodical.getEndDate());
-        Integer holidaysCount = calendarService.getHolidaysCounForRegion(periodical.getBeginDate(), periodical.getEndDate(), periodical.getEmployee().getRegion());
+        Integer holidaysCount = calendarService.getHolidaysCountForRegion(periodical.getBeginDate(),
+                periodical.getEndDate(), periodical.getEmployee().getRegion());
         Long workingDays = calendarDaysCount - holidaysCount;
         periodical.setWorkingDays(workingDays);
         periodical.setCalendarDays(calendarDaysCount);

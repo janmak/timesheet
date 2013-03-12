@@ -1,5 +1,8 @@
 package com.aplana.timesheet.dao.entity;
 
+import com.aplana.timesheet.enums.DictionaryEnum;
+import org.hibernate.annotations.ForeignKey;
+
 import javax.persistence.*;
 
 /**
@@ -25,6 +28,11 @@ public class OvertimeCause {
 
     @Column(name = "comment")
     private String comment;
+
+    @ManyToOne
+    @ForeignKey(name = "fk_compensation_id")
+    @JoinColumn(name = "compensation_id")
+    private DictionaryItem compensation;
 
     public int getId() {
         return id;
@@ -56,5 +64,21 @@ public class OvertimeCause {
 
     public void setComment(String comment) {
         this.comment = comment;
+    }
+
+    public DictionaryItem getCompensation() {
+        return compensation;
+    }
+
+    public void setCompensation(DictionaryItem compensation) {
+        this.compensation = compensation;
+    }
+
+    public boolean isOvertime() {
+        return (overtimeCause.getDictionary().getId() == DictionaryEnum.OVERTIME_CAUSE.getId());
+    }
+
+    public boolean isUndertime() {
+        return (overtimeCause.getDictionary().getId() == DictionaryEnum.UNDERTIME_CAUSE.getId());
     }
 }

@@ -322,6 +322,12 @@ public class SendMailService{
         return StringUtils.EMPTY;
     }
 
+    public String getTypeOfCompensation(TimeSheetForm tsForm) {
+        final DictionaryItem item = dictionaryItemService.find(tsForm.getTypeOfCompensation());
+
+        return (item == null ? StringUtils.EMPTY : item.getValue());
+    }
+
     interface ProjectActivityInfo {
         TypesOfActivityEnum getTypeOfActivity();
         ProjectRolesEnum getProjectRole();

@@ -1091,8 +1091,9 @@ function fillAvailableActivityCategoryList(rowIndex) {
 function overtimeCauseChange(obj){
     var select = obj.target === null || obj.target === undefined ? obj : obj.target;
     var selectId = dijit.byId(select.id).get('value');
+    defaultOvertimeCause = selectId;
     //Если выбрано "Другое", то надо ввести комментарий
-    dijit.byId("overtimeCauseComment").set('disabled', !(selectId == 105 || selectId == 110));
+    dijit.byId("overtimeCauseComment").set('disabled', !(selectId == 105 || selectId == 110 || selectId == 122));
 }
 
 function checkDurationThenSendForm(){
@@ -1111,9 +1112,36 @@ function checkDurationThenSendForm(){
         }
     }
 
+    var isHoliday = false;
+
+    dojo.xhrGet({
+        url: getContextPath() + "/calendar/isholiday",
+        headers: {
+            "If-Modified-Since":"Sat, 1 Jan 2000 00:00:00 GMT"
+        },
+        handleAs: "text",
+        timeout: 1000,
+        failOk: true,
+        content: { date: dijit.byId('calDate').get('value').format("yyyy-mm-dd"), employeeId: dojo.byId('employeeId').value },
+        sync: true,
+
+        load: function(dataAsText, ioArgs) {
+            var data;
+
+            try {
+                data = dojo.fromJson(dataAsText);
+            } catch (e) {}
+
+            if (data) {
+                isHoliday = data.isHoliday;
+            }
+        }
+    });
+
     if (
         (totalDuration < (8 - overtimeThreshold) || totalDuration > (8 + overtimeThreshold) )
             && !oob
+        || isHoliday
     ) {
         var comment = dijit.byId("overtimeCauseComment");
 
@@ -1130,15 +1158,24 @@ function checkDurationThenSendForm(){
         select_box.removeOption(select_box.getOptions());
         select_box.addOption({ value: 0, label: "<div style='visibility: hidden;'>some invisible text, don't remove me!</div>" });
 
-        var evald_json = totalDuration < 8 ? unfinishedDayCauseList : overtimeCauseList;
+        var evald_json = isHoliday ? workOnHolidayCauseList : (totalDuration < 8 ? unfinishedDayCauseList : overtimeCauseList);
 
         for (var key in evald_json) {
             var row = evald_json[key];
             select_box.addOption({ value: row.id, label: row.value });
         }
 
+        if (defaultOvertimeCause) {
+            select_box.set('value', defaultOvertimeCause);
+        }
+
+        var holidayDisplays = isHoliday ? "" : "none";
+
+        dojo.byId("holidayWarning").style.display = dojo.byId("typeOfCompensationContainer").style.display = holidayDisplays;
+
         var dialog = dijit.byId("dialogOne");
-        dialog.set("title", "Укажите причину " + (totalDuration < 8 ? "недоработок" : "переработок"));
+
+        dialog.set("title", "Укажите причину " + (isHoliday ? "работы в выходной день" : (totalDuration < 8 ? "недоработок" : "переработок")));
         dialog.show();
     } else {
         submitform('send');
@@ -1149,6 +1186,8 @@ function checkDurationThenSendForm(){
 function submitWithOvertimeCauseSet(){
     dojo.byId("overtimeCauseComment_hidden").value = dijit.byId("overtimeCauseComment").get('value');
     dojo.byId("overtimeCause_hidden").value = dijit.byId("overtimeCause").get('value');
+    dojo.byId("typeOfCompensation_hidden").value = dijit.byId("typeOfCompensation").get('value');
+
     dijit.byId('dialogOne').hide();
     submitform('send');
 }

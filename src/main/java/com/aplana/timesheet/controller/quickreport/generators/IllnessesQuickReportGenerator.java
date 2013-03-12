@@ -56,7 +56,8 @@ public class IllnessesQuickReportGenerator extends AbstractQuickReportGenerator<
 
     private IllnessesQuickReport addIllnessToYearStatistics(IllnessesQuickReport report, Illness illness) {
         Long calendarDaysCount = DateTimeUtil.getAllDaysCount(illness.getBeginDate(), illness.getEndDate());
-        Integer holidaysCount = calendarService.getHolidaysCounForRegion(illness.getBeginDate(), illness.getEndDate(), illness.getEmployee().getRegion());
+        Integer holidaysCount = calendarService.getHolidaysCountForRegion(illness.getBeginDate(), illness.getEndDate(),
+                illness.getEmployee().getRegion());
         Long workingDays = calendarDaysCount - holidaysCount;
         double workDaysOnIllnessWorked =
                 employeeService.getWorkDaysOnIllnessWorked(

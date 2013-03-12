@@ -37,6 +37,8 @@
         var selectedWorkplace = ${selectedWorkplaceJson};
         var selectedCalDate = ${selectedCalDateJson};
         var listOfActDescription = ${listOfActDescriptionJson};
+        var workOnHolidayCauseList = ${workOnHolidayCauseJson};
+        var defaultOvertimeCause = '${timeSheetForm.overtimeCause}';
 
         var root = getRootEventListener();
         var month = correctLength(new Date().getMonth() + 1);
@@ -277,13 +279,30 @@
 <h1><fmt:message key="title.timesheet"/></h1>
 
 <div id="dialogOne" data-dojo-type="dijit.Dialog" title="" style="display: none;">
-    <div data-dojo-type="dijit.layout.ContentPane" style="width: 500px; height: 200px;">
+    <div data-dojo-type="dijit.layout.ContentPane" style="width: 500px; height: 250px;">
+        <div id="holidayWarning" style="margin-bottom: 15px;">
+            <span style="font-weight: bold; color: red;">
+                Обращаем внимание, что работа в выходной день должна быть согласована с руководителем проекта и руководителем центра компетенции
+            </span>
+        </div>
         <div style="margin-bottom: 3px;">Выберите причину</div>
         <div id="overtimeCause" onChange="overtimeCauseChange(this)" data-dojo-type="dijit.form.Select"
-             style="width: 100%;"></div>
+             style="width: 100%;" data-dojo-props="value: '${timeSheetForm.overtimeCause}'"></div>
+        <div style="margin-top: 10px;"><span>Комментарий</span></div>
         <div data-dojo-type="dijit.form.Textarea" disabled="true"
-                  wrap="soft" id="overtimeCauseComment" rows="10" style="width: 100%;margin-top: 10px;"
-                  placeHolder="Напишите причину, если нет подходящей в списке" tooltip="комментарий"></div>
+                  wrap="soft" id="overtimeCauseComment" rows="10" style="width: 100%;margin-top: 3px;"
+                  placeHolder="Напишите причину, если нет подходящей в списке"
+                  tooltip="комментарий" data-dojo-props="value: '${timeSheetForm.overtimeCauseComment}'"></div>
+        <div id="typeOfCompensationContainer" style="margin-top: 10px;">
+            <div style="margin-bottom: 3px;">Тип компенсации</div>
+            <select data-dojo-type="dijit.form.Select"style="width: 100%;" id="typeOfCompensation"
+                    data-dojo-props="value: '${timeSheetForm.typeOfCompensation}'">
+                <option value="0"></option>
+                <c:forEach items="${typesOfCompensation}" var="t">
+                <option value="${t.id}">${t.value}</option>
+                </c:forEach>
+            </select>
+        </div>
         <button id="confirmOvertimeCauseButton" style="margin-top: 10px; margin-left: -1px"
                 onclick="submitWithOvertimeCauseSet()">
             Продолжить
@@ -293,8 +312,9 @@
 <form:form method="post" commandName="timeSheetForm" cssClass="noborder">
 
     <%-- Костыль для диалога --%>
-    <form:textarea path="overtimeCauseComment" id="overtimeCauseComment_hidden" style="display: none;" />
-    <form:input path="overtimeCause" id="overtimeCause_hidden" style="display: none;" />
+    <form:hidden path="overtimeCauseComment" id="overtimeCauseComment_hidden" />
+    <form:hidden path="overtimeCause" id="overtimeCause_hidden" />
+    <form:hidden path="typeOfCompensation" id="typeOfCompensation_hidden" />
 
     <div id="form_header" style="margin-bottom: 15px;">
         <span class="label">Подразделение</span>

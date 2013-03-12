@@ -3,6 +3,7 @@
 #set ($isProblems = $false) 
 #set ($projectName = $"")
 #set ($plan = $timeSheet.getPlanEscaped())
+#set ($overtimeCause = $timeSheet.getOvertimeCause())
 #if ($tsDetails != $null)
 	<ul>			
 	<li><h2><b>Что было сделано:</b></h2></li>
@@ -100,6 +101,24 @@
 			#end
 		#end 
 	</ol>
+	#end
+	#if ($overtimeCause != $null)
+	    <li><h2><b>
+	        Причина
+	        #if ($overtimeCause.isOvertime() == $true)
+                переработок:
+	        #elseif ($overtimeCause.isUndertime() == $true)
+                недоработок:
+	        #else
+	            работы в выходной день:
+	        #end
+	    </b></h2></li>
+	    #set ($overtimeCauseComment = $overtimeCause.getComment())
+	    #if ($overtimeCauseComment != $null && $overtimeCauseComment.length() > 0)
+	        $overtimeCauseComment
+        #else
+            $overtimeCause.getOvertimeCause().getValue()
+	    #end
 	#end
 	#if ($plan != $null && $plan.equals($"") != $true)
 	<li><h2><b>Что планируется сделать на следующий день:</b></h2></li>

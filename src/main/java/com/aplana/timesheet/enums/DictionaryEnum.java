@@ -10,7 +10,9 @@ public enum DictionaryEnum implements TSEnum {
     WORKPLACE(5, "Место работы"),
     VACATION_TYPE(9, "Тип отпуска"),
     UNDERTIME_CAUSE(10, "Причины недоработок"),
-    OVERTIME_CAUSE(11, "Причины переработок");
+    OVERTIME_CAUSE(11, "Причины переработок"),
+    TYPES_OF_COMPENSATION(13, "Типы компенсации"),
+    WORK_ON_HOLIDAY_CAUSE(14, "Причины работы в выходной день");
 
 
     private int id;

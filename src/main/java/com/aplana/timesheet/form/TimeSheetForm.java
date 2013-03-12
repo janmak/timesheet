@@ -15,6 +15,7 @@ public class TimeSheetForm {
     private Integer overtimeCause;
     /** Комментария к причине надоработок/переработко */
     private String overtimeCauseComment;
+    private Integer typeOfCompensation;
 
     public Integer getDivisionId() {
         return divisionId;
@@ -82,5 +83,13 @@ public class TimeSheetForm {
 
     public void setOvertimeCauseComment(String overtimeCauseComment) {
         this.overtimeCauseComment = overtimeCauseComment;
+    }
+
+    public Integer getTypeOfCompensation() {
+        return typeOfCompensation;
+    }
+
+    public void setTypeOfCompensation(Integer typeOfCompensation) {
+        this.typeOfCompensation = typeOfCompensation;
     }
 }

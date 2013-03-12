@@ -2,6 +2,7 @@ package com.aplana.timesheet.service;
 
 import com.aplana.timesheet.dao.CalendarDAO;
 import com.aplana.timesheet.dao.entity.Calendar;
+import com.aplana.timesheet.dao.entity.Employee;
 import com.aplana.timesheet.dao.entity.Holiday;
 import com.aplana.timesheet.dao.entity.Region;
 import com.aplana.timesheet.exception.TSRuntimeException;
@@ -130,7 +131,7 @@ public class CalendarService
     /**
      * Возвращает количество выходных дней за выбранный период для конкретного региона
      */
-    public Integer getHolidaysCounForRegion(Date beginDate, Date endDate, Region region) {
+    public Integer getHolidaysCountForRegion(Date beginDate, Date endDate, Region region) {
         return calendarDAO.getHolidaysCountForRegion(beginDate, endDate, region);
     }
 
@@ -188,5 +189,9 @@ public class CalendarService
 
     public List<Holiday> getHolidaysForRegion(Date minDate, Date maxDate, Region region) {
         return calendarDAO.getHolidaysForRegion(minDate, maxDate, region);
+    }
+
+    public boolean isHoliday(Date date, Employee employee) {
+        return (getHolidaysCountForRegion(date, date, (employee == null) ? null : employee.getRegion()) > 0);
     }
 }
