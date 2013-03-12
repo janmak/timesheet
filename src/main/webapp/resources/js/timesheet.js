@@ -75,25 +75,13 @@ function addNewRow() {
     var rowNumCell = newTsRow.insertCell(1);
     dojo.addClass(rowNumCell, "text_center_align row_number");
     rowNumCell.innerHTML = tsRowCount + 1;
-    // Ячейка с местом работы
-    var workplaceCell = newTsRow.insertCell(2);
-    dojo.addClass(workplaceCell, "top_align");
-    var workplaceSelect = dojo.doc.createElement("select");
-    dojo.attr(workplaceSelect, {
-        id:"workplace_id_" + newRowIndex,
-        name:"timeSheetTablePart[" + newRowIndex + "].workplaceId"
-    });
-    dojo.addClass(workplaceSelect, "workplace");
-    fillWorkplaceSelect(workplaceSelect);
-    workplaceCell.appendChild(workplaceSelect);
     // Ячейка с типами активности
-    var actTypeCell = newTsRow.insertCell(3);
+    var actTypeCell = newTsRow.insertCell(2);
     dojo.addClass(actTypeCell, "top_align");
     var actTypeSelect = dojo.doc.createElement("select");
     dojo.attr(actTypeSelect, {
         id:"activity_type_id_" + newRowIndex,
-        name:"timeSheetTablePart[" + newRowIndex + "].activityTypeId",
-        disabled:true  //todo может нужно, чтобы кнопка выключалась в другом месте?
+        name:"timeSheetTablePart[" + newRowIndex + "].activityTypeId"
     });
     dojo.addClass(actTypeSelect, "activityType");
     insertEmptyOption(actTypeSelect);
@@ -108,6 +96,17 @@ function addNewRow() {
         actTypeSelect.appendChild(actTypeOption);
     }
     actTypeCell.appendChild(actTypeSelect);
+    // Ячейка с местом работы
+    var workplaceCell = newTsRow.insertCell(3);
+    dojo.addClass(workplaceCell, "top_align");
+    var workplaceSelect = dojo.doc.createElement("select");
+    dojo.attr(workplaceSelect, {
+        id:"workplace_id_" + newRowIndex,
+        name:"timeSheetTablePart[" + newRowIndex + "].workplaceId"
+    });
+    dojo.addClass(workplaceSelect, "workplace");
+    fillWorkplaceSelect(workplaceSelect);
+    workplaceCell.appendChild(workplaceSelect);
     // Ячейка с названиями проектов/пресейлов
     var projectNameCell = newTsRow.insertCell(4);
     dojo.addClass(projectNameCell, "top_align");
@@ -224,7 +223,6 @@ function addNewRow() {
     dojo.connect(descriptionTextarea, "onkeyup", descriptionTextarea, somethingChanged);
     dojo.connect(problemTextarea, "onkeyup", problemTextarea, somethingChanged);
 
-    dojo.connect(workplaceSelect, "onchange", workplaceSelect, workplaceChange);
     dojo.connect(actTypeSelect, "onchange", actTypeSelect, typeActivityChange);
     dojo.connect(projectSelect, "onchange", projectSelect, projectChange);
     dojo.connect(projectRoleSelect, "onchange", projectRoleSelect, projectRoleChange);
@@ -452,30 +450,6 @@ function divisionChange(obj) {
     var rows = dojo.query(".row_number");
     for (var i = 0; i < rows.length; i++) {
         fillProjectList(i, dojo.byId("activity_type_id_" + i).value);
-    }
-}
-
-function workplaceChange(obj) {
-
-    if (obj.target == null) {
-        select = obj;
-    }
-    else {
-        select = obj.target;
-    }
-    var selectId = dojo.attr(select, "id");
-    var rowIndex = selectId.substring(selectId.lastIndexOf("_") + 1, selectId.length);
-    if ((select.value == "-1") || (select.value == "0")) {
-        dojo.attr("activity_type_id_" + rowIndex, {
-            disabled:"disabled",
-            value:"0"
-        });
-        resetRowState(rowIndex, true);
-    }
-    else {
-        dojo.attr("activity_type_id_" + rowIndex, {
-            disabled:false
-        });
     }
 }
 
@@ -746,7 +720,6 @@ function reloadRowsState() {
                 dojo.attr(workplaceSelect, { value:selectedWorkplace[l].workplace });
             }
         }
-        workplaceChange(workplaceSelect);
 
         var actTypeSelect = dojo.byId("activity_type_id_" + i);
         typeActivityChange(actTypeSelect);

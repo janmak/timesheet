@@ -419,7 +419,7 @@
                         </td>
                         <td class="top_align"> <!-- Место работы -->
                             <form:select path="timeSheetTablePart[${row.index}].workplaceId"
-                                         id="workplace_id_${row.index}" onchange="workplaceChange(this)"
+                                         id="workplace_id_${row.index}"
                                          cssClass="workplaceType" onmouseover="tooltip.show(getTitle(this));"
                                          onmouseout="tooltip.hide();" onkeyup="somethingChanged();"
                                          onmouseup="somethingChanged();">
