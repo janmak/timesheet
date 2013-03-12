@@ -1,6 +1,7 @@
 package com.aplana.timesheet.dao;
 
 import com.aplana.timesheet.dao.entity.Calendar;
+import com.aplana.timesheet.dao.entity.Division;
 import com.aplana.timesheet.dao.entity.Employee;
 import com.aplana.timesheet.dao.entity.TimeSheet;
 import com.aplana.timesheet.enums.TypesOfActivityEnum;
@@ -14,12 +15,8 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import java.math.BigDecimal;
-import java.sql.Date;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 @Repository
 public class TimeSheetDAO {
@@ -35,7 +32,7 @@ public class TimeSheetDAO {
     private EntityManager entityManager;
 
     public void storeTimeSheet(TimeSheet timeSheet) {
-        if (timeSheet.getId() == null){  //создается новый отчет, а не редактируется старый
+        if (timeSheet.getId() == null) {  //создается новый отчет, а не редактируется старый
             timeSheet.setCreationDate(new java.util.Date());
         }
         TimeSheet tsMerged = entityManager.merge(timeSheet);
@@ -50,11 +47,11 @@ public class TimeSheetDAO {
     public TimeSheet findForDateAndEmployee(Calendar date, Integer employeeId) {
         Query query = entityManager.createQuery(
                 "select ts from TimeSheet as ts where ts.calDate = :calDate and ts.employee.id = :employeeId"
-        ).setParameter( "calDate", date ).setParameter( "employeeId", employeeId );
+        ).setParameter("calDate", date).setParameter("employeeId", employeeId);
 
         List<TimeSheet> result = query.getResultList();
 
-        return result.isEmpty() ? null : result.get( 0 );
+        return result.isEmpty() ? null : result.get(0);
     }
 
     /**
@@ -76,30 +73,30 @@ public class TimeSheetDAO {
                         "ts.id timesheet_id, " +
                         "SUM(tsd.duration), " +
                         "tsd.act_type "
-                + "from calendar c "
-                + "left outer join time_sheet as ts " +
+                        + "from calendar c "
+                        + "left outer join time_sheet as ts " +
                         "on ts.emp_id = :employeeId and ts.caldate=c.caldate "
-                + "left outer join holiday h " +
+                        + "left outer join holiday h " +
                         "on c.caldate=h.caldate and (h.region is null or h.region=:region) "
-                + "left outer join time_sheet_detail as tsd " +
+                        + "left outer join time_sheet_detail as tsd " +
                         "on ts.id=tsd.time_sheet_id "
-                + "where c.year=:yearPar " +
+                        + "where c.year=:yearPar " +
                         "and c.month=:monthPar "
-                + "group by " +
+                        + "group by " +
                         "c.caldate, " +
                         "h.id, " +
                         "ts.id, " +
                         "tsd.act_type "
-                + "order by c.calDate asc"
-        )       .setParameter( "yearPar", year ).setParameter( "monthPar", month )
-                .setParameter( "region", region ).setParameter( "employeeId", employee.getId() );
+                        + "order by c.calDate asc"
+        ).setParameter("yearPar", year).setParameter("monthPar", month)
+                .setParameter("region", region).setParameter("employeeId", employee.getId());
 
         List result = query.getResultList();
 
         List<DayTimeSheet> dayTSList = new ArrayList<DayTimeSheet>();
 
         HashMap<Long, DayTimeSheet> map = new HashMap<Long, DayTimeSheet>();
-        for (Object object : result ) {
+        for (Object object : result) {
             Object[] item = (Object[]) object;
             //дата в месяце
             Timestamp calDate = new Timestamp(((Date) item[0]).getTime());
@@ -120,7 +117,7 @@ public class TimeSheetDAO {
                 map.put(calDate.getTime(), ds);
             } else {
                 DayTimeSheet dts = map.get(calDate.getTime());
-                if (duration != null && TypesOfActivityEnum.isEfficientActivity(actType) ) {
+                if (duration != null && TypesOfActivityEnum.isEfficientActivity(actType)) {
                     dts.setDuration(dts.getDuration().add(duration));
                 }
             }
@@ -144,10 +141,10 @@ public class TimeSheetDAO {
     public TimeSheet findLastTimeSheetBefore(Calendar date, Integer employeeId) {
         Query query = entityManager.createQuery(
                 "select ts "
-                + "from TimeSheet as ts "
-                + "where ts.calDate <:calDate "
-                    + "and ts.employee.id = :employeeId "
-                + "order by ts.calDate desc"
+                        + "from TimeSheet as ts "
+                        + "where ts.calDate <:calDate "
+                        + "and ts.employee.id = :employeeId "
+                        + "order by ts.calDate desc"
         ).setParameter("calDate", date).setParameter("employeeId", employeeId);
 
         List<TimeSheet> result = query.getResultList();
@@ -168,7 +165,7 @@ public class TimeSheetDAO {
                 + "select ts "
                 + "from TimeSheet as ts "
                 + "where ts.calDate = :calDate "
-                    + "and ts.employee.id = :employeeId "
+                + "and ts.employee.id = :employeeId "
                 + "order by ts.calDate asc"
         ).setParameter("calDate", nextDate).setParameter("employeeId", employeeId);
 
@@ -181,18 +178,51 @@ public class TimeSheetDAO {
         return entityManager.find(TimeSheet.class, id);
     }
 
-    // возвращает следующий рабочикй день, после даты последнего списания занятости
-    public Calendar getDateNextAfterLastDayWithTS(Employee employee){
+    // возвращает следующий рабочий день, после даты последнего списания занятости
+    public Calendar getDateNextAfterLastDayWithTS(Employee employee) {
         Query query = entityManager.createQuery(
                 "SELECT MAX(ts.calDate) FROM TimeSheet ts WHERE ts.employee = :employee"
         ).setParameter("employee", employee);
 
-        Calendar result = new Calendar();
         if (!query.getResultList().isEmpty() && query.getSingleResult() != null) {
-            return calendarDAO.getNextWorkDay( (Calendar) query.getSingleResult(), employee.getRegion());
+            return calendarDAO.getNextWorkDay((Calendar) query.getSingleResult(), employee.getRegion());
         } else {
             return null;
         }
+    }
+
+    // возвращает список следующих рабочих дней, после даты последнего списания занятости для всех сотрудников центра
+    public Map<Integer, Date> getDateNextAfterLastDayWithTSMap(Division division) {
+
+        /*
+          На HQL это написать нельзя из-за строчки INNER JOIN calendar calnext ON calnext.caldate>tscal.maxcaldate
+          При желании можно переписать на Criteria
+         */
+
+        final Query query = entityManager.createNativeQuery("SELECT tscal.empid, MIN(calnext.calDate)" +
+                " FROM (SELECT emp.id empid, MAX(cal.calDate) maxcaldate" +
+                "       FROM calendar cal" +
+                "       INNER JOIN time_sheet ts on cal.caldate=ts.caldate" +
+                "       INNER JOIN employee emp on emp.id=ts.emp_id" +
+                "       GROUP BY emp.id" +
+                "      ) tscal" +
+                " INNER JOIN employee emp1 ON emp1.id=tscal.empid" +
+                " INNER JOIN division d ON d.id=emp1.division" +
+                " INNER JOIN region r ON r.id=emp1.region" +
+                " INNER JOIN calendar calnext ON calnext.caldate>tscal.maxcaldate" +
+                " LEFT OUTER JOIN holiday h ON h.calDate=calnext.calDate and (h.region=r.id or h.region is null)" +
+                " WHERE d.id=:division and (h.id is null)" +
+                " GROUP BY 1" +
+                " ORDER BY 1").setParameter("division", division);
+
+        final List resultList = query.getResultList();
+        final Map<Integer, Date> resultMap = new HashMap<Integer, Date>(resultList.size());
+        for (Object next : resultList) {
+            Object[] item = (Object[]) next;
+            resultMap.put((Integer) item[0], (Date) item[1]);
+        }
+
+        return resultMap;
     }
 
     public void delete(TimeSheet timeSheet) {

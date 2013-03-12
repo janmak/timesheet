@@ -70,6 +70,7 @@ public class DivisionDAO {
 
     public Division findByDepartmentName(String departmentName) {
         logger.debug("findByDepartmentName: departmentName = {}", departmentName);
+        // Проверяется, что слово обрамлено запятыми или конец/начало строки
         Integer id = (Integer) entityManager.createNativeQuery(
                 "SELECT id FROM division as d WHERE lower(department_name) SIMILAR TO  :departmentName"
         ).setParameter("departmentName", ("(%_,|)" + departmentName + "(,_%|)").toLowerCase()).getSingleResult();

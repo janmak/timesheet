@@ -210,7 +210,7 @@
                         <tr class="statusHoliday">
                             <td class="date"><fmt:formatDate value="${report.calDate}" pattern="dd.MM.yyyy"/></td>
                             <td>Выходной</td>
-                            <td></i></td>
+                            <td></td>
                             <td>
                                 <c:if test="${report.illnessDay}">Болезнь</c:if>
                                 <c:if test="${report.vacationDay}">Отпуск</c:if>

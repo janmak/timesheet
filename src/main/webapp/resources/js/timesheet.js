@@ -328,6 +328,7 @@ function findEmployeeById(employeeId){
 /* Устанавливает компоненту calDate дату по умолчанию. */
 function setDefaultDate(employeeId) {
     var employee = findEmployeeById(employeeId);
+    if (!employee) return;
     var date_picker = dijit.byId("calDate");
     date_picker.set("displayedValue", employee.dateByDefault);
 }

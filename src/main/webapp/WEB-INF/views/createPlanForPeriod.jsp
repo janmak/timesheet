@@ -81,7 +81,7 @@
                     "If-Modified-Since":"Sat, 1 Jan 2000 00:00:00 GMT"
                 },
                 handleAs: "json",
-                timeout: 1000,
+                timeout: 10000,
                 content:  requestContent,
 
                 load: function(data) {

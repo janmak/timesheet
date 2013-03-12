@@ -6,6 +6,7 @@ import com.aplana.timesheet.dao.AvailableActivityCategoryDAO;
 import com.aplana.timesheet.dao.EmployeeDAO;
 import com.aplana.timesheet.dao.TimeSheetDAO;
 import com.aplana.timesheet.dao.entity.*;
+import com.aplana.timesheet.dao.entity.Calendar;
 import com.aplana.timesheet.form.TimeSheetForm;
 import com.aplana.timesheet.form.TimeSheetTableRowForm;
 import com.aplana.timesheet.form.entity.DayTimeSheet;
@@ -20,10 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static argo.jdom.JsonNodeBuilders.*;
 import static argo.jdom.JsonNodeFactories.string;
@@ -272,15 +270,23 @@ public class TimeSheetService {
         Calendar calendar = timeSheetDAO.getDateNextAfterLastDayWithTS(employee);
         Date result = new Date();
         if (calendar == null){
-            return getEmployeeFirstWorkDay(employeeId);
+            return employee.getStartDate();
         } else{
             result.setTime(calendar.getCalDate().getTime());
             return result;
         }
     }
 
-    public Date getEmployeeFirstWorkDay(Integer employeeId){
-         return employeeDAO.getEmployeeFirstWorkDay(employeeId);
+    /**
+     * Возвращает Map по id сотрудников c указанием дат последних отправленных отчетов
+     *
+     * @param division Если null, то поиск осуществляется без учета подразделения,
+     *                 иначе с учётом подразделения
+     * @return Map по id сотрудников c указанием дат последних отправленных отчетов.
+     */
+    @Transactional(readOnly = true)
+    public Map<Integer, Date> getLastWorkdayWithoutTimesheetMap(Division division){
+        return timeSheetDAO.getDateNextAfterLastDayWithTSMap(division);
     }
 
     public List<TimeSheet> getTimeSheetsForEmployee(Employee employee, Integer year, Integer month) {

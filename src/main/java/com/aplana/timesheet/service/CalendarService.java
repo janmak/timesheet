@@ -120,8 +120,8 @@ public class CalendarService
         return calendarDAO.monthValid(year, month);
     }
 
-    public Calendar getLastWorkDay(Calendar day, Region region) {
-        return calendarDAO.getLastWorkDay(day, region);
+    public Calendar getLastWorkDay(Calendar day) {
+        return calendarDAO.getLastWorkDay(day);
     }
 
     public Calendar getNextWorkDay(Calendar day, Region region) {

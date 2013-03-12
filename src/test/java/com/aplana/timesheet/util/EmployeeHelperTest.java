@@ -8,10 +8,14 @@ import com.aplana.timesheet.service.EmployeeService;
 import com.aplana.timesheet.service.TimeSheetService;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import static com.aplana.timesheet.util.DateTimeUtil.dateToString;
 
@@ -20,6 +24,8 @@ import static com.aplana.timesheet.util.DateTimeUtil.dateToString;
  * @version 1.0
  */
 public class EmployeeHelperTest extends AbstractJsonTest {
+
+    private static final Logger logger = LoggerFactory.getLogger(EmployeeHelperTest.class);
 
     @Autowired
     private DivisionDAO divisionDAO;
@@ -70,7 +76,7 @@ public class EmployeeHelperTest extends AbstractJsonTest {
                     sb.append("\",\"dateByDefault\":\"");
                     sb.append(dateToString(timeSheetService.getLastWorkdayWithoutTimesheet(employees.get(j).getId()), DATE_FORMAT));
                     sb.append("\",\"firstWorkDate\":\"");
-                    sb.append(dateToString(timeSheetService.getEmployeeFirstWorkDay(employees.get(j).getId()), DATE_FORMAT));
+                    sb.append(dateToString(employees.get(j).getStartDate(), DATE_FORMAT));
                     sb.append("\"}");
                     if (j < (employees.size() - 1)) {
                         sb.append(",");
@@ -91,8 +97,6 @@ public class EmployeeHelperTest extends AbstractJsonTest {
 
     @Test
     public void testGetEmployeeListJson() throws Exception {
-        assertJsonEquals(json, employeeHelper.getEmployeeListJson(divisions, filterFired));
+        assertJsonEquals(json, employeeHelper.getEmployeeListJson(divisions, filterFired, true));
     }
-
-
 }
