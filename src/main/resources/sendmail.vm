@@ -59,9 +59,9 @@
                 Причина
                 #set ($overtimeCauseId = $paramsForGenerateBody.get($first, "overtimeCauseId"))
                 #if ($overtimeCauseId == $undertimeDictId)
-                    переработок:
-                #elseif ($overtimeCauseId == $overtimeDictId)
                     недоработок:
+                #elseif ($overtimeCauseId == $overtimeDictId)
+                    переработок:
                 #else
                     работы в выходной день:
                 #end

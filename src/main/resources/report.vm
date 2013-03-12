@@ -119,6 +119,12 @@
         #else
             $overtimeCause.getOvertimeCause().getValue()
 	    #end
+
+	    #set ($compensation = $overtimeCause.getCompensation())
+	    #if ($compensation != $null)
+	        <li><h2><b>Тип компенсации:</b></h2></li>
+            $compensation.getValue()
+	    #end
 	#end
 	#if ($plan != $null && $plan.equals($"") != $true)
 	<li><h2><b>Что планируется сделать на следующий день:</b></h2></li>

@@ -18,18 +18,18 @@ public class OvertimeCause {
     @SequenceGenerator(name = "overtime_cause_seq", sequenceName = "overtime_cause_seq", allocationSize = 10)
     private int id;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "timesheet_id", unique = true, nullable = false)
     private TimeSheet timeSheet;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "overtime_cause_id", nullable = false, unique = false)
     private DictionaryItem overtimeCause;
 
     @Column(name = "comment")
     private String comment;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @ForeignKey(name = "fk_compensation_id")
     @JoinColumn(name = "compensation_id")
     private DictionaryItem compensation;
