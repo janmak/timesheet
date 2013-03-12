@@ -38,7 +38,7 @@ public class TimeSheet {
     @OrderBy("id asc")
     private Set<TimeSheetDetail> timeSheetDetails;
 
-    @OneToOne(mappedBy = "timeSheet")
+    @OneToOne(mappedBy = "timeSheet", fetch = FetchType.LAZY)
     private OvertimeCause overtimeCause;
 
     @Column(name = "creation_date")
