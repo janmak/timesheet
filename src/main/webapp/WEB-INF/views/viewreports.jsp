@@ -13,32 +13,7 @@
         <link rel="stylesheet" type="text/css" href="<%= request.getContextPath()%>/resources/css/viewreports.css?modified=<%= new File(application.getRealPath("/resources/css/viewreports.css")).lastModified()%>">
         <script type="text/javascript">
             dojo.require("dojo.cookie");
-            dojo.addOnLoad(function () {
-                var stavka = 8; // Стандартное кол-во часов которое нужно отработать в день.
-                var durationalAll = document.getElementById("durationall");
-                var durations = dojo.query(".duration");
-                var employee = dojo.byId("employeeId");
-                var division = dojo.byId("divisionId");
-                var duration = 0;
-
-                function setDurationAll(duration) {
-                    durationalAll.innerHTML = duration.toFixed(1);
-                }
-                function getPath() {
-                    return "/viewreports/" + division.value + "/" + employee.value;
-                }
-
-                function changeNormal(evt) {
-                    evt = parseFloat(evt);
-                    stavka = evt / 5;
-                }
-                for (i = 0; i < durations.length; i++) {
-                    duration += parseFloat(durations[i].innerHTML) ;
-                }
-                setDurationAll(duration);
-            });
-
-            dojo.ready(function () {
+             dojo.ready(function () {
                 window.focus();
                 reloadViewReportsState();
                 divisionChange(dojo.byId("divisionId"));
@@ -290,7 +265,7 @@
             <thead>
                 <tr>
                     <td colspan="2">Всего(факт):</td>
-                    <td id="durationall">JavaScript is disabled</td>
+                    <td id="durationall">${durationFact}</td>
                 </tr>
                 <tr>
                     <td colspan="2">Всего(план):</td>

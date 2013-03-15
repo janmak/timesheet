@@ -4,6 +4,7 @@ import com.aplana.timesheet.constants.TimeSheetConstants;
 import com.aplana.timesheet.dao.entity.Calendar;
 import com.aplana.timesheet.dao.entity.Employee;
 import com.aplana.timesheet.form.ViewReportsForm;
+import com.aplana.timesheet.form.entity.DayTimeSheet;
 import com.aplana.timesheet.form.validator.ViewReportsFormValidator;
 import com.aplana.timesheet.service.CalendarService;
 import com.aplana.timesheet.service.TimeSheetService;
@@ -17,6 +18,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.math.BigDecimal;
+import java.util.Iterator;
 import java.util.List;
 
 @Controller
@@ -55,7 +58,15 @@ public class ViewReportsController extends AbstractControllerForEmployeeWithYear
         mav.addObject("year", year);
         mav.addObject("month", month);
         mav.addObject("monthList", DateTimeUtil.getMonthListJson((List<Calendar>) mav.getModel().get(YEARS_LIST), calendarService));
-        mav.addObject("reports", timeSheetService.findDatesAndReportsForEmployee(employee, year, month));
+        List<DayTimeSheet> dayTimeSheets = timeSheetService.findDatesAndReportsForEmployee(employee, year, month);
+        mav.addObject("reports", dayTimeSheets);
+        BigDecimal durationFact = BigDecimal.ZERO;
+        for (Iterator<DayTimeSheet> iterator = dayTimeSheets.iterator(); iterator.hasNext(); ) {
+            DayTimeSheet next = iterator.next();
+
+            durationFact = durationFact.add(next.getDuration());
+        }
+        mav.addObject("durationFact", durationFact.longValue());
         mav.addObject(
                 "durationPlan",
                 (calendarService.getWorkDaysCountForRegion(

@@ -109,6 +109,12 @@ public class TimeSheetDAO {
             //по этому полю определяем отпуск\отгул и т.п.
             Integer actType = item[4] != null ? ((Integer) item[4]) : null;
 
+            // Если нерабочая активность - сразу проставим в duration 0
+            if (duration != null && !TypesOfActivityEnum.isEfficientActivity(actType))
+            {
+                duration = BigDecimal.ZERO;
+            }
+
             if (!map.containsKey(calDate.getTime())) {
                 DayTimeSheet ds = new DayTimeSheet(calDate, holiday, tsId, actType, duration, employee);
                 ds.setTimeSheetDAO(this);
@@ -117,9 +123,7 @@ public class TimeSheetDAO {
                 map.put(calDate.getTime(), ds);
             } else {
                 DayTimeSheet dts = map.get(calDate.getTime());
-                if (duration != null && TypesOfActivityEnum.isEfficientActivity(actType)) {
-                    dts.setDuration(dts.getDuration().add(duration));
-                }
+                dts.setDuration(dts.getDuration().add(duration));
             }
         }
         for (DayTimeSheet val : map.values()) {
