@@ -18,52 +18,41 @@ public class TimeSheetSenderTest {
 
     private String workPlaceString = "Неизвестно_";
     int COUNT_OF_DETAILS = 10;
-    private String name = "Василий Иванов";;
+    private String name = "Василий Иванов";
+    ;
     private String reason = "Болезнь";
 
     @Test
     public void testTemplate() throws Exception {
-        String s = getProccessedTemplate(true);
-        Assert.assertEquals(StringUtils.countMatches(s, workPlaceString), COUNT_OF_DETAILS);
+        String s = getProccessedTemplate();
+        Assert.assertEquals(StringUtils.countMatches(s, workPlaceString), 10);
         Assert.assertTrue(s.contains(name));
-        Assert.assertFalse(s.contains("Болезнь"));
-
-        s = getProccessedTemplate(false);
-        Assert.assertEquals(StringUtils.countMatches(s, workPlaceString), 0);
-        Assert.assertTrue(s.contains(name));
-        Assert.assertTrue(s.contains("Болезнь"));
     }
 
-    private String getProccessedTemplate(boolean notIllness) {
+    private String getProccessedTemplate() {
         VelocityEngine velocityEngine = getVelocityEngine();
         HashMap model = new HashMap();
 
-        model.put("paramsForGenerateBody", getParamsForGenerateBody(notIllness));
+        model.put("paramsForGenerateBody", getParamsForGenerateBody());
 
         return VelocityEngineUtils.mergeTemplateIntoString(velocityEngine, "sendmail.vm", model);
     }
 
-    private Object getParamsForGenerateBody(boolean notIllness) {
+    private Object getParamsForGenerateBody() {
         Table<Integer, String, String> result = HashBasedTable.create();
-        if(notIllness){
-
-            for (int i = 0; i < COUNT_OF_DETAILS; i++) {
-                result.put(i, TimeSheetSender.WORK_PLACE, workPlaceString + i);
-                result.put(i, TimeSheetSender.ACT_TYPE, "Плевание в молоток-" + i);
-                result.put(i, TimeSheetSender.PROJECT_NAME, "Прнимание горизонтального положения на печи-" + i);
-                result.put(i, TimeSheetSender.CATEGORY_OF_ACTIVITY, "Тунеядство_"+i);
-                result.put(i, TimeSheetSender.CQ_ID, "Не знаю, что это вообще такое-"+i);
-                result.put(i, TimeSheetSender.DURATION, Integer.toString(i));
-                result.put(i, TimeSheetSender.DESCRIPTION_STRINGS, "Очень долго-предолго сидел на печи.\nЗадница уже затекла, а я все лежал.\nСложное это дело, должен я вам сказать.\nОчень!");
-                result.put(i, TimeSheetSender.PROBLEM_STRINGS, "Вы думаете, что в лежании на печи нет никаких проблем?\nВы сильно ошибаетесь!\nПоговорим в следующий раз!\nРаботать надо, т.е… лежать.");
-                result.put(i, TimeSheetSender.PROBLEM_STRINGS, "Все так же мучаться\nНести свое тяжкое бремя");
-            }
+        for (int i = 0; i < COUNT_OF_DETAILS; i++) {
+            result.put(i, TimeSheetSender.WORK_PLACE, workPlaceString + i);
+            result.put(i, TimeSheetSender.ACT_TYPE, "Плевание в молоток-" + i);
+            result.put(i, TimeSheetSender.PROJECT_NAME, "Прнимание горизонтального положения на печи-" + i);
+            result.put(i, TimeSheetSender.CATEGORY_OF_ACTIVITY, "Тунеядство_" + i);
+            result.put(i, TimeSheetSender.CQ_ID, "Не знаю, что это вообще такое-" + i);
+            result.put(i, TimeSheetSender.DURATION, Integer.toString(i));
+            result.put(i, TimeSheetSender.DESCRIPTION_STRINGS, "Очень долго-предолго сидел на печи.\nЗадница уже затекла, а я все лежал.\nСложное это дело, должен я вам сказать.\nОчень!");
+            result.put(i, TimeSheetSender.PROBLEM_STRINGS, "Вы думаете, что в лежании на печи нет никаких проблем?\nВы сильно ошибаетесь!\nПоговорим в следующий раз!\nРаботать надо, т.е… лежать.");
+            result.put(i, TimeSheetSender.PROBLEM_STRINGS, "Все так же мучаться\nНести свое тяжкое бремя");
         }
 
         result.put(0, TimeSheetSender.OVERTIME_CAUSE, "Много чего повлияло на этот бесславный результат\n А так конечно, ничего, захотелось.");
-        result.put(0, TimeSheetSender.REASON, reason);
-        result.put(0, TimeSheetSender.BEGIN_LONG_DATE, "01.01.1900");
-        result.put(0, TimeSheetSender.END_LONG_DATE, "31.12.2020");
 
         result.put(0, TimeSheetSender.SENDER_NAME, name);
         return result;

@@ -50,7 +50,7 @@ public class DictionaryItemService {
 
     @Transactional(readOnly = true)
     public List<DictionaryItem> getWorkplaces() {
-        return dictionaryItemDAO.getItemsByDictionaryId(DictionaryEnum.WORKPLACE.getId());
+        return dictionaryItemDAO.getItemsByDictionaryIdAndOrderById(DictionaryEnum.WORKPLACE.getId());
     }
 
     @Transactional(readOnly = true)
