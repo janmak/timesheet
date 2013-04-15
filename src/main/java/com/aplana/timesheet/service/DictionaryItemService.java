@@ -22,12 +22,12 @@ import static argo.jdom.JsonNodeBuilders.*;
 public class DictionaryItemService {
 
     @Autowired
-	private DictionaryItemDAO dictionaryItemDAO;
+    private DictionaryItemDAO dictionaryItemDAO;
 
     @Transactional(readOnly = true)
     public List<DictionaryItem> getCategoryOfActivity() {
-		return dictionaryItemDAO.getItemsByDictionaryId(DictionaryEnum.CATEGORY_OF_ACTIVITY.getId());
-	}
+        return dictionaryItemDAO.getItemsByDictionaryId(DictionaryEnum.CATEGORY_OF_ACTIVITY.getId());
+    }
 
     @Transactional(readOnly = true)
     public List<DictionaryItem> getTypesOfActivity() {
@@ -36,15 +36,17 @@ public class DictionaryItemService {
         return Lists.newArrayList(Iterables.filter(actTypes, new Predicate<DictionaryItem>() {      //убираем из результатов отпуск
             @Override
             public boolean apply(@Nullable DictionaryItem input) {
-                return !input.getId().equals(TypesOfActivityEnum.VACATION.getId());
+                return !input.getId().equals(TypesOfActivityEnum.VACATION.getId()) &&
+                        !input.getId().equals(TypesOfActivityEnum.ILLNESS.getId()) &&
+                        !input.getId().equals(TypesOfActivityEnum.COMPENSATORY_HOLIDAY.getId());
             }
         }));
     }
 
     @Transactional(readOnly = true)
     public DictionaryItem find(Integer id) {
-		return dictionaryItemDAO.find(id);
-	}
+        return dictionaryItemDAO.find(id);
+    }
 
     @Transactional(readOnly = true)
     public List<DictionaryItem> getWorkplaces() {

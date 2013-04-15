@@ -290,7 +290,7 @@
         <div id="overtimeCause" onChange="overtimeCauseChange(this)" data-dojo-type="dijit.form.Select"
              style="width: 100%;" data-dojo-props="value: '${timeSheetForm.overtimeCause}'"></div>
         <div style="margin-top: 10px;"><span>Комментарий</span></div>
-        <div data-dojo-type="dijit.form.Textarea" disabled="true"
+        <div data-dojo-type="dijit.form.Textarea"
                   wrap="soft" id="overtimeCauseComment" rows="10" style="width: 100%;margin-top: 3px;"
                   placeHolder="Напишите причину, если нет подходящей в списке"
                   tooltip="комментарий" data-dojo-props="value: '${timeSheetForm.overtimeCauseComment}'"></div>

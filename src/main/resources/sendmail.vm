@@ -1,13 +1,9 @@
 #set($first = 0)
-#if ($paramsForGenerateBody.column("workPlace").isEmpty())
-	#if ($paramsForGenerateBody.get($first, "reason")!=$null)
-        <p>$paramsForGenerateBody.get($first, "reason")
- 	    $paramsForGenerateBody.get($first,"beginLongDate") по  $paramsForGenerateBody.get($first,"endLongDate")</p>
-	#end
-#else
-	<ul>
-        <li><h2><b>Что было сделано:</b></h2></li>
-        <ol>
+<ul>
+
+    <li><h2><b>Что было сделано:</b></h2></li>
+    <ol>
+        #if (!$paramsForGenerateBody.column("workPlace").isEmpty())
             #foreach($key in $paramsForGenerateBody.rowKeySet())
                 <li>
                     <b> Место работы: $paramsForGenerateBody.get($key, "workPlace") <br/> </b>
@@ -33,13 +29,16 @@
                     #end
                 </li>
             #end
-        </ol>
-        #if ($paramsForGenerateBody.column("problemStrings").isEmpty() != $true)
-            <li><h2><b>Какие проблемы возникли:</b></h2></li>
-            <ol>
-                #foreach($key in $paramsForGenerateBody.rowKeySet())
-                    #if ($paramsForGenerateBody.get($key, "problemStrings")!=$null)
-                        <li>
+        #else
+            Нет записей
+        #end
+    </ol>
+    #if ($paramsForGenerateBody.column("problemStrings").isEmpty() != $true)
+        <li><h2><b>Какие проблемы возникли:</b></h2></li>
+        <ol>
+            #foreach($key in $paramsForGenerateBody.rowKeySet())
+                #if ($paramsForGenerateBody.get($key, "problemStrings")!=$null)
+                    <li>
                         <b> $paramsForGenerateBody.get($key, "actType") </b>
                         #if ($paramsForGenerateBody.get($key, "projectName") != $null)
                             <b> $paramsForGenerateBody.get($key, "projectName") </b>
@@ -49,39 +48,38 @@
                         #foreach ($problemString in $problemStrings)
                             <span>$problemString</span><br>
                         #end
-                        </li>
-                    #end
+                    </li>
                 #end
-            </ol>
-        #end
-        #if ($paramsForGenerateBody.get($first, "overtimeCause")!=$null)
-            <li><h2><b>
-                Причина
-                #set ($overtimeCauseId = $paramsForGenerateBody.get($first, "overtimeCauseId"))
-                #if ($overtimeCauseId == $undertimeDictId)
-                    недоработок:
-                #elseif ($overtimeCauseId == $overtimeDictId)
-                    переработок:
-                #else
-                    работы в выходной день:
-                #end
-            </b></h2></li>
-            #set ($overtimeCauseStrings = $paramsForGenerateBody.get($first, "overtimeCause").split("\n"))
-            #foreach ($overtimeCauseString in $overtimeCauseStrings)
-                <span>$overtimeCauseString</span><br>
             #end
-        #end
-        #if ($paramsForGenerateBody.get($first, "typeOfCompensation") != $null)
-            <li><h2><b>Тип компенсации:</b></h2></li>
-            $paramsForGenerateBody.get($first, "typeOfCompensation")
-        #end
-        #if ($paramsForGenerateBody.get($first, "planStrings") != $null)
-            <li><h2><b>Что планируется сделать на следующий день:</b></h2></li>
-            #set ($planStrings = $paramsForGenerateBody.get($first, "planStrings").split("\n"))
-            #foreach ($planString in $planStrings)
-                <span>$planString</span><br>
+        </ol>
+    #end
+    #if ($paramsForGenerateBody.get($first, "overtimeCause")!=$null)
+        <li><h2><b>
+            Причина
+            #set ($overtimeCauseId = $paramsForGenerateBody.get($first, "overtimeCauseId"))
+            #if ($overtimeCauseId == $undertimeDictId)
+                недоработок:
+            #elseif ($overtimeCauseId == $overtimeDictId)
+                переработок:
+            #else
+                работы в выходной день:
             #end
+        </b></h2></li>
+        #set ($overtimeCauseStrings = $paramsForGenerateBody.get($first, "overtimeCause").split("\n"))
+        #foreach ($overtimeCauseString in $overtimeCauseStrings)
+            <span>$overtimeCauseString</span><br>
         #end
-	</ul>
-#end
+    #end
+    #if ($paramsForGenerateBody.get($first, "typeOfCompensation") != $null)
+        <li><h2><b>Тип компенсации:</b></h2></li>
+        $paramsForGenerateBody.get($first, "typeOfCompensation")
+    #end
+    #if ($paramsForGenerateBody.get($first, "planStrings") != $null)
+        <li><h2><b>Что планируется сделать на следующий день:</b></h2></li>
+        #set ($planStrings = $paramsForGenerateBody.get($first, "planStrings").split("\n"))
+        #foreach ($planString in $planStrings)
+            <span>$planString</span><br>
+        #end
+    #end
+</ul>
 <h4>Отправил пользователь $paramsForGenerateBody.get($first,"senderName")</h4>

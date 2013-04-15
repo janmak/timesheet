@@ -68,7 +68,7 @@ public class TimeSheetService {
 
     @Autowired
     private ProjectTaskService projectTaskService;
-    
+
     @Autowired
     public SecurityService securityService;
 
@@ -83,45 +83,47 @@ public class TimeSheetService {
 
         List<TimeSheetTableRowForm> tsTablePart = tsForm.getTimeSheetTablePart();
         Set<TimeSheetDetail> timeSheetDetails = new LinkedHashSet<TimeSheetDetail>();
-        for (TimeSheetTableRowForm formRow : tsTablePart) {
-            // По каким-то неведомым причинам при нажатии на кнопку веб
-            // интерфейса "Удалить выбранные строки"
-            // (если выбраны промежуточные строки) они удаляются с формы, но в
-            // объект формы вместо них
-            // попадают null`ы. Мы эти строки удаляем из объекта формы. Если
-            // удалять последние строки (с конца
-            // табличной части формы), то все работает корректно.
-            if (formRow.getActivityTypeId() == null) {
-                tsTablePart.remove(formRow);
-                continue;
-            }
+        if (tsTablePart != null) { // Отчет может быть вообще без строк списания
+            for (TimeSheetTableRowForm formRow : tsTablePart) {
+                // По каким-то неведомым причинам при нажатии на кнопку веб
+                // интерфейса "Удалить выбранные строки"
+                // (если выбраны промежуточные строки) они удаляются с формы, но в
+                // объект формы вместо них
+                // попадают null`ы. Мы эти строки удаляем из объекта формы. Если
+                // удалять последние строки (с конца
+                // табличной части формы), то все работает корректно.
+                if (formRow.getActivityTypeId() == null) {
+                    tsTablePart.remove(formRow);
+                    continue;
+                }
 
-            TimeSheetDetail timeSheetDetail = new TimeSheetDetail();
-            timeSheetDetail.setTimeSheet(timeSheet);
-            timeSheetDetail.setActType(dictionaryItemService.find(formRow.getActivityTypeId()));
-            timeSheetDetail.setWorkplace(dictionaryItemService.find(formRow.getWorkplaceId()));
-            if (formRow.getActivityCategoryId() != null) {
-                timeSheetDetail.setActCat(dictionaryItemService.find(formRow.getActivityCategoryId()));
-            } else {
-                timeSheetDetail.setActCat(null);
+                TimeSheetDetail timeSheetDetail = new TimeSheetDetail();
+                timeSheetDetail.setTimeSheet(timeSheet);
+                timeSheetDetail.setActType(dictionaryItemService.find(formRow.getActivityTypeId()));
+                timeSheetDetail.setWorkplace(dictionaryItemService.find(formRow.getWorkplaceId()));
+                if (formRow.getActivityCategoryId() != null) {
+                    timeSheetDetail.setActCat(dictionaryItemService.find(formRow.getActivityCategoryId()));
+                } else {
+                    timeSheetDetail.setActCat(null);
+                }
+                Integer projectId = formRow.getProjectId();
+                Double duration = null;
+                String durationStr = formRow.getDuration();
+                if (projectId != null) {
+                    timeSheetDetail.setProject(projectService.find(projectId));
+                    timeSheetDetail.setProjectTask(projectTaskService.find(projectId, formRow.getCqId()));
+                }
+                // Сохраняем часы только для тех полей, которые не disabled
+                if (durationStr != null) {
+                    duration = Double.parseDouble(durationStr.replace(",", "."));
+                }
+                timeSheetDetail.setCqId(formRow.getCqId());
+                timeSheetDetail.setDuration(duration);
+                timeSheetDetail.setDescription(formRow.getDescription());
+                timeSheetDetail.setProblem(formRow.getProblem());
+                timeSheetDetail.setProjectRole(projectRoleService.find(formRow.getProjectRoleId()));
+                timeSheetDetails.add(timeSheetDetail);
             }
-            Integer projectId = formRow.getProjectId();
-            Double duration = null;
-            String durationStr = formRow.getDuration();
-            if (projectId != null) {
-                timeSheetDetail.setProject(projectService.find(projectId));
-                timeSheetDetail.setProjectTask(projectTaskService.find(projectId, formRow.getCqId()));
-            }
-            // Сохраняем часы только для тех полей, которые не disabled
-            if (durationStr != null) {
-                duration = Double.parseDouble(durationStr.replace(",","."));
-            }
-            timeSheetDetail.setCqId(formRow.getCqId());
-            timeSheetDetail.setDuration(duration);
-            timeSheetDetail.setDescription(formRow.getDescription());
-            timeSheetDetail.setProblem(formRow.getProblem());
-            timeSheetDetail.setProjectRole(projectRoleService.find(formRow.getProjectRoleId()));
-            timeSheetDetails.add(timeSheetDetail);
         }
         timeSheet.setTimeSheetDetails(timeSheetDetails);
         timeSheetDAO.storeTimeSheet(timeSheet);
@@ -133,7 +135,7 @@ public class TimeSheetService {
      * Ищет в таблице timesheet запись соответсвующую date для сотрудника с
      * идентификатором employeeId и возвращает объект типа Timesheet.
      *
-     * @param calDate     Дата в виде строки.
+     * @param calDate    Дата в виде строки.
      * @param employeeId Идентификатор сотрудника в базе данных.
      * @return объект типа Timesheet, либо null, если объект не найден.
      */
@@ -195,6 +197,7 @@ public class TimeSheetService {
 
     /**
      * Формирует JSON планов предыдущего дня и на следующего дня
+     *
      * @param date
      * @param employeeId
      * @return jsonString
@@ -215,10 +218,10 @@ public class TimeSheetService {
         }
 
         if (nextTimeSheet != null &&
-            !( ILLNESS == getById(
-                    Lists.newArrayList(
-                            nextTimeSheet.getTimeSheetDetails()).get(0).getActType().getId()))
-        ){ // <APLANATS-458>
+                !(ILLNESS == getById(
+                        Lists.newArrayList(
+                                nextTimeSheet.getTimeSheetDetails()).get(0).getActType().getId()))
+                ) { // <APLANATS-458>
             builder.withField("next", getPlanBuilder(nextTimeSheet));
         }
 
@@ -243,35 +246,36 @@ public class TimeSheetService {
 
     /**
      * Формирует строку на подобие поля "Что было сделано" из отчета
+     *
      * @param timeSheet
      * @return String
      */
-    public String getStringTimeSheetDetails(TimeSheet timeSheet){
+    public String getStringTimeSheetDetails(TimeSheet timeSheet) {
         Set<TimeSheetDetail> timeSheetDetails = timeSheet.getTimeSheetDetails();
         StringBuilder sb;
         StringBuilder rezult = new StringBuilder();
         int i = 1;
-        for(TimeSheetDetail detail: timeSheetDetails){
+        for (TimeSheetDetail detail : timeSheetDetails) {
             sb = new StringBuilder();
-            sb.append( i ).append( ". " );
-            sb.append( detail.getActType().getValue() ).append( " - " );
+            sb.append(i).append(". ");
+            sb.append(detail.getActType().getValue()).append(" - ");
             if (detail.getProject() != null)
-                sb.append( detail.getProject().getName() ).append( " : " );
+                sb.append(detail.getProject().getName()).append(" : ");
             sb.append(detail.getDescriptionEscaped());
-            rezult.append( sb.toString() ).append( "\\n" );
+            rezult.append(sb.toString()).append("\\n");
             i++;
         }
         return rezult.toString();
     }
 
     @Transactional(readOnly = true)
-    public Date getLastWorkdayWithoutTimesheet(Integer employeeId){
+    public Date getLastWorkdayWithoutTimesheet(Integer employeeId) {
         Employee employee = employeeDAO.find(employeeId);
         Calendar calendar = timeSheetDAO.getDateNextAfterLastDayWithTS(employee);
         Date result = new Date();
-        if (calendar == null){
+        if (calendar == null) {
             return employee.getStartDate();
-        } else{
+        } else {
             result.setTime(calendar.getCalDate().getTime());
             return result;
         }
@@ -285,7 +289,7 @@ public class TimeSheetService {
      * @return Map по id сотрудников c указанием дат последних отправленных отчетов.
      */
     @Transactional(readOnly = true)
-    public Map<Integer, Date> getLastWorkdayWithoutTimesheetMap(Division division){
+    public Map<Integer, Date> getLastWorkdayWithoutTimesheetMap(Division division) {
         return timeSheetDAO.getDateNextAfterLastDayWithTSMap(division);
     }
 
@@ -294,10 +298,10 @@ public class TimeSheetService {
     }
 
     @Transactional(readOnly = true)
-    public String getListOfActDescriptoin(){
+    public String getListOfActDescriptoin() {
         List<AvailableActivityCategory> availableActivityCategories = availableActivityCategoryDAO.getAllAvailableActivityCategories();
         final JsonArrayNodeBuilder result = anArrayBuilder();
-        for (AvailableActivityCategory activityCategory : availableActivityCategories){
+        for (AvailableActivityCategory activityCategory : availableActivityCategories) {
             result.withElement(
                     anObjectBuilder().
                             withField("actCat", JsonUtil.aNumberBuilder(activityCategory.getActCat().getId())).
@@ -305,17 +309,17 @@ public class TimeSheetService {
                             withField("projectRole", JsonUtil.aNumberBuilder(activityCategory.getProjectRole().getId())).
                             withField("description",
                                     activityCategory.getDescription() != null ?
-                                    aStringBuilder(activityCategory.getDescription()) :
-                                    string(StringUtils.EMPTY)
+                                            aStringBuilder(activityCategory.getDescription()) :
+                                            string(StringUtils.EMPTY)
                             )
             );
         }
         result.withElement(
                 anObjectBuilder().
-                            withField("actCat", JsonUtil.aNumberBuilder(0)).
-                            withField("actType", JsonUtil.aNumberBuilder(0)).
-                            withField("projectRole", JsonUtil.aNumberBuilder(0)).
-                            withField("description", string(StringUtils.EMPTY))
+                        withField("actCat", JsonUtil.aNumberBuilder(0)).
+                        withField("actType", JsonUtil.aNumberBuilder(0)).
+                        withField("projectRole", JsonUtil.aNumberBuilder(0)).
+                        withField("description", string(StringUtils.EMPTY))
         );
 
         return JsonUtil.format(result);
@@ -325,7 +329,7 @@ public class TimeSheetService {
         StringBuilder sb = new StringBuilder();
         String date = "";
         sb.append("'");
-        if (DateTimeUtil.isDateValid(tsForm.getCalDate())){
+        if (DateTimeUtil.isDateValid(tsForm.getCalDate())) {
             date = DateTimeUtil.formatDateString(tsForm.getCalDate());
             sb.append(date);
         }

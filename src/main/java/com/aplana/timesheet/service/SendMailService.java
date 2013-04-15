@@ -161,6 +161,7 @@ public class SendMailService{
      * @return emails - строка с emailАМИ
      */
     public String getProjectParticipantsEmails(TimeSheetForm tsForm) {
+        if (tsForm.getTimeSheetTablePart() == null) return ""; // Нет строк в отчете - нет и участников
         return getProjectParticipantsEmails(transformTimeSheetTableRowForm(tsForm.getTimeSheetTablePart()));
     }
 

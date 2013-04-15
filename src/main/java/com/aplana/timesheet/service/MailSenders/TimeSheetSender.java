@@ -141,12 +141,13 @@ public class TimeSheetSender extends MailSender<TimeSheetForm> {
                 putIfIsNotBlank(i, result, PROBLEM_STRINGS, tsRow.getProblem());
 
             }
-            putIfIsNotBlank(FIRST, result, PLAN_STRINGS, tsForm.getPlanEscaped());
-            putIfIsNotBlank(FIRST, result, OVERTIME_CAUSE, sendMailService.getOvertimeCause(tsForm) );
-            Integer overtimeCauseId = sendMailService.getOverUnderTimeDictId(tsForm.getOvertimeCause());
-            putIfIsNotBlank(FIRST, result, OVERTIME_CAUSE_ID, overtimeCauseId != null ? overtimeCauseId.toString() : null);
-            putIfIsNotBlank(FIRST, result, TYPE_OF_COMPENSATION, sendMailService.getTypeOfCompensation(tsForm));
         }
+
+        putIfIsNotBlank(FIRST, result, PLAN_STRINGS, tsForm.getPlanEscaped());
+        putIfIsNotBlank(FIRST, result, OVERTIME_CAUSE, sendMailService.getOvertimeCause(tsForm) );
+        Integer overtimeCauseId = sendMailService.getOverUnderTimeDictId(tsForm.getOvertimeCause());
+        putIfIsNotBlank(FIRST, result, OVERTIME_CAUSE_ID, overtimeCauseId != null ? overtimeCauseId.toString() : null);
+        putIfIsNotBlank(FIRST, result, TYPE_OF_COMPENSATION, sendMailService.getTypeOfCompensation(tsForm));
 
         return result;
     }

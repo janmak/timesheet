@@ -1066,25 +1066,13 @@ function overtimeCauseChange(obj){
     var select = obj.target === null || obj.target === undefined ? obj : obj.target;
     var selectId = dijit.byId(select.id).get('value');
     defaultOvertimeCause = selectId;
-    //Если выбрано "Другое", то надо ввести комментарий
-    dijit.byId("overtimeCauseComment").set('disabled', !(selectId == 105 || selectId == 110 || selectId == 122));
+    //Комментарий всегда можно вводить
+    //dijit.byId("overtimeCauseComment").set('disabled', !(selectId == 105 || selectId == 110 || selectId == 122));
 }
 
 function checkDurationThenSendForm(){
     var totalDuration = recalculateDuration();
-    var oob = false; //Отпуск или отгул или болезнь
     var actTypes = dojo.query(".activityType");
-
-    for (var i = 0; i < actTypes.length; i++) {
-        if (
-            actTypes[i].value == "17"
-            || actTypes[i].value == "15" || actTypes[i].value == "24"
-            || actTypes[i].value == "16" || actTypes[i].value == "18"
-        ) {
-            oob = true;
-            break;
-        }
-    }
 
     var isHoliday = false;
 
@@ -1114,7 +1102,6 @@ function checkDurationThenSendForm(){
 
     if (
         (totalDuration < (8 - overtimeThreshold) || totalDuration > (8 + overtimeThreshold) )
-            && !oob
         || isHoliday
     ) {
         var comment = dijit.byId("overtimeCauseComment");
@@ -1152,6 +1139,13 @@ function checkDurationThenSendForm(){
         dialog.set("title", "Укажите причину " + (isHoliday ? "работы в выходной день" : (totalDuration < 8 ? "недоработок" : "переработок")));
         dialog.show();
     } else {
+
+        // При отправке без диалога о недоработках очищаем служебные поля
+        dojo.byId("overtimeCauseComment_hidden").value = null;
+        dojo.byId("overtimeCause_hidden").value = null;
+        dojo.byId("typeOfCompensation_hidden").value = null;
+
+
         submitform('send');
     }
 }

@@ -32,7 +32,9 @@ public class OvertimeCauseService {
 
     @Transactional
     public void store(TimeSheet timeSheet, TimeSheetForm tsForm) {
-        if (!isOvertimeCauseNeeeded(tsForm, calculateTotalDuration(tsForm))) return;
+        //if (!isOvertimeCauseNeeeded(tsForm, calculateTotalDuration(tsForm))) return; Непонятно зачем тут то проверять? Уже прислали - значит надо записать
+
+        if (tsForm.getOvertimeCause() == null) return;
 
         OvertimeCause overtimeCause = new OvertimeCause();
         overtimeCause.setOvertimeCause( dictionaryItemService.find(tsForm.getOvertimeCause()) );
@@ -54,7 +56,7 @@ public class OvertimeCauseService {
 
     public String getCauseName(TimeSheetForm tsForm) {
         final Integer overtimeCauseId = tsForm.getOvertimeCause();
-        if (!isOvertimeCauseNeeeded(tsForm, tsForm.getTotalDuration()) || overtimeCauseId == null) return null;
+        if (overtimeCauseId == null) return null;
 
         final OvertimeCausesEnum overtimeCause = EnumsUtils.tryFindById(overtimeCauseId, OvertimeCausesEnum.class);
         final UndertimeCausesEnum unfinishedDayCauses = EnumsUtils.tryFindById(overtimeCauseId, UndertimeCausesEnum.class);
