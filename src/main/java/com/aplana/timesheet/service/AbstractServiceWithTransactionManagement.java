@@ -37,4 +37,8 @@ public abstract class AbstractServiceWithTransactionManagement {
         transactionManager.commit(transactionStatus);
     }
 
+    protected final void rollback(TransactionStatus transactionStatus) {
+        transactionManager.rollback(transactionStatus);
+    }
+
 }

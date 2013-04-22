@@ -19,7 +19,7 @@ public class ExceptionUtils {
     public static Throwable getRealLastCause(Throwable throwable) {
         Throwable lastCause = getLastCause(throwable);
 
-        if (lastCause.getMessage().contains("getNextException") && lastCause instanceof SQLException) {
+        if (lastCause.getMessage() != null && lastCause.getMessage().contains("getNextException") && lastCause instanceof SQLException) {
             return ((SQLException) lastCause).getNextException();
         }
 

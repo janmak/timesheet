@@ -9,11 +9,14 @@ import com.aplana.timesheet.util.JsonUtil;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Ordering;
+import com.google.common.primitives.Ints;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Nullable;
+import java.util.Collections;
 import java.util.List;
 
 import static argo.jdom.JsonNodeBuilders.*;
@@ -31,7 +34,16 @@ public class DictionaryItemService {
 
     @Transactional(readOnly = true)
     public List<DictionaryItem> getTypesOfActivity() {
-        List<DictionaryItem> actTypes = dictionaryItemDAO.getItemsByDictionaryId(DictionaryEnum.TYPES_OF_ACTIVITY.getId());
+        List<DictionaryItem> actTypes = dictionaryItemDAO.getItemsByDictionaryIdAndOrderById(DictionaryEnum.TYPES_OF_ACTIVITY.getId());
+
+        Ordering<DictionaryItem> byOrder = new Ordering<DictionaryItem>() {
+            @Override
+            public int compare(DictionaryItem item1, DictionaryItem item2) {
+                return Ints.compare(TypesOfActivityEnum.getById(item1.getId()).getOrder(), TypesOfActivityEnum.getById(item2.getId()).getOrder());
+            }
+        };
+
+        Collections.sort(actTypes, byOrder);
 
         return Lists.newArrayList(Iterables.filter(actTypes, new Predicate<DictionaryItem>() {      //убираем из результатов отпуск
             @Override

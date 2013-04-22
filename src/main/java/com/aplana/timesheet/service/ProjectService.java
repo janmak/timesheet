@@ -54,14 +54,6 @@ public class ProjectService {
 	}
 
 	/**
-	 * Возвращает активные пресейлы без разделения по подразделениям.
-	 */
-    @Transactional(readOnly = true)
-    public List<Project> getPresales() {
-		return projectDAO.getPresales();
-	}
-
-	/**
 	 * Возвращает объект класса Project по указанному идентификатору
 	 * либо null.
 	 */

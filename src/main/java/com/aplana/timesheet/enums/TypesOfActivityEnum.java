@@ -14,23 +14,24 @@ import java.util.List;
  */
 public enum TypesOfActivityEnum implements TSEnum {
 
-    TIME_OFF_FOR_OVERTIME( 24, "Отгул за переработки" ),
-    VACATION( 16, "Отпуск" ),
-    ILLNESS( 17, "Болезнь" ),
-    HOLIDAY( 18, "Нерабочий день" ),
-    PROJECT( 12, "Проект" ),
-    PRESALE( 13, "Пресейл" ),
-    COMPENSATORY_HOLIDAY( 15, "Отгул" ),
-    NON_PROJECT( 14, "Непроектная" ),
-    PROJECT_PRESALE( 42, "Проектный пресейл" )
-    ;
+    PROJECT( 12, "Проект", 1 ),
+    PROJECT_PRESALE( 42, "Проектный пресейл", 2 ),
+    PRESALE( 13, "Пресейл", 3 ),
+    NON_PROJECT( 14, "Непроектная", 4 ),
+    TIME_OFF_FOR_OVERTIME( 24, "Отгул за переработки", 5 ),
+    VACATION( 16, "Отпуск", 6 ),
+    ILLNESS( 17, "Болезнь", 7 ),
+    HOLIDAY( 18, "Нерабочий день", 8 ),
+    COMPENSATORY_HOLIDAY( 15, "Отгул", 9 );
 
     private int id;
     private String name;
+    private int order;
 
-    private TypesOfActivityEnum(int id, String name) {
+    private TypesOfActivityEnum(int id, String name, int order) {
         this.id = id;
         this.name = name;
+        this.order = order;
     }
 
     public int getId() {
@@ -39,6 +40,14 @@ public enum TypesOfActivityEnum implements TSEnum {
 
     public String getName() {
         return name;
+    }
+
+    public int getOrder() {
+        return order;
+    }
+
+    public void setOrder(int order) {
+        this.order = order;
     }
 
     /**

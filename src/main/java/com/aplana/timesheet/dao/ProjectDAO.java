@@ -51,23 +51,8 @@ public class ProjectDAO {
     @SuppressWarnings("unchecked")
     public List<Project> getProjects() {
         Query query = entityManager.createQuery(
-                "from Project as p where p.state=:state and p.active=:active ORDER BY name"
-        ).setParameter("state", dictionaryItemDAO.find(TypesOfActivityEnum.PROJECT.getId())).setParameter("active", true);
-
-        return query.getResultList();
-    }
-
-    /**
-     * Возвращает активные пресейлы без разделения по подразделениям.
-     */
-    @SuppressWarnings("unchecked")
-    public List<Project> getPresales() {
-        final Integer ANACCOUNTED_PRESALE_ID = 18;
-        Query query = entityManager.createQuery(
-                "from Project as p where p.state=:state and p.active=:active and p.id<>:anaccounted_presale" )
-                .setParameter("state", dictionaryItemDAO.find(PRESALE.getId()))
-                .setParameter("active", true)
-                .setParameter("anaccounted_presale", ANACCOUNTED_PRESALE_ID);
+                "from Project as p where p.active=:active ORDER BY name"
+        ).setParameter("active", true);
 
         return query.getResultList();
     }

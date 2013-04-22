@@ -47,7 +47,7 @@ public class EmployeeDAO {
 	 *         с указанным именем не найден.
 	 */
 	public Employee find(String name) {
-		if ("".equals(name)) { return null; }
+		if (name == null || "".equals(name)) { return null; }
 
 		Query query = entityManager.createQuery(
                 "from Employee as e where e.name=:name"

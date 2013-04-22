@@ -93,73 +93,87 @@ public class OQProjectSyncService extends AbstractServiceWithTransactionManageme
     */
     public void sync() {
         final TransactionStatus transactionStatus = getNewTransaction();
-
-        trace.setLength(0);
         try {
-            trace.append("Начало синхронизации\n");
-            projectDAO.setTrace(trace);
-            // получим список веток project из xml файла
-            NodeList nodes = getOQasNodeList();
-            trace.append("В файле синхронизации найдено: ").append(nodes.getLength()).append(" проектов\n");
+            trace.setLength(0);
+            try {
+                trace.append("Начало синхронизации\n");
+                projectDAO.setTrace(trace);
+                // получим список веток project из xml файла
+                NodeList nodes = getOQasNodeList();
+                trace.append("В файле синхронизации найдено: ").append(nodes.getLength()).append(" проектов\n");
 
-            final DictionaryItem projectState = getProjectState();
+                final DictionaryItem projectState = getProjectState();
 
-            for (int i = 0; i < nodes.getLength(); i++) {
-                createOrUpdateProject(nodes.item(i).getAttributes(), projectDAO, projectState);
+                for (int i = 0; i < nodes.getLength(); i++) {
+                    createOrUpdateProject(nodes.item(i).getAttributes(), projectDAO, projectState);
+                }
+                trace.append("Синхронизация завершена\n");
+            } catch (Exception e) {
+                logger.error("oq project sync error: ", e);
+                trace.append("Синхронизация прервана из-за ошибки: ").append(getRealLastCause(e).getMessage()).append("\n");
             }
-            trace.append("Синхронизация завершена\n");
-        } catch (Exception e) {
-            logger.error("oq project sync error: ", e);
-            trace.append("Синхронизация прервана из-за ошибки: ").append(getRealLastCause(e).getMessage()).append("\n");
-        }
 
-        commit(transactionStatus);
+            commit(transactionStatus);
+
+        } catch (Exception e) {
+            if (transactionStatus != null) {
+                rollback(transactionStatus);
+            }
+        }
     }
 
     public void createOrUpdateProject(NamedNodeMap nodeMap, ProjectDAO dao, DictionaryItem state) {
         final TransactionStatus transactionStatus = getNewTransaction();
+        try {
+            Project project = new Project();      // проект из БД
 
-        Project project = new Project();      // проект из БД
+            // поля синхронизации
+            String name = nodeMap.getNamedItem("name").getNodeValue().trim();  // название проекта
+            String idProject = nodeMap.getNamedItem("id").getNodeValue();           // id проекта
+            String status = nodeMap.getNamedItem("status").getNodeValue();       // статус проекта
+            String pmLdap = nodeMap.getNamedItem("pm").getNodeValue();           // руководитель проекта
+            String hcLdap = nodeMap.getNamedItem("hc").getNodeValue();           // hc
 
-        // поля синхронизации
-        String name      = nodeMap.getNamedItem("name").getNodeValue().trim();  // название проекта
-        String idProject = nodeMap.getNamedItem("id").getNodeValue();           // id проекта
-        String status    = nodeMap.getNamedItem("status").getNodeValue();       // статус проекта
-        String pmLdap    = nodeMap.getNamedItem("pm").getNodeValue();           // руководитель проекта
-        String hcLdap    = nodeMap.getNamedItem("hc").getNodeValue();           // hc
-
-        // ищем в БД запись о проекте
-        Project findingProject = dao.findByProjectId(idProject);
-        if (findingProject == null){  // если проекта еще нет в БД
-            project.setActive(newStatus.contains(status)); // установим ему новый статус
-        } else {
-            // если проект уже существовал - статус менять не будем
-            // см. //APLANATS-408
-            project.setActive(findingProject.isActive());
-        }
-
-        project.setName(name);
-        project.setProjectId(idProject);
-        project.setStartDate(DateTimeUtil.stringToDate(nodeMap.getNamedItem("begining").getNodeValue(), DATE_FORMAT));
-        project.setEndDate(DateTimeUtil.stringToDate(nodeMap.getNamedItem("ending").getNodeValue(), DATE_FORMAT));
-        project.setState(state);
-
-        if (project.isActive()) {
-            if (!setPM(project, pmLdap)){
-                return; //если не указан РП или его нет в БД, то проект не сохраняем, переходим к следующему
+            // ищем в БД запись о проекте
+            Project findingProject = dao.findByProjectId(idProject);
+            if (findingProject == null) {  // если проекта еще нет в БД
+                project.setActive(newStatus.contains(status)); // установим ему новый статус
+            } else {
+                // если проект уже существовал - статус менять не будем
+                // см. //APLANATS-408
+                project.setActive(findingProject.isActive());
             }
-            setDivision(project, hcLdap);  // установим подразделение пользователя
-        }
-        dao.store(project); // запишем в БД
 
-        commit(transactionStatus);
+            project.setName(name);
+            project.setProjectId(idProject);
+            project.setStartDate(DateTimeUtil.stringToDate(nodeMap.getNamedItem("begining").getNodeValue(), DATE_FORMAT));
+            project.setEndDate(DateTimeUtil.stringToDate(nodeMap.getNamedItem("ending").getNodeValue(), DATE_FORMAT));
+            project.setState(state);
+
+            if (project.isActive()) {
+                if (!setPM(project, pmLdap)) {
+                    return; //если не указан РП или его нет в БД, то проект не сохраняем, переходим к следующему
+                }
+                setDivision(project, hcLdap);  // установим подразделение пользователя
+            }
+            dao.store(project); // запишем в БД
+
+            if (transactionStatus != null) {
+                commit(transactionStatus);
+            }
+
+        } catch (Exception e) {
+            if (transactionStatus != null) {
+                rollback(transactionStatus);
+            }
+        }
     }
 
     private DictionaryItem getProjectState() {
         return dictionaryItemService.find(TypesOfActivityEnum.PROJECT.getId());
     }
 
-    private boolean setPM(Project project, String pmLdap){
+    private boolean setPM(Project project, String pmLdap) {
         //APLANATS-429
         if ((pmLdap == null) || (pmLdap.equals(""))) {
             trace.append("Проект ").append(project.getName()).append(" пропущен, т.к. не указан руководитель проекта \n");
@@ -167,7 +181,7 @@ public class OQProjectSyncService extends AbstractServiceWithTransactionManageme
         }
 
         Employee projectLeader = this.employeeDAO.findByLdapName(pmLdap.split("/")[0]);
-        if (projectLeader == null){
+        if (projectLeader == null) {
             trace.append("Проект ").append(project.getName()).append(" проигнорирован, " +
                     "т.к. руководитель проекта ").append(pmLdap).append(" не найден в базе ldap\n");
             return false;
@@ -177,7 +191,7 @@ public class OQProjectSyncService extends AbstractServiceWithTransactionManageme
         return true;
     }
 
-    private void setDivision(Project project, String hcLdap){
+    private void setDivision(Project project, String hcLdap) {
         Employee employee = this.employeeDAO.findByLdapName(hcLdap.split("/")[0]);
         if (employee != null) {
             Set<Division> divisions = new TreeSet<Division>();
@@ -204,7 +218,7 @@ public class OQProjectSyncService extends AbstractServiceWithTransactionManageme
             XPath xpath = XPathFactory.newInstance().newXPath();
             XPathExpression expr = xpath.compile("/root/projects/project");
             result = (NodeList) expr.evaluate(doc, XPathConstants.NODESET);
-        } catch (IOException e){ // обрабатываем только IOException - остальные выбрасываем наверх
+        } catch (IOException e) { // обрабатываем только IOException - остальные выбрасываем наверх
             logger.error("oq project sync error: ", e);
             trace.append("Синхронизация прервана из-за ошибки ввода/вывода при попытке получить и прочитать файл " +
                     "синхронизации: ").append(e.getMessage()).append("\n");

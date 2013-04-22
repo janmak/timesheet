@@ -28,26 +28,33 @@ public class VacationApprovalAutoProcessService extends AbstractVacationApproval
     /**
      * запускаем проверку для всех несогласованных отпусков
      */
-    public void checkAllVacations () throws VacationApprovalServiceException {
+    public void checkAllVacations() throws VacationApprovalServiceException {
         logger.info("Start automatic vacations check");
         final TransactionStatus transactionStatus = getNewTransaction();
+        try {
+            List<Integer> vacations = vacationService.getAllNotApprovedVacationsIds();
+            for (Integer vacationId : vacations) {
+                final TransactionStatus internalTransactionStatus = getNewTransaction();
 
-        List<Integer> vacations = vacationService.getAllNotApprovedVacationsIds();
-        for (Integer vacationId : vacations) {
-            final TransactionStatus internalTransactionStatus = getNewTransaction();
+                try {
+                    Vacation vacation = vacationService.findVacation(vacationId);
+                    checkVacationIsApproved(vacation);
 
-            try {
-                Vacation vacation = vacationService.findVacation(vacationId);
-                checkVacationIsApproved(vacation);
+                    commit(internalTransactionStatus);
+                } catch (Exception ex) {
+                    logger.error("Error occured ", ex);
+                }
+            }
+            if (transactionStatus != null) {
+                commit(transactionStatus);
+            }
+            logger.info("Finish automatic vacations check");
 
-                commit(internalTransactionStatus);
-            } catch (Exception ex) {
-                logger.error("Error occured ", ex);
+        } catch (Exception e) {
+            if (transactionStatus != null) {
+                rollback(transactionStatus);
             }
         }
-
-        commit(transactionStatus);
-        logger.info("Finish automatic vacations check");
     }
 
     /**
@@ -107,7 +114,7 @@ public class VacationApprovalAutoProcessService extends AbstractVacationApproval
             return false;
         }
 
-        if (approvesExists(projectManagerApprovals)){
+        if (approvesExists(projectManagerApprovals)) {
             return true;
         }
 
@@ -122,7 +129,7 @@ public class VacationApprovalAutoProcessService extends AbstractVacationApproval
         Integer projectManagerId = project.getManager().getId();
         for (VacationApproval approval : projectManagerApprovals) {
             Integer managerId = approval.getManager().getId();
-            if (managerId.equals(projectManagerId)){
+            if (managerId.equals(projectManagerId)) {
                 return approval.getResult();
             }
         }
@@ -140,7 +147,7 @@ public class VacationApprovalAutoProcessService extends AbstractVacationApproval
             return true;
         }
 
-        if (! managerExists(vacation.getEmployee())) {      //если линейных нет или сам себе линейный - утверждаем без проверок
+        if (!managerExists(vacation.getEmployee())) {      //если линейных нет или сам себе линейный - утверждаем без проверок
             setFinalStatusForVacationAndSendVacationApprovedMessages(vacation, true);
             return true;
         }
@@ -170,7 +177,7 @@ public class VacationApprovalAutoProcessService extends AbstractVacationApproval
         if (approvalResult != null) {
             sendMailService.performVacationApproveRequestSender(approvalResult); //посылаем письмо с уведомлением следующему в иерархии линейному руководителю
         } else {
-            if (! employeeService.isLineManager(vacation.getEmployee())){     //проверяем, что сотрудник - не чей-то линейный
+            if (!employeeService.isLineManager(vacation.getEmployee())) {     //проверяем, что сотрудник - не чей-то линейный
                 setFinalStatusForVacationAndSendVacationApprovedMessages(vacation, true);
                 return true;
             }
@@ -197,7 +204,7 @@ public class VacationApprovalAutoProcessService extends AbstractVacationApproval
 
         Employee manager = vacationApproval.getManager();
 
-        if (! managerExists(manager)) {  //у линейного нет руководителя или он сам себе руководитель
+        if (!managerExists(manager)) {  //у линейного нет руководителя или он сам себе руководитель
             return vacationApproval;
         }
 
@@ -210,7 +217,7 @@ public class VacationApprovalAutoProcessService extends AbstractVacationApproval
         return getTopLineManagerApprovalRecursive(managerOfManagerApproval);       //проверяем следующего по иерархии линейного руководителя
     }
 
-    /***
+    /**
      * получаем максимальное количество дней для согласования отпуска руководителем проекта в обычном режиме
      */
     public Integer getVacationProjectManagerOverrideThreshold() throws VacationApprovalServiceException {

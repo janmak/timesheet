@@ -19,19 +19,19 @@ import java.util.List;
  * @author eshangareev
  * @version 1.0
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+/*@RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {"classpath:WEB-INF/spring/testApplicationContext.xml"})
 public class EmployeeDAOTest {
     @Autowired
     private EmployeeDAO employeeDAO;
 
-    /*@Test
+    *//*@Test
     public void testFindByObjectSid() throws Exception {
         Employee byObjectSid = employeeDAO.findByObjectSid("S-1-5-21-725345543-1454471165-1801674531-8646");
         Assert.assertNotNull(byObjectSid);
-    }*/
+    }*//*
 
-    @Test
+    *//*@Test
     public void testGetActiveEmployeesNotInList() {
         List<Employee> employees = employeeDAO.getEmployees(null);
 
@@ -47,5 +47,5 @@ public class EmployeeDAOTest {
 
         List<Employee> activeEmployeesNotInList = employeeDAO.getActiveEmployeesNotInList(ids);
         Assert.assertEquals(activeEmployeesNotInList.size(), employees.size() - limitSize);
-    }
-}
+    }*//*
+}*/
