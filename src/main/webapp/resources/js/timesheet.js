@@ -564,15 +564,6 @@ function fillProjectList(rowIndex, projectState) {
 
     }
     sortSelectOptions(projectSelect);
-    //Добавляем в конец списка "Неучтённый пресейл", если тип активности "Пресейловая"
-    if (projectState == 13) {
-        projectOption = dojo.doc.createElement("option");
-        dojo.attr(projectOption, {
-            value:"18"
-        });
-        projectOption.innerHTML = "Неучтённый пресейл";
-        projectSelect.appendChild(projectOption);
-    }
 }
 
 /* Добавляет в указанный select пустой option. */
