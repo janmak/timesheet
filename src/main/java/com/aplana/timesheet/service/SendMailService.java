@@ -94,6 +94,8 @@ public class SendMailService{
     private ProjectParticipantService projectParticipantService;
     @Autowired
     private EmployeeAssistantService employeeAssistantService;
+    @Autowired
+    private ProjectTaskService projectTaskService;
 
 
     /**
@@ -327,6 +329,10 @@ public class SendMailService{
         final DictionaryItem item = dictionaryItemService.find(tsForm.getTypeOfCompensation());
 
         return (item == null ? StringUtils.EMPTY : item.getValue());
+    }
+
+    public ProjectTaskService getProjectTaskService() {
+        return projectTaskService;
     }
 
     interface ProjectActivityInfo {

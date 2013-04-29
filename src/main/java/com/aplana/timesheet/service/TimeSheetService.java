@@ -117,7 +117,6 @@ public class TimeSheetService {
                 if (durationStr != null) {
                     duration = Double.parseDouble(durationStr.replace(",", "."));
                 }
-                timeSheetDetail.setCqId(formRow.getCqId());
                 timeSheetDetail.setDuration(duration);
                 timeSheetDetail.setDescription(formRow.getDescription());
                 timeSheetDetail.setProblem(formRow.getProblem());
@@ -389,11 +388,11 @@ public class TimeSheetService {
 
         if (tablePart != null) {
             for (int i = 0; i < tablePart.size(); i++) {
-                if (StringUtils.isNotBlank(tablePart.get(i).getCqId())) {
+                if (tablePart.get(i).getCqId() != null) {
                     builder.withElement(
                             anObjectBuilder().
                                     withField(ROW, JsonUtil.aStringBuilder(i)).
-                                    withField(TASK, aStringBuilder(tablePart.get(i).getCqId()))
+                                    withField(TASK, aStringBuilder(tablePart.get(i).getCqId().toString()))
                     );
                 }
             }
@@ -414,7 +413,7 @@ public class TimeSheetService {
 
         if (tablePart != null) {
             for (int i = 0; i < tablePart.size(); i++) {
-                if (StringUtils.isNotBlank(tablePart.get(i).getCqId())) {
+                if (tablePart.get(i).getCqId() != null) {
                     builder.withElement(
                             anObjectBuilder().
                                     withField(ROW, JsonUtil.aStringBuilder(i)).

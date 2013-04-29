@@ -30,9 +30,9 @@ public class ProjectTaskServiceTest extends AbstractJsonTest {
             sb.append(projectId);
             sb.append("\",\"projTasks\":[");
             for (int j = 0; j < tasks.size(); j++) {
-                sb.append("{\"id\":\"");
-                sb.append(tasks.get(j).getCqId());
-                sb.append("\",\"value\":\"");
+                sb.append("{\"id\":");
+                sb.append(tasks.get(j).getId());
+                sb.append(",\"value\":\"");
                 sb.append(tasks.get(j).getCqId());
                 sb.append("\"}");
                 if (j < (tasks.size() - 1)) {

@@ -28,10 +28,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
 import static com.aplana.timesheet.util.ExceptionUtils.getRealLastCause;
 
@@ -128,20 +125,21 @@ public class OQProjectSyncService extends AbstractServiceWithTransactionManageme
             Project project = new Project();      // проект из БД
 
             // поля синхронизации
-            String name = nodeMap.getNamedItem("name").getNodeValue().trim();  // название проекта
-            String idProject = nodeMap.getNamedItem("id").getNodeValue();           // id проекта
+            String name = nodeMap.getNamedItem("name").getNodeValue().trim();    // название проекта
+            String idProject = nodeMap.getNamedItem("id").getNodeValue();        // id проекта
             String status = nodeMap.getNamedItem("status").getNodeValue();       // статус проекта
             String pmLdap = nodeMap.getNamedItem("pm").getNodeValue();           // руководитель проекта
             String hcLdap = nodeMap.getNamedItem("hc").getNodeValue();           // hc
 
             // ищем в БД запись о проекте
-            Project findingProject = dao.findByProjectId(idProject);
-            if (findingProject == null) {  // если проекта еще нет в БД
+            Project foundProject = dao.findByProjectId(idProject);
+            if (foundProject == null) {  // если проекта еще нет в БД
                 project.setActive(newStatus.contains(status)); // установим ему новый статус
             } else {
                 // если проект уже существовал - статус менять не будем
                 // см. //APLANATS-408
-                project.setActive(findingProject.isActive());
+                project.setActive(foundProject.isActive());
+                project.setCqRequired(foundProject.isCqRequired());
             }
 
             project.setName(name);
@@ -154,7 +152,7 @@ public class OQProjectSyncService extends AbstractServiceWithTransactionManageme
                 if (!setPM(project, pmLdap)) {
                     return; //если не указан РП или его нет в БД, то проект не сохраняем, переходим к следующему
                 }
-                setDivision(project, hcLdap);  // установим подразделение пользователя
+                setDivision(project, hcLdap, foundProject);  // установим подразделения, связанные с проектом
             }
             dao.store(project); // запишем в БД
 
@@ -163,6 +161,7 @@ public class OQProjectSyncService extends AbstractServiceWithTransactionManageme
             }
 
         } catch (Exception e) {
+            logger.error("createOrUpdateProject error", e);
             if (transactionStatus != null) {
                 rollback(transactionStatus);
             }
@@ -191,13 +190,25 @@ public class OQProjectSyncService extends AbstractServiceWithTransactionManageme
         return true;
     }
 
-    private void setDivision(Project project, String hcLdap) {
+    private void setDivision(Project project, String hcLdap, Project foundProject) {
+        Set<Division> divisions = new TreeSet<Division>();
         Employee employee = this.employeeDAO.findByLdapName(hcLdap.split("/")[0]);
         if (employee != null) {
-            Set<Division> divisions = new TreeSet<Division>();
             divisions.add(employee.getDivision());
-            project.setDivisions(divisions);
         }
+        if (foundProject != null) {
+            Set<Division> foundProjectDivisions = foundProject.getDivisions();
+            if (foundProjectDivisions != null) {
+                divisions.addAll(foundProjectDivisions);
+                for (Iterator<Division> iterator = foundProjectDivisions.iterator(); iterator.hasNext(); ) {
+                    Division next = iterator.next();
+                    if (divisions.contains(next))
+                        divisions.add(next);
+                }
+            }
+        }
+
+        project.setDivisions(divisions);
     }
 
     public NodeList getOQasNodeList() throws SAXException,

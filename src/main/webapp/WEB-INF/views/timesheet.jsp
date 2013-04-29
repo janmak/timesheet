@@ -196,26 +196,44 @@
             var rowsCount = dojo.query(".time_sheet_row").length;
             var projectId;
             var projectComponent;
-            var diff = false;
+            var workPlaceId;
+            var workPlaceComponent;
+            var diffProjects = false;
+            var diffWorkPlaces = false;
             for (var i = 0; i < rowsCount; i++) {
                 projectComponent = dojo.query("#project_id_" + i)
-                if (!diff && projectComponent.length > 0)
+                if (!diffProjects && projectComponent.length > 0)
                     if (projectComponent[0].value) {
                         if (projectId && (projectId != projectComponent[0].value)) {
                             if (projectComponent[0].value != 0)
-                                diff = true;
+                                diffProjects = true;
                         }
                         else
                             projectId = projectComponent[0].value;
+                    }
+
+                workPlaceComponent = dojo.query("#workplace_id_" + i)
+                if (!diffWorkPlaces && workPlaceComponent.length > 0)
+                    if (workPlaceComponent[0].value) {
+                        if (workPlaceId && (workPlaceId != workPlaceComponent[0].value)) {
+                            if (workPlaceComponent[0].value != 0)
+                                diffWorkPlaces = true;
+                        }
+                        else
+                            workPlaceId = workPlaceComponent[0].value;
                     }
             }
             setCookie('aplanaDivision', division.value, TimeAfter(7, 0, 0));
             setCookie('aplanaEmployee', employee.value, TimeAfter(7, 0, 0));
             setCookie('aplanaRowsCount', rowsCount, TimeAfter(7, 0, 0));
-            if (diff)
+            if (diffProjects)
                 deleteCookie("aplanaProject");
             else
                 setCookie('aplanaProject', projectId, TimeAfter(7, 0, 0));
+            if (diffWorkPlaces)
+                deleteCookie("aplanaWorkPlace");
+            else
+                setCookie('aplanaWorkPlace', workPlaceId, TimeAfter(7, 0, 0));
             timeSheetForm.action = "timesheet";
             maskBody();
 
@@ -288,15 +306,15 @@
         </div>
         <div style="margin-bottom: 3px;">Выберите причину</div>
         <div id="overtimeCause" onChange="overtimeCauseChange(this)" data-dojo-type="dijit.form.Select"
-             style="width: 100%;" data-dojo-props="value: '${timeSheetForm.overtimeCause}'"></div>
+             style="width: 99%;" data-dojo-props="value: '${timeSheetForm.overtimeCause}'"></div>
         <div style="margin-top: 10px;"><span>Комментарий</span></div>
         <div data-dojo-type="dijit.form.Textarea"
-                  wrap="soft" id="overtimeCauseComment" rows="10" style="width: 100%;margin-top: 3px;"
+                  wrap="soft" id="overtimeCauseComment" rows="10" style="width: 99%;margin-top: 3px;"
                   placeHolder="Напишите причину, если нет подходящей в списке"
                   tooltip="комментарий" data-dojo-props="value: '${timeSheetForm.overtimeCauseComment}'"></div>
         <div id="typeOfCompensationContainer" style="margin-top: 10px;">
             <div style="margin-bottom: 3px;">Тип компенсации</div>
-            <select data-dojo-type="dijit.form.Select"style="width: 100%;" id="typeOfCompensation"
+            <select data-dojo-type="dijit.form.Select"style="width: 99%;" id="typeOfCompensation"
                     data-dojo-props="value: '${timeSheetForm.typeOfCompensation}'">
                 <option value="0"></option>
                 <c:forEach items="${typesOfCompensation}" var="t">

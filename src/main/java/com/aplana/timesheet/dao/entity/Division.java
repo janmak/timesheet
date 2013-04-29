@@ -8,7 +8,7 @@ import java.util.Set;
 
 @Entity
 @Table(name = "division", uniqueConstraints = @UniqueConstraint(columnNames = { "ldap_name", "name" }))
-public class Division implements Identifiable {
+public class Division implements Identifiable, Comparable<Division> {
 	@Id
 	@Column(nullable = false)
 	private Integer id;
@@ -214,5 +214,16 @@ public class Division implements Identifiable {
 
     public void setCheck(boolean check) {
         isCheck = check;
+    }
+
+    @Override
+    public int compareTo(Division o) {
+        if (o != null) {
+            if (this.getId().equals(o.getId()))
+                return 0;
+            else
+                return o.getId() > this.getId() ? -1 : 1;
+        }
+        else return 1;
     }
 }

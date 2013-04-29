@@ -33,7 +33,7 @@ public class ProjectTaskService {
 	 * либо null, если проект или код задачи null, или такой задачи нет.
 	 */
     @Transactional(readOnly = true)
-    public ProjectTask find(Integer projectId, String cqId) {
+    public ProjectTask find(Integer projectId, Integer cqId) {
 		return projectTaskDAO.find(projectId, cqId);
 	}
 
@@ -49,7 +49,7 @@ public class ProjectTaskService {
             for (ProjectTask task : tasks) {
                 tasksBuilder.withElement(
                         anObjectBuilder().
-                                withField("id", aStringBuilder(task.getCqId())).
+                                withField("id", aNumberBuilder(task.getId().toString())).
                                 withField("value", aStringBuilder(task.getCqId()))
                 );
             }
@@ -64,4 +64,7 @@ public class ProjectTaskService {
         return JsonUtil.format(builder);
     }
 
+    public ProjectTask find(Integer cqId) {
+        return cqId != null ? projectTaskDAO.find(cqId) : null;
+    }
 }

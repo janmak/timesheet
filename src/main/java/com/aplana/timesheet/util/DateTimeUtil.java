@@ -277,7 +277,7 @@ public class DateTimeUtil {
         try {
         SimpleDateFormat sdf = new SimpleDateFormat(DATE_PATTERN);
         Date date = sdf.parse(dateStr);
-        DateUtils.addDays(date, daysCount);
+        date = DateUtils.addDays(date, daysCount);
 
         return sdf.format(date);
 

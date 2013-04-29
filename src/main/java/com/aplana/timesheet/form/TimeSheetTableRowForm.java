@@ -1,7 +1,7 @@
 package com.aplana.timesheet.form;
 
 public class TimeSheetTableRowForm {
-	private String cqId;
+	private Integer cqId;
 	private String description;
 	private String duration;
 	private String problem;
@@ -20,7 +20,7 @@ public class TimeSheetTableRowForm {
 		this.projectRoleId = projectRoleId;
 	}
 
-	public String getCqId() {
+	public Integer getCqId() {
 		return cqId;
 	}
 
@@ -40,7 +40,7 @@ public class TimeSheetTableRowForm {
 		return other;
 	}
 
-	public void setCqId(String cqId) {
+	public void setCqId(Integer cqId) {
 		this.cqId = cqId;
 	}
 

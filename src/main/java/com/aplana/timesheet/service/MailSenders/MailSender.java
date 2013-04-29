@@ -176,12 +176,12 @@ public class MailSender<T> {
 
     @VisibleForTesting
     InternetAddress initFromAddresses(Mail mail) {
-        String employeeEmail = mail.getFromEmail();
-        logger.debug("From Address = {}", employeeEmail);
+        String fromEmail = mail.getFromEmail();
+        logger.debug("From Address = {}", fromEmail);
         try {
-            return new InternetAddress(employeeEmail);
+            return new InternetAddress(fromEmail);
         } catch (MessagingException e) {
-            throw new IllegalArgumentException(String.format("Email address %s has wrong format.", employeeEmail), e);
+            throw new IllegalArgumentException(String.format("Email address %s has wrong format.", fromEmail), e);
         }
     }
 

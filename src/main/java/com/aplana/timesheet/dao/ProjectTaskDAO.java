@@ -39,17 +39,22 @@ public class ProjectTaskDAO {
 	 * Возвращает активную проектную задачу, относящуюся к указанному проекту,
 	 * либо null, если проект или код задачи null, или такой задачи нет.
 	 */
-    public ProjectTask find(Integer project, String task) {
+    public ProjectTask find(Integer project, Integer taskId) {
 		Project proj = projectDAO.findActive(project);
-		if (proj == null || task == null) { return null; }
+		if (proj == null || taskId == null) { return null; }
 
         Query query = entityManager.createQuery(
-                "from ProjectTask as pt where pt.project=:project and cqId=:task and pt.active=:active"
-        ).setParameter("project", proj).setParameter("task", task).setParameter("active", true);
+                "from ProjectTask as pt where pt.project=:project and id=:taskId and pt.active=:active"
+        ).setParameter("project", proj).setParameter("taskId", taskId).setParameter("active", true);
+        // параметры project и active введены для контроля, что такс именно этого проекта
 		try {
 			return (ProjectTask) query.getSingleResult();
 		} catch (NoResultException e) {
 			return null;
 		}
 	}
+
+    public ProjectTask find(Integer cqId) {
+        return entityManager.find(ProjectTask.class, cqId);
+    }
 }

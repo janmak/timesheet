@@ -60,6 +60,7 @@ function addNewRow() {
         id:"delete_button_" + newRowIndex,
         src:"resources/img/delete.png",
         alt:"Удалить",
+        title:"Удалить",
         //без px так как IE не понимает
         height:"15",
         width:"15"
@@ -473,8 +474,17 @@ function typeActivityChange(obj) {
         dojo.removeAttr("project_id_" + rowIndex, "disabled");
         dojo.removeAttr("project_role_id_" + rowIndex, "disabled");
         fillProjectList(rowIndex, select.value);
-
     }
+
+    if (select.value && select.value != "0" && select.value != "0") {
+        var workplaceSelect = dojo.byId("workplace_id_" + rowIndex);
+        if (!workplaceSelect.value || workplaceSelect.value == "" || workplaceSelect.value == "0") {
+            if (existsCookie('aplanaWorkPlace')) {
+                workplaceSelect.value = CookieValue('aplanaWorkPlace');
+            }
+        }
+    }
+
     // Внепроектная активность
     else if (select.value == "14") {
         dojo.attr("project_id_" + rowIndex, {
@@ -703,6 +713,9 @@ function reloadRowsState() {
     var rowsCount = dojo.query(".time_sheet_row").length;
     var rows = dojo.query(".time_sheet_row");
     for (var i = 0; i < rowsCount; i++) {
+        var actTypeSelect = dojo.byId("activity_type_id_" + i);
+        typeActivityChange(actTypeSelect);
+
         var workplaceSelect = dojo.byId("workplace_id_" + i);
         workplaceSelect.options.length = 0;
         fillWorkplaceSelect(workplaceSelect);
@@ -711,9 +724,6 @@ function reloadRowsState() {
                 dojo.attr(workplaceSelect, { value:selectedWorkplace[l].workplace });
             }
         }
-
-        var actTypeSelect = dojo.byId("activity_type_id_" + i);
-        typeActivityChange(actTypeSelect);
 
         var projectSelect = dojo.byId("project_id_" + i);
         if (dojo.attr(projectSelect, "disabled") != "disabled") {
@@ -762,6 +772,7 @@ function reloadRowsState() {
                 id:"delete_button_" + i,
                 src:"resources/img/delete.png",
                 alt:"Удалить",
+                title:"Удалить",
                 //без px так как IE не понимает
                 height:"15",
                 width:"15"
@@ -808,6 +819,11 @@ function resetRowState(rowIndex, resetActType) {
             value:"0"
         });
     }
+
+    dojo.attr("workplace_id_" + rowIndex, {
+        value:"0"
+    });
+
     dojo.attr("project_id_" + rowIndex, {
         disabled:"disabled",
         value:"0"
@@ -1097,13 +1113,13 @@ function checkDurationThenSendForm(){
     ) {
         var comment = dijit.byId("overtimeCauseComment");
 
-        comment.on("mouseover", function() {
+        /*comment.on("mouseover", function() {
             tooltip.show(this.tooltip);
         });
 
         comment.on("mouseout", function() {
             tooltip.hide();
-        });
+        });*/
 
         var select_box = dijit.byId("overtimeCause");
 
@@ -1132,10 +1148,9 @@ function checkDurationThenSendForm(){
     } else {
 
         // При отправке без диалога о недоработках очищаем служебные поля
-        dojo.byId("overtimeCauseComment_hidden").value = null;
-        dojo.byId("overtimeCause_hidden").value = null;
-        dojo.byId("typeOfCompensation_hidden").value = null;
-
+        dojo.byId("overtimeCauseComment_hidden").value = "";
+        dojo.byId("overtimeCause_hidden").value = "";
+        dojo.byId("typeOfCompensation_hidden").value = "";
 
         submitform('send');
     }

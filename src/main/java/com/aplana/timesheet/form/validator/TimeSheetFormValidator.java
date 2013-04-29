@@ -97,6 +97,7 @@ public class TimeSheetFormValidator extends AbstractValidator {
                 TypesOfActivityEnum actType = TypesOfActivityEnum.getById(formRow.getActivityTypeId());
 
                 validateProject(formRow, actType, notNullRowNumber, errors);
+                validateWorkPlace(formRow, notNullRowNumber, errors);
                 validateProjectRole(formRow, notNullRowNumber, errors);
                 valdateCategoryOfActivity(formRow, emplJob, notNullRowNumber, errors);
                 validateProjectTask(formRow, notNullRowNumber, errors);
@@ -116,6 +117,16 @@ public class TimeSheetFormValidator extends AbstractValidator {
         else {
             errors.reject("error.tsform.tablepart.required", "В отчёте должны быть записи.");
         }*/
+
+    }
+
+    private void validateWorkPlace(TimeSheetTableRowForm formRow, int notNullRowNumber, Errors errors) {
+
+        if (isNotChoosed(formRow.getWorkplaceId())) {
+            errors.rejectValue("timeSheetTablePart[" + notNullRowNumber + "].workplaceId",
+                    "error.tsform.workplace.required", getErrorMessageArgs(notNullRowNumber),
+                    "Необходимо указать место работы в строке " + (notNullRowNumber + 1) + ".");
+        }
 
     }
 
@@ -256,7 +267,7 @@ public class TimeSheetFormValidator extends AbstractValidator {
 
     private void validateProjectTask(TimeSheetTableRowForm formRow, int notNullRowNumber, Errors errors) {
         Integer projectId = formRow.getProjectId();
-        String cqId = formRow.getCqId();
+        Integer cqId = formRow.getCqId();
         if (projectId != null) {
             Project project = projectService.find(projectId);
             // Необходимо указать проектную задачу
@@ -492,7 +503,7 @@ public class TimeSheetFormValidator extends AbstractValidator {
         return projectRole == null || projectRoleService.findActive(projectRole) != null;
     }
 
-    private boolean isProjectTaskValid(Integer project, String task) {
+    private boolean isProjectTaskValid(Integer project, Integer task) {
         if (project == null && task == null) {
             return true;
         }

@@ -1,6 +1,7 @@
 package com.aplana.timesheet.service.MailSenders;
 
 import com.aplana.timesheet.dao.entity.Employee;
+import com.aplana.timesheet.dao.entity.ProjectTask;
 import com.aplana.timesheet.enums.CategoriesOfActivityEnum;
 import com.aplana.timesheet.enums.DictionaryEnum;
 import com.aplana.timesheet.enums.TypesOfActivityEnum;
@@ -9,6 +10,7 @@ import com.aplana.timesheet.form.TimeSheetForm;
 import com.aplana.timesheet.form.TimeSheetTableRowForm;
 import com.aplana.timesheet.properties.TSPropertyProvider;
 import com.aplana.timesheet.service.SendMailService;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Iterables;
@@ -19,6 +21,7 @@ import org.springframework.ui.velocity.VelocityEngineUtils;
 
 import javax.annotation.Nullable;
 import javax.mail.MessagingException;
+import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import java.util.*;
 
@@ -42,9 +45,22 @@ public class TimeSheetSender extends MailSender<TimeSheetForm> {
     public static final String OVERTIME_CAUSE = "overtimeCause";
     public static final String OVERTIME_CAUSE_ID = "overtimeCauseId";
     public static final String TYPE_OF_COMPENSATION = "typeOfCompensation";
+    private String employeeEmail;
 
     public TimeSheetSender(SendMailService sendMailService, TSPropertyProvider propertyProvider) {
         super(sendMailService, propertyProvider);
+    }
+
+    @Override
+    @VisibleForTesting
+    InternetAddress initFromAddresses(Mail mail) {
+        String fromEmail = employeeEmail != null ? employeeEmail : mail.getFromEmail();
+        logger.debug("From Address = {}", fromEmail);
+        try {
+            return new InternetAddress(fromEmail);
+        } catch (MessagingException e) {
+            throw new IllegalArgumentException(String.format("Email address %s has wrong format.", fromEmail), e);
+        }
     }
 
     @Override
@@ -81,7 +97,7 @@ public class TimeSheetSender extends MailSender<TimeSheetForm> {
 
     private String getSubject(TimeSheetForm params) {
         return  propertyProvider.getTimesheetMailMarker()+ //APLANATS-571
-                " Списание занятости - " + params.getCalDate();
+                " Отчет за " + params.getCalDate();
     }
 
     private Collection<String> getToEmails(TimeSheetForm params) {
@@ -97,7 +113,8 @@ public class TimeSheetSender extends MailSender<TimeSheetForm> {
                     }
                 }));
 
-        toEmails.add(sendMailService.getEmployeeEmail(employeeId));
+        employeeEmail = sendMailService.getEmployeeEmail(employeeId);
+        toEmails.add(employeeEmail);
         toEmails.add(sendMailService.getEmployeesManagersEmails(employeeId));
         toEmails.add(sendMailService.getEmployeesAdditionalManagerEmail(employeeId));
         toEmails.add(sendMailService.getProjectsManagersEmails(params));
@@ -118,7 +135,7 @@ public class TimeSheetSender extends MailSender<TimeSheetForm> {
             for (int i = 0; i < tsRows.size(); i++) {
                 TimeSheetTableRowForm tsRow = tsRows.get(i);
 
-                WorkPlacesEnum workPlace = WorkPlacesEnum.getById(tsRow.getWorkplaceId());
+                WorkPlacesEnum workPlace = tsRow.getWorkplaceId() != null ? WorkPlacesEnum.getById(tsRow.getWorkplaceId()) : null;
                 result.put(i, WORK_PLACE, workPlace != null ? workPlace.getName() : "Неизвестно");
 
                 Integer actTypeId = tsRow.getActivityTypeId();
@@ -135,7 +152,9 @@ public class TimeSheetSender extends MailSender<TimeSheetForm> {
                 if (actCatId != null && actCatId > 0) {
                     result.put(i, CATEGORY_OF_ACTIVITY, CategoriesOfActivityEnum.getById(actCatId).getName());
                 }
-                putIfIsNotBlank(i, result, CQ_ID, tsRow.getCqId());
+
+                ProjectTask projectTask = sendMailService.getProjectTaskService().find(tsRow.getCqId());
+                putIfIsNotBlank(i, result, CQ_ID, projectTask != null ? projectTask.getCqId() : null);
                 putIfIsNotBlank(i, result, DURATION, tsRow.getDuration());
                 putIfIsNotBlank(i, result, DESCRIPTION_STRINGS, tsRow.getDescription());
                 putIfIsNotBlank(i, result, PROBLEM_STRINGS, tsRow.getProblem());

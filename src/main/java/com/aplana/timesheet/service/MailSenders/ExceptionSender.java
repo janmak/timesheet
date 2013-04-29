@@ -38,7 +38,7 @@ public class ExceptionSender extends MailSender<String> {
     protected List<Mail> getMailList(String problem) {
         Mail mail = new TimeSheetMail();
 
-        mail.setSubject("У одного из пользователей во время работы произошла ошибка. Подробности в письме.");
+        mail.setSubject(propertyProvider.getTimesheetMailMarker() + " У одного из пользователей во время работы произошла ошибка. Подробности в письме.");
         mail.setPreconstructedMessageBody(problem);
         mail.setToEmails(Arrays.asList(propertyProvider.getMailProblemsAndProposalsCoaddress()));
         return Arrays.asList(mail);

@@ -56,7 +56,7 @@
             <li><a href="admin/update/oqsync"><fmt:message key="link.oqsync"/></a></li>
             <li><a href="admin/update/properties" id="updateProperties"><fmt:message key="link.update.properties"/></a></li>
             <%--<li><a href="admin/update/objectSid"><fmt:message key="link.update.object.sid"/></a></li>--%>
-            <li><a href="admin/update/assignmentleaders"><fmt:message key="link.assignmentleaders"/></a></li>
+            <%--<li><a href="admin/update/assignmentleaders"><fmt:message key="link.assignmentleaders"/></a></li>--%>
             <c:choose>
                 <c:when test="${showalluser == true}">
                     <li><a href="admin/update/hidealluser"><fmt:message key="link.hidealluser"/></a></li>
