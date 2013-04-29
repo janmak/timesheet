@@ -110,9 +110,8 @@ public class SendMailService{
         final Employee manager = employee.getManager();
 
         if (manager != null && !manager.getId().equals(empId)) {
+            emailList.add(manager.getEmail());
             emailList.add(getEmployeesManagersEmails(manager.getId()));
-        } else {
-            emailList.add(employee.getEmail());
         }
 
         return StringUtils.join(emailList, ',');
@@ -256,10 +255,6 @@ public class SendMailService{
         model.put("timeSheet", timeSheet);
         logger.info("follows initialization output from velocity");
         return VelocityEngineUtils.mergeTemplateIntoString(velocityEngine, "report.vm", model);
-    }
-
-    public List<Employee> getRegionManagerList(Integer id) {
-        return employeeService.getRegionManager(id);
     }
 
     public TimeSheetUser getSecurityPrincipal() {

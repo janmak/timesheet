@@ -5,12 +5,9 @@ import com.aplana.timesheet.dao.entity.TimeSheet;
 import com.aplana.timesheet.properties.TSPropertyProvider;
 import com.aplana.timesheet.service.SendMailService;
 import com.aplana.timesheet.util.DateTimeUtil;
-import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Sets;
 import org.springframework.ui.velocity.VelocityEngineUtils;
 
-import javax.annotation.Nullable;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import java.util.*;
@@ -68,14 +65,7 @@ public class TimeSheetDeletedSender extends AbstractSenderWithAssistants<TimeShe
     private Collection<String> getToEmails(TimeSheet input) {
         Integer empId = input.getEmployee().getId();
 
-        Set<String> result = Sets.newHashSet(Iterables.transform(
-                sendMailService.getRegionManagerList(input.getEmployee().getId()),
-                new Function<Employee, String>() {
-                    @Nullable @Override
-                    public String apply(@Nullable Employee manager) {
-                        return manager.getEmail();
-                    }
-                }));
+        Set<String> result = new HashSet<String>();
 
         result.add(input.getEmployee().getEmail());
         result.add(propertyProvider.getMailFromAddress());

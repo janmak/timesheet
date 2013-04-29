@@ -1,6 +1,5 @@
 package com.aplana.timesheet.service.MailSenders;
 
-import com.aplana.timesheet.dao.entity.Employee;
 import com.aplana.timesheet.dao.entity.ProjectTask;
 import com.aplana.timesheet.enums.CategoriesOfActivityEnum;
 import com.aplana.timesheet.enums.DictionaryEnum;
@@ -11,15 +10,11 @@ import com.aplana.timesheet.form.TimeSheetTableRowForm;
 import com.aplana.timesheet.properties.TSPropertyProvider;
 import com.aplana.timesheet.service.SendMailService;
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Function;
 import com.google.common.collect.HashBasedTable;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Sets;
 import com.google.common.collect.Table;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.ui.velocity.VelocityEngineUtils;
 
-import javax.annotation.Nullable;
 import javax.mail.MessagingException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
@@ -103,7 +98,7 @@ public class TimeSheetSender extends MailSender<TimeSheetForm> {
     private Collection<String> getToEmails(TimeSheetForm params) {
         final Integer employeeId = params.getEmployeeId();
 
-        Set<String> toEmails = Sets.newHashSet(Iterables.transform(
+        /*Set<String> toEmails = Sets.newHashSet(Iterables.transform(
                 sendMailService.getRegionManagerList(employeeId),
                 new Function<Employee, String>() {
                     @Nullable
@@ -111,9 +106,12 @@ public class TimeSheetSender extends MailSender<TimeSheetForm> {
                     public String apply(@Nullable Employee params) {
                         return params.getEmail();
                     }
-                }));
+                }));*/
+
+        Set<String> toEmails = new HashSet<String>();
 
         employeeEmail = sendMailService.getEmployeeEmail(employeeId);
+
         toEmails.add(employeeEmail);
         toEmails.add(sendMailService.getEmployeesManagersEmails(employeeId));
         toEmails.add(sendMailService.getEmployeesAdditionalManagerEmail(employeeId));
