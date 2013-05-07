@@ -593,8 +593,7 @@ function insertEmptyOptionWithCaptionInHead(select, caption) {
         value:"0"
     });
     option.innerHTML = caption;
-    select.options[0] = option;
-    select.value = 0;
+    select.insertBefore(option, select.options[0]);
 }
 
 /*
