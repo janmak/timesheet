@@ -11,7 +11,8 @@ public enum UndertimeCausesEnum implements TSEnum {
     NO_TASKS(103, "Для меня нет задач"),
     STATE_OF_EMERGENCY_IN_THE_OFFICE(104, "В офисе произошло ЧП"),
     OTHER(105, "Другое"),
-    PARTIAL_JOB_RATE(123, "Я работаю на часть ставки, положенное время отработал");
+    PARTIAL_JOB_RATE(123, "Я работаю на часть ставки, положенное время отработал"),
+    CORPORATE_EVENT(124, "Корпоративное мероприятие");
 
     private int id;
     private String name;
