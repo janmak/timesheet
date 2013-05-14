@@ -163,9 +163,9 @@ public class JasperReportDAO {
         String workDaySeparator = "";
 
         if(OvertimeCategory.HOLIDAY.equals(report.getCategory())) {
-            workDaySeparator="and holidays.calDate is not null ";
+            workDaySeparator="holidays.calDate is not null AND";
         } else if(OvertimeCategory.SIMPLE.equals(report.getCategory())) {
-            workDaySeparator="and holidays.calDate is null ";
+            workDaySeparator="holidays.calDate is null AND";
         }
 
         // К сожалению HQL не может ворочить сложные запросы, прищлось писать native sql-запрос
