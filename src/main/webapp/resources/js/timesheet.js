@@ -486,7 +486,7 @@ function typeActivityChange(obj) {
     }
 
     // Внепроектная активность
-    else if (select.value == "14") {
+    if (select.value == "14") {
         dojo.attr("project_id_" + rowIndex, {
             disabled:"disabled",
             value:"0"
