@@ -18,6 +18,7 @@ import com.aplana.timesheet.util.JsonUtil;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.jfree.util.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -97,6 +98,7 @@ public class PlanEditController {
     private static final String COOKIE_SHOW_FACTS = "cookie_show_facts";
     private static final String COOKIE_SHOW_PROJECTS = "cookie_show_projects";
     private static final String COOKIE_SHOW_PRESALES = "cookie_show_presales";
+    private static final String COOKIE_MONTH = "cookie_month";
     public  static final int    COOKIE_MAX_AGE = 999999999;
 
     private static final String SEPARATOR = "~";
@@ -260,6 +262,8 @@ public class PlanEditController {
                 form.setShowProjects(defaultValue(tryParseBoolean(value), form.getShowProjects()));
             } else if (COOKIE_SHOW_PRESALES.equals(name)) {
                 form.setShowPresales(defaultValue(tryParseBoolean(value), form.getShowPresales()));
+            }else if (COOKIE_MONTH.equals(name)){
+                form.setMonth(defaultValue(tryParseInt(value), form.getMonth()));
             }
         }
     }
@@ -270,6 +274,8 @@ public class PlanEditController {
 
         form.setDivisionId(securityService.getSecurityPrincipal().getEmployee().getDivision().getId());
         form.setYear(year);
+        System.out.println("MonthOnForm" + form.getMonth());
+//        form.setMonth(form.getMonth() == null ? calendar.get(Calendar.MONTH) + 1 : form.getMonth());
         form.setMonth(calendar.get(Calendar.MONTH) + 1);
         form.setRegions(Arrays.asList(PlanEditForm.ALL_VALUE));
         form.setProjectRoles(Arrays.asList(PlanEditForm.ALL_VALUE));
@@ -322,6 +328,7 @@ public class PlanEditController {
         addCookie(response, COOKIE_SHOW_PRESALES, form.getShowPresales());
         addCookie(response, COOKIE_REGIONS, StringUtils.join(form.getRegions(), SEPARATOR));
         addCookie(response, COOKIE_PROJECT_ROLES, StringUtils.join(form.getProjectRoles(), SEPARATOR));
+        addCookie(response, COOKIE_MONTH, form.getMonth());
     }
 
     private ModelAndView createModelAndView(PlanEditForm form, BindingResult bindingResult) {
@@ -635,7 +642,8 @@ public class PlanEditController {
 
     @RequestMapping(value = PLAN_SAVE_URL, method = RequestMethod.POST)
     public String save(
-            @ModelAttribute(PlanEditForm.FORM) PlanEditForm form
+            @ModelAttribute(PlanEditForm.FORM) PlanEditForm form,
+            HttpServletResponse response
     ) {
         try {
             final JsonRootNode rootNode = JsonUtil.parse(form.getJsonData());
@@ -647,7 +655,7 @@ public class PlanEditController {
             LOGGER.error(e.getLocalizedMessage());
             throw new RuntimeException(e);
         }
-
+        saveCookie(form, response);
         return "redirect:" + PLAN_EDIT_URL;
     }
 
