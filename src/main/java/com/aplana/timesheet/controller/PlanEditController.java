@@ -274,8 +274,6 @@ public class PlanEditController {
 
         form.setDivisionId(securityService.getSecurityPrincipal().getEmployee().getDivision().getId());
         form.setYear(year);
-        System.out.println("MonthOnForm" + form.getMonth());
-//        form.setMonth(form.getMonth() == null ? calendar.get(Calendar.MONTH) + 1 : form.getMonth());
         form.setMonth(calendar.get(Calendar.MONTH) + 1);
         form.setRegions(Arrays.asList(PlanEditForm.ALL_VALUE));
         form.setProjectRoles(Arrays.asList(PlanEditForm.ALL_VALUE));

@@ -5,6 +5,7 @@ import argo.jdom.JsonObjectNodeBuilder;
 import com.aplana.timesheet.dao.AvailableActivityCategoryDAO;
 import com.aplana.timesheet.dao.EmployeeDAO;
 import com.aplana.timesheet.dao.TimeSheetDAO;
+import com.aplana.timesheet.dao.TimeSheetDetailDAO;
 import com.aplana.timesheet.dao.entity.*;
 import com.aplana.timesheet.dao.entity.Calendar;
 import com.aplana.timesheet.form.TimeSheetForm;
@@ -41,6 +42,9 @@ public class TimeSheetService {
 
     @Autowired
     private TimeSheetDAO timeSheetDAO;
+
+    @Autowired
+    private TimeSheetDetailDAO timeSheetDetailDAO;
 
     @Autowired
     private EmployeeDAO employeeDAO;
@@ -213,7 +217,7 @@ public class TimeSheetService {
         final TimeSheet nextTimeSheet = timeSheetDAO.findNextTimeSheetAfter(nextWorkDay, employeeId);
 
         if (lastTimeSheet != null) {
-            builder.withField("prev", getPlanBuilder(lastTimeSheet));
+            builder.withField("prev", getPlanBuilder(lastTimeSheet, true));
         }
 
         if (nextTimeSheet != null &&
@@ -221,22 +225,22 @@ public class TimeSheetService {
                         Lists.newArrayList(
                                 nextTimeSheet.getTimeSheetDetails()).get(0).getActType().getId()))
                 ) { // <APLANATS-458>
-            builder.withField("next", getPlanBuilder(nextTimeSheet));
+            builder.withField("next", getPlanBuilder(nextTimeSheet, false));
         }
 
         return JsonUtil.format(builder);
     }
 
-    private JsonObjectNodeBuilder getPlanBuilder(TimeSheet timeSheet) {
+    private JsonObjectNodeBuilder getPlanBuilder(TimeSheet timeSheet, Boolean nextOrPrev) {
         return anObjectBuilder().
                 withField("dateStr", aStringBuilder(DateTimeUtil.formatDate(timeSheet.getCalDate().getCalDate()))).
-                withField("plan", aStringBuilder(getPlan(timeSheet)));
+                withField("plan", aStringBuilder(nextOrPrev ? getPlan(timeSheet) : getStringTimeSheetDetails(timeSheet)));
     }
 
     private String getPlan(TimeSheet timeSheet) {
         String lastPlan = timeSheet.getPlanEscaped();
         if (lastPlan != null) {
-            lastPlan = lastPlan.replace("\r\n", "\\n");
+            lastPlan = lastPlan.replace("\r\n", "\n");
         } else {
             lastPlan = StringUtils.EMPTY;
         }
@@ -261,7 +265,7 @@ public class TimeSheetService {
             if (detail.getProject() != null)
                 sb.append(detail.getProject().getName()).append(" : ");
             sb.append(detail.getDescriptionEscaped());
-            rezult.append(sb.toString()).append("\\n");
+            rezult.append(sb.toString()).append("\n");
             i++;
         }
         return rezult.toString();
