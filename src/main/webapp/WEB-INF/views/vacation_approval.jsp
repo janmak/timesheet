@@ -9,26 +9,31 @@
 </head>
 
 <body>
-
 <form:form method="post" modelAttribute="vacationApprovalForm" name="mainForm">
 
     <form:label path="message">
         <c:out value="${vacationApprovalForm.message}"/>
     </form:label>
 
+</form:form>
     <br/><br/>
     <div id="acceptence_div" ${vacationApprovalForm.buttonsVisible}>
-        <a href="<%=request.getContextPath()%>/vacation_approval/save/<%=request.getParameter("uid")%>/true">
-            <button id="submit_button" style="width:210px" type="button">
-                Согласен
-            </button></a>
-        <a href="<%=request.getContextPath()%>/vacation_approval/save/<%=request.getParameter("uid")%>/false">
-            <button id="refuse_button" style="width:210px" type="button">
-                Не согласен
-            </button></a>
-    </div>
+        <c:set value="<%= request.getParameter("uid") %>" var="uid" />
+        <c:url value="/vacation_approval/save/${uid}/true" var="confirm"/>
+        <c:url value="/vacation_approval/save/${uid}/false" var="reject"/>
 
-</form:form>
+        <form:form id="confirm" name="confirm" action="${confirm}" >
+            <button id="submit_button" style="width:210px" type="submit">
+                Согласен
+            </button>
+        </form:form>
+
+        <form:form id="reject" name="reject" action="${reject}" >
+            <button id="refuse_button" style="width:210px" type="submit">
+                Не согласен
+            </button>
+        </form:form>
+    </div>
 
 </body>
 
