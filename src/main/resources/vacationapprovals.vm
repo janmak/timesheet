@@ -1,0 +1,27 @@
+<h2 align="justify"> По данному заявлению уже приняли решение следующие лица</h2>
+<table border = "2">
+    <tr>
+        <td><b>Роль сотрудника</b></td>
+        <td><b>Фамилия Имя сотрудника</b></td>
+        <td><b>Решение</b></td>
+    </tr>
+    #foreach($employee in $employeeList)
+    <tr>
+        <td>
+            <ol>
+                $employee.email
+            </ol>
+        </td>
+        <td>
+            <ol>
+                $employee.ldap
+            </ol>
+        </td>
+        <td>
+            <ol>
+                $employee.name
+            </ol>
+        </td>
+    </tr>
+    #end
+</table>

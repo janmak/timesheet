@@ -96,6 +96,8 @@ public class SendMailService{
     private EmployeeAssistantService employeeAssistantService;
     @Autowired
     private ProjectTaskService projectTaskService;
+    @Autowired
+    private ManagerRoleNameService managerRoleNameService;
 
 
     /**
@@ -221,7 +223,7 @@ public class SendMailService{
     }
 
     public void performVacationApproveRequestSender(VacationApproval vacationApproval) {
-        new VacationApproveRequestSender(this, propertyProvider).sendMessage(vacationApproval);
+        new VacationApproveRequestSender(this, propertyProvider, vacationApprovalService, managerRoleNameService).sendMessage(vacationApproval);
     }
 
     public void performVacationApprovedSender (Vacation vacation, List<String> emails) {

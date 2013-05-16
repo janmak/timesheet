@@ -1,6 +1,8 @@
 package com.aplana.timesheet.service;
 
 import com.aplana.timesheet.dao.ProjectParticipantDAO;
+import com.aplana.timesheet.dao.entity.Employee;
+import com.aplana.timesheet.dao.entity.Project;
 import com.aplana.timesheet.dao.entity.ProjectParticipant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,5 +20,13 @@ public class ProjectParticipantService {
     public ProjectParticipant find(Integer id) {
 		return projectParticipantDAO.find(id);
 	}
+
+    /**
+     * Возвращает объект класса ProjectParticipant, если найдено совпадение по паре employee/project
+     */
+    @Transactional(readOnly = true)
+    public Boolean isProjectManager(Employee employee, Project project){
+        return projectParticipantDAO.isProjectManager(employee, project);
+    }
 
 }

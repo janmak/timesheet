@@ -1,5 +1,6 @@
 package com.aplana.timesheet.dao;
 
+import com.aplana.timesheet.dao.entity.VacationApproval;
 import com.aplana.timesheet.dao.entity.VacationApprovalResult;
 import org.springframework.stereotype.Repository;
 
@@ -24,10 +25,10 @@ public class VacationApprovalResultDAO {
         return vacationApprovalResult;
     }
 
-    public VacationApprovalResult getVacationApprovalResult(String uid) {
+    public VacationApprovalResult getVacationApprovalResultByManager(VacationApproval vacationApproval){
         Query query = entityManager.createQuery("from VacationApprovalResult as var " +
-                "where var.uid = :uid")
-                .setParameter("uid", uid);
+                "where var.vacationApproval = :vacationApproval")
+                .setParameter("vacationApproval", vacationApproval);
         return (VacationApprovalResult) query.getSingleResult();
     }
 }

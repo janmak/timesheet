@@ -1,18 +1,21 @@
 package com.aplana.timesheet.service.MailSenders;
 
+import com.aplana.timesheet.dao.entity.Employee;
 import com.aplana.timesheet.dao.entity.Vacation;
 import com.aplana.timesheet.dao.entity.VacationApproval;
 import com.aplana.timesheet.properties.TSPropertyProvider;
+import com.aplana.timesheet.service.ManagerRoleNameService;
 import com.aplana.timesheet.service.SendMailService;
+import com.aplana.timesheet.service.VacationApprovalService;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateFormatUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.ui.velocity.VelocityEngineUtils;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 /**
  * User: vsergeev
@@ -22,8 +25,9 @@ public class VacationApproveRequestSender extends AbstractVacationSender<Vacatio
 
     protected static final Logger logger = LoggerFactory.getLogger(VacationApproveRequestSender.class);
 
-    public VacationApproveRequestSender(SendMailService sendMailService, TSPropertyProvider propertyProvider) {
-        super(sendMailService, propertyProvider);
+    public VacationApproveRequestSender(SendMailService sendMailService, TSPropertyProvider propertyProvider,
+                                        VacationApprovalService vacationApprovalService, ManagerRoleNameService managerRoleNameService) {
+        super(sendMailService, propertyProvider, vacationApprovalService, managerRoleNameService);
     }
 
     @Override
@@ -68,6 +72,32 @@ public class VacationApproveRequestSender extends AbstractVacationSender<Vacatio
         stringBuilder.append(String.format("%s", commentStr));
         stringBuilder.append(String.format("Для регистрации Вашего решения нажмите на ссылку: %s.", approveURL));
 
+        List<VacationApproval> otherApprovals = vacationApprovalService.getAllApprovalsForVacation(vacation);
+        List<VacationApproval> cloneOtherApproval = new ArrayList<VacationApproval>(otherApprovals);
+        for (VacationApproval va : cloneOtherApproval){
+            if (va.getManager().getId().equals(vacationApproval.getManager().getId())){
+                otherApprovals.remove(va);
+            }
+        }
+
+        List<Employee> setEmployee = new ArrayList<Employee>();
+
+        for (VacationApproval va : otherApprovals){
+
+            Employee emp = new Employee();
+            emp.setEmail(managerRoleNameService.getManagerRoleName(va));
+            emp.setLdap(va.getManager().getName());
+            emp.setName(va.getResult() == null ? "Еще не рассмотрел(а)" : (va.getResult() ? "Согласовано" : "Не согласовано"));
+            setEmployee.add(emp);
+        }
+        Iterable<Employee> employeeIterator = setEmployee;
+
+        Map model = new HashMap();
+        model.put("employeeList", employeeIterator);
+        String messageBody = VelocityEngineUtils.mergeTemplateIntoString(
+                sendMailService.velocityEngine, "vacationapprovals.vm", model);
+        logger.debug("Message Body: {}", messageBody);
+        stringBuilder.append(messageBody);
         return stringBuilder.toString();
     }
 
@@ -79,7 +109,7 @@ public class VacationApproveRequestSender extends AbstractVacationSender<Vacatio
         String beginDateStr = DateFormatUtils.format(vacation.getBeginDate(), DATE_FORMAT);
         String endDateStr = DateFormatUtils.format(vacation.getEndDate(), DATE_FORMAT);
 
-        return  String.format("Запрос согласования отпуска %s %s - %s", vacation.getEmployee().getName(),
+        return  String.format("%s %s %s - %s", vacation.getStatus().getValue(), vacation.getEmployee().getName(),
                         beginDateStr, endDateStr);
     }
 

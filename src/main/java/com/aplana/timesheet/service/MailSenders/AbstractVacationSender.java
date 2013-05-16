@@ -1,7 +1,9 @@
 package com.aplana.timesheet.service.MailSenders;
 
 import com.aplana.timesheet.properties.TSPropertyProvider;
+import com.aplana.timesheet.service.ManagerRoleNameService;
 import com.aplana.timesheet.service.SendMailService;
+import com.aplana.timesheet.service.VacationApprovalService;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
@@ -12,8 +14,9 @@ import javax.mail.internet.MimeMessage;
  */
 public abstract class AbstractVacationSender<T> extends AbstractSenderWithAssistants<T>{
 
-    public AbstractVacationSender(SendMailService sendMailService, TSPropertyProvider propertyProvider) {
-        super(sendMailService, propertyProvider);
+    public AbstractVacationSender(SendMailService sendMailService, TSPropertyProvider propertyProvider,
+                                  VacationApprovalService vacationApprovalService, ManagerRoleNameService managerRoleNameService) {
+        super(sendMailService, propertyProvider, vacationApprovalService, managerRoleNameService);
     }
 
     @Override

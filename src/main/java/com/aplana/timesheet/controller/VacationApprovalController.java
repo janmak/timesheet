@@ -1,9 +1,12 @@
 package com.aplana.timesheet.controller;
 
+import com.aplana.timesheet.dao.entity.ProjectRole;
+import com.aplana.timesheet.dao.entity.Vacation;
 import com.aplana.timesheet.dao.entity.VacationApproval;
 import com.aplana.timesheet.exception.service.VacationApprovalServiceException;
 import com.aplana.timesheet.form.VacationApprovalForm;
 import com.aplana.timesheet.properties.TSPropertyProvider;
+import com.aplana.timesheet.service.ProjectRoleService;
 import com.aplana.timesheet.service.SendMailService;
 import com.aplana.timesheet.service.VacationApprovalService;
 import com.aplana.timesheet.service.vacationapproveprocess.VacationApprovalProcessService;
@@ -16,7 +19,9 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -34,6 +39,8 @@ public class VacationApprovalController {
     private TSPropertyProvider propertyProvider;
     @Autowired
     private SendMailService sendMailService;
+    @Autowired
+    private ProjectRoleService projectRoleService;
 
     private static final Logger logger = LoggerFactory.getLogger(VacationApprovalController.class);
 
@@ -61,6 +68,10 @@ public class VacationApprovalController {
         mav.addObject("NoPageFormat", "true");
 
         VacationApproval vacationApproval = vacationApprovalService.getVacationApproval(uid);
+        Vacation vacation = vacationApproval.getVacation();
+        logger.debug(vacation.toString());
+        List<VacationApproval> otherApprovals = vacationApprovalService.getAllApprovalsForVacation(vacation);
+        otherApprovals.remove(vacationApproval);
 
         if (vacationApproval == null){
             proceedBadRequest(vaForm, request);
@@ -75,6 +86,15 @@ public class VacationApprovalController {
         String dateEnd = getOnlyDate(vacationApproval.getVacation().getEndDate());
         String comment = vacationApproval.getVacation().getComment();
         Boolean result = vacationApproval.getResult();
+
+        StringBuilder approved = new StringBuilder();
+        List<ProjectRole> listPR = new ArrayList<ProjectRole>();
+        for (VacationApproval va : otherApprovals){
+            listPR.add(projectRoleService.find(va.getManager().getJob().getId()));
+            if (va.getResult()!= null && va.getResult()){
+                approved.append(va.getManager().getName()).append(" ");
+            }
+        }
 
         if (result == null){
             vaForm.setMessage(String.format(NOT_ACCEPTED_YET, matchingFIO, vacationType, employeeFIO, region, dateBegin,
