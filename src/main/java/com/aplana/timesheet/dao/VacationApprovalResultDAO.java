@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import java.util.List;
 
 /**
  * User: vsergeev
@@ -25,10 +26,10 @@ public class VacationApprovalResultDAO {
         return vacationApprovalResult;
     }
 
-    public VacationApprovalResult getVacationApprovalResultByManager(VacationApproval vacationApproval){
+    public List<VacationApprovalResult> getVacationApprovalResultByManager(VacationApproval vacationApproval){
         Query query = entityManager.createQuery("from VacationApprovalResult as var " +
                 "where var.vacationApproval = :vacationApproval")
                 .setParameter("vacationApproval", vacationApproval);
-        return (VacationApprovalResult) query.getSingleResult();
+        return (List<VacationApprovalResult>) query.getResultList();
     }
 }

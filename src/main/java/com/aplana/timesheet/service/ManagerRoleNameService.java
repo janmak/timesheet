@@ -3,8 +3,13 @@ package com.aplana.timesheet.service;
 import com.aplana.timesheet.dao.entity.Employee;
 import com.aplana.timesheet.dao.entity.Project;
 import com.aplana.timesheet.dao.entity.VacationApproval;
+import com.aplana.timesheet.dao.entity.VacationApprovalResult;
+import com.aplana.timesheet.enums.ProjectRolesEnum;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Сервис, который возвращает название роли руководителя для конкретного сотрудника
@@ -21,43 +26,55 @@ public class ManagerRoleNameService {
     private final String TEAM_LEADER = "Тим-лидер \"%s\"";
 
     @Autowired
-    private ProjectParticipantService projectParticipantService;
-    @Autowired
     private VacationApprovalResultService vacationApprovalResultService;
 
     /** Получить проектную роль согласующего*/
     public String getManagerRoleName(VacationApproval vacationApproval){
-        if (isLineManager(vacationApproval)){
+        if (isLineManager(vacationApproval.getVacation().getEmployee(), vacationApproval.getManager())){
             return LINE_MANAGER;
         }
-        Project project = getProject(vacationApproval);
-
-        if (project.getManager().getId().equals(vacationApproval.getManager().getId())){
-//                ||(isProjectManager(vacationApproval.getManager(), project))){
-            return String.format(PROJECT_LEADER, project.getName());
+        List<Project> projectList = getProjects(vacationApproval);
+        for (Project project : projectList){
+            if (project.getManager().getId().equals(vacationApproval.getManager().getId())){
+                return String.format(PROJECT_LEADER, project.getName());
+            }
         }
-
-        if (vacationApproval.getManager().getJob().getId().equals(15)){
+        Project project = projectList.get(0);
+        if (vacationApproval.getManager().getJob().getId().equals(ProjectRolesEnum.ANALYST)){
             return String.format(SENIOR_ANALYST, project.getName());
         }
         return String.format(TEAM_LEADER, project.getName());
     }
 
-    private Project getProject(VacationApproval vacationApproval){
-        return vacationApprovalResultService.getVacationApprovalResultByManager(vacationApproval).getProject();
+    private List<Project> getProjects(VacationApproval vacationApproval){
+        List<VacationApprovalResult> projectsVarList = vacationApprovalResultService.getVacationApprovalResultByManager(vacationApproval);
+        List<Project> resultList = new ArrayList<Project>();
+        for (VacationApprovalResult var : projectsVarList){
+            resultList.add(var.getProject());
+        }
+        return resultList;
     }
 
     /** Проверка на линейного руководителя*/
-    private Boolean isLineManager(VacationApproval vacationApproval){
-        Integer manager = vacationApproval.getVacation().getEmployee().getManager() != null
-                ? vacationApproval.getVacation().getEmployee().getManager().getId() : null;
-        Integer manager2 = vacationApproval.getVacation().getEmployee().getManager2() != null
-                ? vacationApproval.getVacation().getEmployee().getManager2().getId() : null;
-        return ( vacationApproval.getManager().getId().equals(manager)) || (vacationApproval.getManager().getId().equals(manager2));
-    }
-
-    /** Проверка на тот случай, когда у проекта может быть больше руководителей проекта*/
-    private Boolean isProjectManager(Employee manager, Project project){
-        return projectParticipantService.isProjectManager(manager, project);
+    private Boolean isLineManager(Employee employee, Employee manager){
+        Integer man = employee.getManager() != null
+                ? employee.getManager().getId() : null;
+        Integer man2 = employee.getManager2() != null
+                ? employee.getManager2().getId() : null;
+        if (!(manager.getId().equals(man)) || (manager.getId().equals(man2))){
+            if (man2 != null){
+                if (isLineManager(manager.getManager2(), manager)){
+                    return true;
+                }else{
+                    return isLineManager(manager.getManager(), manager);
+                }
+            }if(man != null){
+                return isLineManager(employee.getManager(), manager);
+            }else{
+                return false;
+            }
+        }else{
+            return true;
+        }
     }
 }

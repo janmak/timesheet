@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 /**
  * User: vsergeev
  * Date: 08.02.13
@@ -27,7 +29,7 @@ public class VacationApprovalResultService {
      * @param vacationApproval
      * @return
      */
-    public VacationApprovalResult getVacationApprovalResultByManager(VacationApproval vacationApproval){
+    public List<VacationApprovalResult> getVacationApprovalResultByManager(VacationApproval vacationApproval){
         return vacationApprovalResultDAO.getVacationApprovalResultByManager(vacationApproval);
     }
 }
