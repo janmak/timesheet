@@ -450,7 +450,13 @@ function divisionChange(obj) {
     }
     var rows = dojo.query(".row_number");
     for (var i = 0; i < rows.length; i++) {
-        fillProjectList(i, dojo.byId("activity_type_id_" + i).value);
+        if ((dojo.byId("activity_type_id_" + i).value == "12")
+            || (dojo.byId("activity_type_id_" + i).value == "42")){
+            fillProjectList(i, "12");
+        }else{
+            fillProjectList(i, dojo.byId("activity_type_id_" + i).value);
+        }
+
     }
 }
 
@@ -473,7 +479,11 @@ function typeActivityChange(obj) {
     if ((select.value == "12") || (select.value == "13") || (select.value == "42")) {
         dojo.removeAttr("project_id_" + rowIndex, "disabled");
         dojo.removeAttr("project_role_id_" + rowIndex, "disabled");
-        fillProjectList(rowIndex, select.value);
+        if (select.value == "13"){
+            fillProjectList(rowIndex, select.value);
+        }else{
+            fillProjectList(rowIndex, "12");
+        }
     }
 
     // Внепроектная активность
