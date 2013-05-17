@@ -244,7 +244,12 @@ public class SendMailService{
 
     public String initMessageBodyForReport(TimeSheet timeSheet) {
         Map<String, Object> model1 = new HashMap<String, Object>();
-
+        Iterator<TimeSheetDetail> iteratorTSD = timeSheet.getTimeSheetDetails().iterator();
+        Double summDuration = 0D;
+        while (iteratorTSD.hasNext()){
+            summDuration = summDuration + iteratorTSD.next().getDuration();
+        }
+        model1.put("summDuration", summDuration);
         model1.put("dictionaryItemService", dictionaryItemService);
         model1.put("projectService", projectService);
         model1.put("DateTimeUtil", DateTimeUtil.class);
