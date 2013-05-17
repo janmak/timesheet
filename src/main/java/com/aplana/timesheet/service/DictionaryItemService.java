@@ -5,6 +5,7 @@ import com.aplana.timesheet.dao.DictionaryItemDAO;
 import com.aplana.timesheet.dao.entity.DictionaryItem;
 import com.aplana.timesheet.enums.DictionaryEnum;
 import com.aplana.timesheet.enums.TypesOfActivityEnum;
+import com.aplana.timesheet.enums.UndertimeCausesEnum;
 import com.aplana.timesheet.util.JsonUtil;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -72,7 +74,15 @@ public class DictionaryItemService {
 
     @Transactional(readOnly = true)
     public List<DictionaryItem> getUnfinishedDayCauses() {
-        return dictionaryItemDAO.getItemsByDictionaryIdAndOrderById(DictionaryEnum.UNDERTIME_CAUSE.getId());
+        List<DictionaryItem> dictionaryList = dictionaryItemDAO.getItemsByDictionaryIdAndOrderById(DictionaryEnum.UNDERTIME_CAUSE.getId());
+        List<DictionaryItem> dictionaryListClone = new ArrayList<DictionaryItem>(dictionaryList);
+        for (DictionaryItem di : dictionaryListClone){
+            if (di.getId().equals(UndertimeCausesEnum.OTHER.getId())){
+                dictionaryList.remove(di);
+                dictionaryList.add(di);
+            }
+        }
+        return dictionaryList;
     }
 
     @Transactional(readOnly = true)

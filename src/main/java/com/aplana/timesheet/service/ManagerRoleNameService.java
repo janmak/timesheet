@@ -62,13 +62,7 @@ public class ManagerRoleNameService {
         Integer man2 = employee.getManager2() != null
                 ? employee.getManager2().getId() : null;
         if (!(manager.getId().equals(man)) || (manager.getId().equals(man2))){
-            if (man2 != null){
-                if (isLineManager(manager.getManager2(), manager)){
-                    return true;
-                }else{
-                    return isLineManager(manager.getManager(), manager);
-                }
-            }if(man != null){
+            if(man != null){
                 return isLineManager(employee.getManager(), manager);
             }else{
                 return false;
