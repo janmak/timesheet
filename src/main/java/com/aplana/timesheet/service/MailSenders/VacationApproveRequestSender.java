@@ -1,5 +1,6 @@
 package com.aplana.timesheet.service.MailSenders;
 
+import com.aplana.timesheet.dao.entity.ApprovalResultModel;
 import com.aplana.timesheet.dao.entity.Employee;
 import com.aplana.timesheet.dao.entity.Vacation;
 import com.aplana.timesheet.dao.entity.VacationApproval;
@@ -80,20 +81,18 @@ public class VacationApproveRequestSender extends AbstractVacationSender<Vacatio
             }
         }
 
-        List<Employee> setEmployee = new ArrayList<Employee>();
+        List<ApprovalResultModel> approvalList = new ArrayList<ApprovalResultModel>();
 
         for (VacationApproval va : otherApprovals){
-
-            Employee emp = new Employee();
-            emp.setEmail(managerRoleNameService.getManagerRoleName(va));
-            emp.setLdap(va.getManager().getName());
-            emp.setName(va.getResult() == null ? "Еще не рассмотрел(а)" : (va.getResult() ? "Согласовано" : "Не согласовано"));
-            setEmployee.add(emp);
+            ApprovalResultModel arm = new ApprovalResultModel();
+            arm.setRole(managerRoleNameService.getManagerRoleName(va));
+            arm.setName(va.getManager().getName());
+            arm.setResult(va.getResult() == null ? "Еще не рассмотрел(а)" : (va.getResult() ? "Согласовано" : "Не согласовано"));
+            approvalList.add(arm);
         }
-        Iterable<Employee> employeeIterator = setEmployee;
 
         Map model = new HashMap();
-        model.put("employeeList", employeeIterator);
+        model.put("approvalList", approvalList.iterator());
         String messageBody = VelocityEngineUtils.mergeTemplateIntoString(
                 sendMailService.velocityEngine, "vacationapprovals.vm", model);
         logger.debug("Message Body: {}", messageBody);

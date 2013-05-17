@@ -1,11 +1,13 @@
 package com.aplana.timesheet.controller;
 
+import com.aplana.timesheet.dao.entity.ApprovalResultModel;
 import com.aplana.timesheet.dao.entity.ProjectRole;
 import com.aplana.timesheet.dao.entity.Vacation;
 import com.aplana.timesheet.dao.entity.VacationApproval;
 import com.aplana.timesheet.exception.service.VacationApprovalServiceException;
 import com.aplana.timesheet.form.VacationApprovalForm;
 import com.aplana.timesheet.properties.TSPropertyProvider;
+import com.aplana.timesheet.service.ManagerRoleNameService;
 import com.aplana.timesheet.service.ProjectRoleService;
 import com.aplana.timesheet.service.SendMailService;
 import com.aplana.timesheet.service.VacationApprovalService;
@@ -40,7 +42,7 @@ public class VacationApprovalController {
     @Autowired
     private SendMailService sendMailService;
     @Autowired
-    private ProjectRoleService projectRoleService;
+    private ManagerRoleNameService managerRoleNameService;
 
     private static final Logger logger = LoggerFactory.getLogger(VacationApprovalController.class);
 
@@ -87,14 +89,16 @@ public class VacationApprovalController {
         String comment = vacationApproval.getVacation().getComment();
         Boolean result = vacationApproval.getResult();
 
-        StringBuilder approved = new StringBuilder();
-        List<ProjectRole> listPR = new ArrayList<ProjectRole>();
+        List<ApprovalResultModel> approvalList = new ArrayList<ApprovalResultModel>();
+
         for (VacationApproval va : otherApprovals){
-            listPR.add(projectRoleService.find(va.getManager().getJob().getId()));
-            if (va.getResult()!= null && va.getResult()){
-                approved.append(va.getManager().getName()).append(" ");
-            }
+            ApprovalResultModel arm = new ApprovalResultModel();
+            arm.setRole(managerRoleNameService.getManagerRoleName(va));
+            arm.setName(va.getManager().getName());
+            arm.setResult(va.getResult() == null ? "Еще не рассмотрел(а)" : (va.getResult() ? "Согласовано" : "Не согласовано"));
+            approvalList.add(arm);
         }
+        vaForm.setApprovalList(approvalList);
 
         if (result == null){
             vaForm.setMessage(String.format(NOT_ACCEPTED_YET, matchingFIO, vacationType, employeeFIO, region, dateBegin,

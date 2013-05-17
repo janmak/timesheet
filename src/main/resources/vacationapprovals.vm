@@ -5,21 +5,21 @@
         <td><b>Фамилия Имя сотрудника</b></td>
         <td><b>Решение</b></td>
     </tr>
-    #foreach($employee in $employeeList)
+    #foreach($approval in $approvalList)
     <tr>
         <td>
             <ol>
-                $employee.email
+                $approval.role
             </ol>
         </td>
         <td>
             <ol>
-                $employee.ldap
+                $approval.name
             </ol>
         </td>
         <td>
             <ol>
-                $employee.name
+                $approval.result
             </ol>
         </td>
     </tr>
