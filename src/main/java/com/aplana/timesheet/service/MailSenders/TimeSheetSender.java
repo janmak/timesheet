@@ -140,7 +140,9 @@ public class TimeSheetSender extends MailSender<TimeSheetForm> {
                 result.put(i, ACT_TYPE, TypesOfActivityEnum.getById(actTypeId).getName());
 
                 String projectName = null;
-                if (actTypeId <= 13) {
+                if ((actTypeId.equals(TypesOfActivityEnum.PROJECT.getId()))
+                        ||(actTypeId.equals(TypesOfActivityEnum.PROJECT_PRESALE.getId()))
+                        ||(actTypeId.equals(TypesOfActivityEnum.PRESALE.getId()))){
                     Integer projectId = tsRow.getProjectId();
                     if (projectId != null) {
                         result.put(i, PROJECT_NAME, (projectName = sendMailService.getProjectName(projectId)));

@@ -43,7 +43,7 @@
                         </br>
                     </b>
                     <b> $dictionaryItemService.find($actTypeId).getValue() </b>
-                    #if ($actTypeId <= 13)
+                    #if (($actTypeId == 12) || ($actTypeId == 13) || ($actTypeId == 42))
                         <b> $projectName </b>
                     #end
                     #if ($actCatId != $null && $actCatId > 0)
