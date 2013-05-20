@@ -70,10 +70,6 @@ public class VacationApprovalController {
         mav.addObject("NoPageFormat", "true");
 
         VacationApproval vacationApproval = vacationApprovalService.getVacationApproval(uid);
-        Vacation vacation = vacationApproval.getVacation();
-        logger.debug(vacation.toString());
-        List<VacationApproval> otherApprovals = vacationApprovalService.getAllApprovalsForVacation(vacation);
-        otherApprovals.remove(vacationApproval);
 
         if (vacationApproval == null){
             proceedBadRequest(vaForm, request);
@@ -89,16 +85,8 @@ public class VacationApprovalController {
         String comment = vacationApproval.getVacation().getComment();
         Boolean result = vacationApproval.getResult();
 
-        List<ApprovalResultModel> approvalList = new ArrayList<ApprovalResultModel>();
 
-        for (VacationApproval va : otherApprovals){
-            ApprovalResultModel arm = new ApprovalResultModel();
-            arm.setRole(managerRoleNameService.getManagerRoleName(va));
-            arm.setName(va.getManager().getName());
-            arm.setResult(va.getResult() == null ? "Еще не рассмотрел(а)" : (va.getResult() ? "Согласовано" : "Не согласовано"));
-            approvalList.add(arm);
-        }
-        vaForm.setApprovalList(approvalList);
+        vaForm.setApprovalList(getApprovalList(vacationApproval));
 
         if (result == null){
             vaForm.setMessage(String.format(NOT_ACCEPTED_YET, matchingFIO, vacationType, employeeFIO, region, dateBegin,
@@ -158,7 +146,30 @@ public class VacationApprovalController {
 
         vacationApprovalProcessService.checkVacationIsApproved(vacationApproval.getVacation());
 
+        vaForm.setApprovalList(getApprovalList(vacationApproval));
+
         return mav;
+    }
+
+    private List<ApprovalResultModel> getApprovalList(VacationApproval vacationApproval){
+        Vacation vacation = vacationApproval.getVacation();
+        List<VacationApproval> otherApprovals = vacationApprovalService.getAllApprovalsForVacation(vacation);
+        if (vacationApproval.getResult() == null){
+            otherApprovals.remove(vacationApproval);
+        }
+
+        List<ApprovalResultModel> approvalList = new ArrayList<ApprovalResultModel>();
+
+        for (VacationApproval va : otherApprovals){
+            ApprovalResultModel arm = new ApprovalResultModel();
+            arm.setRole(managerRoleNameService.getManagerRoleName(va));
+            arm.setName(va.getManager().getName());
+            arm.setResult(va.getResult() == null ? "Еще не рассмотрел(а)" : (va.getResult() ? "Согласовано" : "Не согласовано"));
+            approvalList.add(arm);
+        }
+
+        return approvalList;
+
     }
 
     private void proceedBadRequest(VacationApprovalForm vaForm, HttpServletRequest request){

@@ -350,6 +350,10 @@
             if (!dojo.byId("<%= PROJECT_ROLES %>").value) {
                 errors.push("Не выбрана ни одна должность");
             }
+            if ((!dojo.byId("<%= SHOW_PLANS%>").checked )
+                    && (!dojo.byId("<%= SHOW_FACTS%>").checked )){
+                errors.push("Необходимо выбрать плановые или фактические показатели для отображения");
+            }
 
             return !showErrors(errors);
         }
@@ -502,10 +506,10 @@
         <tr>
             <td>
                 <div>
-                    <form:checkbox path="<%= SHOW_PLANS %>" label="Показывать плановые показатели" />
+                    <form:checkbox id="showPlans" path="<%= SHOW_PLANS %>" label="Показывать плановые показатели" />
                 </div>
                 <div>
-                    <form:checkbox path="<%= SHOW_FACTS %>" label="Показывать фактические показатели" />
+                    <form:checkbox id="showFacts" path="<%= SHOW_FACTS %>" label="Показывать фактические показатели" />
                 </div>
             </td>
             <td>
