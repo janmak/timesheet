@@ -506,10 +506,10 @@
         <tr>
             <td>
                 <div>
-                    <form:checkbox id="showPlans" path="<%= SHOW_PLANS %>" label="Показывать плановые показатели" />
+                    <form:checkbox id="<%= SHOW_PLANS %>" path="<%= SHOW_PLANS %>" label="Показывать плановые показатели" />
                 </div>
                 <div>
-                    <form:checkbox id="showFacts" path="<%= SHOW_FACTS %>" label="Показывать фактические показатели" />
+                    <form:checkbox id="<%= SHOW_FACTS %>" path="<%= SHOW_FACTS %>" label="Показывать фактические показатели" />
                 </div>
             </td>
             <td>

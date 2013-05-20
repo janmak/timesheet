@@ -1,7 +1,9 @@
 package com.aplana.timesheet.form.validator;
 
+import com.aplana.timesheet.dao.entity.Calendar;
 import com.aplana.timesheet.enums.VacationTypesEnum;
 import com.aplana.timesheet.form.CreateVacationForm;
+import com.aplana.timesheet.service.CalendarService;
 import com.aplana.timesheet.service.EmployeeService;
 import com.aplana.timesheet.service.SecurityService;
 import com.aplana.timesheet.service.VacationService;
@@ -13,6 +15,7 @@ import org.springframework.validation.Errors;
 
 import java.sql.Timestamp;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author rshamsutdinov
@@ -34,6 +37,9 @@ public class CreateVacationFormValidator extends AbstractValidator {
 
     @Autowired
     private EmployeeService employeeService;
+
+    @Autowired
+    private CalendarService calendarService;
 
     @Override
     public boolean supports(Class<?> aClass) {
@@ -97,6 +103,13 @@ public class CreateVacationFormValidator extends AbstractValidator {
                         "calToDate",
                         "error.createVacation.wrongtodate",
                         "Дата окончания отпуска не может быть больше даты начала"
+                );
+            }
+            if (calendarService.find(toDate) == null){
+                errors.rejectValue(
+                        "calToDate",
+                        "error.createVacation.wrongyear",
+                        "Календарь на этот год еще не заполнен, оформите заявление позже или обратитесь в службу поддержки системы"
                 );
             }
         } else {
