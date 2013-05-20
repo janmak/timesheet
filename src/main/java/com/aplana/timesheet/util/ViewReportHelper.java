@@ -28,7 +28,7 @@ public class ViewReportHelper {
 
             Integer value = 0; //если нет отчета
 
-            if (queryResult.getId() != null)
+            if ((queryResult.getId() != null) || (queryResult.getVacationDay()) || (queryResult.getIllnessDay()))
                 value = 1;   //если есть отчет
             else if (!queryResult.getWorkDay())
                 value = 2;   //если выходной или праздничный день
