@@ -4,10 +4,8 @@ import com.aplana.timesheet.controller.quickreport.BusinessTripsQuickReport;
 import com.aplana.timesheet.controller.quickreport.IllnessesQuickReport;
 import com.aplana.timesheet.controller.quickreport.QuickReport;
 import com.aplana.timesheet.controller.quickreport.QuickReportGenerator;
+import com.aplana.timesheet.dao.entity.*;
 import com.aplana.timesheet.dao.entity.Calendar;
-import com.aplana.timesheet.dao.entity.Division;
-import com.aplana.timesheet.dao.entity.Employee;
-import com.aplana.timesheet.dao.entity.Permission;
 import com.aplana.timesheet.enums.PermissionsEnum;
 import com.aplana.timesheet.enums.QuickReportTypesEnum;
 import com.aplana.timesheet.enums.RegionsEnum;
@@ -35,10 +33,7 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.annotation.Nullable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Set;
+import java.util.*;
 
 import static com.aplana.timesheet.enums.PermissionsEnum.CHANGE_ILLNESS_BUSINESS_TRIP;
 import static com.aplana.timesheet.enums.PermissionsEnum.VIEW_ILLNESS_BUSINESS_TRIP;
@@ -299,11 +294,30 @@ public class BusinessTripsAndIllnessController extends AbstractController{
         modelAndView.addObject("monthList", DateTimeUtil.getMonthListJson(years, calendarService));
         modelAndView.addObject("divisionList", divisionList);
         modelAndView.addObject("employeeListJson", employeeHelper.getEmployeeListJson(divisionList, employeeService.isShowAll(request)));
+        report.setPeriodicalsList(clearDublicatePeriodicals(report.getPeriodicalsList()));
         modelAndView.addObject("reports", report);
         modelAndView.addObject("reportFormed", printtype);
         modelAndView.addObject("recipientPermission", recipientPermission);
 
         return modelAndView;
+    }
+
+    private List<Periodical> clearDublicatePeriodicals(List<Periodical> periodicalList){
+        List<Periodical> cleanPeriodicalList = new ArrayList<Periodical>();
+        for (Periodical p : periodicalList){
+            Boolean isAdded = false;
+            for (Periodical cp : cleanPeriodicalList){
+                if (p.getBeginDate().equals(cp.getBeginDate())){
+                    cp.setWorkingDays(cp.getWorkingDays() + p.getWorkingDays());
+                    cp.setCalendarDays(cp.getCalendarDays() + p.getCalendarDays());
+                    isAdded = true;
+                }
+            }
+            if (!isAdded){
+                cleanPeriodicalList.add(p);
+            }
+        }
+        return cleanPeriodicalList;
     }
 
     /**

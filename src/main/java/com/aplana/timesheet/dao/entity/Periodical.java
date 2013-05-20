@@ -20,7 +20,11 @@ public interface Periodical {
 
     void setWorkingDays(Long workingDays);
 
+    Long getWorkingDays();
+
     void setCalendarDays(Long calendarDays);
+
+    Long getCalendarDays();
 
     Employee getEmployee();
 }

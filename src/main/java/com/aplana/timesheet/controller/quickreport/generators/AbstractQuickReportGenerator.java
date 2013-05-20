@@ -122,15 +122,15 @@ public abstract class AbstractQuickReportGenerator <T extends QuickReport, K ext
     }
 
     protected boolean periodicalCoversAllPeriod(Date periodBeginDate, Date periodEndDate, K periodical) {
-        return periodical.getBeginDate().before(periodBeginDate) && periodical.getEndDate().after(periodEndDate);
+        return (periodical.getBeginDate().compareTo(periodBeginDate)<=0) && (periodical.getEndDate().compareTo(periodEndDate)>=0);
     }
 
     protected boolean periodicalCrossesTheEndOfTheMounth(Date periodEndDate, K periodical) {
-        return periodical.getBeginDate().before(periodEndDate) && periodical.getEndDate().after(periodEndDate);
+        return (periodical.getBeginDate().compareTo(periodEndDate)<=0) && (periodical.getEndDate().compareTo(periodEndDate)>=0);
     }
 
     protected boolean periodicalCrossesTheBeginningOfTheMounth(Date periodBeginDate, K periodical) {
-        return periodical.getEndDate().after(periodBeginDate) && periodical.getBeginDate().before(periodBeginDate);
+        return (periodical.getEndDate().compareTo(periodBeginDate)>=0) && (periodical.getBeginDate().compareTo(periodBeginDate)<=0);
     }
 
     protected boolean periodicalIsFullyInPeriod(Date periodBeginDate, Date periodEndDate, K periodical) {

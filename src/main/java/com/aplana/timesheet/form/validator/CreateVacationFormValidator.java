@@ -28,6 +28,8 @@ public class CreateVacationFormValidator extends AbstractValidator {
     private static final int MAX_COMMENT_LENGTH = 400;
     private static final String MAX_LENGTH_ERROR_MESSAGE =
             String.format("Длина комментария превышает допустимые %d символов", MAX_COMMENT_LENGTH);
+    private static final String WRONG_YEAR_ERROR_MESSAGE = "Календарь на %i год еще не заполнен, " +
+            "оформите заявление позже или обратитесь в службу поддержки системы";
 
     @Autowired
     private VacationService vacationService;
@@ -109,7 +111,8 @@ public class CreateVacationFormValidator extends AbstractValidator {
                 errors.rejectValue(
                         "calToDate",
                         "error.createVacation.wrongyear",
-                        "Календарь на этот год еще не заполнен, оформите заявление позже или обратитесь в службу поддержки системы"
+                        new Object[]{toDate.getYear()+1900},
+                        WRONG_YEAR_ERROR_MESSAGE
                 );
             }
         } else {
