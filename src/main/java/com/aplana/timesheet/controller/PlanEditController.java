@@ -562,6 +562,10 @@ public class PlanEditController {
             }
         }
 
+        summaryFact += TimeSheetConstants.WORK_DAY_DURATION * vacationService.getVacationsWorkdaysCount(
+                employee, year, month,
+                VacationStatusEnum.APPROVED);
+
         final Map<String, JsonNodeBuilder> map = Maps.newHashMap();
 
         for (Map.Entry<Integer, Double> entry : projectsFactMap.entrySet()) {
