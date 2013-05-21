@@ -115,9 +115,9 @@ public class VacationApprovedSender extends AbstractVacationSenderWithCopyToAuth
     private String getSubject(Vacation vacation) {
         String beginDateStr = DateFormatUtils.format(vacation.getBeginDate(), DATE_FORMAT);
         String endDateStr = DateFormatUtils.format(vacation.getEndDate(), DATE_FORMAT);
-
-        return  String.format("Согласование %s сотрудника %s на период с %s - %s", vacation.getType().getValue(), vacation.getEmployee().getName(),
-                        beginDateStr, endDateStr);
+        return  String.format("Согласован отпуск %s - %s", beginDateStr, endDateStr);
+//        return  String.format("Согласование %s сотрудника %s на период с %s - %s", vacation.getType().getValue(), vacation.getEmployee().getName(),
+//                        beginDateStr, endDateStr);
     }
 
 }

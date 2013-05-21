@@ -121,7 +121,7 @@ public class ManagerAlertSender extends AbstractSenderWithAssistants<List<Report
         }));
 
         return  propertyProvider.getTimesheetMailMarker() + // APLANATS-571
-                " Отчет по списанию занятости за " + Joiner.on(", ").join(
+                " Не отчитались за " + Joiner.on(", ").join(
                 Sets.newHashSet(Iterables.transform(concat, new Function<String, String>() {
                     @Nullable @Override
                     public String apply(@Nullable String params) {

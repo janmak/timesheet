@@ -59,7 +59,7 @@ public class PersonalAlertSender extends AbstractSenderWithAssistants<List<Repor
 
     private String getSubject(ReportCheck currentReportCheck) {
         return  propertyProvider.getTimesheetMailMarker() + // APLANATS-571
-                " Cрочно списать занятость за " + Joiner.on(", ").join(
+                " Отчитаться за " + Joiner.on(", ").join(
                 Sets.newHashSet(Iterables.transform(currentReportCheck.getPassedDays(), new Function<String, String>() {
                     @Nullable @Override
                     public String apply(@Nullable String input) {

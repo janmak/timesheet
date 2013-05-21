@@ -108,8 +108,9 @@ public class VacationApproveRequestSender extends AbstractVacationSender<Vacatio
         String beginDateStr = DateFormatUtils.format(vacation.getBeginDate(), DATE_FORMAT);
         String endDateStr = DateFormatUtils.format(vacation.getEndDate(), DATE_FORMAT);
 
-        return  String.format("%s %s %s - %s", vacation.getStatus().getValue(), vacation.getEmployee().getName(),
-                        beginDateStr, endDateStr);
+        return  String.format("Запрос отпуска %s", vacation.getEmployee().getName());
+//        return  String.format("%s %s %s - %s", vacation.getStatus().getValue(), vacation.getEmployee().getName(),
+//                        beginDateStr, endDateStr);
     }
 
 }

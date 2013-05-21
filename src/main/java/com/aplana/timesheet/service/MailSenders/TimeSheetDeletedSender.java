@@ -59,7 +59,7 @@ public class TimeSheetDeletedSender extends AbstractSenderWithAssistants<TimeShe
 
     private String getSubject(Employee employee, String date) {
         return  propertyProvider.getTimesheetMailMarker() + // APLANATS-571
-                String.format(" Удален отчет сотрудника %s за %s", employee.getName(), date);
+                String.format(" Удален отчет за %s", date);
     }
 
     private Collection<String> getToEmails(TimeSheet input) {

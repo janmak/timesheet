@@ -69,7 +69,7 @@ public class VacationDeletedSender extends  AbstractVacationSenderWithCopyToAuth
     }
 
     private String getSubject(Vacation params) {
-        return  String.format(" Заявление на отпуск сотрудника \"%s\" удалено", params.getEmployee().getName());
+        return  String.format(" Удален отпуск %s", params.getEmployee().getName());
     }
 
     private Iterable<String> getToEmails(Vacation params) {
