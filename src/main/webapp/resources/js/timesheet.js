@@ -1091,6 +1091,7 @@ function checkDurationThenSendForm(){
     var actTypes = dojo.query(".activityType");
 
     var isHoliday = false;
+    var isVacation = false;
 
     dojo.xhrGet({
         url: getContextPath() + "/calendar/isholiday",
@@ -1116,9 +1117,33 @@ function checkDurationThenSendForm(){
         }
     });
 
+    dojo.xhrGet({
+        url: getContextPath() + "/calendar/isvacation",
+        headers: {
+            "If-Modified-Since":"Sat, 1 Jan 2000 00:00:00 GMT"
+        },
+        handleAs: "text",
+        timeout: 1000,
+        failOk: true,
+        content: { date: dijit.byId('calDate').get('value').format("yyyy-mm-dd"), employeeId: dojo.byId('employeeId').value },
+        sync: true,
+
+        load: function(dataAsText, ioArgs) {
+            var data;
+
+            try {
+                data = dojo.fromJson(dataAsText);
+            } catch (e) {}
+
+            if (data) {
+                isVacation = data.isVacation
+            }
+        }
+    });
+
     if (
         (totalDuration < (8 - overtimeThreshold) || totalDuration > (8 + overtimeThreshold) )
-        || isHoliday
+        || isHoliday || isVacation
     ) {
         var comment = dijit.byId("overtimeCauseComment");
 
@@ -1135,7 +1160,7 @@ function checkDurationThenSendForm(){
         select_box.removeOption(select_box.getOptions());
         select_box.addOption({ value: 0, label: "<div style='visibility: hidden;'>some invisible text, don't remove me!</div>" });
 
-        var evald_json = isHoliday ? workOnHolidayCauseList : (totalDuration < 8 ? unfinishedDayCauseList : overtimeCauseList);
+        var evald_json = isHoliday || isVacation ? workOnHolidayCauseList : (totalDuration < 8 ? unfinishedDayCauseList : overtimeCauseList);
 
         for (var key in evald_json) {
             var row = evald_json[key];
@@ -1146,13 +1171,13 @@ function checkDurationThenSendForm(){
             select_box.set('value', defaultOvertimeCause);
         }
 
-        var holidayDisplays = isHoliday ? "" : "none";
+        var holidayDisplays = isHoliday || isVacation ? "" : "none";
 
         dojo.byId("holidayWarning").style.display = dojo.byId("typeOfCompensationContainer").style.display = holidayDisplays;
 
         var dialog = dijit.byId("dialogOne");
 
-        dialog.set("title", "Укажите причину " + (isHoliday ? "работы в выходной день" : (totalDuration < 8 ? "недоработок" : "переработок")));
+        dialog.set("title", "Укажите причину " + (isHoliday || isVacation ? "работы в выходной день" : (totalDuration < 8 ? "недоработок" : "переработок")));
         dialog.show();
     } else {
 

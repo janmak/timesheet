@@ -2,6 +2,7 @@ package com.aplana.timesheet.controller;
 
 import com.aplana.timesheet.service.CalendarService;
 import com.aplana.timesheet.service.EmployeeService;
+import com.aplana.timesheet.service.VacationService;
 import com.aplana.timesheet.util.JsonUtil;
 import com.aplana.timesheet.util.ViewReportHelper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +26,10 @@ public class CalendarController extends AbstractController {
     public static final String CALENDAR_ISHOLIDAY_URL = "/calendar/isholiday";
     public static final String ISHOLIDAY_DATE = "date";
     public static final String ISHOLIDAY_EMPLOYEE_ID = "employeeId";
+    public static final String IS_VACATION_FIELD = "isVacation";
+    public static final String CALENDAR_ISVACATION_URL = "/calendar/isvacation";
+    public static final String ISVACATION_DATE = "date";
+    public static final String ISVACATION_EMPLOYEE_ID = "employeeId";
 
     @Autowired
     private ViewReportHelper viewReportHelper;
@@ -33,7 +38,11 @@ public class CalendarController extends AbstractController {
     private CalendarService calendarService;
 
     @Autowired
+    private VacationService vacationService;
+
+    @Autowired
     private EmployeeService employeeService;
+
 
     @RequestMapping(value = "/calendar/dates", headers = "Accept=application/json")
     @ResponseBody
@@ -56,6 +65,21 @@ public class CalendarController extends AbstractController {
                         field(
                                 IS_HOLIDAY_FIELD,
                                 calendarService.isHoliday(date, employeeService.find(employeeId)) ? trueNode() : falseNode())
+                )
+        );
+    }
+
+    @RequestMapping(value = CALENDAR_ISVACATION_URL, headers = "Accept=application/json")
+    @ResponseBody
+    public String isVacation(
+            @RequestParam(ISVACATION_DATE) Date date,
+            @RequestParam(ISVACATION_EMPLOYEE_ID) Integer employeeId
+    ) {
+        return JsonUtil.format(
+                object(
+                        field(
+                                IS_VACATION_FIELD,
+                                vacationService.isDayVacation(employeeService.find(employeeId), date) ? trueNode() : falseNode())
                 )
         );
     }

@@ -52,6 +52,8 @@ public class TimeSheetFormValidator extends AbstractValidator {
     private ProjectTaskService projectTaskService;
     @Autowired
     private TSPropertyProvider propertyProvider;
+    @Autowired
+    private VacationService vacationService;
 
     public boolean supports(Class<?> clazz) {
         return clazz.isAssignableFrom(TimeSheetForm.class);
@@ -398,33 +400,37 @@ public class TimeSheetFormValidator extends AbstractValidator {
                 employee
         );
 
+        boolean isVacation = vacationService.isDayVacation(
+                employee,
+                DateTimeUtil.stringToDate(tsForm.getCalDate(), AbstractController.DATE_FORMAT)
+        );
+
         // Отчет за выходные без отработанных часов невозможен
-        if (isHoliday && totalDuration == 0) {
+        if ((isHoliday || isVacation) && totalDuration == 0) {
             errors.rejectValue("overtimeCause", "error.tsform.workonholiday.zeroduration");
         }
 
         if (Math.abs(totalDuration - WORK_DAY_DURATION) > propertyProvider.getOvertimeThreshold() && checkOvertime ||
-                isHoliday
+                isHoliday || isVacation
                 ) {
             boolean isOvertime = totalDuration - WORK_DAY_DURATION > 0;
-            String concreteName = isHoliday ? "работы в выходной день" : (isOvertime ? "переработок" : "недоработок");
+            String concreteName = isHoliday || isVacation ? "работы в выходной день" : (isOvertime ? "переработок" : "недоработок");
             final Integer overtimeCause = tsForm.getOvertimeCause();
 
             if (isNotChoosed(overtimeCause)) {
                 errors.rejectValue("overtimeCause", "error.tsform.overtimecause.notchoosed", "Не указана причина " + concreteName);
             } else {
-                final TSEnum cause = isHoliday
+                final TSEnum cause = isHoliday || isVacation
                         ? EnumsUtils.tryFindById(overtimeCause, WorkOnHolidayCausesEnum.class)
                         : (
                         isOvertime
                                 ? EnumsUtils.tryFindById(overtimeCause, OvertimeCausesEnum.class)
                                 : EnumsUtils.tryFindById(overtimeCause, UndertimeCausesEnum.class)
                 );
-
                 checkCauseComment(cause, tsForm.getOvertimeCauseComment(), concreteName, errors);
             }
 
-            if (isHoliday) {
+            if (isHoliday || isVacation) {
                 checkTypeOfCompensation(tsForm, errors);
             }
         }
