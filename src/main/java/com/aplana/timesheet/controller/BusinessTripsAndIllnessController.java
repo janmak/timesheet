@@ -103,7 +103,7 @@ public class BusinessTripsAndIllnessController extends AbstractController{
                 case ILLNESS:
                     return deleteIllness(reportId);
                 default:
-                    return "Удаление такого типа отчетовеще не реализовано!";
+                    return "Удаление такого типа отчетов еще не реализовано!";
             }
         } catch (NoSuchElementException ex) {
             logger.error("Неизвестный тип отчета!", ex);
@@ -294,7 +294,7 @@ public class BusinessTripsAndIllnessController extends AbstractController{
         modelAndView.addObject("monthList", DateTimeUtil.getMonthListJson(years, calendarService));
         modelAndView.addObject("divisionList", divisionList);
         modelAndView.addObject("employeeListJson", employeeHelper.getEmployeeListJson(divisionList, employeeService.isShowAll(request)));
-        report.setPeriodicalsList(clearDublicatePeriodicals(report.getPeriodicalsList()));
+        report.setPeriodicalsList(clearDuplicatePeriodicals(report.getPeriodicalsList()));
         modelAndView.addObject("reports", report);
         modelAndView.addObject("reportFormed", printtype);
         modelAndView.addObject("recipientPermission", recipientPermission);
@@ -302,7 +302,7 @@ public class BusinessTripsAndIllnessController extends AbstractController{
         return modelAndView;
     }
 
-    private List<Periodical> clearDublicatePeriodicals(List<Periodical> periodicalList){
+    private List<Periodical> clearDuplicatePeriodicals(List<Periodical> periodicalList){
         List<Periodical> cleanPeriodicalList = new ArrayList<Periodical>();
         for (Periodical p : periodicalList){
             Boolean isAdded = false;

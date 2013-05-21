@@ -310,7 +310,7 @@
                                     <td>
                                         <div class="iconbutton">
                                             <img src="<c:url value="/resources/img/delete.png"/>" title="Удалить"
-                                                 onclick="deleteReport(this.parentElement, ${report.id}, ${report.calendarDays}, ${report.workingDays});" />
+                                                 onclick="deleteReport(this.parentElement, ${report.id}, ${report.calendarDays}, ${report.workingDays}, ${report.workDaysOnIllnessWorked});" />
                                         </div>
                                     </td>
                                 </sec:authorize>
