@@ -38,11 +38,15 @@ public class VacationDAO {
     }
 
     public List<Vacation> findVacations(Integer employeeId, Date beginDate, Date endDate, DictionaryItem typeId){
-        final Query query =
+        final Query query = typeId != null ?
                 entityManager.createQuery("from Vacation v where v.employee.id = :emp_id and v.beginDate <= :endDate " +
                         "and v.endDate >= :beginDate and v.type = :typeId order by v.beginDate")
                         .setParameter("emp_id", employeeId).setParameter("beginDate", beginDate)
-                        .setParameter("endDate", endDate).setParameter("typeId", typeId);
+                        .setParameter("endDate", endDate).setParameter("typeId", typeId) :
+                entityManager.createQuery("from Vacation v where v.employee.id = :emp_id and v.beginDate <= :endDate " +
+                        "and v.endDate >= :beginDate order by v.beginDate")
+                        .setParameter("emp_id", employeeId).setParameter("beginDate", beginDate)
+                        .setParameter("endDate", endDate);
         return query.getResultList();
     }
 

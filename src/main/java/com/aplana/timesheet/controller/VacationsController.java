@@ -87,16 +87,16 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
         String toDate = vacationsForm.getCalToDate();
         Date beginDateTS = DateTimeUtil.stringToDate(fromDate, DATE_FORMAT);
         Date endDateTS = DateTimeUtil.stringToDate(toDate, DATE_FORMAT);
-        Employee employee = employeeId != -1 ? employeeService.find(employeeId) : null;
-
-        final List<Vacation> vacations = employeeId != -1 ? vacationService.findVacations(employeeId, beginDateTS, endDateTS,
-                dictionaryItemService.find(vacationsForm.getVacationType()))
+        DictionaryItem vacationType = vacationsForm.getVacationType() != 0 ?
+                dictionaryItemService.find(vacationsForm.getVacationType()) : null;
+        final List<Vacation> vacations = employeeId != -1
+                ? vacationService.findVacations(employeeId, beginDateTS, endDateTS,vacationType)
                 : findAllVacations(divisionId,
                 vacationsForm.getManagerId(),
                 vacationsForm.getRegions(),
                 beginDateTS,
                 endDateTS,
-                dictionaryItemService.find(vacationsForm.getVacationType()));
+                vacationType);
 
         final ModelAndView modelAndView = createModelAndViewForEmployee("vacations", employeeId, divisionId);
 
