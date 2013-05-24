@@ -214,4 +214,12 @@ public class EmployeeService {
     public List<Employee> getEmployeesForSync() {
         return employeeDAO.getEmployeesForSync();
     }
+
+    public List<Employee> getManagerListForAllEmployee(){
+        return employeeDAO.getManagerListForAllEmployee();
+    }
+
+    public List<Integer> getEmployeesIdByDivisionManagerRegion(Integer divisionId, Integer managerId, Integer regionId){
+        return employeeDAO.getEmployeesIdByDivisionManagerRegion(divisionId, managerId, regionId);
+    }
 }

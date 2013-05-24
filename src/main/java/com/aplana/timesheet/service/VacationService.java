@@ -61,6 +61,10 @@ public class VacationService {
         return vacationDAO.findVacations(employeeId, year);
     }
 
+    public List<Vacation> findVacations(Integer employeeId, Date beginDate, Date endDate, DictionaryItem typeId) {
+        return vacationDAO.findVacations(employeeId, beginDate, endDate, typeId);
+    }
+
     @Transactional
     public Vacation tryFindVacation(Integer vacationId) {
         return vacationDAO.tryFindVacation(vacationId);

@@ -75,7 +75,7 @@ public class AssignmentLeadersController {
             Integer divisionId = tableRow.getDivisionId();
             Integer regionId = tableRow.getRegionId();
             Integer leaderId = tableRow.getLeaderId();
-            Manager manager = managerService.getManagerByDevisionAndRegion(divisionId, regionId);
+            Manager manager = managerService.getManagerByDivisionAndRegion(divisionId, regionId);
 
             // если такой записи нет, и руководитель не был назначен - переходим к следующей записи
             if (manager == null && leaderId == 0) {
@@ -124,7 +124,7 @@ public class AssignmentLeadersController {
 
                     tableRow.setRegionDivisionEmployees(getRegionDivisionEmployees(employees, region, division));
 
-                    Manager manager = managerService.getManagerByDevisionAndRegion(division, region);
+                    Manager manager = managerService.getManagerByDivisionAndRegion(division, region);
                     if (manager != null){
                         tableRow.setLeaderId(manager.getEmployee().getId());
                         tableRow.setLeader(manager.getEmployee().getName());

@@ -1,5 +1,6 @@
 package com.aplana.timesheet.dao;
 
+import com.aplana.timesheet.dao.entity.DictionaryItem;
 import com.aplana.timesheet.dao.entity.Employee;
 import com.aplana.timesheet.dao.entity.Vacation;
 import com.aplana.timesheet.enums.VacationStatusEnum;
@@ -33,6 +34,15 @@ public class VacationDAO {
                 entityManager.createQuery("from Vacation v where v.employee.id = :emp_id and (YEAR(v.beginDate) = :year or YEAR(v.endDate) = :year) order by v.beginDate")
                         .setParameter("emp_id", employeeId).setParameter("year", year);
 
+        return query.getResultList();
+    }
+
+    public List<Vacation> findVacations(Integer employeeId, Date beginDate, Date endDate, DictionaryItem typeId){
+        final Query query =
+                entityManager.createQuery("from Vacation v where v.employee.id = :emp_id and v.beginDate <= :endDate " +
+                        "and v.endDate >= :beginDate and v.type = :typeId order by v.beginDate")
+                        .setParameter("emp_id", employeeId).setParameter("beginDate", beginDate)
+                        .setParameter("endDate", endDate).setParameter("typeId", typeId);
         return query.getResultList();
     }
 

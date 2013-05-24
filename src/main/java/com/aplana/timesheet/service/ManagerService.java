@@ -24,7 +24,7 @@ public class ManagerService {
 
 
     @Transactional(readOnly = true)
-    public Manager getManagerByDevisionAndRegion(Integer divisionId, Integer regionId){
+    public Manager getManagerByDivisionAndRegion(Integer divisionId, Integer regionId){
 
         Division division = divisionDAO.find(divisionId);
         Region region = regionDAO.find(regionId);
@@ -36,7 +36,7 @@ public class ManagerService {
         return managerDAO.getDivisionRegionManager(division, region);
     }
 
-    public Manager getManagerByDevisionAndRegion(Division division, Region region){
+    public Manager getManagerByDivisionAndRegion(Division division, Region region){
         if (region == null || division == null) {
             return null;
         }

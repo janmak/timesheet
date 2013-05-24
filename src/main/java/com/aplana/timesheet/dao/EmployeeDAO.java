@@ -380,4 +380,20 @@ public class EmployeeDAO {
 
         return query.getResultList();
     }
+
+    public List<Employee> getManagerListForAllEmployee(){
+        Query query= entityManager.createQuery("select distinct emp.manager from Employee as emp");
+        return query.getResultList();
+    }
+
+    public List<Integer> getEmployeesIdByDivisionManagerRegion(Integer divisionId, Integer managerId, Integer regionId){
+        Query query = entityManager.createQuery("select emp.id from Employee as emp where " +
+                "emp.manager.id = :managerId and " +
+                "emp.region.id = :regionId and " +
+                "emp.division.id = :divisionId")
+                .setParameter("divisionId", divisionId)
+                .setParameter("managerId", managerId)
+                .setParameter("regionId", regionId);
+        return query.getResultList();
+    }
 }

@@ -1,13 +1,16 @@
 package com.aplana.timesheet.controller;
 
-import com.aplana.timesheet.dao.entity.Employee;
-import com.aplana.timesheet.dao.entity.Holiday;
-import com.aplana.timesheet.dao.entity.Vacation;
+import com.aplana.timesheet.dao.entity.*;
+import com.aplana.timesheet.enums.DictionaryEnum;
 import com.aplana.timesheet.enums.VacationStatusEnum;
 import com.aplana.timesheet.exception.service.DeleteVacationException;
 import com.aplana.timesheet.form.VacationsForm;
 import com.aplana.timesheet.form.validator.VacationsFormValidator;
+import com.aplana.timesheet.service.DictionaryItemService;
+import com.aplana.timesheet.service.EmployeeService;
+import com.aplana.timesheet.service.RegionService;
 import com.aplana.timesheet.service.VacationService;
+import com.aplana.timesheet.util.DateTimeUtil;
 import com.aplana.timesheet.util.EnumsUtils;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
@@ -24,6 +27,7 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.annotation.Nullable;
 import java.sql.Timestamp;
 import java.util.*;
+import java.util.Calendar;
 
 /**
  * @author rshamsutdinov
@@ -34,36 +38,65 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
 
     @Autowired
     private VacationsFormValidator vacationsFormValidator;
-
     @Autowired
     private VacationService vacationService;
+    @Autowired
+    private DictionaryItemService dictionaryItemService;
+    @Autowired
+    private RegionService regionService;
+    @Autowired
+    private EmployeeService employeeService;
+
+    private static final String VACATION_FORM = "vacationsForm";
 
     @RequestMapping(value = "/vacations", method = RequestMethod.GET)
-    public String prepareToShowVacations() {
-        final Calendar calendar = Calendar.getInstance();
+    public ModelAndView prepareToShowVacations(
+            @ModelAttribute(VACATION_FORM) VacationsForm vacationsForm
+    ) {
         final Employee employee = securityService.getSecurityPrincipal().getEmployee();
+        vacationsForm.setDivisionId(employee.getDivision().getId());
+        vacationsForm.setEmployeeId(employee.getId());
 
-        return String.format(
-                "redirect:/vacations/%s/%s/%s",
-                employee.getDivision().getId(),
-                employee.getId(),
-                calendar.get(Calendar.YEAR)
-        );
+        vacationsForm.setRegionsIdList(getRegionIdList());
+        final ModelAndView modelAndView = createModelAndViewForEmployee("vacations", employee.getId(), employee.getDivision().getId());
+
+        modelAndView.addObject("regionId", employee.getRegion().getId());
+        modelAndView.addObject("managerList", getManagerList());
+        modelAndView.addObject("regionList", getRegionList());
+        modelAndView.addObject("regionsIdList", getRegionIdList());
+        modelAndView.addObject("vacationTypes",
+                dictionaryItemService.getItemsByDictionaryId(DictionaryEnum.VACATION_TYPE.getId()));
+        modelAndView.addObject("curEmployee", securityService.getSecurityPrincipal().getEmployee());
+
+        return modelAndView;
     }
 
-    @RequestMapping(value = "/vacations/{divisionId}/{employeeId}/{year}")
+    @RequestMapping(value = "/vacations/{divisionId}/{employeeId}", method = RequestMethod.POST)
     public ModelAndView showVacations(
             @PathVariable("divisionId") Integer divisionId,
             @PathVariable("employeeId") Integer employeeId,
-            @PathVariable("year") Integer year,
-            @ModelAttribute("vacationsForm") VacationsForm vacationsForm,
+            @ModelAttribute(VACATION_FORM) VacationsForm vacationsForm,
             BindingResult result
     ) {
         vacationsForm.setDivisionId(divisionId);
         vacationsForm.setEmployeeId(employeeId);
-        vacationsForm.setYear(year);
 
         vacationsFormValidator.validate(vacationsForm, result);
+
+        String fromDate = vacationsForm.getCalFromDate();
+        String toDate = vacationsForm.getCalToDate();
+        Date beginDateTS = DateTimeUtil.stringToDate(fromDate, DATE_FORMAT);
+        Date endDateTS = DateTimeUtil.stringToDate(toDate, DATE_FORMAT);
+        Employee employee = employeeId != -1 ? employeeService.find(employeeId) : null;
+
+        final List<Vacation> vacations = employeeId != -1 ? vacationService.findVacations(employeeId, beginDateTS, endDateTS,
+                dictionaryItemService.find(vacationsForm.getVacationType()))
+                : findAllVacations(divisionId,
+                vacationsForm.getManagerId(),
+                vacationsForm.getRegions(),
+                beginDateTS,
+                endDateTS,
+                dictionaryItemService.find(vacationsForm.getVacationType()));
 
         final ModelAndView modelAndView = createModelAndViewForEmployee("vacations", employeeId, divisionId);
 
@@ -78,29 +111,72 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
             }
         }
 
-        final Employee employee = (Employee) modelAndView.getModel().get(EMPLOYEE);
-        final List<Vacation> vacations = vacationService.findVacations(employeeId, year);
 
         final int vacationsSize = vacations.size();
 
         final List<Integer> calDays = new ArrayList<Integer>(vacationsSize);
         final List<Integer> workDays = new ArrayList<Integer>(vacationsSize);
 
-        modelAndView.addObject("year", year);
+        modelAndView.addObject("regionId", vacationsForm.getRegions());
+        modelAndView.addObject("managerList", getManagerList());
+        modelAndView.addObject("regionList", getRegionList());
+        modelAndView.addObject("regionsIdList", getRegionIdList());
+        modelAndView.addObject("calFromDate", fromDate);
+        modelAndView.addObject("calToDate", toDate);
         modelAndView.addObject("vacationsList", vacations);
         modelAndView.addObject("calDays", calDays);
         modelAndView.addObject("workDays", workDays);
-        modelAndView.addAllObjects(getSummaryAndCalcDays(employee, vacations, calDays, workDays, year));
+        modelAndView.addObject("vacationTypes",
+                dictionaryItemService.getItemsByDictionaryId(DictionaryEnum.VACATION_TYPE.getId()));
+        List<Region> regionListForCalc = new ArrayList<Region>();
+        for (Integer i : vacationsForm.getRegions()){
+            regionListForCalc.add(regionService.find(i));
+        }
+        modelAndView.addAllObjects(
+                getSummaryAndCalcDays(regionListForCalc, vacations, calDays, workDays, beginDateTS.getYear() + 1900));
         modelAndView.addObject("curEmployee", securityService.getSecurityPrincipal().getEmployee());
 
         return modelAndView;
     }
 
-    private Map<String, Integer> getSummaryAndCalcDays(Employee employee, List<Vacation> vacations,
+    private List<Vacation> findAllVacations(Integer divisionId, Integer managerId, List<Integer> regionsId,
+                                            Date beginDate, Date endDate, DictionaryItem typeId){
+        List<Vacation> vacations = new ArrayList<Vacation>();
+        for (Integer i : regionsId){
+            List<Integer> employeesId = findEmployeeByManager(divisionId, managerId, i);
+            for (Integer e : employeesId){
+                List<Vacation> empVacation = vacationService.findVacations(e, beginDate, endDate, typeId);
+                for (Vacation vac : empVacation){
+                    vacations.add(vac);
+                }
+            }
+        }
+        return vacations;
+    }
+
+    private List<Integer> findEmployeeByManager(Integer divisionId, Integer managerId, Integer regionId){
+        List<Integer> returnList = new ArrayList<Integer>();
+        List<Integer> iteratorList = employeeService.getEmployeesIdByDivisionManagerRegion(divisionId, managerId, regionId);
+        if (iteratorList.size() == 0){
+            return returnList;
+        }else{
+            for (Integer i : iteratorList){
+                returnList.add(i);
+                List<Integer>  iterator2List = findEmployeeByManager(divisionId, i, regionId);
+                if (iterator2List.size() != 0){
+                    for (Integer l : iterator2List){
+                        returnList.add(l);
+                    }
+                }
+            }
+            return returnList;
+        }
+    }
+
+    private Map<String, Integer> getSummaryAndCalcDays(List<Region> regions, List<Vacation> vacations,
                                                        List<Integer> calDays,
                                                        List<Integer> workDays, int year
     ) {
-        final int vacationsSize = vacations.size();
 
         int summaryApproved = 0;
         int summaryRejected = 0;
@@ -108,84 +184,94 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
         int summaryWorkDays = 0;
 
         if (!vacations.isEmpty()) {
-            final Vacation firstVacation = vacations.get(0);
-
-            Date minDate = firstVacation.getBeginDate();
-            Date maxDate = firstVacation.getEndDate();
-
-            Date beginDate, endDate;
-            for (Vacation vacation : vacations) {
-                beginDate = vacation.getBeginDate();
-                endDate = vacation.getEndDate();
-
-                if (minDate.after(beginDate)) {
-                    minDate = beginDate;
+            for (Region reg : regions){
+                List<Vacation> differRegionVacations = new ArrayList<Vacation>();
+                for (Vacation vac : vacations){
+                    if (vac.getEmployee().getRegion().equals(reg)){
+                        differRegionVacations.add(vac);
+                    }
                 }
+                final int vacationsSize = differRegionVacations.size();
+                if (!differRegionVacations.isEmpty()){
+                    final Vacation firstVacation = differRegionVacations.get(0);
+                    Date minDate = firstVacation.getBeginDate();
+                    Date maxDate = firstVacation.getEndDate();
 
-                if (maxDate.before(endDate)) {
-                    maxDate = endDate;
-                }
+                    Date beginDate, endDate;
+                    for (Vacation vacation : differRegionVacations) {
+                        beginDate = vacation.getBeginDate();
+                        endDate = vacation.getEndDate();
 
-                calDays.add(getDiffInDays(beginDate, endDate));
-            }
-
-            final List<Holiday> holidaysForRegion =
-                    calendarService.getHolidaysForRegion(minDate, maxDate, employee.getRegion());
-            final Calendar calendar = Calendar.getInstance();
-
-            calendar.set(Calendar.YEAR, year);
-            final Date currentYearBeginDate = DateUtils.truncate(calendar.getTime(), Calendar.YEAR);
-
-            calendar.setTime(currentYearBeginDate);
-            calendar.add(Calendar.DAY_OF_MONTH, -1);
-            calendar.set(Calendar.YEAR, year);
-            final Date currentYearEndDate = calendar.getTime();
-
-            for (int i = 0; i < vacationsSize; i++) {
-                final Vacation vacation = vacations.get(i);
-                final int holidaysCount = getHolidaysCount(holidaysForRegion, vacation.getBeginDate(), vacation.getEndDate());
-
-                final int calDaysCount = calDays.get(i);
-                final int workDaysCount = calDaysCount - holidaysCount;
-
-                workDays.add(workDaysCount);
-
-                final VacationStatusEnum vacationStatus =
-                        EnumsUtils.getEnumById(vacation.getStatus().getId(), VacationStatusEnum.class);
-
-                if (vacationStatus == VacationStatusEnum.APPROVED) {
-                    beginDate = vacation.getBeginDate();
-                    endDate = vacation.getEndDate();
-
-                    calendar.setTime(beginDate);
-                    final int beginYear = calendar.get(Calendar.YEAR);
-
-                    calendar.setTime(endDate);
-                    final int endYear = calendar.get(Calendar.YEAR);
-
-                    if (beginYear == year && year == endYear) {
-                        summaryCalDays += calDaysCount;
-                        summaryWorkDays += workDaysCount;
-                    } else {
-                        final long days = DateUtils.getFragmentInDays(endDate, Calendar.YEAR);
-
-                        if (endYear == year) {
-                            summaryCalDays += days;
-                            summaryWorkDays += days - getHolidaysCount(holidaysForRegion, currentYearBeginDate, endDate);
-                        } else {
-                            final long daysInCurrentYear = calDaysCount - days;
-
-                            summaryCalDays += daysInCurrentYear;
-                            summaryWorkDays += daysInCurrentYear -
-                                    getHolidaysCount(holidaysForRegion, beginDate, currentYearEndDate);
+                        if (minDate.after(beginDate)) {
+                            minDate = beginDate;
                         }
+
+                        if (maxDate.before(endDate)) {
+                            maxDate = endDate;
+                        }
+
+                        calDays.add(getDiffInDays(beginDate, endDate));
                     }
 
-                    summaryApproved++;
-                }
+                    final List<Holiday> holidaysForRegion =
+                            calendarService.getHolidaysForRegion(minDate, maxDate, reg);
+                    final Calendar calendar = Calendar.getInstance();
 
-                if (vacationStatus == VacationStatusEnum.REJECTED) {
-                    summaryRejected++;
+                    calendar.set(Calendar.YEAR, year);
+                    final Date currentYearBeginDate = DateUtils.truncate(calendar.getTime(), Calendar.YEAR);
+
+                    calendar.setTime(currentYearBeginDate);
+                    calendar.add(Calendar.DAY_OF_MONTH, -1);
+                    calendar.set(Calendar.YEAR, year);
+                    final Date currentYearEndDate = calendar.getTime();
+
+                    for (int i = 0; i < vacationsSize; i++) {
+                        final Vacation vacation = differRegionVacations.get(i);
+                        final int holidaysCount = getHolidaysCount(holidaysForRegion, vacation.getBeginDate(), vacation.getEndDate());
+
+                        final int calDaysCount = calDays.get(i);
+                        final int workDaysCount = calDaysCount - holidaysCount;
+
+                        workDays.add(workDaysCount);
+
+                        final VacationStatusEnum vacationStatus =
+                                EnumsUtils.getEnumById(vacation.getStatus().getId(), VacationStatusEnum.class);
+
+                        if (vacationStatus == VacationStatusEnum.APPROVED) {
+                            beginDate = vacation.getBeginDate();
+                            endDate = vacation.getEndDate();
+
+                            calendar.setTime(beginDate);
+                            final int beginYear = calendar.get(Calendar.YEAR);
+
+                            calendar.setTime(endDate);
+                            final int endYear = calendar.get(Calendar.YEAR);
+
+                            if (beginYear == year && year == endYear) {
+                                summaryCalDays += calDaysCount;
+                                summaryWorkDays += workDaysCount;
+                            } else {
+                                final long days = DateUtils.getFragmentInDays(endDate, Calendar.YEAR);
+
+                                if (endYear == year) {
+                                    summaryCalDays += days;
+                                    summaryWorkDays += days - getHolidaysCount(holidaysForRegion, currentYearBeginDate, endDate);
+                                } else {
+                                    final long daysInCurrentYear = calDaysCount - days;
+
+                                    summaryCalDays += daysInCurrentYear;
+                                    summaryWorkDays += daysInCurrentYear -
+                                            getHolidaysCount(holidaysForRegion, beginDate, currentYearEndDate);
+                                }
+                            }
+
+                            summaryApproved++;
+                        }
+
+                        if (vacationStatus == VacationStatusEnum.REJECTED) {
+                            summaryRejected++;
+                        }
+                    }
                 }
             }
         }
@@ -202,6 +288,22 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
 
     private int getDiffInDays(Date beginDate, Date endDate) {
         return (int) ((endDate.getTime() - beginDate.getTime()) / (24 * 3600 * 1000) + 1);
+    }
+
+    private List<Region> getRegionList() {
+        return regionService.getRegions();
+    }
+
+    private List<Employee> getManagerList() {
+        return employeeService.getManagerListForAllEmployee();
+    }
+
+    private List<Integer> getRegionIdList(){
+        List<Integer> regionsIdList = new ArrayList<Integer>();
+        for (Region region : getRegionList()){
+            regionsIdList.add(region.getId());
+        }
+        return regionsIdList;
     }
 
     private int getHolidaysCount(List<Holiday> holidaysForRegion, final Date beginDate, final Date endDate) {

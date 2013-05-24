@@ -1,6 +1,8 @@
 <%@ page import="static com.aplana.timesheet.util.ResourceUtils.getResRealPath" %>
 <%@page contentType="text/html" pageEncoding="UTF-8" %>
 
+<%@ page import="static com.aplana.timesheet.form.VacationsForm.*" %>
+
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
@@ -15,46 +17,231 @@
     <script type="text/javascript">
         dojo.require("dojo.NodeList-traverse");
         dojo.require("dojox.html.entities");
+        dojo.require("dijit.form.DateTextBox");
+        dojo.require(CALENDAR_EXT_PATH);
         require(["dojo/parser", "dijit/TitlePane"]);
+
+        function getEmployeeId() {
+            return "${employee.id}";
+        }
+
+        dojo.addOnLoad(function() {
+            updateMultipleForSelect(dojo.byId("<%= REGIONS %>"));
+        });
+
+        dojo.declare("Calendar", com.aplana.dijit.ext.SimpleCalendar, {
+            getEmployeeId: getEmployeeId
+        });
+
+        dojo.declare("DateTextBox", dijit.form.DateTextBox, {
+            popupClass: "Calendar"
+            <sec:authorize access="not hasRole('ROLE_ADMIN')">
+            , isDisabledDate: function(date) {
+                return (date <= new Date());
+            }
+            </sec:authorize>
+        });
 
         dojo.ready(function() {
             window.focus();
-
-            setCurrentYear(${year});
-            divisionChange(dojo.byId("divisionId"));
-
-            dojo.byId("employeeId").value = ${employeeId};
-            dojo.byId("vacationId").setAttribute("disabled", "disabled");
+            divisionChangeVac(dojo.byId("<%= DIVISION_ID %>").value);
+            dojo.byId("<%= REGIONS %>").value = ${regionId};
+            sortEmployee();
+            dojo.byId("<%= EMPLOYEE_ID %>").value = ${employeeId};
+            dojo.byId("<%= VACATION_ID %>").setAttribute("disabled", "disabled");
         });
 
-        var employeeList = ${employeeListJson};
+        var employeeList = ${employeeListWithRegAndManJson};
+        var regionsIdList = ${regionsIdList};
+        var selectedAllRegion = null;
 
         function showVacations() {
-            var empId = dojo.byId("employeeId").value;
-            var divisionId = dojo.byId("divisionId").value;
-            var year = dojo.byId("year").value;
+            var empId = dojo.byId("<%= EMPLOYEE_ID %>").value;
+            var divisionId = dojo.byId("<%= DIVISION_ID %>").value;
+            var calFromDate = dojo.byId("<%= CAL_FROM_DATE %>").value;
+            var calToDate = dojo.byId("<%= CAL_TO_DATE %>").value;
 
-            if (isNotNilOrNull(year)) {
+            if (isNotNilOrNull(calFromDate) || isNotNilOrNull(calToDate)) {
                 if (checkEmployeeData(divisionId, empId)) {
-                    dojo.byId("vacationId").setAttribute("disabled", "disabled");
+                    dojo.byId("<%= VACATION_ID %>").setAttribute("disabled", "disabled");
                     vacationsForm.action =
-                            "<%=request.getContextPath()%>/vacations/" + divisionId + "/" + empId + "/" + year;
+                            "<%=request.getContextPath()%>/vacations/" + divisionId + "/" + empId;
                     vacationsForm.submit();
                 }
             } else {
                 var error = "";
 
-                if (isNilOrNull(year)) {
-                    error += ("Необходимо выбрать год\n");
+                if (isNilOrNull(calFromDate)) {
+                    error += ("Необходимо выбрать дату началу\n");
+                }
+
+                if (isNilOrNull(calToDate)) {
+                    error += ("Необходимо выбрать дату конца\n");
                 }
 
                 alert(error);
             }
         }
 
+        function divisionChangeVac(obj) {
+            var divisionId = null;
+            var employeeSelect = dojo.byId("<%= EMPLOYEE_ID %>");
+            var employeeOption = null;
+            var selectedRegion = dojo.byId("<%= REGIONS %>").value;
+
+            if (obj.target == null) {
+                divisionId = obj.value;
+            }
+            else {
+                divisionId = obj.target.value;
+            }
+
+            if (selectedAllRegion){
+                sortEmployeeFull();
+            }else{
+                sortEmployee();
+            }
+        }
+
+        function managerChange(obj) {
+            var managerId = null;
+            var employeeSelect = dojo.byId("<%= EMPLOYEE_ID %>");
+            var employeeOption = null;
+            var selectedRegion = dojo.byId("<%= REGIONS %>").value;
+
+            if (obj.target == null) {
+                managerId = obj.value;
+            }
+            else {
+                managerId = obj.target.value;
+            }
+
+            if (selectedAllRegion){
+                sortEmployeeFull();
+            }else{
+                sortEmployee();
+            }
+        }
+
+        function updateMultipleForSelect(select) {
+            var allOptionIndex;
+
+            var isAllOption = dojo.some(select.options, function(option, idx) {
+                if (option.value == <%= ALL_VALUE %> && option.selected) {
+                    allOptionIndex = idx;
+                    return true;
+                }
+
+                return false;
+            });
+
+            if (isAllOption) {
+                select.removeAttribute("multiple");
+                select.selectedIndex = allOptionIndex;
+                selectedAllRegion = true;
+                sortEmployeeFull();
+
+            } else {
+                select.setAttribute("multiple", "multiple");
+                selectedAllRegion = false;
+                sortEmployee();
+            }
+
+        }
+
+        function sortEmployee(){
+            var employeeSelect = dojo.byId("<%= EMPLOYEE_ID %>");
+            var divisionId = dojo.byId("<%= DIVISION_ID %>").value;
+            var employeeOption = null;
+            var select = dojo.byId("<%= REGIONS %>");
+            var managerId = dojo.byId("<%= MANAGER_ID %>").value;
+
+            employeeSelect.options.length = 0;
+            for (var i = 0; i < employeeList.length; i++) {
+                if ((divisionId == employeeList[i].divId)
+                        && ((employeeList[i].manId == managerId)
+                        || (managerId == 0))){
+                    for (var j = 0; j < regionsIdList.length; j++){
+                        var selected = dojo.some(select.options, function(option, idx){
+                            if (option.value == regionsIdList[j] && option.selected){
+                                if (regionsIdList[j] == employeeList[i].regId){
+                                    for (var l = 0; l < employeeList[i].divEmps.length; l++) {
+                                        if (employeeList[i].divEmps[l].id != 0) {
+                                            if (managerId != 0){
+                                                isNullManager(employeeList[i].divEmps[l], employeeOption, employeeSelect);
+                                            }else{
+                                                employeeOption = dojo.doc.createElement("option");
+                                                dojo.attr(employeeOption, {
+                                                    value:employeeList[i].divEmps[l].id
+                                                });
+                                                employeeOption.title = employeeList[i].divEmps[l].value;
+                                                employeeOption.innerHTML = employeeList[i].divEmps[l].value;
+                                                employeeSelect.appendChild(employeeOption);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        });
+                    }
+                }
+            }
+            sortSelect(employeeSelect);
+        }
+
+        function sortEmployeeFull(){
+            var employeeSelect = dojo.byId("<%= EMPLOYEE_ID %>");
+            var divisionId = dojo.byId("<%= DIVISION_ID %>").value;
+            var employeeOption = null;
+            var managerId = dojo.byId("<%= MANAGER_ID %>").value;
+
+            employeeSelect.options.length = 0;
+            for (var i = 0; i < employeeList.length; i++) {
+                if ((divisionId == employeeList[i].divId)
+                        && ((employeeList[i].manId == managerId)
+                        || (managerId == 0))){
+                    for (var l = 0; l < employeeList[i].divEmps.length; l++) {
+                        if (employeeList[i].divEmps[l].id != 0) {
+                            if (managerId != 0){
+                                isNullManager(employeeList[i].divEmps[l], employeeOption, employeeSelect);
+                            }else{
+                                employeeOption = dojo.doc.createElement("option");
+                                dojo.attr(employeeOption, {
+                                    value:employeeList[i].divEmps[l].id
+                                });
+                                employeeOption.title = employeeList[i].divEmps[l].value;
+                                employeeOption.innerHTML = employeeList[i].divEmps[l].value;
+                                employeeSelect.appendChild(employeeOption);
+                            }
+                        }
+                    }
+                }
+            }
+            sortSelect(employeeSelect);
+        }
+
+        function isNullManager(employee, employeeOption, employeeSelect){
+            employeeOption = dojo.doc.createElement("option");
+            dojo.attr(employeeOption, {
+                value:employee.id
+            });
+            employeeOption.title = employee.value;
+            employeeOption.innerHTML = employee.value;
+            employeeSelect.appendChild(employeeOption);
+            for (var i=0; i < employeeList.length; i++){
+                if (employee.id == employeeList[i].manId){
+                    for (var l=0; l < employeeList[i].divEmps.length; l++){
+                        if (employeeList[i].divEmps[l].id != 0) {
+                            isNullManager(employeeList[i].divEmps[l], employeeOption, employeeSelect);
+                        }
+                    }
+                }
+            }
+        }
+
         function createVacation() {
-            var divisionId = dojo.byId("divisionId").value;
-            var empId = dojo.byId("employeeId").value;
+            var divisionId = dojo.byId("<%= DIVISION_ID %>").value;
+            var empId = dojo.byId("<%= EMPLOYEE_ID %>").value;
 
             if (checkEmployeeData(divisionId, empId)) {
                 vacationsForm.action =
@@ -72,6 +259,33 @@
             dojo.byId("vacationId").value = vac_id;
             vacationsForm.submit();
         }
+
+        /* Добавляет в указанный select пустой option. */
+        function insertAllInclusiveOption(select) {
+            var option = dojo.doc.createElement("option");
+            dojo.attr(option, {
+                value:"-1"
+            });
+            option.innerHTML = "Все сотрудники";
+            select.appendChild(option);
+        }
+
+        /* Сортирует по алфавиту содержимое выпадающих списков. */
+        function sortSelect(select) {
+            var tmpArray = [];
+            for (var i = 0; i < select.options.length; i++) {
+                tmpArray.push(select.options[i]);
+            }
+            tmpArray.sort(function (a, b) {
+                return (a.text < b.text) ? -1 : 1;
+            });
+            select.options.length = 0;
+            insertEmptyOption(select);
+            insertAllInclusiveOption(select);
+            for (var i = 0; i < tmpArray.length; i++) {
+                select.options[i+2] = tmpArray[i];
+            }
+        }
     </script>
 </head>
 <body>
@@ -80,29 +294,89 @@
 <br/>
 
 <form:form method="post" commandName="vacationsForm" name="mainForm">
-    <form:hidden path="vacationId" />
+    <form:hidden path="<%= VACATION_ID%>" />
+    <table class="without_borders">
+        <colgroup>
+            <col width="110" />
+            <col width="320" />
+        </colgroup>
+        <tr>
+            <td>
+                <span class="label">Подразделение:</span>
+            </td>
+            <td>
+                <form:select path="<%= DIVISION_ID %>" id="<%= DIVISION_ID %>" onchange="divisionChangeVac(this)" class="without_dojo"
+                             onmouseover="tooltip.show(getTitle(this));" onmouseout="tooltip.hide();">
+                    <form:option label="" value="0"/>
+                    <form:options items="${divisionList}" itemLabel="name" itemValue="id"/>
+                </form:select>
+            </td>
+            <td>
+                <span class="label">Руководитель:</span>
+            </td>
+            <td>
+                <form:select path="<%= MANAGER_ID %>" id="<%= MANAGER_ID %>" onChange="managerChange(this)" class="without_dojo"
+                             onmouseover="tooltip.show(getTitle(this));" onmouseout="tooltip.hide();">
+                    <form:option label="" value="0"/>
+                    <form:options items="${managerList}" itemLabel="name" itemValue="id"/>
+                </form:select>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span class="label">Регионы:</span>
+            </td>
+            <td>
+                <form:select path="<%= REGIONS %>" onmouseover="showTooltip(this)" size="5"
+                             onmouseout="tooltip.hide()" multiple="true" onchange="updateMultipleForSelect(this)">
+                    <form:option value="<%= ALL_VALUE %>" label="Все регионы" />
+                    <form:options items="${regionList}" itemLabel="name" itemValue="id" />
+                </form:select>
+            </td>
+            <td>
+                <span class="label">Сотрудник:</span>
+            </td>
+            <td>
+                <form:select path="<%= EMPLOYEE_ID %>" id="<%= EMPLOYEE_ID %>" class="without_dojo" onmouseover="tooltip.show(getTitle(this));"
+                             onmouseout="tooltip.hide();" onchange="setDefaultEmployeeJob(-1);">
+                    <form:option items="${employeeList}" label="" value="0"/>
+                </form:select>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span class="label">Дата с</span>
+            </td>
+            <td>
+                <form:input path="<%= CAL_FROM_DATE %>" id="<%= CAL_FROM_DATE %>" class="date_picker" data-dojo-type="DateTextBox"
+                            onMouseOver="tooltip.show(getTitle(this));" onMouseOut="tooltip.hide();" />
+            </td>
+        </tr>
 
-    <span class="label">Подразделение:</span>
-    <form:select path="divisionId" id="divisionId" onchange="divisionChange(this)" class="without_dojo"
-                 onmouseover="tooltip.show(getTitle(this));" onmouseout="tooltip.hide();">
-        <form:option label="" value="0"/>
-        <form:options items="${divisionList}" itemLabel="name" itemValue="id"/>
-    </form:select>
+        <tr>
+            <td>
+                <span class="label">Дата по</span>
+            </td>
+            <td>
+                <form:input path="<%= CAL_TO_DATE %>" id="<%= CAL_TO_DATE %>" class="date_picker" data-dojo-type="DateTextBox"
+                            onMouseOver="tooltip.show(getTitle(this));" onMouseOut="tooltip.hide();"  />
+            </td>
+        </tr>
 
-    <span class="label">Сотрудник:</span>
-    <form:select path="employeeId" id="employeeId" class="without_dojo" onmouseover="tooltip.show(getTitle(this));"
-                 onmouseout="tooltip.hide();" onchange="setDefaultEmployeeJob(-1);">
-        <form:option items="${employeeList}" label="" value="0"/>
-    </form:select>
-    <br><br>
-
-    <span class="label">Год:</span>
-    <form:select path="year" id="year" class="without_dojo" onmouseover="tooltip.show(getTitle(this));" onmouseout="tooltip.hide();">
-        <form:option label="" value="0"/>
-        <form:options items="${yearsList}" itemLabel="year" itemValue="year"/>
-    </form:select>
-
-    <button id="show" style="width:150px" style="vertical-align: middle" type="button"
+        <tr>
+            <td>
+                <span class="label">Тип отпуска:</span>
+            </td>
+            <td>
+                <form:select path="<%= VACATION_TYPE %>" id="<%= VACATION_TYPE %>" onMouseOver="tooltip.show(getTitle(this));"
+                             onMouseOut="tooltip.hide();" multiple="false" size="1">
+                    <form:option value="0" label="" />
+                    <form:options items="${vacationTypes}" itemLabel="value" itemValue="id" />
+                </form:select>
+            </td>
+        </tr>
+    </table>
+    <button id="show" style="width:150px" style="vertical-align: middle" type="submit"
             onclick="showVacations()">Показать</button>
 
     <br/><br/>
@@ -123,13 +397,16 @@
         <th width="130">Кол-во календарных дней</th>
         <th width="130">Кол-во рабочих дней</th>
         <th width="270">Комментарий</th>
+        <th width="270">Сотрудник</th>
+        <th width="200">Центр</th>
+        <th width="120">Регион</th>
     </tr>
     </thead>
     <tbody>
     <c:choose>
     <c:when test="${fn:length(vacationsList) == 0}">
         <tr>
-            <td colspan="8">За выбранный год нет ни одного заявления на отпуск</td>
+            <td colspan="11">За выбранный год нет ни одного заявления на отпуск</td>
         </tr>
     </tbody>
     </c:when>
@@ -152,7 +429,7 @@
             </td>
             <td class="centered">
                 ${vacation.status.value}
-                <c:if test="${(vacation.status.id eq 57 or vacation.status.id eq 59) and fn:length(vacation.vacationApprovals) > 0}">
+                <c:if test="${fn:length(vacation.vacationApprovals) > 0}">
                 <div data-dojo-type="dijit/TitlePane" data-dojo-props="title: 'Согласующие', open: false"
                      style="margin: 3px; padding: 0;">
                     <table class="centered">
@@ -194,6 +471,9 @@
                     Заявка создана сотрудником ${vacation.author.name}
                 </c:if>
             </td>
+            <td class="centered">${vacation.employee.name}</td>
+            <td class="centered">${vacation.employee.division.name}</td>
+            <td class="centered">${vacation.employee.region.name}</td>
         </tr>
     </c:forEach>
     </tbody>
