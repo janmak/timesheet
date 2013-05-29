@@ -457,7 +457,8 @@ public class EmployeeLdapService extends AbstractServiceWithTransactionManagemen
             employee.setJob(job);
         } else {
             employee.setJob(projectRoleService.getUndefinedRole());
-            errors.append("job not found for employee " + employeeLdap.getDisplayName());
+            // TODO fix?
+//            errors.append("job not found for employee " + employeeLdap.getDisplayName());
         }
     }
 
