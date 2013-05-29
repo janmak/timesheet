@@ -15,6 +15,7 @@ import com.aplana.timesheet.util.EnumsUtils;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import org.apache.commons.lang.time.DateUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -25,6 +26,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.annotation.Nullable;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.sql.Timestamp;
 import java.util.*;
 import java.util.Calendar;
@@ -35,6 +39,9 @@ import java.util.Calendar;
  */
 @Controller
 public class VacationsController extends AbstractControllerForEmployeeWithYears {
+
+    private static final String VACATION_FORM = "vacationsForm";
+    private static final String DATE_FORMAT = "yyyy-MM-dd";
 
     @Autowired
     private VacationsFormValidator vacationsFormValidator;
@@ -47,20 +54,19 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
     @Autowired
     private EmployeeService employeeService;
 
-    private static final String VACATION_FORM = "vacationsForm";
-
     @RequestMapping(value = "/vacations", method = RequestMethod.GET)
     public ModelAndView prepareToShowVacations(
             @ModelAttribute(VACATION_FORM) VacationsForm vacationsForm
     ) {
-        final Employee employee = securityService.getSecurityPrincipal().getEmployee();
+
+        Employee employee = securityService.getSecurityPrincipal().getEmployee();
         vacationsForm.setDivisionId(employee.getDivision().getId());
         vacationsForm.setEmployeeId(employee.getId());
-
         vacationsForm.setRegionsIdList(getRegionIdList());
         final ModelAndView modelAndView = createModelAndViewForEmployee("vacations", employee.getId(), employee.getDivision().getId());
 
-        modelAndView.addObject("regionId", employee.getRegion().getId());
+        modelAndView.addObject("managerId", vacationsForm.getManagerId());
+        modelAndView.addObject("regionId", employeeService.find(employee.getId()).getRegion().getId());
         modelAndView.addObject("managerList", getManagerList());
         modelAndView.addObject("regionList", getRegionList());
         modelAndView.addObject("regionsIdList", getRegionIdList());
@@ -71,31 +77,27 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
         return modelAndView;
     }
 
-    @RequestMapping(value = "/vacations/{divisionId}/{employeeId}", method = RequestMethod.POST)
+    @RequestMapping(value = "/vacations", method = RequestMethod.POST)
     public ModelAndView showVacations(
-            @PathVariable("divisionId") Integer divisionId,
-            @PathVariable("employeeId") Integer employeeId,
             @ModelAttribute(VACATION_FORM) VacationsForm vacationsForm,
             BindingResult result
     ) {
-        vacationsForm.setDivisionId(divisionId);
-        vacationsForm.setEmployeeId(employeeId);
+        Integer divisionId = vacationsForm.getDivisionId();
+        Integer employeeId = vacationsForm.getEmployeeId();
+        Date dateFrom = DateTimeUtil.stringToDate(vacationsForm.getCalFromDate(), DATE_FORMAT);
+        Date dateTo = DateTimeUtil.stringToDate(vacationsForm.getCalToDate(), DATE_FORMAT);
 
         vacationsFormValidator.validate(vacationsForm, result);
 
-        String fromDate = vacationsForm.getCalFromDate();
-        String toDate = vacationsForm.getCalToDate();
-        Date beginDateTS = DateTimeUtil.stringToDate(fromDate, DATE_FORMAT);
-        Date endDateTS = DateTimeUtil.stringToDate(toDate, DATE_FORMAT);
         DictionaryItem vacationType = vacationsForm.getVacationType() != 0 ?
                 dictionaryItemService.find(vacationsForm.getVacationType()) : null;
         final List<Vacation> vacations = employeeId != -1
-                ? vacationService.findVacations(employeeId, beginDateTS, endDateTS,vacationType)
+                ? vacationService.findVacations(employeeId, dateFrom, dateTo,vacationType)
                 : findAllVacations(divisionId,
                 vacationsForm.getManagerId(),
                 vacationsForm.getRegions(),
-                beginDateTS,
-                endDateTS,
+                dateFrom,
+                dateTo,
                 vacationType);
 
         final ModelAndView modelAndView = createModelAndViewForEmployee("vacations", employeeId, divisionId);
@@ -121,19 +123,22 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
         modelAndView.addObject("managerList", getManagerList());
         modelAndView.addObject("regionList", getRegionList());
         modelAndView.addObject("regionsIdList", getRegionIdList());
-        modelAndView.addObject("calFromDate", fromDate);
-        modelAndView.addObject("calToDate", toDate);
+        modelAndView.addObject("calFromDate", dateFrom);
+        modelAndView.addObject("calToDate", dateTo);
         modelAndView.addObject("vacationsList", vacations);
         modelAndView.addObject("calDays", calDays);
         modelAndView.addObject("workDays", workDays);
         modelAndView.addObject("vacationTypes",
                 dictionaryItemService.getItemsByDictionaryId(DictionaryEnum.VACATION_TYPE.getId()));
         List<Region> regionListForCalc = new ArrayList<Region>();
-        for (Integer i : vacationsForm.getRegions()){
+        List<Integer> filledRegionsId = vacationsForm.getRegions().get(0).equals(-1)
+                ? getRegionIdList()
+                : vacationsForm.getRegions();
+        for (Integer i : filledRegionsId){
             regionListForCalc.add(regionService.find(i));
         }
         modelAndView.addAllObjects(
-                getSummaryAndCalcDays(regionListForCalc, vacations, calDays, workDays, beginDateTS.getYear() + 1900));
+                getSummaryAndCalcDays(regionListForCalc, vacations, calDays, workDays, dateFrom.getYear() + 1900));
         modelAndView.addObject("curEmployee", securityService.getSecurityPrincipal().getEmployee());
 
         return modelAndView;
