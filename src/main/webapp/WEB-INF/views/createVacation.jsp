@@ -12,6 +12,14 @@
     <link rel="stylesheet" type="text/css" href="<%= request.getContextPath()%>/resources/css/vacations.css" />
     <script type="text/javascript" src="<%= request.getContextPath()%>/resources/js/vacations.js"></script>
     <script type="text/javascript">
+
+        dojo.ready(function() {
+            window.focus();
+            dojo.byId("divisionId").value = ${divisionId};
+            divisionChange(dojo.byId("divisionId"));
+            dojo.byId("employeeId").value = ${employeeId};
+        });
+
         dojo.require("dijit.form.DateTextBox");
         dojo.require(CALENDAR_EXT_PATH);
 
@@ -33,6 +41,8 @@
             }
             </sec:authorize>
         });
+
+        var employeeList = ${employeeListJson};
 
         function setDate(date_picker, date) {
             date_picker.set("displayedValue", date);
@@ -129,14 +139,34 @@
 <form:form method="post" commandName="createVacationForm" name="mainForm">
     <form:errors path="*" cssClass="errors_box" delimiter="<br/><br/>" />
 
-    <form:hidden path="employeeId" />
+    <%--<form:hidden path="employeeId" />--%>
 
     <table class="without_borders">
         <colgroup>
             <col width="150" />
             <col width="320" />
         </colgroup>
-
+        <tr>
+            <td>
+                <span class="label">Подразделение</span>
+            </td>
+            <td>
+                <form:select path="divisionId" id="divisionId" onchange="divisionChange(this)" class="without_dojo"
+                             onmouseover="tooltip.show(getTitle(this));" onmouseout="tooltip.hide();">
+                    <form:option label="" value="0"/>
+                    <form:options items="${divisionList}" itemLabel="name" itemValue="id"/>
+                </form:select>
+            </td>
+            <td>
+                <span class="label">Сотрудник:</span>
+            </td>
+            <td>
+                <form:select path="employeeId" id="employeeId" class="without_dojo" onmouseover="tooltip.show(getTitle(this));"
+                             onmouseout="tooltip.hide();" onchange="setDefaultEmployeeJob(-1);">
+                    <form:option items="${employeeList}" label="" value="0"/>
+                </form:select>
+            </td>
+        </tr>
         <tr>
             <td>
                 <span class="label">Дата с</span>

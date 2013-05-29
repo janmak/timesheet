@@ -251,12 +251,17 @@
         }
 
         function deleteVacation(parentElement, vac_id) {
+            var empId = dojo.byId("<%= EMPLOYEE_ID %>").value;
+            var divisionId = dojo.byId("<%= DIVISION_ID %>").value;
+
             if (!confirm("Удалить заявку?")) {
                 return;
             }
 
             dojo.byId("vacationId").removeAttribute("disabled");
             dojo.byId("vacationId").value = vac_id;
+            vacationsForm.action =
+                    "<%=request.getContextPath()%>/vacations/" + divisionId + "/" + empId;
             vacationsForm.submit();
         }
 
