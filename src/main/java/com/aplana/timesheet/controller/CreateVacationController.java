@@ -1,6 +1,7 @@
 package com.aplana.timesheet.controller;
 
 import com.aplana.timesheet.dao.entity.Calendar;
+import com.aplana.timesheet.dao.entity.Division;
 import com.aplana.timesheet.dao.entity.Employee;
 import com.aplana.timesheet.dao.entity.Vacation;
 import com.aplana.timesheet.enums.DictionaryEnum;
@@ -11,6 +12,7 @@ import com.aplana.timesheet.form.validator.CreateVacationFormValidator;
 import com.aplana.timesheet.service.*;
 import com.aplana.timesheet.service.vacationapproveprocess.VacationApprovalProcessService;
 import com.aplana.timesheet.util.DateTimeUtil;
+import com.aplana.timesheet.util.EmployeeHelper;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateFormatUtils;
@@ -22,8 +24,10 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.servlet.http.HttpServletRequest;
 import java.sql.Timestamp;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author rshamsutdinov
@@ -52,6 +56,12 @@ public class CreateVacationController {
     private VacationService vacationService;
     @Autowired
     private VacationApprovalProcessService vacationApprovalProcessService;
+    @Autowired
+    private DivisionService divisionService;
+    @Autowired
+    protected EmployeeHelper employeeHelper;
+    @Autowired
+    protected HttpServletRequest request;
 
     @RequestMapping(value = "/createVacation", method = RequestMethod.GET)
     public String prepareToCreateVacation() {
@@ -73,6 +83,7 @@ public class CreateVacationController {
         final Calendar calendar = getCalendar(new Timestamp(java.util.Calendar.getInstance().getTimeInMillis()));
         final Timestamp nextWorkDay = calendarService.getNextWorkDay(calendar, employee.getRegion()).getCalDate();
 
+        createVacationForm.setDivisionId(employee.getDivision().getId());
         createVacationForm.setCalFromDate(DateTimeUtil.formatDate(nextWorkDay));
         createVacationForm.setCalToDate(DateTimeUtil.formatDate(nextWorkDay));
         createVacationForm.setEmployeeId(employee.getId());
@@ -83,11 +94,17 @@ public class CreateVacationController {
     private ModelAndView getModelAndView(Employee employee) {
         final ModelAndView modelAndView = new ModelAndView("createVacation");
 
+        List<Division> divisionList = divisionService.getDivisions();
+
         modelAndView.addObject(
                 "vacationTypes",
                 dictionaryItemService.getItemsByDictionaryId(DictionaryEnum.VACATION_TYPE.getId())
         );
         modelAndView.addObject("employee", employee);
+        modelAndView.addObject("divisionId", employee.getDivision().getId());
+        modelAndView.addObject("employeeId", employee.getId());
+        modelAndView.addObject("divisionList", divisionList);
+        modelAndView.addObject("employeeListJson", employeeHelper.getEmployeeListJson(divisionList, employeeService.isShowAll(request)));
         modelAndView.addObject("typeWithRequiredComment", CreateVacationFormValidator.TYPE_WITH_REQUIRED_COMMENT);
 
         return modelAndView;
@@ -166,10 +183,7 @@ public class CreateVacationController {
 
         return new ModelAndView(
                 String.format(
-                        "redirect:../../vacations/%s/%d/%d",
-                        employee.getDivision().getId(),
-                        employeeId,
-                        java.util.Calendar.getInstance().get(java.util.Calendar.YEAR)
+                        "redirect:../../vacations"
                 )
         );
     }

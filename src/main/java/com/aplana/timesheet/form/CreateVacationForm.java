@@ -9,6 +9,7 @@ public class CreateVacationForm {
     public static final String DATE_FORMAT = "dd.MM.yyyy";
 
     private Integer employeeId;
+    private Integer divisionId;
     private String calFromDate;
     private String calToDate;
     private String comment;
@@ -68,5 +69,13 @@ public class CreateVacationForm {
         sb.append(", vacationType=").append(vacationType);
         sb.append('}');
         return sb.toString();
+    }
+
+    public Integer getDivisionId() {
+        return divisionId;
+    }
+
+    public void setDivisionId(Integer divisionId) {
+        this.divisionId = divisionId;
     }
 }

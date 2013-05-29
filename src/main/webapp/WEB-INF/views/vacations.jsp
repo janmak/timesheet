@@ -46,7 +46,11 @@
             window.focus();
             divisionChangeVac(dojo.byId("<%= DIVISION_ID %>").value);
             dojo.byId("<%= REGIONS %>").value = ${regionId};
-            sortEmployee();
+            if (dojo.byId("<%= REGIONS %>").value != -1){
+                sortEmployee();
+            }else{
+                sortEmployeeFull();
+            }
             dojo.byId("<%= EMPLOYEE_ID %>").value = ${employeeId};
             dojo.byId("<%= VACATION_ID %>").setAttribute("disabled", "disabled");
         });
@@ -56,8 +60,6 @@
         var selectedAllRegion = null;
 
         function showVacations() {
-            var empId = dojo.byId("<%= EMPLOYEE_ID %>").value;
-            var divisionId = dojo.byId("<%= DIVISION_ID %>").value;
             var calFromDate = dojo.byId("<%= CAL_FROM_DATE %>").value;
             var calToDate = dojo.byId("<%= CAL_TO_DATE %>").value;
 
@@ -65,7 +67,7 @@
                 if (checkEmployeeData(divisionId, empId)) {
                     dojo.byId("<%= VACATION_ID %>").setAttribute("disabled", "disabled");
                     vacationsForm.action =
-                            "<%=request.getContextPath()%>/vacations/" + divisionId + "/" + empId;
+                            "<%=request.getContextPath()%>/vacations";
                     vacationsForm.submit();
                 }
             } else {
@@ -251,12 +253,17 @@
         }
 
         function deleteVacation(parentElement, vac_id) {
+            var empId = dojo.byId("<%= EMPLOYEE_ID %>").value;
+            var divisionId = dojo.byId("<%= DIVISION_ID %>").value;
+
             if (!confirm("Удалить заявку?")) {
                 return;
             }
 
             dojo.byId("vacationId").removeAttribute("disabled");
             dojo.byId("vacationId").value = vac_id;
+            vacationsForm.action =
+                    "<%=request.getContextPath()%>/vacations";
             vacationsForm.submit();
         }
 
