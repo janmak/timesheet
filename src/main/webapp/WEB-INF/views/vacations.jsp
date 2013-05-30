@@ -74,11 +74,11 @@
                 var error = "";
 
                 if (isNilOrNull(calFromDate)) {
-                    error += ("Необходимо выбрать дату началу\n");
+                    error += ("Необходимо выбрать дату начала периода\n");
                 }
 
                 if (isNilOrNull(calToDate)) {
-                    error += ("Необходимо выбрать дату конца\n");
+                    error += ("Необходимо выбрать дату конца периода\n");
                 }
 
                 alert(error);
