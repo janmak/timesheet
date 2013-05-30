@@ -101,7 +101,9 @@ public class LdapUserDetailsService implements UserDetailsContextMapper {
                 String errors = employeeLdapService.synchronizeOneEmployee(email);
                 if (errors != null) {
                     if ( ! errors.equals( "" ) ) {
-                        String errorsSub = errors.substring(0, errors.lastIndexOf(','));
+                        final int endIndex = errors.lastIndexOf(',');
+
+                        String errorsSub = (endIndex < 0) ? errors : errors.substring(0, endIndex);
 
                         throw new BadCredentialsException("Авторизация выполнена успешно, но не удалось определить следующие параметры: <br>" + errorsSub);
                     } else {

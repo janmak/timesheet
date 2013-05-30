@@ -49,16 +49,6 @@
                         </form:select></td>
                     </tr>
                     <tr>
-                        <td><span class="label">Категория переработок</span><span style="color:red">*</span></td>
-                        <td>
-                            <form:select path="category" id="category" name="category" cssClass="without_dojo"
-                                         onmouseover="tooltip.show(getTitle(this));"
-                                         onmouseout="tooltip.hide();">
-                                <form:options items="${categoryList}" itemLabel="title"/>
-                            </form:select>
-                        </td>
-                    </tr>
-                    <tr>
                         <td><span class="label">Начало периода</span><span style="color:red">*</span></td>
                         <td><form:input path="beginDate" id="beginDate" name="beginDate" class="date_picker"
                                         data-dojo-id="fromDate"
