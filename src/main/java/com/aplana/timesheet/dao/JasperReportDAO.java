@@ -114,7 +114,6 @@ public class JasperReportDAO {
         return projNamesList;
     }
 
-    //TODO переписать с использование уже готовых библиотек
     private String getStringWithProjectNames( Collection<String> projNamesList ) {
         StringBuffer projNames = new StringBuffer();
 

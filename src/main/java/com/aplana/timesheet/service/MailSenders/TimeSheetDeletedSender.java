@@ -68,7 +68,7 @@ public class TimeSheetDeletedSender extends AbstractSenderWithAssistants<TimeShe
         Set<String> result = new HashSet<String>();
 
         result.add(input.getEmployee().getEmail());
-        result.add(propertyProvider.getMailFromAddress());
+        result.add(TSPropertyProvider.getMailFromAddress());
         result.add(sendMailService.getEmployeesManagersEmails(empId));
         result.add(sendMailService.getProjectsManagersEmails(input));
         result.add(sendMailService.getProjectParticipantsEmails(input));
