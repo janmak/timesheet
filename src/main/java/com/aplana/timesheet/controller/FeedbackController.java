@@ -46,7 +46,8 @@ public class FeedbackController {
 		"feedback.type.incorrectdata",
 		"feedback.type.cantsendreport",
 		"feedback.type.notfoundproject",
-		"feedback.type.other"
+		"feedback.type.other",
+        "feedback.type.deletevacation"
 	};
 
     //Пользователь нажал на кнопку "Очистить" на странице feedback.jsp

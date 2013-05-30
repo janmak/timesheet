@@ -51,8 +51,10 @@ public class TSPropertyProvider {
         return getProperties().getProperty("mail.transport.protocol");
     }
 
-    public String getMailProblemsAndProposalsCoaddress() {
-        return getProperties().getProperty("mail.ProblemsAndProposals.toaddress");
+    public String getMailProblemsAndProposalsCoaddress(Integer feedbackType) {
+        return feedbackType < 6
+                ? getProperties().getProperty("mail.ProblemsAndProposals.toaddress")
+                : getProperties().getProperty("mail.ProblemsAndProposals.toAdminAddress");
     }
 
     private static final String DEFAULT_TIME_SHEET_MAIL_ADRESS = "timesheet@aplana.com";

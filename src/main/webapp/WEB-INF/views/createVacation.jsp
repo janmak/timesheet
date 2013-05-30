@@ -49,9 +49,10 @@
         }
 
         function createVacation(approved) {
+            var empId = dojo.byId("employeeId").value;
             if (validate()) {
                 createVacationForm.action =
-                        "<%=request.getContextPath()%>/validateAndCreateVacation/${employee.id}/"
+                        "<%=request.getContextPath()%>/validateAndCreateVacation/" + empId + "/"
                                 + (approved ? "1" : "0");
                 createVacationForm.submit();
             }
@@ -133,8 +134,6 @@
 
 <h1><fmt:message key="title.createVacation"/></h1>
 <br/>
-
-<h2>${employee.name} (${employee.division.name})</h2>
 
 <form:form method="post" commandName="createVacationForm" name="mainForm">
     <form:errors path="*" cssClass="errors_box" delimiter="<br/><br/>" />

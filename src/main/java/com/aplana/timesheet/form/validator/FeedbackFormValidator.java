@@ -49,7 +49,7 @@ public class FeedbackFormValidator extends AbstractValidator {
 	}
 
 	private boolean isFeedbackTypeValid(int feedbackType) {
-		return feedbackType > -1 && feedbackType < 6;
+		return feedbackType > -1 && feedbackType < 7;
 	}
 	private boolean areFilesValid(MultipartFile[] files){
 		long sumSize = 0;

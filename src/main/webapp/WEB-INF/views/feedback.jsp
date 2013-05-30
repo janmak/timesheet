@@ -156,6 +156,8 @@
                         <form:option value="3" title="${problemCantReport}" label="${problemCantReport}"/>
                         <fmt:message key="feedback.type.notfoundproject" var="problemNotFoundProject"/>
                         <form:option value="4" title="${problemNotFoundProject}" label="${problemNotFoundProject}"/>
+                        <fmt:message key="feedback.type.deletevacation" var="problemDeleteVacation"/>
+                        <form:option value="6" title="${problemDeleteVacation}" label="${problemDeleteVacation}"/>
                         <fmt:message key="feedback.type.other" var="problemOther"/>
                         <form:option value="5" title="${problemOther}" label="${problemOther}"/>
                     </form:select>

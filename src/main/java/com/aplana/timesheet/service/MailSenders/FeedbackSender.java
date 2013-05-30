@@ -52,7 +52,7 @@ public class FeedbackSender extends MailSender<FeedbackForm> {
         String employeeName = sendMailService.getEmployeeFIO(params.getEmployeeId());
         String employeeEmail = sendMailService.getEmployeeEmail(params.getEmployeeId());
 
-        mail.setToEmails(Arrays.asList(propertyProvider.getMailProblemsAndProposalsCoaddress()));
+        mail.setToEmails(Arrays.asList(propertyProvider.getMailProblemsAndProposalsCoaddress(params.getFeedbackType())));
         mail.setCcEmails(Arrays.asList(employeeEmail));
         mail.setSubject(propertyProvider.getFeedbackMarker());
         mail.setFilePahts(Arrays.asList(params.getFile1Path(), params.getFile2Path()));
@@ -62,10 +62,10 @@ public class FeedbackSender extends MailSender<FeedbackForm> {
         return Arrays.asList(mail);
     }
 
-    private String getMessageBody(String name, String email, String discription, String feedbackTypeName) {
+    private String getMessageBody(String name, String email, String description, String feedbackTypeName) {
         final StringBuilder bodyTxt = new StringBuilder();
 
-        bodyTxt.append(StringEscapeUtils.escapeHtml4(discription));
+        bodyTxt.append(StringEscapeUtils.escapeHtml4(description));
 
         if (StringUtils.isNotBlank(name)) {
             bodyTxt.append("\n\nПришло от: ").append(name);

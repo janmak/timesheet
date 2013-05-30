@@ -140,12 +140,14 @@ public class OQProjectSyncService extends AbstractServiceWithTransactionManageme
                 // см. //APLANATS-408
                 project.setActive(foundProject.isActive());
                 project.setCqRequired(foundProject.isCqRequired());
+                project.setEndDate(foundProject.getEndDate()); // APLANATS-826
             }
 
             project.setName(name);
             project.setProjectId(idProject);
             project.setStartDate(DateTimeUtil.stringToDate(nodeMap.getNamedItem("begining").getNodeValue(), DATE_FORMAT));
-            project.setEndDate(DateTimeUtil.stringToDate(nodeMap.getNamedItem("ending").getNodeValue(), DATE_FORMAT));
+            // APLANATS-826
+            // project.setEndDate(DateTimeUtil.stringToDate(nodeMap.getNamedItem("ending").getNodeValue(), DATE_FORMAT));
             project.setState(state);
 
             if (project.isActive()) {
