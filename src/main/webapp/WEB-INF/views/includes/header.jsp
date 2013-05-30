@@ -21,7 +21,7 @@
         <table style="width: 100%">
             <tr>
                 <td>
-                    <ul style="list-style-type: none; max-width: 960px; float: left">
+                    <ul style="list-style-type: none; float: left">
                         <li><a href="<c:url value='/'/>"><fmt:message key="menu.main"/></a></li>
                         <li><a href="<c:url value='/viewreports'/>"><fmt:message key="title.viewreports"/></a></li>
                         <sec:authorize access="hasAnyRole('ROLE_PLAN_EDIT', 'ROLE_PLAN_VIEW')">
