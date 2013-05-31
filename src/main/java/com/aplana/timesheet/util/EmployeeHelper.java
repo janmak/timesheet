@@ -10,14 +10,13 @@ import com.aplana.timesheet.service.EmployeeService;
 import com.aplana.timesheet.service.RegionService;
 import com.aplana.timesheet.service.TimeSheetService;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.sql.Timestamp;
+import java.util.*;
 
 import static argo.jdom.JsonNodeBuilders.anArrayBuilder;
 import static argo.jdom.JsonNodeBuilders.anObjectBuilder;
@@ -189,11 +188,12 @@ public class EmployeeHelper {
 
     private String getValue(Employee employee) {
         final StringBuilder sb = new StringBuilder(employee.getName());
+        Timestamp endDate =  employee.getEndDate();
 
-        if (null != employee.getEndDate()) {
-            sb.append(" (уволен: ");
-            sb.append(dateToString(employee.getEndDate(), DATE_FORMAT));
-            sb.append(")");
+        if (null != endDate) {
+            if (DateUtils.truncatedCompareTo(endDate, new Date(), Calendar.DAY_OF_MONTH) < 0) {
+                sb.append(" (уволен: ").append(dateToString(employee.getEndDate(), DATE_FORMAT)).append(")");
+            }
         }
 
         return sb.toString();
