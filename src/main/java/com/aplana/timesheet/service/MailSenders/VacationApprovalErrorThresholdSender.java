@@ -22,7 +22,7 @@ public class VacationApprovalErrorThresholdSender extends MailSender<String> {
 
         mail.setSubject("Попытка подбора guid для сервиса согласования отпусков.");
         mail.setPreconstructedMessageBody("Обнаружена попытка подбора guid для сервиса согласования отпусков, подробности в логах сервера.");
-        mail.setToEmails(Arrays.asList(propertyProvider.getMailProblemsAndProposalsCoaddress()));
+        mail.setToEmails(Arrays.asList(propertyProvider.getMailProblemsAndProposalsCoaddress(0)));
         return Arrays.asList(mail);
     }
 
