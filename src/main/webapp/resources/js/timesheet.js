@@ -1303,11 +1303,15 @@ function openBusinessTripsAndIllnessWindow() {
         window.open('businesstripsandillness/');
     }
 }
-;
+/*
+Запускаем Standby widget на весь экран
+ */
+function processing() {
+  var standByElement = new dojox.widget.Standby({target: dojo.query("body")[0], zIndex:1000});
 
-function maskBody() {
-    dojo.query('#maskDiv').addClass("masked");
-
+  document.body.appendChild(standByElement.domNode);
+  standByElement.startup();
+  standByElement.show();
 }
 
 function somethingChanged(){

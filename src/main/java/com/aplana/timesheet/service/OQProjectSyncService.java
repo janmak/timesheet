@@ -135,6 +135,7 @@ public class OQProjectSyncService extends AbstractServiceWithTransactionManageme
             Project foundProject = dao.findByProjectId(idProject);
             if (foundProject == null) {  // если проекта еще нет в БД
                 project.setActive(newStatus.contains(status)); // установим ему новый статус
+                project.setEndDate(DateTimeUtil.stringToDate("01.01.2050", DATE_FORMAT)); // APLANATS-826 при добавлении проекта прописываем в качестве даты окончания фиксированную большую дату
             } else {
                 // если проект уже существовал - статус менять не будем
                 // см. //APLANATS-408
