@@ -48,9 +48,12 @@
             dojo.byId("<%= REGIONS %>").value = ${regionId};
             if (dojo.byId("<%= REGIONS %>").value != -1){
                 sortEmployee();
+                selectedAllRegion = false;
             }else{
                 sortEmployeeFull();
+                selectedAllRegion = true;
             }
+
             dojo.byId("<%= EMPLOYEE_ID %>").value = ${employeeId};
             dojo.byId("<%= VACATION_ID %>").setAttribute("disabled", "disabled");
         });
@@ -58,6 +61,7 @@
         var employeeList = ${employeeListWithRegAndManJson};
         var regionsIdList = ${regionsIdList};
         var selectedAllRegion = null;
+        var selectedEmployee = ${employeeId};
 
         function showVacations() {
             var calFromDate = dojo.byId("<%= CAL_FROM_DATE %>").value;
@@ -65,6 +69,7 @@
 
             if (isNotNilOrNull(calFromDate) || isNotNilOrNull(calToDate)) {
                 if (checkEmployeeData(divisionId, empId)) {
+
                     dojo.byId("<%= VACATION_ID %>").setAttribute("disabled", "disabled");
                     vacationsForm.action =
                             "<%=request.getContextPath()%>/vacations";
@@ -78,7 +83,7 @@
                 }
 
                 if (isNilOrNull(calToDate)) {
-                    error += ("Необходимо выбрать дату конца периода\n");
+                    error += ("Необходимо выбрать дату окончания периода\n");
                 }
 
                 alert(error);
@@ -87,9 +92,6 @@
 
         function divisionChangeVac(obj) {
             var divisionId = null;
-            var employeeSelect = dojo.byId("<%= EMPLOYEE_ID %>");
-            var employeeOption = null;
-            var selectedRegion = dojo.byId("<%= REGIONS %>").value;
 
             if (obj.target == null) {
                 divisionId = obj.value;
@@ -107,9 +109,6 @@
 
         function managerChange(obj) {
             var managerId = null;
-            var employeeSelect = dojo.byId("<%= EMPLOYEE_ID %>");
-            var employeeOption = null;
-            var selectedRegion = dojo.byId("<%= REGIONS %>").value;
 
             if (obj.target == null) {
                 managerId = obj.value;
@@ -142,13 +141,11 @@
                 select.selectedIndex = allOptionIndex;
                 selectedAllRegion = true;
                 sortEmployeeFull();
-
             } else {
                 select.setAttribute("multiple", "multiple");
                 selectedAllRegion = false;
                 sortEmployee();
             }
-
         }
 
         function sortEmployee(){
@@ -189,6 +186,7 @@
                 }
             }
             sortSelect(employeeSelect);
+            dojo.byId("<%= EMPLOYEE_ID %>").value = selectedEmployee;
         }
 
         function sortEmployeeFull(){
@@ -220,6 +218,7 @@
                 }
             }
             sortSelect(employeeSelect);
+            dojo.byId("<%= EMPLOYEE_ID %>").value = selectedEmployee;
         }
 
         function isNullManager(employee, employeeOption, employeeSelect){
@@ -239,6 +238,10 @@
                     }
                 }
             }
+        }
+
+        function changeSelectedEmployee(){
+            selectedEmployee = dojo.byId("<%= EMPLOYEE_ID %>").value;
         }
 
         function createVacation() {
@@ -287,10 +290,9 @@
                 return (a.text < b.text) ? -1 : 1;
             });
             select.options.length = 0;
-            insertEmptyOption(select);
             insertAllInclusiveOption(select);
             for (var i = 0; i < tmpArray.length; i++) {
-                select.options[i+2] = tmpArray[i];
+                select.options[i+1] = tmpArray[i];
             }
         }
     </script>
@@ -324,7 +326,7 @@
             <td>
                 <form:select path="<%= MANAGER_ID %>" id="<%= MANAGER_ID %>" onChange="managerChange(this)" class="without_dojo"
                              onmouseover="tooltip.show(getTitle(this));" onmouseout="tooltip.hide();">
-                    <form:option label="" value="0"/>
+                    <form:option label="Не выбран" value="0"/>
                     <form:options items="${managerList}" itemLabel="name" itemValue="id"/>
                 </form:select>
             </td>
@@ -345,27 +347,27 @@
             </td>
             <td>
                 <form:select path="<%= EMPLOYEE_ID %>" id="<%= EMPLOYEE_ID %>" class="without_dojo" onmouseover="tooltip.show(getTitle(this));"
-                             onmouseout="tooltip.hide();" onchange="setDefaultEmployeeJob(-1);">
+                             onmouseout="tooltip.hide();" onChange="changeSelectedEmployee()">
                     <form:option items="${employeeList}" label="" value="0"/>
                 </form:select>
             </td>
         </tr>
         <tr>
             <td>
-                <span class="label">Дата с</span>
+                <span class="label">Начало периода</span>
             </td>
             <td>
-                <form:input path="<%= CAL_FROM_DATE %>" id="<%= CAL_FROM_DATE %>" class="date_picker" data-dojo-type="DateTextBox"
+                <form:input path="<%= CAL_FROM_DATE %>" id="<%= CAL_FROM_DATE %>" class="date_picker" data-dojo-type="DateTextBox" required="true"
                             onMouseOver="tooltip.show(getTitle(this));" onMouseOut="tooltip.hide();" />
             </td>
         </tr>
 
         <tr>
             <td>
-                <span class="label">Дата по</span>
+                <span class="label">Окончание периода</span>
             </td>
             <td>
-                <form:input path="<%= CAL_TO_DATE %>" id="<%= CAL_TO_DATE %>" class="date_picker" data-dojo-type="DateTextBox"
+                <form:input path="<%= CAL_TO_DATE %>" id="<%= CAL_TO_DATE %>" class="date_picker" data-dojo-type="DateTextBox" required="true"
                             onMouseOver="tooltip.show(getTitle(this));" onMouseOut="tooltip.hide();"  />
             </td>
         </tr>
@@ -377,7 +379,7 @@
             <td>
                 <form:select path="<%= VACATION_TYPE %>" id="<%= VACATION_TYPE %>" onMouseOver="tooltip.show(getTitle(this));"
                              onMouseOut="tooltip.hide();" multiple="false" size="1">
-                    <form:option value="0" label="" />
+                    <form:option value="0" label="Все" />
                     <form:options items="${vacationTypes}" itemLabel="value" itemValue="id" />
                 </form:select>
             </td>
@@ -413,7 +415,7 @@
     <c:choose>
     <c:when test="${fn:length(vacationsList) == 0}">
         <tr>
-            <td colspan="11">За выбранный год нет ни одного заявления на отпуск</td>
+            <td colspan="11">Нет ни одного заявления на отпуск, удовлетворяющего выбранным параметрам</td>
         </tr>
     </tbody>
     </c:when>
@@ -447,6 +449,11 @@
                                 <c:choose>
                                     <c:when test="${va.result}">
                                         Согласовано
+                                        <br>
+                                        <fmt:formatDate value="${va.responseDate}" pattern="dd.MM.yyyy" />
+                                    </c:when>
+                                    <c:when test="${!va.result}">
+                                        Отклонено
                                         <br>
                                         <fmt:formatDate value="${va.responseDate}" pattern="dd.MM.yyyy" />
                                     </c:when>
@@ -493,14 +500,18 @@
             <td colspan="3">Кол-во отклоненных заявлений на отпуск</td>
             <td colspan="5">${summaryRejected}</td>
         </tr>
-        <tr class="summary">
-            <td colspan="3">Кол-во календарных дней отпуска за год</td>
-            <td colspan="5">${summaryCalDays}</td>
-        </tr>
-        <tr class="summary">
-            <td colspan="3">Кол-во рабочих дней отпуска за год</td>
-            <td colspan="5">${summaryWorkDays}</td>
-        </tr>
+        <c:choose>
+            <c:when test="${employeeId != -1}">
+            <tr class="summary">
+                <td colspan="3">Кол-во календарных дней отпуска за год</td>
+                <td colspan="5">${summaryCalDays}</td>
+            </tr>
+            <tr class="summary">
+                <td colspan="3">Кол-во рабочих дней отпуска за год</td>
+                <td colspan="5">${summaryWorkDays}</td>
+            </tr>
+            </c:when>
+        </c:choose>
     </tfoot>
     </c:otherwise>
     </c:choose>

@@ -222,4 +222,12 @@ public class EmployeeService {
     public List<Integer> getEmployeesIdByDivisionManagerRegion(Integer divisionId, Integer managerId, Integer regionId){
         return employeeDAO.getEmployeesIdByDivisionManagerRegion(divisionId, managerId, regionId);
     }
+
+    public List<Integer> getEmployeesIdByDivisionRegion(Integer divisionId, Integer regionId){
+        return employeeDAO.getEmployeesIdByDivisionRegion(divisionId, regionId);
+    }
+
+    public List<Integer> getEmployeesIdByDivisionManager(Integer divisionId, Integer managerId){
+        return employeeDAO.getEmployeesIdByDivisionManager(divisionId, managerId);
+    }
 }

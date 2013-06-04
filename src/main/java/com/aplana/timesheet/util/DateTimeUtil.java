@@ -22,7 +22,6 @@ import static argo.jdom.JsonNodeFactories.string;
 public class DateTimeUtil {
     public static final long DAY_IN_MILLS = 86400000;
     public static final String DATE_PATTERN = "yyyy-MM-dd";
-    
     public static final String MIN_DATE="1900-01-01";
     public static final String MAX_DATE="2999-12-31";
 
@@ -134,6 +133,20 @@ public class DateTimeUtil {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(curDate);
         calendar.set(Calendar.DAY_OF_MONTH, 1);
+        return sdf.format(calendar.getTime());
+    }
+
+    /**
+     * Возвращает последний день текущего года
+     *
+     * @return String
+     */
+    public static String currentYearLastDay() {
+        SimpleDateFormat sdf = new SimpleDateFormat(DATE_PATTERN);
+        Date curDate = new Date(System.currentTimeMillis());
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(curDate);
+        calendar.set(Calendar.DAY_OF_YEAR, calendar.getActualMaximum(Calendar.DAY_OF_YEAR));
         return sdf.format(calendar.getTime());
     }
 
