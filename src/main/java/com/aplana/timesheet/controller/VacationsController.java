@@ -6,10 +6,7 @@ import com.aplana.timesheet.enums.VacationStatusEnum;
 import com.aplana.timesheet.exception.service.DeleteVacationException;
 import com.aplana.timesheet.form.VacationsForm;
 import com.aplana.timesheet.form.validator.VacationsFormValidator;
-import com.aplana.timesheet.service.DictionaryItemService;
-import com.aplana.timesheet.service.EmployeeService;
-import com.aplana.timesheet.service.RegionService;
-import com.aplana.timesheet.service.VacationService;
+import com.aplana.timesheet.service.*;
 import com.aplana.timesheet.util.DateTimeUtil;
 import com.aplana.timesheet.util.EnumsUtils;
 import com.google.common.base.Predicate;
@@ -53,6 +50,8 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
     private RegionService regionService;
     @Autowired
     private EmployeeService employeeService;
+    @Autowired
+    private DivisionService divisionService;
 
     @RequestMapping(value = "/vacations", method = RequestMethod.GET)
     public ModelAndView prepareToShowVacations(
@@ -65,8 +64,10 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
         vacationsForm.setRegionsIdList(getRegionIdList());
         final ModelAndView modelAndView = createModelAndViewForEmployee("vacations", employee.getId(), employee.getDivision().getId());
 
+        vacationsForm.setCalToDate(DateTimeUtil.currentYearLastDay());
+        vacationsForm.setCalFromDate(DateTimeUtil.currentMonthFirstDay());
         modelAndView.addObject("managerId", vacationsForm.getManagerId());
-        modelAndView.addObject("regionId", employeeService.find(employee.getId()).getRegion().getId());
+        modelAndView.addObject("regionId", VacationsForm.ALL_VALUE);
         modelAndView.addObject("managerList", getManagerList());
         modelAndView.addObject("regionList", getRegionList());
         modelAndView.addObject("regionsIdList", getRegionIdList());
@@ -91,14 +92,14 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
 
         DictionaryItem vacationType = vacationsForm.getVacationType() != 0 ?
                 dictionaryItemService.find(vacationsForm.getVacationType()) : null;
-        final List<Vacation> vacations = employeeId != -1
+        final List<Vacation> vacations = (employeeId != -1
                 ? vacationService.findVacations(employeeId, dateFrom, dateTo,vacationType)
                 : findAllVacations(divisionId,
                 vacationsForm.getManagerId(),
                 vacationsForm.getRegions(),
                 dateFrom,
                 dateTo,
-                vacationType);
+                vacationType));
 
         final ModelAndView modelAndView = createModelAndViewForEmployee("vacations", employeeId, divisionId);
 
@@ -119,6 +120,7 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
         final List<Integer> calDays = new ArrayList<Integer>(vacationsSize);
         final List<Integer> workDays = new ArrayList<Integer>(vacationsSize);
 
+        modelAndView.addObject("getOrPost", 1);
         modelAndView.addObject("regionId", vacationsForm.getRegions());
         modelAndView.addObject("managerList", getManagerList());
         modelAndView.addObject("regionList", getRegionList());
@@ -147,12 +149,42 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
     private List<Vacation> findAllVacations(Integer divisionId, Integer managerId, List<Integer> regionsId,
                                             Date beginDate, Date endDate, DictionaryItem typeId){
         List<Vacation> vacations = new ArrayList<Vacation>();
-        for (Integer i : regionsId){
-            List<Integer> employeesId = findEmployeeByManager(divisionId, managerId, i);
-            for (Integer e : employeesId){
-                List<Vacation> empVacation = vacationService.findVacations(e, beginDate, endDate, typeId);
-                for (Vacation vac : empVacation){
-                    vacations.add(vac);
+        if (regionsId.get(0) != -1){
+            for (Integer i : regionsId){
+                if (managerId != 0){ //Есть выбранные регионы и руководитель
+                    List<Integer> employeesId = findEmployeeByManager(divisionId, managerId, i);
+                    for (Integer e : employeesId){
+                        List<Vacation> empVacation = vacationService.findVacations(e, beginDate, endDate, typeId);
+                        for (Vacation vac : empVacation){
+                            vacations.add(vac);
+                        }
+                    }
+                }else{ //Есть выбранные регионы и не выбран руководитель
+                    List<Integer> employeesId = employeeService.getEmployeesIdByDivisionRegion(divisionId, i);
+                    for (Integer e : employeesId){
+                        List<Vacation> empVacation = vacationService.findVacations(e, beginDate, endDate, typeId);
+                        for (Vacation vac : empVacation){
+                            vacations.add(vac);
+                        }
+                    }
+                }
+            }
+        }else{
+            if (managerId != 0){ //Выбраны все регионы и руководитель
+                List<Integer> employeesId = findEmployeeByManager(divisionId, managerId, regionsId.get(0));
+                for (Integer e : employeesId){
+                    List<Vacation> empVacation = vacationService.findVacations(e, beginDate, endDate, typeId);
+                    for (Vacation vac : empVacation){
+                        vacations.add(vac);
+                    }
+                }
+            }else{ //Выбраны все регионы и не выбран руководитель
+                List<Employee> employees = employeeService.getEmployees(divisionService.find(divisionId), false);
+                for (Employee e : employees){
+                    List<Vacation> empVacation = vacationService.findVacations(e.getId(), beginDate, endDate, typeId);
+                    for (Vacation vac : empVacation){
+                        vacations.add(vac);
+                    }
                 }
             }
         }
@@ -161,7 +193,9 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
 
     private List<Integer> findEmployeeByManager(Integer divisionId, Integer managerId, Integer regionId){
         List<Integer> returnList = new ArrayList<Integer>();
-        List<Integer> iteratorList = employeeService.getEmployeesIdByDivisionManagerRegion(divisionId, managerId, regionId);
+        List<Integer> iteratorList = regionId.equals(-1)
+                ? employeeService.getEmployeesIdByDivisionManager(divisionId, managerId)
+                : employeeService.getEmployeesIdByDivisionManagerRegion(divisionId, managerId, regionId);
         if (iteratorList.size() == 0){
             return returnList;
         }else{

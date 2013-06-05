@@ -396,4 +396,22 @@ public class EmployeeDAO {
                 .setParameter("regionId", regionId);
         return query.getResultList();
     }
+
+    public List<Integer> getEmployeesIdByDivisionRegion(Integer divisionId, Integer regionId){
+        Query query = entityManager.createQuery("select emp.id from Employee as emp where " +
+                "emp.region.id = :regionId and " +
+                "emp.division.id = :divisionId")
+                .setParameter("divisionId", divisionId)
+                .setParameter("regionId", regionId);
+        return query.getResultList();
+    }
+
+    public List<Integer> getEmployeesIdByDivisionManager(Integer divisionId, Integer managerId){
+        Query query = entityManager.createQuery("select emp.id from Employee as emp where " +
+                "emp.manager.id = :managerId and " +
+                "emp.division.id = :divisionId")
+                .setParameter("divisionId", divisionId)
+                .setParameter("managerId", managerId);
+        return query.getResultList();
+    }
 }
