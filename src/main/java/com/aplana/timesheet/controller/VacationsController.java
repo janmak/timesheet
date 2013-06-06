@@ -85,6 +85,17 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
 
         vacationsFormValidator.validate(vacationsForm, result);
 
+        final Integer vacationId = vacationsForm.getVacationId();
+
+        if (vacationId != null) {
+            try {
+                vacationService.deleteVacation(vacationId);
+                vacationsForm.setVacationId(null);
+            } catch (DeleteVacationException ex) {
+                result.rejectValue("vacationId", "error.vacations.deletevacation.failed", ex.getLocalizedMessage());
+            }
+        }
+
         DictionaryItem vacationType = vacationsForm.getVacationType() != 0 ?
                 dictionaryItemService.find(vacationsForm.getVacationType()) : null;
         final List<Vacation> vacations = (employeeId != -1
@@ -97,18 +108,6 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
                 vacationType));
 
         final ModelAndView modelAndView = createModelAndViewForEmployee("vacations", employeeId, divisionId);
-
-        final Integer vacationId = vacationsForm.getVacationId();
-
-        if (vacationId != null) {
-            try {
-                vacationService.deleteVacation(vacationId);
-                vacationsForm.setVacationId(null);
-            } catch (DeleteVacationException ex) {
-                result.rejectValue("vacationId", "error.vacations.deletevacation.failed", ex.getLocalizedMessage());
-            }
-        }
-
 
         final int vacationsSize = vacations.size();
 
