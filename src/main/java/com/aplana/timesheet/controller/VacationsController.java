@@ -63,7 +63,6 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
         vacationsForm.setCalFromDate(DateTimeUtil.currentMonthFirstDay());
         modelAndView.addObject("managerId", vacationsForm.getManagerId());
         modelAndView.addObject("regionId", VacationsForm.ALL_VALUE);
-        modelAndView.addObject("managerList", getManagerList());
         modelAndView.addObject("regionList", getRegionList());
         modelAndView.addObject("regionsIdList", getRegionIdList());
         modelAndView.addObject("vacationTypes",
@@ -120,7 +119,6 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
 
         modelAndView.addObject("getOrPost", 1);
         modelAndView.addObject("regionId", vacationsForm.getRegions());
-        modelAndView.addObject("managerList", getManagerList());
         modelAndView.addObject("regionList", getRegionList());
         modelAndView.addObject("regionsIdList", getRegionIdList());
         modelAndView.addObject("calFromDate", dateFrom);

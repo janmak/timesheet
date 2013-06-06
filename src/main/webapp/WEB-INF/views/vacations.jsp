@@ -60,6 +60,7 @@
 
         var employeeList = ${employeeListWithRegAndManJson};
         var regionsIdList = ${regionsIdList};
+        var managerList = ${managerListJson};
         var selectedAllRegion = null;
         var selectedEmployee = ${employeeId};
 
@@ -85,7 +86,7 @@
             else {
                 divisionId = obj.target.value;
             }
-
+            sortManager();
             if (selectedAllRegion){
                 sortEmployeeFull();
             }else{
@@ -137,8 +138,20 @@
         function sortManager(){
             var divisionId = dojo.byId("<%= DIVISION_ID %>").value;
             var managerSelect = dojo.byId("<%= MANAGER_ID %>");
+            var managerOption = null;
 
             managerSelect.options.length = 0;
+            for (var i = 0; i < managerList.length; i++){
+                if (managerList[i].divId == divisionId){
+                    managerOption = dojo.doc.createElement("option");
+                    dojo.attr(managerOption, {
+                        value:managerList[i].id
+                    });
+                    managerOption.title = managerList[i].value;
+                    managerOption.innerHTML = managerList[i].value;
+                    managerSelect.appendChild(managerOption);
+                }
+            }
         }
 
         function sortEmployee(){
