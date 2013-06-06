@@ -64,11 +64,17 @@ public class SendMailService{
                             new Predicate<ProjectParticipant>() {
                                 @Override
                                 public boolean apply(@Nullable ProjectParticipant participant) {
-                                    if(participant == null || participant.getProjectRole()==null) return false;
+                                    if(participant == null || participant.getProjectRole()==null){
+                                        return false;
+                                    }
                                     if (participant.getEmployee().getId().equals(project.getManager().getId())){
                                         return true;
                                     }
+                                    if(EnumsUtils.tryFindById(participant.getProjectRole().getId(),ProjectRolesEnum.class)==ProjectRolesEnum.HEAD){
+                                        return true;
+                                    }
                                     return (participant.getProjectRole().getId().equals(roleInCurrentProject.getId()));
+
                                 } }),
                     GET_EMAIL_FROM_PARTICIPANT
                 )
