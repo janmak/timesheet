@@ -67,26 +67,12 @@
             var calFromDate = dojo.byId("<%= CAL_FROM_DATE %>").value;
             var calToDate = dojo.byId("<%= CAL_TO_DATE %>").value;
 
-            if (isNotNilOrNull(calFromDate) || isNotNilOrNull(calToDate)) {
-                if (checkEmployeeData(divisionId, empId)) {
+            if (checkEmployeeData(divisionId, empId)) {
 
-                    dojo.byId("<%= VACATION_ID %>").setAttribute("disabled", "disabled");
-                    vacationsForm.action =
-                            "<%=request.getContextPath()%>/vacations";
-                    vacationsForm.submit();
-                }
-            } else {
-                var error = "";
-
-                if (isNilOrNull(calFromDate)) {
-                    error += ("Необходимо выбрать дату начала периода\n");
-                }
-
-                if (isNilOrNull(calToDate)) {
-                    error += ("Необходимо выбрать дату окончания периода\n");
-                }
-
-                alert(error);
+                dojo.byId("<%= VACATION_ID %>").setAttribute("disabled", "disabled");
+                vacationsForm.action =
+                        "<%=request.getContextPath()%>/vacations";
+                vacationsForm.submit();
             }
         }
 
@@ -146,6 +132,13 @@
                 selectedAllRegion = false;
                 sortEmployee();
             }
+        }
+
+        function sortManager(){
+            var divisionId = dojo.byId("<%= DIVISION_ID %>").value;
+            var managerSelect = dojo.byId("<%= MANAGER_ID %>");
+
+            managerSelect.options.length = 0;
         }
 
         function sortEmployee(){
@@ -323,7 +316,7 @@
     <form:hidden path="<%= VACATION_ID%>" />
     <table class="without_borders">
         <colgroup>
-            <col width="110" />
+            <col width="130" />
             <col width="320" />
         </colgroup>
         <tr>
@@ -469,7 +462,7 @@
                                         <br>
                                         <fmt:formatDate value="${va.responseDate}" pattern="dd.MM.yyyy" />
                                     </c:when>
-                                    <c:when test="${!va.result}">
+                                    <c:when test="${!va.result && va.result != null}">
                                         Отклонено
                                         <br>
                                         <fmt:formatDate value="${va.responseDate}" pattern="dd.MM.yyyy" />
@@ -521,7 +514,7 @@
             <td colspan="4" class="centered">
                 <c:choose>
                     <c:when test="${employeeId != -1}">
-                        <div data-dojo-type="dijit/TitlePane" data-dojo-props="title: 'Кол-во дней отпуска за год', open: false"
+                        <div data-dojo-type="dijit/TitlePane" data-dojo-props="title: 'Кол-во дней отпуска за период', open: false"
                              style="margin: 3px; padding: 0;">
                             <table class="centered">
                                 <thead>

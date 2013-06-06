@@ -26,8 +26,8 @@ import java.util.*;
 import java.util.Calendar;
 
 /**
- * @author rshamsutdinov
- * @version 1.0
+ * @author rshamsutdinov, aalikin
+ * @version 1.1
  */
 @Controller
 public class VacationsController extends AbstractControllerForEmployeeWithYears {
@@ -94,6 +94,10 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
             } catch (DeleteVacationException ex) {
                 result.rejectValue("vacationId", "error.vacations.deletevacation.failed", ex.getLocalizedMessage());
             }
+        }
+
+        if (result.hasErrors()){
+            return prepareToShowVacations(new VacationsForm());
         }
 
         DictionaryItem vacationType = vacationsForm.getVacationType() != 0 ?
