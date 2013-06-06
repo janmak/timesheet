@@ -68,6 +68,9 @@ public class SendMailService{
                                     if (participant.getEmployee().getId().equals(project.getManager().getId())){
                                         return true;
                                     }
+                                    if(EnumsUtils.tryFindById(participant.getProjectRole().getId(),ProjectRolesEnum.class)==ProjectRolesEnum.HEAD){
+                                         return true;
+                                    }
                                     return (participant.getProjectRole().getId().equals(roleInCurrentProject.getId()));
                                 } }),
                     GET_EMAIL_FROM_PARTICIPANT

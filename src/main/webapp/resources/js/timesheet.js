@@ -476,15 +476,6 @@ function typeActivityChange(obj) {
         fillProjectList(rowIndex, select.value);
     }
 
-    if (select.value && select.value != "0" && select.value != "0") {
-        var workplaceSelect = dojo.byId("workplace_id_" + rowIndex);
-        if (!workplaceSelect.value || workplaceSelect.value == "" || workplaceSelect.value == "0") {
-            if (existsCookie('aplanaWorkPlace')) {
-                workplaceSelect.value = CookieValue('aplanaWorkPlace');
-            }
-        }
-    }
-
     // Внепроектная активность
     else if (select.value == "14") {
         dojo.attr("project_id_" + rowIndex, {
@@ -521,6 +512,15 @@ function typeActivityChange(obj) {
         resetRowState(rowIndex, false);
     } else if (select.value == "18") { //Не рабочий день
         resetRowState(rowIndex, false);
+    }
+
+    if (select.value && select.value != "0") {
+        var workplaceSelect = dojo.byId("workplace_id_" + rowIndex);
+        if (!workplaceSelect.value || workplaceSelect.value == "" || workplaceSelect.value == "0") {
+            if (existsCookie('aplanaWorkPlace')) {
+                workplaceSelect.value = CookieValue('aplanaWorkPlace');
+            }
+        }
     }
 
     if (select.value == "13") {
