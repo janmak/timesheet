@@ -186,7 +186,11 @@
                 }
             }
             sortSelect(employeeSelect);
-            dojo.byId("<%= EMPLOYEE_ID %>").value = selectedEmployee;
+            if (selectCurrentEmployee(employeeSelect)){
+                dojo.byId("<%= EMPLOYEE_ID %>").value = selectedEmployee;
+            }else{
+                dojo.byId("<%= EMPLOYEE_ID %>").value = -1;
+            }
         }
 
         function sortEmployeeFull(){
@@ -218,7 +222,20 @@
                 }
             }
             sortSelect(employeeSelect);
-            dojo.byId("<%= EMPLOYEE_ID %>").value = selectedEmployee;
+            if (selectCurrentEmployee(employeeSelect)){
+                dojo.byId("<%= EMPLOYEE_ID %>").value = selectedEmployee;
+            }else{
+                dojo.byId("<%= EMPLOYEE_ID %>").value = -1;
+            }
+        }
+
+        function selectCurrentEmployee(employeeSelect){
+            for (var i = 0; i < employeeSelect.options.length; i++){
+                if (employeeSelect[i].value == selectedEmployee){
+                    return true;
+                }
+            }
+            return false;
         }
 
         function isNullManager(employee, employeeOption, employeeSelect){
@@ -494,24 +511,41 @@
     <tfoot>
         <tr class="summary">
             <td colspan="3">Кол-во утвержденных заявлений на отпуск</td>
-            <td colspan="5">${summaryApproved}</td>
+            <td colspan="1">${summaryApproved}</td>
         </tr>
         <tr class="summary">
             <td colspan="3">Кол-во отклоненных заявлений на отпуск</td>
-            <td colspan="5">${summaryRejected}</td>
+            <td colspan="1">${summaryRejected}</td>
         </tr>
-        <c:choose>
-            <c:when test="${employeeId != -1}">
-            <tr class="summary">
-                <td colspan="3">Кол-во календарных дней отпуска за год</td>
-                <td colspan="5">${summaryCalDays}</td>
-            </tr>
-            <tr class="summary">
-                <td colspan="3">Кол-во рабочих дней отпуска за год</td>
-                <td colspan="5">${summaryWorkDays}</td>
-            </tr>
-            </c:when>
-        </c:choose>
+        <tr>
+            <td colspan="4" class="centered">
+                <c:choose>
+                    <c:when test="${employeeId != -1}">
+                        <div data-dojo-type="dijit/TitlePane" data-dojo-props="title: 'Кол-во дней отпуска за год', open: false"
+                             style="margin: 3px; padding: 0;">
+                            <table class="centered">
+                                <thead>
+                                <tr>
+                                    <th width="170">Год</th>
+                                    <th width="170">Календарные дни</th>
+                                    <th width="170">Рабочие дни</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                    <c:forEach var="cal" items="${calDaysCount}">
+                                        <tr>
+                                            <td>${cal.year}</td>
+                                            <td>${cal.summaryCalDays}</td>
+                                            <td>${cal.summaryWorkDays}</td>
+                                        </tr>
+                                    </c:forEach>
+                                </tbody>
+                            </table>
+                        </div>
+                    </c:when>
+                </c:choose>
+            </td>
+        </tr>
     </tfoot>
     </c:otherwise>
     </c:choose>

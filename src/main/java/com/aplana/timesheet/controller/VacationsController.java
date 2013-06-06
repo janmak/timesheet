@@ -12,20 +12,15 @@ import com.aplana.timesheet.util.EnumsUtils;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import org.apache.commons.lang.time.DateUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.annotation.Nullable;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.sql.Timestamp;
 import java.util.*;
 import java.util.Calendar;
@@ -139,9 +134,25 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
         for (Integer i : filledRegionsId){
             regionListForCalc.add(regionService.find(i));
         }
-        modelAndView.addAllObjects(
-                getSummaryAndCalcDays(regionListForCalc, vacations, calDays, workDays, dateFrom.getYear() + 1900));
+
+        final List<VacationInYear> calAndWorkDaysList = new ArrayList<VacationInYear>();
+        Integer firstYear = dateFrom.getYear() + 1900;
+        Integer lastYear = dateTo.getYear() + 1900;
+        int summaryApproved = 0;
+        int summaryRejected = 0;
+
+        for (int i  = firstYear; i <= lastYear; i++){
+            Map<String, Integer> map = getSummaryAndCalcDays(regionListForCalc, vacations, calDays, workDays, i);
+            summaryApproved += map.get("summaryApproved");
+            summaryRejected += map.get("summaryRejected");
+            calAndWorkDaysList.add(new VacationInYear(i, map.get("summaryCalDays"), map.get("summaryWorkDays")));
+        }
+
+        modelAndView.addObject("summaryApproved", summaryApproved);
+        modelAndView.addObject("summaryRejected", summaryRejected);
         modelAndView.addObject("curEmployee", securityService.getSecurityPrincipal().getEmployee());
+
+        modelAndView.addObject("calDaysCount", calAndWorkDaysList);
 
         return modelAndView;
     }
@@ -289,19 +300,14 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
                             if (beginYear == year && year == endYear) {
                                 summaryCalDays += calDaysCount;
                                 summaryWorkDays += workDaysCount;
-                            } else {
-                                final long days = DateUtils.getFragmentInDays(endDate, Calendar.YEAR);
-
-                                if (endYear == year) {
-                                    summaryCalDays += days;
-                                    summaryWorkDays += days - getHolidaysCount(holidaysForRegion, currentYearBeginDate, endDate);
-                                } else {
-                                    final long daysInCurrentYear = calDaysCount - days;
-
-                                    summaryCalDays += daysInCurrentYear;
-                                    summaryWorkDays += daysInCurrentYear -
-                                            getHolidaysCount(holidaysForRegion, beginDate, currentYearEndDate);
-                                }
+                            } if (beginYear < year && year == endYear){
+                                long days = DateUtils.getFragmentInDays(endDate, Calendar.YEAR);
+                                summaryCalDays += days;
+                                summaryWorkDays += days - getHolidaysCount(holidaysForRegion, currentYearBeginDate, endDate);
+                            } if (beginYear == year && year < endYear){
+                                long days = DateUtils.getFragmentInDays(beginDate, Calendar.YEAR);
+                                summaryCalDays += days;
+                                summaryWorkDays += days - getHolidaysCount(holidaysForRegion, currentYearBeginDate, beginDate);
                             }
 
                             summaryApproved++;
