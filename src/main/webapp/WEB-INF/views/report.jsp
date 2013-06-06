@@ -37,7 +37,11 @@
 	</div>
 </c:if>
 <br>
-<b>${report}</b><br><button id="close" style="width:210px" type="button" onclick="window.close()"  >Закрыть</button>
+<b>${report}</b>
+<br>
+<b>Отчет был создан ${creationDate}</b>
+<br>
+<button id="close" style="width:210px" type="button" onclick="window.close()"  >Закрыть</button>
 </form:form>
 </body>
 </html>

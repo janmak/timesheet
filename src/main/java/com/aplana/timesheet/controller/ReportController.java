@@ -1,7 +1,9 @@
 package com.aplana.timesheet.controller;
 
+import com.aplana.timesheet.dao.entity.TimeSheet;
 import com.aplana.timesheet.form.TimeSheetForm;
 import com.aplana.timesheet.service.*;
+import com.aplana.timesheet.util.DateTimeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,8 +42,13 @@ public class ReportController {
 		mav.addObject("month", month);
 		mav.addObject("day", day);
 		mav.addObject("employeeId", employeeId);
-		mav.addObject("report", sendMailService.initMessageBodyForReport(timeSheetService.findForDateAndEmployee(year.toString()+ "-" + month.toString() + "-" + day.toString(), employeeId)));
-		logger.info("<<<<<<<<< End of RequestMapping <<<<<<<<<<<<<<<<<<<<<<");
+
+        final TimeSheet timeSheet = timeSheetService.findForDateAndEmployee(year.toString() + "-" + month.toString() + "-" + day.toString(), employeeId);
+
+        mav.addObject("creationDate",DateTimeUtil.dateToString(timeSheet.getCreationDate(), DateTimeUtil.VIEW_DATE_TIME_PATTERN));
+		mav.addObject("report", sendMailService.initMessageBodyForReport(timeSheet));
+
+        logger.info("<<<<<<<<< End of RequestMapping <<<<<<<<<<<<<<<<<<<<<<");
 		return mav;
-		}
+    }
 }
