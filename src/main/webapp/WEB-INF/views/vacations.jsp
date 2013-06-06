@@ -60,6 +60,7 @@
 
         var employeeList = ${employeeListWithRegAndManJson};
         var regionsIdList = ${regionsIdList};
+        var managerList = ${managerListJson};
         var selectedAllRegion = null;
         var selectedEmployee = ${employeeId};
 
@@ -67,26 +68,12 @@
             var calFromDate = dojo.byId("<%= CAL_FROM_DATE %>").value;
             var calToDate = dojo.byId("<%= CAL_TO_DATE %>").value;
 
-            if (isNotNilOrNull(calFromDate) || isNotNilOrNull(calToDate)) {
-                if (checkEmployeeData(divisionId, empId)) {
+            if (checkEmployeeData(divisionId, empId)) {
 
-                    dojo.byId("<%= VACATION_ID %>").setAttribute("disabled", "disabled");
-                    vacationsForm.action =
-                            "<%=request.getContextPath()%>/vacations";
-                    vacationsForm.submit();
-                }
-            } else {
-                var error = "";
-
-                if (isNilOrNull(calFromDate)) {
-                    error += ("Необходимо выбрать дату начала периода\n");
-                }
-
-                if (isNilOrNull(calToDate)) {
-                    error += ("Необходимо выбрать дату окончания периода\n");
-                }
-
-                alert(error);
+                dojo.byId("<%= VACATION_ID %>").setAttribute("disabled", "disabled");
+                vacationsForm.action =
+                        "<%=request.getContextPath()%>/vacations";
+                vacationsForm.submit();
             }
         }
 
@@ -99,7 +86,7 @@
             else {
                 divisionId = obj.target.value;
             }
-
+            sortManager();
             if (selectedAllRegion){
                 sortEmployeeFull();
             }else{
@@ -148,6 +135,25 @@
             }
         }
 
+        function sortManager(){
+            var divisionId = dojo.byId("<%= DIVISION_ID %>").value;
+            var managerSelect = dojo.byId("<%= MANAGER_ID %>");
+            var managerOption = null;
+
+            managerSelect.options.length = 0;
+            for (var i = 0; i < managerList.length; i++){
+                if (managerList[i].divId == divisionId){
+                    managerOption = dojo.doc.createElement("option");
+                    dojo.attr(managerOption, {
+                        value:managerList[i].id
+                    });
+                    managerOption.title = managerList[i].value;
+                    managerOption.innerHTML = managerList[i].value;
+                    managerSelect.appendChild(managerOption);
+                }
+            }
+        }
+
         function sortEmployee(){
             var employeeSelect = dojo.byId("<%= EMPLOYEE_ID %>");
             var divisionId = dojo.byId("<%= DIVISION_ID %>").value;
@@ -186,7 +192,11 @@
                 }
             }
             sortSelect(employeeSelect);
-            dojo.byId("<%= EMPLOYEE_ID %>").value = selectedEmployee;
+            if (selectCurrentEmployee(employeeSelect)){
+                dojo.byId("<%= EMPLOYEE_ID %>").value = selectedEmployee;
+            }else{
+                dojo.byId("<%= EMPLOYEE_ID %>").value = -1;
+            }
         }
 
         function sortEmployeeFull(){
@@ -218,7 +228,20 @@
                 }
             }
             sortSelect(employeeSelect);
-            dojo.byId("<%= EMPLOYEE_ID %>").value = selectedEmployee;
+            if (selectCurrentEmployee(employeeSelect)){
+                dojo.byId("<%= EMPLOYEE_ID %>").value = selectedEmployee;
+            }else{
+                dojo.byId("<%= EMPLOYEE_ID %>").value = -1;
+            }
+        }
+
+        function selectCurrentEmployee(employeeSelect){
+            for (var i = 0; i < employeeSelect.options.length; i++){
+                if (employeeSelect[i].value == selectedEmployee){
+                    return true;
+                }
+            }
+            return false;
         }
 
         function isNullManager(employee, employeeOption, employeeSelect){
@@ -306,7 +329,7 @@
     <form:hidden path="<%= VACATION_ID%>" />
     <table class="without_borders">
         <colgroup>
-            <col width="110" />
+            <col width="130" />
             <col width="320" />
         </colgroup>
         <tr>
@@ -452,7 +475,7 @@
                                         <br>
                                         <fmt:formatDate value="${va.responseDate}" pattern="dd.MM.yyyy" />
                                     </c:when>
-                                    <c:when test="${!va.result}">
+                                    <c:when test="${!va.result && va.result != null}">
                                         Отклонено
                                         <br>
                                         <fmt:formatDate value="${va.responseDate}" pattern="dd.MM.yyyy" />
@@ -494,24 +517,41 @@
     <tfoot>
         <tr class="summary">
             <td colspan="3">Кол-во утвержденных заявлений на отпуск</td>
-            <td colspan="5">${summaryApproved}</td>
+            <td colspan="1">${summaryApproved}</td>
         </tr>
         <tr class="summary">
             <td colspan="3">Кол-во отклоненных заявлений на отпуск</td>
-            <td colspan="5">${summaryRejected}</td>
+            <td colspan="1">${summaryRejected}</td>
         </tr>
-        <c:choose>
-            <c:when test="${employeeId != -1}">
-            <tr class="summary">
-                <td colspan="3">Кол-во календарных дней отпуска за год</td>
-                <td colspan="5">${summaryCalDays}</td>
-            </tr>
-            <tr class="summary">
-                <td colspan="3">Кол-во рабочих дней отпуска за год</td>
-                <td colspan="5">${summaryWorkDays}</td>
-            </tr>
-            </c:when>
-        </c:choose>
+        <tr>
+            <td colspan="4" class="centered">
+                <c:choose>
+                    <c:when test="${employeeId != -1}">
+                        <div data-dojo-type="dijit/TitlePane" data-dojo-props="title: 'Кол-во дней отпуска за период', open: false"
+                             style="margin: 3px; padding: 0;">
+                            <table class="centered">
+                                <thead>
+                                <tr>
+                                    <th width="170">Год</th>
+                                    <th width="170">Календарные дни</th>
+                                    <th width="170">Рабочие дни</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                    <c:forEach var="cal" items="${calDaysCount}">
+                                        <tr>
+                                            <td>${cal.year}</td>
+                                            <td>${cal.summaryCalDays}</td>
+                                            <td>${cal.summaryWorkDays}</td>
+                                        </tr>
+                                    </c:forEach>
+                                </tbody>
+                            </table>
+                        </div>
+                    </c:when>
+                </c:choose>
+            </td>
+        </tr>
     </tfoot>
     </c:otherwise>
     </c:choose>

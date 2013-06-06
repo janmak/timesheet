@@ -28,6 +28,14 @@ public class EmployeeHelper {
 
     private static final String ID = "id";
     private static final String VALUE = "value";
+    private static final String DIVISION_ID = "divId";
+    private static final String REGION_ID = "regId";
+    private static final String MANAGER_ID = "manId";
+    private static final String JOB_ID = "jobId";
+    private static final String DIVISION_EMPLOYEES = "divEmps";
+    private static final String DATE_BY_DEFAULT = "dateByDefault";
+    private static final String FIRST_WORK_DATE = "firstWorkDate";
+    private static final String DEFAULT_MANAGER = "-1";
     private static final String DATE_FORMAT = "dd.MM.yyyy";
 
     @Autowired
@@ -54,7 +62,7 @@ public class EmployeeHelper {
             final JsonObjectNodeBuilder nodeBuilder = anObjectBuilder();
             final JsonArrayNodeBuilder employeesBuilder = anArrayBuilder();
 
-            nodeBuilder.withField("divId", aStringBuilder(division.getId()));
+            nodeBuilder.withField(DIVISION_ID, aStringBuilder(division.getId()));
 
             if (employees.isEmpty()) {
                 employeesBuilder.withElement(
@@ -73,17 +81,17 @@ public class EmployeeHelper {
                         if (defaultDate == null)
                             defaultDate = employee.getStartDate();
 
-                        objectNodeBuilder.withField("jobId", aStringBuilder(employee.getJob().getId())).
-                                withField("dateByDefault", JsonNodeBuilders.aStringBuilder(
+                        objectNodeBuilder.withField(JOB_ID, aStringBuilder(employee.getJob().getId())).
+                                withField(DATE_BY_DEFAULT, JsonNodeBuilders.aStringBuilder(
                                         dateToString(defaultDate, DATE_FORMAT))).
-                                withField("firstWorkDate", JsonNodeBuilders.aStringBuilder(
+                                withField(FIRST_WORK_DATE, JsonNodeBuilders.aStringBuilder(
                                         dateToString(employee.getStartDate(), DATE_FORMAT)));
                     }
                     employeesBuilder.withElement(objectNodeBuilder);
                 }
             }
 
-            builder.withElement(nodeBuilder.withField("divEmps", employeesBuilder));
+            builder.withElement(nodeBuilder.withField(DIVISION_EMPLOYEES, employeesBuilder));
         }
 
         return JsonUtil.format(builder.build());
@@ -107,9 +115,9 @@ public class EmployeeHelper {
                     for (Employee manager : managerList){
                         JsonObjectNodeBuilder nodeBuilder = anObjectBuilder();
                         JsonArrayNodeBuilder employeesBuilder = anArrayBuilder();
-                        nodeBuilder.withField("divId", aStringBuilder(division.getId()));
-                        nodeBuilder.withField("regId", aStringBuilder(region.getId()));
-                        nodeBuilder.withField("manId", aStringBuilder(manager.getId()));
+                        nodeBuilder.withField(DIVISION_ID, aStringBuilder(division.getId()));
+                        nodeBuilder.withField(REGION_ID, aStringBuilder(region.getId()));
+                        nodeBuilder.withField(MANAGER_ID, aStringBuilder(manager.getId()));
                         for (Employee employee : employees) {
                             if ((employee.getRegion().getId().equals(region.getId()))
                                     &&(employee.getManager()!=null)
@@ -123,24 +131,24 @@ public class EmployeeHelper {
                                     if (defaultDate == null)
                                         defaultDate = employee.getStartDate();
 
-                                    objectNodeBuilder.withField("jobId", aStringBuilder(employee.getJob().getId())).
-                                            withField("dateByDefault", JsonNodeBuilders.aStringBuilder(
+                                    objectNodeBuilder.withField(JOB_ID, aStringBuilder(employee.getJob().getId())).
+                                            withField(DATE_BY_DEFAULT, JsonNodeBuilders.aStringBuilder(
                                                     dateToString(defaultDate, DATE_FORMAT))).
-                                            withField("firstWorkDate", JsonNodeBuilders.aStringBuilder(
+                                            withField(FIRST_WORK_DATE, JsonNodeBuilders.aStringBuilder(
                                                     dateToString(employee.getStartDate(), DATE_FORMAT)));
                                 }
                                 employeesBuilder.withElement(objectNodeBuilder);
                             }
                         }
-                        builder.withElement(nodeBuilder.withField("divEmps", employeesBuilder));
+                        builder.withElement(nodeBuilder.withField(DIVISION_EMPLOYEES, employeesBuilder));
                     }
 
                     /** Специальный случай, когда у работника нет начальника*/
                     JsonObjectNodeBuilder nodeBuilder = anObjectBuilder();
                     JsonArrayNodeBuilder employeesBuilder = anArrayBuilder();
-                    nodeBuilder.withField("divId", aStringBuilder(division.getId()));
-                    nodeBuilder.withField("regId", aStringBuilder(region.getId()));
-                    nodeBuilder.withField("manId", JsonNodeBuilders.aStringBuilder("-1"));
+                    nodeBuilder.withField(DIVISION_ID, aStringBuilder(division.getId()));
+                    nodeBuilder.withField(REGION_ID, aStringBuilder(region.getId()));
+                    nodeBuilder.withField(MANAGER_ID, JsonNodeBuilders.aStringBuilder(DEFAULT_MANAGER));
                     for (Employee employee : employees) {
                         if ((employee.getRegion().getId().equals(region.getId()))
                                 && (employee.getManager() == null)){
@@ -153,22 +161,37 @@ public class EmployeeHelper {
                                 if (defaultDate == null)
                                     defaultDate = employee.getStartDate();
 
-                                objectNodeBuilder.withField("jobId", aStringBuilder(employee.getJob().getId())).
-                                        withField("dateByDefault", JsonNodeBuilders.aStringBuilder(
+                                objectNodeBuilder.withField(JOB_ID, aStringBuilder(employee.getJob().getId())).
+                                        withField(DATE_BY_DEFAULT, JsonNodeBuilders.aStringBuilder(
                                                 dateToString(defaultDate, DATE_FORMAT))).
-                                        withField("firstWorkDate", JsonNodeBuilders.aStringBuilder(
+                                        withField(FIRST_WORK_DATE, JsonNodeBuilders.aStringBuilder(
                                                 dateToString(employee.getStartDate(), DATE_FORMAT)));
                             }
                             employeesBuilder.withElement(objectNodeBuilder);
                         }
                     }
-                    builder.withElement(nodeBuilder.withField("divEmps", employeesBuilder));
+                    builder.withElement(nodeBuilder.withField(DIVISION_EMPLOYEES, employeesBuilder));
                 }
             }
         }
 
         return JsonUtil.format(builder.build());
     }
+
+    @Transactional(readOnly = true)
+    public String getManagerListJson(){
+        final JsonArrayNodeBuilder builder = anArrayBuilder();
+        List<Employee> managerList = employeeService.getManagerListForAllEmployee();
+        for (Employee e : managerList){
+            JsonObjectNodeBuilder nodeBuilder = anObjectBuilder();
+            nodeBuilder.withField(ID, aStringBuilder(e.getId()));
+            nodeBuilder.withField(VALUE, JsonNodeBuilders.aStringBuilder(e.getName()));
+            nodeBuilder.withField(DIVISION_ID, aStringBuilder(e.getDivision().getId()));
+            builder.withElement(nodeBuilder);
+        }
+        return JsonUtil.format(builder.build());
+    }
+
 
     private List<Employee> getManagerList(List<Employee> employees){
         List<Employee> managerList = new ArrayList<Employee>();
