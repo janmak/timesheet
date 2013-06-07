@@ -39,7 +39,7 @@
 </table>
 
 <div id="acceptence_div" ${vacationApprovalForm.buttonsVisible}>
-    <c:set value="<%= request.getParameter("uid") %>" var="uid" />
+    <c:set value='<%= request.getParameter("uid") %>' var="uid" />
     <c:url value="/vacation_approval/save/${uid}/true" var="confirm"/>
     <c:url value="/vacation_approval/save/${uid}/false" var="reject"/>
 
