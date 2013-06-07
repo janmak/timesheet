@@ -12,6 +12,7 @@ public class VacationApprovalForm {
     String message;
     String buttonsVisible;
     List<ApprovalResultModel> approvalList;
+    Integer size;
 
     public String getMessage() {
         return message;
@@ -35,5 +36,13 @@ public class VacationApprovalForm {
 
     public void setApprovalList(List<ApprovalResultModel> approvalList){
         this.approvalList = approvalList;
+    }
+
+    public Integer getSize(){
+        return  size;
+    }
+
+    public void setSize(Integer size){
+        this.size = size;
     }
 }

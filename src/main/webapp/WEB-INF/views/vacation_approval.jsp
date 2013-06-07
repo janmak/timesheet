@@ -16,27 +16,30 @@
     </form:label>
 
 </form:form>
+<c:choose>
+    <c:when test="${vacationApprovalForm.size > 0}">
+        <h2>По данному заявлению уже приняли решение следующие лица</h2>
 
-<h2>По данному заявлению уже приняли решение следующие лица</h2>
-
-<table border="2">
-    <thead>
-        <tr>
-            <th width="350">Роль сотрудника</th>
-            <th width="250">Фамилия Имя сотрудника</th>
-            <th width="170">Решение</th>
-        </tr>
-    </thead>
-    <tbody>
-        <c:forEach var="approval" items="${vacationApprovalForm.approvalList}">
-            <tr>
-                <td>${approval.role}</td>
-                <td>${approval.name}</td>
-                <td>${approval.result}</td>
-            </tr>
-        </c:forEach>
-    </tbody>
-</table>
+        <table border="2">
+            <thead>
+                <tr>
+                    <th width="350">Роль сотрудника</th>
+                    <th width="250">Фамилия Имя сотрудника</th>
+                    <th width="170">Решение</th>
+                </tr>
+            </thead>
+            <tbody>
+                <c:forEach var="approval" items="${vacationApprovalForm.approvalList}">
+                    <tr>
+                        <td>${approval.role}</td>
+                        <td>${approval.name}</td>
+                        <td>${approval.result}</td>
+                    </tr>
+                </c:forEach>
+            </tbody>
+        </table>
+    </c:when>
+</c:choose>
 
 <div id="acceptence_div" ${vacationApprovalForm.buttonsVisible}>
     <c:set value='<%= request.getParameter("uid") %>' var="uid" />

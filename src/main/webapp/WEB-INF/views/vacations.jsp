@@ -56,13 +56,6 @@
 
             dojo.byId("<%= EMPLOYEE_ID %>").value = ${employeeId};
             dojo.byId("<%= VACATION_ID %>").setAttribute("disabled", "disabled");
-
-            if (${show}){
-                dojo.byId("<%= VACATION_ID %>").setAttribute("disabled", "disabled");
-                vacationsForm.action =
-                        "<%=request.getContextPath()%>/vacations";
-                vacationsForm.submit();
-            }
         });
 
         var employeeList = ${employeeListWithRegAndManJson};

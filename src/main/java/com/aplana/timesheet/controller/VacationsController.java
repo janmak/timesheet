@@ -72,9 +72,14 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
                 dictionaryItemService.getItemsByDictionaryId(DictionaryEnum.VACATION_TYPE.getId()));
         modelAndView.addObject("curEmployee", securityService.getSecurityPrincipal().getEmployee());
 
-        modelAndView.addObject("show", session.getAttribute("employeeId") != null ? true : false);
-
-        return modelAndView;
+        if (session.getAttribute("employeeId") != null){
+            vacationsForm.setVacationType(0);
+            vacationsForm.setRegions(new ArrayList<Integer>());
+            vacationsForm.getRegions().add(employee.getRegion().getId());
+            return showVacations(vacationsForm, null);
+        }else{
+            return modelAndView;
+        }
     }
 
     @RequestMapping(value = "/vacations", method = RequestMethod.POST)
@@ -100,7 +105,7 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
             }
         }
 
-        if (result.hasErrors()){
+        if (result != null && result.hasErrors()){
             return prepareToShowVacations(new VacationsForm());
         }
 
@@ -159,7 +164,6 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
         modelAndView.addObject("curEmployee", securityService.getSecurityPrincipal().getEmployee());
 
         modelAndView.addObject("calDaysCount", calAndWorkDaysList);
-        modelAndView.addObject("show", false);
 
         return modelAndView;
     }
