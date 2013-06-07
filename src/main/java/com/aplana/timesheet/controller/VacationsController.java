@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.annotation.Nullable;
+import javax.servlet.http.HttpSession;
 import java.sql.Timestamp;
 import java.util.*;
 import java.util.Calendar;
@@ -52,8 +53,10 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
     public ModelAndView prepareToShowVacations(
             @ModelAttribute(VACATION_FORM) VacationsForm vacationsForm
     ) {
-
-        Employee employee = securityService.getSecurityPrincipal().getEmployee();
+        HttpSession session = request.getSession(false);
+        Employee employee = session.getAttribute("employeeId") != null
+                ? employeeService.find((Integer)session.getAttribute("employeeId"))
+                : securityService.getSecurityPrincipal().getEmployee();
         vacationsForm.setDivisionId(employee.getDivision().getId());
         vacationsForm.setEmployeeId(employee.getId());
         vacationsForm.setRegionsIdList(getRegionIdList());

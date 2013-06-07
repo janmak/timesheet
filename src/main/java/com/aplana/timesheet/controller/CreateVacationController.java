@@ -8,6 +8,7 @@ import com.aplana.timesheet.enums.DictionaryEnum;
 import com.aplana.timesheet.enums.VacationStatusEnum;
 import com.aplana.timesheet.exception.service.VacationApprovalServiceException;
 import com.aplana.timesheet.form.CreateVacationForm;
+import com.aplana.timesheet.form.VacationsForm;
 import com.aplana.timesheet.form.validator.CreateVacationFormValidator;
 import com.aplana.timesheet.service.*;
 import com.aplana.timesheet.service.vacationapproveprocess.VacationApprovalProcessService;
@@ -25,6 +26,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
@@ -62,6 +64,8 @@ public class CreateVacationController {
     protected EmployeeHelper employeeHelper;
     @Autowired
     protected HttpServletRequest request;
+    @Autowired
+    private VacationsController vacationsController;
 
     @RequestMapping(value = "/createVacation", method = RequestMethod.GET)
     public String prepareToCreateVacation() {
@@ -183,7 +187,8 @@ public class CreateVacationController {
         } else {
             vacationApprovalProcessService.sendBackDateVacationApproved(vacation);
         }
-
+        HttpSession session = request.getSession(false);
+        session.setAttribute("employeeId", employeeId);
         return new ModelAndView(
                 String.format(
                         "redirect:../../vacations"
