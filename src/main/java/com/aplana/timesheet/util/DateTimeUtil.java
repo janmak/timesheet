@@ -22,6 +22,9 @@ import static argo.jdom.JsonNodeFactories.string;
 public class DateTimeUtil {
     public static final long DAY_IN_MILLS = 86400000;
     public static final String DATE_PATTERN = "yyyy-MM-dd";
+    public static final String VIEW_DATE_PATTERN = "dd.MM.yyyy";
+    public static final String TIME_PATTERN = "HH:mm:ss";
+    public static final String VIEW_DATE_TIME_PATTERN = VIEW_DATE_PATTERN.concat(" ").concat(TIME_PATTERN);
     public static final String MIN_DATE="1900-01-01";
     public static final String MAX_DATE="2999-12-31";
 
