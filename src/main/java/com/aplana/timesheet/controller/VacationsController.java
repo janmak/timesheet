@@ -72,6 +72,8 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
                 dictionaryItemService.getItemsByDictionaryId(DictionaryEnum.VACATION_TYPE.getId()));
         modelAndView.addObject("curEmployee", securityService.getSecurityPrincipal().getEmployee());
 
+        modelAndView.addObject("show", session.getAttribute("employeeId") != null ? true : false);
+
         return modelAndView;
     }
 
@@ -126,7 +128,7 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
         modelAndView.addObject("regionsIdList", getRegionIdList());
         modelAndView.addObject("calFromDate", dateFrom);
         modelAndView.addObject("calToDate", dateTo);
-        modelAndView.addObject("vacationsList", vacations);
+        modelAndView.addObject("vacationsList", revertList(vacations));
         modelAndView.addObject("calDays", calDays);
         modelAndView.addObject("workDays", workDays);
         modelAndView.addObject("vacationTypes",
@@ -157,6 +159,7 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
         modelAndView.addObject("curEmployee", securityService.getSecurityPrincipal().getEmployee());
 
         modelAndView.addObject("calDaysCount", calAndWorkDaysList);
+        modelAndView.addObject("show", false);
 
         return modelAndView;
     }
@@ -353,6 +356,15 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
             regionsIdList.add(region.getId());
         }
         return regionsIdList;
+    }
+
+    private List<Vacation> revertList(List<Vacation> list){
+        for (Integer i = 0; i < list.size()/2; i++){
+            Vacation vac = list.get(i);
+            list.set(i, list.get(list.size()-i-1));
+            list.set(list.size()-i-1, vac);
+        }
+        return list;
     }
 
     private int getHolidaysCount(List<Holiday> holidaysForRegion, final Date beginDate, final Date endDate) {
