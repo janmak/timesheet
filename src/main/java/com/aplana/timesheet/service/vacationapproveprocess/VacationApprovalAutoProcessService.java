@@ -126,17 +126,25 @@ public class VacationApprovalAutoProcessService extends AbstractVacationApproval
      * выбрасывается VacationApprovalServiceException
      */
     private Boolean getProjectManagerApproveResult(List<VacationApproval> projectManagerApprovals, Project project) throws VacationApprovalServiceException {
-        Integer projectManagerId = project.getManager().getId();
-        for (VacationApproval approval : projectManagerApprovals) {
-            Integer managerId = approval.getManager().getId();
-            if (managerId.equals(projectManagerId)) {
-                return approval.getResult();
-            }
-        }
+        if (project != null) {
+            if (project.getManager() != null) {
+                Integer projectManagerId = project.getManager().getId();
+                for (VacationApproval approval : projectManagerApprovals) {
+                    Integer managerId = approval.getManager().getId();
+                    if (managerId.equals(projectManagerId)) {
+                        return approval.getResult();
+                    }
+                }
 
-        Integer vacationId = projectManagerApprovals.get(0).getVacation().getId();
-        throw new VacationApprovalServiceException(String.format("В БД не найдены данные о письме руководителю проекта %s для подтверждения отпуска №%s!",
-                project.getName(), vacationId));
+                Integer vacationId = projectManagerApprovals.get(0).getVacation().getId();
+                throw new VacationApprovalServiceException(String.format("В БД не найдены данные о письме руководителю проекта %s для подтверждения отпуска №%s!",
+                        project.getName(), vacationId));
+            } else {
+                throw new VacationApprovalServiceException(String.format("В БД не найдены данные о руководителе проекта %s", project.getName()));
+            }
+        } else {
+            throw new VacationApprovalServiceException("В БД не найдены данные о проекте");
+        }
     }
 
     /**

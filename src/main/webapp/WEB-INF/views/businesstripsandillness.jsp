@@ -309,8 +309,16 @@
                                     </td>
                                     <td>
                                         <div class="iconbutton">
-                                            <img src="<c:url value="/resources/img/delete.png"/>" title="Удалить"
-                                                 onclick="deleteReport(this.parentElement, ${report.id}, ${report.calendarDays}, ${report.workingDays}, ${report.workDaysOnIllnessWorked});" />
+                                            <c:choose>
+                                                <c:when test="${reportFormed == 6}">
+                                                    <img src="<c:url value="/resources/img/delete.png"/>" title="Удалить"
+                                                         onclick="deleteReport(this.parentElement, ${report.id}, ${report.calendarDays}, ${report.workingDays}, ${report.workDaysOnIllnessWorked});" />
+                                                </c:when>
+                                                <c:when test="${reportFormed == 7}">
+                                                    <img src="<c:url value="/resources/img/delete.png"/>" title="Удалить"
+                                                         onclick="deleteReport(this.parentElement, ${report.id}, ${report.calendarDays}, ${report.workingDays});" />
+                                                </c:when>
+                                            </c:choose>
                                         </div>
                                     </td>
                                 </sec:authorize>
