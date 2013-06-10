@@ -111,7 +111,7 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
 
         DictionaryItem vacationType = vacationsForm.getVacationType() != 0 ?
                 dictionaryItemService.find(vacationsForm.getVacationType()) : null;
-        final List<Vacation> vacations = (employeeId != -1
+        final List<Vacation> vacations = (employeeId != null && employeeId != -1
                 ? vacationService.findVacations(employeeId, dateFrom, dateTo,vacationType)
                 : findAllVacations(divisionId,
                 vacationsForm.getManagerId(),

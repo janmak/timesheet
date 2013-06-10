@@ -39,10 +39,6 @@ public class VacationApprovalForm {
     }
 
     public Integer getSize(){
-        return  size;
-    }
-
-    public void setSize(Integer size){
-        this.size = size;
+        return approvalList!=null?approvalList.size():0;
     }
 }

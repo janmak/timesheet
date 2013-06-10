@@ -87,7 +87,6 @@ public class VacationApprovalController {
 
 
         vaForm.setApprovalList(getApprovalList(vacationApproval));
-        vaForm.setSize(getApprovalList(vacationApproval).size());
 
         if (result == null){
             vaForm.setMessage(String.format(NOT_ACCEPTED_YET, matchingFIO, vacationType, employeeFIO, region, dateBegin,
@@ -148,7 +147,6 @@ public class VacationApprovalController {
         vacationApprovalProcessService.checkVacationIsApproved(vacationApproval.getVacation());
 
         vaForm.setApprovalList(getApprovalList(vacationApproval));
-        vaForm.setSize(getApprovalList(vacationApproval).size());
 
         return mav;
     }
