@@ -175,21 +175,23 @@ public abstract class AbstractVacationApprovalProcessService extends AbstractSer
 
         VacationApproval lineManagerApproval = getTopLineManagerApproval(vacation);   //проверяем, посылалось ли письмо линейным руководителям
         if (lineManagerApproval == null) {      //если не посылалось, посылаем
-
+            VacationApproval lineManager2VacationApproval = null;
             if (vacation.getEmployee().getManager2() != null) {
-                VacationApproval lineManager2VacationApproval = vacationApprovalService.tryGetManagerApproval(vacation, vacation.getEmployee().getManager2());
+                lineManager2VacationApproval = vacationApprovalService.tryGetManagerApproval(vacation, vacation.getEmployee().getManager2());
                 if (lineManager2VacationApproval != null && lineManager2VacationApproval.getResult() != null) {
                     setFinalStatusForVacationAndSendVacationApprovedMessages(vacation, lineManager2VacationApproval.getResult());
                 }
                 if (lineManager2VacationApproval == null) {
                     lineManager2VacationApproval = createNewVacationApproval(vacation, new Date(), vacation.getEmployee().getManager2());
-                    vacationApprovalService.store(lineManager2VacationApproval);
-                    sendMailService.performVacationApproveRequestSender(lineManager2VacationApproval);
+                    lineManager2VacationApproval = vacationApprovalService.store(lineManager2VacationApproval);
                 }
             }
 
             lineManagerApproval = prepareApproveLetterForLineManagerOfEmployee(vacation, vacation.getEmployee());
             sendMailService.performVacationApproveRequestSender(lineManagerApproval);
+            if (lineManager2VacationApproval != null) {
+                sendMailService.performVacationApproveRequestSender(lineManager2VacationApproval);
+            }
         }
     }
 
@@ -213,7 +215,7 @@ public abstract class AbstractVacationApprovalProcessService extends AbstractSer
         vacationApproval.setUid(UUID.randomUUID().toString());
         vacationApproval.setRequestDate(new Date());
 
-        vacationApprovalService.store(vacationApproval);
+        vacationApproval = vacationApprovalService.store(vacationApproval);
 
         return vacationApproval;
     }
@@ -317,6 +319,10 @@ public abstract class AbstractVacationApprovalProcessService extends AbstractSer
             } else {
                 Map<String, VacationApproval> juniorProjectManagersVacationApprovals = prepareJuniorProjectManagersVacationApprovals(projects, vacation);
                 Map<String, VacationApproval> allManagerVacationApprovals = prepareProjectManagersVacationApprovals(juniorProjectManagersVacationApprovals, projects, vacation);
+                // если список утверждающих менеджеров пустой - сразу утверждаем у линейного
+                if(allManagerVacationApprovals==null || allManagerVacationApprovals.isEmpty()){
+                    setApprovementWithLineManagerStatusAndSendMessages(vacation);
+                }
                 for (VacationApproval vacationApproval : allManagerVacationApprovals.values()) {
                     sendMailService.performVacationApproveRequestSender(vacationApproval);
                 }
@@ -366,19 +372,23 @@ public abstract class AbstractVacationApprovalProcessService extends AbstractSer
     }
 
     /**
-     * пытаемся добавить сотрудника к рассылке. Если сотрудник уже есть в рассылке - не добавляем его
+     * пытаемся добавить сотрудника к рассылке. Если сотрудник уже есть в рассылке - не добавляем его. Если сотрудник является линейным менеджером, игнорируем его.
      */
     private void tryAddNewManagerToApprovalResults(Vacation vacation, Date requestDate, Map<String, VacationApproval> approvals,
                                                    Employee manager, List<Project> projects) {
+        //получаем список линейных руководителей
+        List<Employee> linearManagers = employeeService.getLinearEmployees(vacation.getEmployee());
         for (Project project : projects) {
-            VacationApproval vacationApproval = (approvals.get(manager.getEmail()) != null) ?
-                    approvals.get(manager.getEmail()) : addNewVacationApproval(approvals, vacation, requestDate, manager);
+            if(linearManagers!=null && !linearManagers.contains(manager)){
+                VacationApproval vacationApproval = (approvals.get(manager.getEmail()) != null) ?
+                        approvals.get(manager.getEmail()) : addNewVacationApproval(approvals, vacation, requestDate, manager);
 
-            VacationApprovalResult vacationApprovalResult = new VacationApprovalResult();
-            vacationApprovalResult.setProject(project);
-            vacationApprovalResult.setVacationApproval(vacationApproval);
+                VacationApprovalResult vacationApprovalResult = new VacationApprovalResult();
+                vacationApprovalResult.setProject(project);
+                vacationApprovalResult.setVacationApproval(vacationApproval);
 
-            vacationApprovalResultService.store(vacationApprovalResult);
+                vacationApprovalResultService.store(vacationApprovalResult);
+            }
         }
     }
 

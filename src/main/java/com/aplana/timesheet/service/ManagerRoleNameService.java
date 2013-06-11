@@ -5,6 +5,9 @@ import com.aplana.timesheet.dao.entity.Project;
 import com.aplana.timesheet.dao.entity.VacationApproval;
 import com.aplana.timesheet.dao.entity.VacationApprovalResult;
 import com.aplana.timesheet.enums.ProjectRolesEnum;
+import com.aplana.timesheet.exception.service.VacationApprovalServiceException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -25,6 +28,8 @@ public class ManagerRoleNameService {
     private final String SENIOR_ANALYST = "Ведущий аналитик \"%s\"";
     private final String TEAM_LEADER = "Тим-лидер \"%s\"";
 
+    private static final Logger logger = LoggerFactory.getLogger(ManagerRoleNameService.class);
+
     @Autowired
     private VacationApprovalResultService vacationApprovalResultService;
 
@@ -39,11 +44,16 @@ public class ManagerRoleNameService {
                 return String.format(PROJECT_LEADER, project.getName());
             }
         }
-        Project project = projectList.get(0);
-        if (vacationApproval.getManager().getJob().getId().equals(ProjectRolesEnum.ANALYST)){
-            return String.format(SENIOR_ANALYST, project.getName());
+        if(projectList!=null && !projectList.isEmpty()){
+            Project project = projectList.get(0);
+            if (vacationApproval.getManager().getJob().getId().equals(ProjectRolesEnum.ANALYST)){
+                return String.format(SENIOR_ANALYST, project.getName());
+            }
+            return String.format(TEAM_LEADER, project.getName());
+        }else{
+            logger.error(String.format("Не удалось определить проектную роль согласующего \"%s\"",vacationApproval.getManager().getName()));
         }
-        return String.format(TEAM_LEADER, project.getName());
+        return "";
     }
 
     private List<Project> getProjects(VacationApproval vacationApproval){
@@ -61,7 +71,7 @@ public class ManagerRoleNameService {
                 ? employee.getManager().getId() : null;
         Integer man2 = employee.getManager2() != null
                 ? employee.getManager2().getId() : null;
-        if (!(manager.getId().equals(man)) || (manager.getId().equals(man2))){
+        if (!(manager.getId().equals(man) || manager.getId().equals(man2))){
             if(man != null){
                 return isLineManager(employee.getManager(), manager);
             }else{

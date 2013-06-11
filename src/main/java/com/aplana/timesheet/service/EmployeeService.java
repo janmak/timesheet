@@ -230,4 +230,24 @@ public class EmployeeService {
     public List<Integer> getEmployeesIdByDivisionManager(Integer divisionId, Integer managerId){
         return employeeDAO.getEmployeesIdByDivisionManager(divisionId, managerId);
     }
+
+    /**
+     * Получаем список линейных руководителей с дублями
+     * @param employee
+     * @return
+     */
+    public List<Employee> getLinearEmployees(Employee employee) {
+        List<Employee> employees = new ArrayList<Employee>();
+        Employee manager = employee.getManager();
+        if(manager !=null){
+            employees.add(manager);
+            employees.addAll(getLinearEmployees(manager));
+        }
+        Employee manager2 = employee.getManager2();
+        if(manager2 !=null){
+            employees.add(manager2);
+            employees.addAll(getLinearEmployees(manager2));
+        }
+        return employees;
+    }
 }
