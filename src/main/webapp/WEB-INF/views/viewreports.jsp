@@ -142,7 +142,6 @@
             <span class="label">Подразделение</span>
             <form:select path="divisionId" id="divisionId" onchange="divisionChange(this)" class="without_dojo"
                          onmouseover="tooltip.show(getTitle(this));" onmouseout="tooltip.hide();">
-                <form:option label="" value="0"/>
                 <form:options items="${divisionList}" itemLabel="name" itemValue="id"/>
             </form:select>
 
