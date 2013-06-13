@@ -56,6 +56,15 @@ public abstract class AbstractVacationApprovalProcessService extends AbstractSer
     public void sendVacationApprovedMessages (Vacation vacation) {
         List<VacationApproval> vacationApprovals = vacationApprovalService.getAllApprovalsForVacation(vacation);
         vacationApprovals.add(createNewVacationApproval(vacation, new Date(), vacation.getEmployee()));
+        Boolean leaderAlreadyInList = false;
+        for (VacationApproval vacationApproval : vacationApprovals) {
+            if (vacationApproval.getManager().getId().equals(vacation.getEmployee().getDivision().getLeaderId())) {
+                leaderAlreadyInList = true;
+            }
+        }
+        if (!leaderAlreadyInList) {
+            vacationApprovals.add(createNewVacationApproval(vacation, new Date(), vacation.getEmployee().getDivision().getLeaderId()));
+        }
         List<String> emails = prepareEmailsListForVacationApprovedMessage(vacationApprovals);
         sendMailService.performVacationApprovedSender(vacation, emails);
     }
