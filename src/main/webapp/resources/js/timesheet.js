@@ -477,6 +477,7 @@ function typeActivityChange(obj) {
     var rowIndex = selectId.substring(selectId.lastIndexOf("_") + 1, selectId.length);
     // Проект или Пресейл
     if ((select.value == "12") || (select.value == "13") || (select.value == "42")) {
+        dojo.removeAttr("workplace_id_" + rowIndex, "disabled");
         dojo.removeAttr("project_id_" + rowIndex, "disabled");
         dojo.removeAttr("project_role_id_" + rowIndex, "disabled");
         if (select.value == "13"){
@@ -488,6 +489,7 @@ function typeActivityChange(obj) {
 
     // Внепроектная активность
     else if (select.value == "14") {
+        dojo.removeAttr("workplace_id_" + rowIndex, "disabled");
         dojo.attr("project_id_" + rowIndex, {
             disabled:"disabled",
             value:"0"
@@ -540,6 +542,7 @@ function typeActivityChange(obj) {
         });
     }
     if ((select.value == "12") || (select.value == "13") || (select.value == "14") || (select.value == "42")) {
+        dojo.removeAttr("workplace_id_" + rowIndex, "disabled");
         dojo.removeAttr("activity_category_id_" + rowIndex, "disabled");
         dojo.removeAttr("description_id_" + rowIndex, "disabled");
         if (rowIndex == GetFirstIdDescription()) {
@@ -830,6 +833,7 @@ function resetRowState(rowIndex, resetActType) {
     }
 
     dojo.attr("workplace_id_" + rowIndex, {
+        disabled:"disabled",
         value:"0"
     });
 
