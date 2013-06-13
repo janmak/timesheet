@@ -57,9 +57,11 @@ public abstract class AbstractVacationApprovalProcessService extends AbstractSer
         List<VacationApproval> vacationApprovals = vacationApprovalService.getAllApprovalsForVacation(vacation);
         vacationApprovals.add(createNewVacationApproval(vacation, new Date(), vacation.getEmployee()));
         Boolean leaderAlreadyInList = false;
-        for (VacationApproval vacationApproval : vacationApprovals) {
-            if (vacationApproval.getManager().getId().equals(vacation.getEmployee().getDivision().getLeaderId())) {
-                leaderAlreadyInList = true;
+        if (vacation.getEmployee()!=null && vacation.getEmployee().getDivision()!=null && vacation.getEmployee().getDivision().getLeaderId()!=null && vacation.getEmployee().getDivision().getLeaderId().getId()!=null) {
+            for (VacationApproval vacationApproval : vacationApprovals) {
+                if (vacationApproval!=null && vacationApproval.getManager()!=null && vacationApproval.getManager().getId().equals(vacation.getEmployee().getDivision().getLeaderId().getId())) {
+                    leaderAlreadyInList = true;
+                }
             }
         }
         if (!leaderAlreadyInList) {
