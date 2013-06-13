@@ -376,6 +376,9 @@ public abstract class AbstractVacationApprovalProcessService extends AbstractSer
      */
     private void tryAddNewManagerToApprovalResults(Vacation vacation, Date requestDate, Map<String, VacationApproval> approvals,
                                                    Employee manager, List<Project> projects) {
+        //Не согласуем у самого себя
+        if(vacation.getEmployee().getId().equals(manager.getId()))
+            return;
         //получаем список линейных руководителей
         List<Employee> linearManagers = employeeService.getLinearEmployees(vacation.getEmployee());
         for (Project project : projects) {
