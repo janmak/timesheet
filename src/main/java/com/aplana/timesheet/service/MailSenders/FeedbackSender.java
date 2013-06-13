@@ -65,7 +65,7 @@ public class FeedbackSender extends MailSender<FeedbackForm> {
     private String getMessageBody(String name, String email, String description, String feedbackTypeName) {
         final StringBuilder bodyTxt = new StringBuilder();
 
-        bodyTxt.append(StringEscapeUtils.escapeHtml4(description));
+        bodyTxt.append(description);
 
         if (StringUtils.isNotBlank(name)) {
             bodyTxt.append("\n\nПришло от: ").append(name);

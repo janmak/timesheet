@@ -163,7 +163,7 @@ public class TimeSheetSender extends MailSender<TimeSheetForm> {
             }
         }
 
-        putIfIsNotBlank(FIRST, result, PLAN_STRINGS, tsForm.getPlanEscaped());
+        putIfIsNotBlank(FIRST, result, PLAN_STRINGS, tsForm.getPlan());
         putIfIsNotBlank(FIRST, result, OVERTIME_CAUSE, sendMailService.getOvertimeCause(tsForm));
         putIfIsNotBlank(FIRST, result, OVERTIME_COMMENT, StringUtils.isNotBlank(tsForm.getOvertimeCauseComment()) ? tsForm.getOvertimeCauseComment() : null);
         Integer overtimeCauseId = sendMailService.getOverUnderTimeDictId(tsForm.getOvertimeCause());

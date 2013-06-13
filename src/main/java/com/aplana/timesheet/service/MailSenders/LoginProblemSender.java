@@ -50,7 +50,7 @@ public class LoginProblemSender extends MailSender<AdminMessageForm> {
         bodyTxt.append("Ошибка: ").append(params.getError()).append("\n");
         bodyTxt.append("Время: ").append(params.getDate()).append("\n");
         bodyTxt.append("Описание пользователя: ").append(params.getDescription()).append("\n");
-        bodyTxt.append(StringEscapeUtils.escapeHtml4(params.getDescription()));
+        bodyTxt.append(params.getDescription());
 
         logger.info(params.toString());
 

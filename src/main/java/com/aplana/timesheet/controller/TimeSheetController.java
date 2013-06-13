@@ -127,6 +127,7 @@ public class TimeSheetController {
     public ModelAndView sendTimeSheet(@ModelAttribute("timeSheetForm") TimeSheetForm tsForm, BindingResult result) {
         logger.info("Processing form validation for employee {} ({}).", tsForm.getEmployeeId(), tsForm.getCalDate());
         tsFormValidator.validate(tsForm, result);
+        tsForm.unEscapeHTML();
         if (result.hasErrors()) {
             logger.info("TimeSheetForm for employee {} has errors. Form not validated.", tsForm.getEmployeeId());
             ModelAndView mavWithErrors = new ModelAndView("timesheet");

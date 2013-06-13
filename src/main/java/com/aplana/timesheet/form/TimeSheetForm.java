@@ -65,10 +65,6 @@ public class TimeSheetForm {
         this.calDate = calDate;
     }
 
-    public String getPlanEscaped() {
-        return StringEscapeUtils.escapeHtml4(this.plan);
-    }
-
     public Integer getOvertimeCause() {
         return overtimeCause;
     }
@@ -91,5 +87,17 @@ public class TimeSheetForm {
 
     public void setTypeOfCompensation(Integer typeOfCompensation) {
         this.typeOfCompensation = typeOfCompensation;
+    }
+
+    public void unEscapeHTML() {
+        plan = StringEscapeUtils.unescapeHtml4(plan);
+        overtimeCauseComment = StringEscapeUtils.unescapeHtml4(plan);
+        for(TimeSheetTableRowForm part:timeSheetTablePart){
+            if (part!=null) {
+                part.setDescription(StringEscapeUtils.unescapeHtml4(part.getDescription()));
+                part.setProblem(StringEscapeUtils.unescapeHtml4(part.getProblem()));
+                part.setOther(StringEscapeUtils.unescapeHtml4(part.getOther()));
+            }
+        }
     }
 }

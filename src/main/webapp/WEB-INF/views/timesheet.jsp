@@ -268,6 +268,7 @@
     function CopyPlan() {
         var plan_text = dojo.byId("plan_textarea").innerHTML;
         plan_text = plan_text.replace(/<br>/g, '\n');
+        plan_text = plan_text.replace(/&amp;/g, '&');
         dojo.byId("description_id_" + GetFirstIdDescription()).value = plan_text;
     }
 </script>

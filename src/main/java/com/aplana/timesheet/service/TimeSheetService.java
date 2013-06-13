@@ -238,7 +238,7 @@ public class TimeSheetService {
     }
 
     private String getPlan(TimeSheet timeSheet) {
-        String lastPlan = timeSheet.getPlanEscaped();
+        String lastPlan = timeSheet.getPlan();
         if (lastPlan != null) {
             lastPlan = lastPlan.replace("\r\n", "\n");
         } else {
@@ -264,7 +264,7 @@ public class TimeSheetService {
             sb.append(detail.getActType().getValue()).append(" - ");
             if (detail.getProject() != null)
                 sb.append(detail.getProject().getName()).append(" : ");
-            sb.append(detail.getDescriptionEscaped());
+            sb.append(detail.getDescription());
             rezult.append(sb.toString()).append("\n");
             i++;
         }
