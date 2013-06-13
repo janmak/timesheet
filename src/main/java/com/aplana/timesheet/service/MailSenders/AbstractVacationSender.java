@@ -20,7 +20,7 @@ public abstract class AbstractVacationSender<T> extends AbstractSenderWithAssist
     }
 
     @Override
-    final protected String getSubjectFormat() {
+    protected String getSubjectFormat() {
         String marker = propertyProvider.getVacationMailMarker();
 
         return marker + " %s";

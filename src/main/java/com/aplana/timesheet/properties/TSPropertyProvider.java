@@ -131,6 +131,11 @@ public class TSPropertyProvider {
         return getProperties().getProperty("vacation.mail.marker", DEFAULT_VACATION_MAIL_MARKER);
     }
 
+    public static final String DEFAULT_VACATION_CREATE_MAIL_MARKER = "[VACATION CREATE]";
+    public String getVacationCreateMailMarker() {
+        return getProperties().getProperty("vacation.create.mail.marker", DEFAULT_VACATION_CREATE_MAIL_MARKER);
+    }
+
     final String DEFAULT_TIMESHEET_MAIL_MARKER = "[TIMESHEET]";
     public String getTimesheetMailMarker() {
         return getProperties().getProperty("ts.mail.marker=", DEFAULT_TIMESHEET_MAIL_MARKER);

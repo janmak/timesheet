@@ -20,7 +20,7 @@ public class VacationApprovalAcceptanceSender extends AbstractSenderWithCcAddres
     final String DATE_FORMAT = "dd.MM.yyyy";
     final String MAIL_ACCEPT_SUBJECT = "Согласован отпуск %s - %s";
     final String MAIL_ACCEPT_BODY = "%s согласовал(а) \"%s\" сотрудника %s из г. %s на период с %s - %s.";
-    final String MAIL_REFUSE_SUBJECT = "Не согласован отпуск %s - %s";
+    final String MAIL_REFUSE_SUBJECT = "Отклонен отпуск %s - %s";
     final String MAIL_REFUSE_BODY = "%s не согласовал(а) \"%s\" сотрудника %s из г. %s на период с %s - %s.";
 
     public VacationApprovalAcceptanceSender(SendMailService sendMailService, TSPropertyProvider propertyProvider) {
@@ -31,13 +31,14 @@ public class VacationApprovalAcceptanceSender extends AbstractSenderWithCcAddres
     public List<Mail> getMainMailList(VacationApproval vacationApproval) {
         Mail mail = new TimeSheetMail();
 
-        Integer vacationId = vacationApproval.getVacation().getId();
+        Vacation vacation = vacationApproval.getVacation();
+        Integer vacationId = vacation.getId();
         String matchingFIO = vacationApproval.getManager().getName();
-        String vacationType = vacationApproval.getVacation().getType().getValue();
-        String employeeFIO = vacationApproval.getVacation().getEmployee().getName();
-        String region = vacationApproval.getVacation().getEmployee().getRegion().getName();
-        String dateBegin = DateFormatUtils.format(vacationApproval.getVacation().getBeginDate(), DATE_FORMAT);
-        String dateEnd = DateFormatUtils.format(vacationApproval.getVacation().getEndDate(), DATE_FORMAT);
+        String vacationType = vacation.getType().getValue();
+        String employeeFIO = vacation.getEmployee().getName();
+        String region = vacation.getEmployee().getRegion().getName();
+        String dateBegin = DateFormatUtils.format(vacation.getBeginDate(), DATE_FORMAT);
+        String dateEnd = DateFormatUtils.format(vacation.getEndDate(), DATE_FORMAT);
         Boolean result = vacationApproval.getResult();
 
         String subject = result ? String.format(MAIL_ACCEPT_SUBJECT, dateBegin, dateEnd) :
