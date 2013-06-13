@@ -38,6 +38,7 @@ public class TimeSheetSender extends MailSender<TimeSheetForm> {
     public static final String END_LONG_DATE = "endLongDate";
     public static final String SENDER_NAME = "senderName";
     public static final String OVERTIME_CAUSE = "overtimeCause";
+    public static final String OVERTIME_COMMENT = "overtimeComment";
     public static final String OVERTIME_CAUSE_ID = "overtimeCauseId";
     public static final String TYPE_OF_COMPENSATION = "typeOfCompensation";
     private String employeeEmail;
@@ -163,7 +164,8 @@ public class TimeSheetSender extends MailSender<TimeSheetForm> {
         }
 
         putIfIsNotBlank(FIRST, result, PLAN_STRINGS, tsForm.getPlanEscaped());
-        putIfIsNotBlank(FIRST, result, OVERTIME_CAUSE, sendMailService.getOvertimeCause(tsForm) );
+        putIfIsNotBlank(FIRST, result, OVERTIME_CAUSE, sendMailService.getOvertimeCause(tsForm));
+        putIfIsNotBlank(FIRST, result, OVERTIME_COMMENT, StringUtils.isNotBlank(tsForm.getOvertimeCauseComment()) ? tsForm.getOvertimeCauseComment() : null);
         Integer overtimeCauseId = sendMailService.getOverUnderTimeDictId(tsForm.getOvertimeCause());
         putIfIsNotBlank(FIRST, result, OVERTIME_CAUSE_ID, overtimeCauseId != null ? overtimeCauseId.toString() : null);
         putIfIsNotBlank(FIRST, result, TYPE_OF_COMPENSATION, sendMailService.getTypeOfCompensation(tsForm));

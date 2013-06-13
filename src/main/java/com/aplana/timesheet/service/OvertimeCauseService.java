@@ -11,6 +11,8 @@ import com.aplana.timesheet.form.TimeSheetTableRowForm;
 import com.aplana.timesheet.properties.TSPropertyProvider;
 import com.aplana.timesheet.util.EnumsUtils;
 import com.google.common.base.Preconditions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +23,8 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Service("overtimeCauseService")
 public class OvertimeCauseService {
+
+    private static final Logger logger = LoggerFactory.getLogger(OvertimeCauseService.class);
 
     @Autowired
     private OvertimeCauseDAO dao;
@@ -57,27 +61,7 @@ public class OvertimeCauseService {
     public String getCauseName(TimeSheetForm tsForm) {
         final Integer overtimeCauseId = tsForm.getOvertimeCause();
         if (overtimeCauseId == null) return null;
-
-        final OvertimeCausesEnum overtimeCause = EnumsUtils.tryFindById(overtimeCauseId, OvertimeCausesEnum.class);
-        final UndertimeCausesEnum unfinishedDayCauses = EnumsUtils.tryFindById(overtimeCauseId, UndertimeCausesEnum.class);
-        final WorkOnHolidayCausesEnum workOnHolidayCausesEnum =
-                EnumsUtils.tryFindById(overtimeCauseId, WorkOnHolidayCausesEnum.class);
-
-        final TSEnum cause = Preconditions.checkNotNull(
-                overtimeCause == null
-                        ? (workOnHolidayCausesEnum == null
-                            ? unfinishedDayCauses
-                            : workOnHolidayCausesEnum
-                        )
-                        : overtimeCause
-        );
-        if (cause == OvertimeCausesEnum.OTHER || cause == UndertimeCausesEnum.OTHER ||
-            cause == WorkOnHolidayCausesEnum.OTHER
-        ) {
-            return Preconditions.checkNotNull(tsForm.getOvertimeCauseComment());
-        } else {
-            return dictionaryItemService.find(overtimeCauseId).getValue();
-        }
+        return dictionaryItemService.find(overtimeCauseId).getValue();
     }
 
     public boolean isOvertimeCauseNeeeded(TimeSheetForm tsForm, double totalDuration) {
