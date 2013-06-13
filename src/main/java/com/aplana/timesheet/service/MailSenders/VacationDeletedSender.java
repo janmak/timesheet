@@ -8,6 +8,9 @@ import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
 import org.apache.commons.lang.WordUtils;
 import org.apache.commons.lang.time.DateFormatUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -19,6 +22,10 @@ import java.util.List;
  * @version 1.0
  */
 public class VacationDeletedSender extends  AbstractVacationSenderWithCopyToAuthor {
+
+    protected static final Logger logger = LoggerFactory.getLogger(VacationDeletedSender.class);
+
+
 
     public VacationDeletedSender(SendMailService sendMailService, TSPropertyProvider propertyProvider) {
         super(sendMailService, propertyProvider);
@@ -54,12 +61,13 @@ public class VacationDeletedSender extends  AbstractVacationSenderWithCopyToAuth
 
     private String getBody(Vacation params) {
         final StringBuilder stringBuilder = new StringBuilder(
-                String.format("Сотрудник %s удалил ", sendMailService.getSecurityPrincipal().getEmployee().getName())
+                String.format("Сотрудник \"%s\" удалил ", sendMailService.getSecurityPrincipal().getEmployee().getName())
         );
 
         final Employee employee = params.getEmployee();
+        final Employee curUser = sendMailService.getSecurityPrincipal().getEmployee();
 
-        if (params.getAuthor().equals(employee)) {
+        if (params.getAuthor().equals(curUser)) {
             stringBuilder.append("своё заявление");
         } else {
             stringBuilder.append(
