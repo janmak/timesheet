@@ -68,6 +68,9 @@
             var calFromDate = dojo.byId("<%= CAL_FROM_DATE %>").value;
             var calToDate = dojo.byId("<%= CAL_TO_DATE %>").value;
 
+            var divisionId = dojo.byId("<%= DIVISION_ID %>").value;
+            var empId = dojo.byId("<%= EMPLOYEE_ID %>").value;
+
             if (checkEmployeeData(divisionId, empId)) {
 
                 dojo.byId("<%= VACATION_ID %>").setAttribute("disabled", "disabled");
@@ -339,7 +342,6 @@
             <td>
                 <form:select path="<%= DIVISION_ID %>" id="<%= DIVISION_ID %>" onchange="divisionChangeVac(this)" class="without_dojo"
                              onmouseover="tooltip.show(getTitle(this));" onmouseout="tooltip.hide();">
-                    <form:option label="" value="0"/>
                     <form:options items="${divisionList}" itemLabel="name" itemValue="id"/>
                 </form:select>
             </td>
@@ -349,7 +351,6 @@
             <td>
                 <form:select path="<%= MANAGER_ID %>" id="<%= MANAGER_ID %>" onChange="managerChange(this)" class="without_dojo"
                              onmouseover="tooltip.show(getTitle(this));" onmouseout="tooltip.hide();">
-                    <form:option label="Не выбран" value="0"/>
                     <form:options items="${managerList}" itemLabel="name" itemValue="id"/>
                 </form:select>
             </td>
