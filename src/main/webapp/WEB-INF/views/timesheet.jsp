@@ -23,6 +23,7 @@
     var unfinishedDayCauseList = ${unfinishedDayCauseJson};
     var overtimeCauseList = ${overtimeCauseJson};
     var overtimeThreshold = ${overtimeThreshold};
+    var undertimeThreshold = ${undertimeThreshold};
     var workplaceList = ${workplaceJson};
     var actTypeList = ${actTypeJson};
     var projectList = ${projectListJson};

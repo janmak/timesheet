@@ -123,7 +123,11 @@ public class TSPropertyProvider {
     }
 
     public Double getOvertimeThreshold() {
-        return new Double(getProperties().getProperty("overtime.threshold", "1"));
+        return new Double(getProperties().getProperty("overtime.threshold.overtime", "1"));
+    }
+
+    public Double getUndertimeThreshold() {
+        return new Double(getProperties().getProperty("overtime.threshold.undertime", "3"));
     }
 
     public static final String DEFAULT_VACATION_MAIL_MARKER = "[VACATION REQUEST]";

@@ -203,6 +203,7 @@ public class TimeSheetController {
                 .getUnfinishedDayCauses()
         ) );
         result.put("overtimeThreshold", propertyProvider.getOvertimeThreshold());
+        result.put("undertimeThreshold", propertyProvider.getUndertimeThreshold());
 
         List<Division> divisions = divisionService.getDivisions();
         result.put("divisionList", divisions);

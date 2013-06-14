@@ -1146,7 +1146,7 @@ function checkDurationThenSendForm(){
     });
 
     if (
-        (totalDuration < (8 - overtimeThreshold) || totalDuration > (8 + overtimeThreshold) )
+        (totalDuration < (8 - undertimeThreshold) || totalDuration > (8 + overtimeThreshold) )
         || isHoliday || isVacation
     ) {
         var comment = dijit.byId("overtimeCauseComment");
