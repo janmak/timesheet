@@ -153,16 +153,6 @@ public class TimeSheetDetail {
 		this.other = other;
 	}
 
-    public String getDescriptionEscaped()
-    {
-        return StringEscapeUtils.escapeHtml4(this.description);
-    }
-
-    public String getProblemEscaped()
-    {
-        return StringEscapeUtils.escapeHtml4(this.problem);
-    }
-
     public ProjectRole getProjectRole() {
         return projectRole;
     }

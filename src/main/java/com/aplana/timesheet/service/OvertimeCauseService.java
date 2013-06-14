@@ -17,6 +17,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import static com.aplana.timesheet.constants.TimeSheetConstants.WORK_DAY_DURATION;
+
 /**
  * @author eshangareev
  * @version 1.0
@@ -64,7 +66,7 @@ public class OvertimeCauseService {
         return dictionaryItemService.find(overtimeCauseId).getValue();
     }
 
-    public boolean isOvertimeCauseNeeeded(TimeSheetForm tsForm, double totalDuration) {
+    public boolean isOvertimeCauseNeeded(TimeSheetForm tsForm, double totalDuration) {
         for (TimeSheetTableRowForm rowForm : tsForm.getTimeSheetTablePart()) {
             if (
                     TypesOfActivityEnum.isNotCheckableForOvertime(
@@ -78,7 +80,7 @@ public class OvertimeCauseService {
             }
         }
 
-        return Math.abs(totalDuration - TimeSheetConstants.WORK_DAY_DURATION) > propertyProvider.getOvertimeThreshold();
+        return totalDuration - WORK_DAY_DURATION > propertyProvider.getOvertimeThreshold() && WORK_DAY_DURATION - totalDuration > propertyProvider.getUndertimeThreshold();
     }
 
     public Integer getDictId(Integer overtimeCauseId) {

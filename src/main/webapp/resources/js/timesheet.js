@@ -461,6 +461,42 @@ function divisionChange(obj) {
 }
 
 /*
+ * Срабатывает при смене значения в списке подразделений.
+ * Управляет содержимым списка сотрудников в зависимости от выбранного
+ * значения в списке подразделений.
+ */
+function vacationCreate_divisionChange(obj) {
+    var divisionId = null;
+    var employeeSelect = dojo.byId("employeeId");
+    var employeeOption = null;
+
+    if (obj.target == null) {
+        divisionId = obj.value;
+    }
+    else {
+        divisionId = obj.target.value;
+    }
+    //Очищаем список сотрудников.
+    employeeSelect.options.length = 0;
+    for (var i = 0; i < employeeList.length; i++) {
+        if (divisionId == employeeList[i].divId) {
+            for (var j = 0; j < employeeList[i].divEmps.length; j++) {
+                if (employeeList[i].divEmps[j].id != 0) {
+                    employeeOption = dojo.doc.createElement("option");
+                    dojo.attr(employeeOption, {
+                        value:employeeList[i].divEmps[j].id
+                    });
+                    employeeOption.title = employeeList[i].divEmps[j].value;
+                    employeeOption.innerHTML = employeeList[i].divEmps[j].value;
+                    employeeSelect.appendChild(employeeOption);
+                }
+            }
+        }
+    }
+    sortSelectOptions(employeeSelect);
+}
+
+/*
  * Срабатывает при смене значения в списке "Тип активности".
  * Управляет доступностью компонентов соответсвующей строки
  * табличной части отчёта в соответствии с определённой логикой.
@@ -477,6 +513,7 @@ function typeActivityChange(obj) {
     var rowIndex = selectId.substring(selectId.lastIndexOf("_") + 1, selectId.length);
     // Проект или Пресейл
     if ((select.value == "12") || (select.value == "13") || (select.value == "42")) {
+        dojo.removeAttr("workplace_id_" + rowIndex, "disabled");
         dojo.removeAttr("project_id_" + rowIndex, "disabled");
         dojo.removeAttr("project_role_id_" + rowIndex, "disabled");
         if (select.value == "13"){
@@ -488,6 +525,7 @@ function typeActivityChange(obj) {
 
     // Внепроектная активность
     else if (select.value == "14") {
+        dojo.removeAttr("workplace_id_" + rowIndex, "disabled");
         dojo.attr("project_id_" + rowIndex, {
             disabled:"disabled",
             value:"0"
@@ -540,6 +578,7 @@ function typeActivityChange(obj) {
         });
     }
     if ((select.value == "12") || (select.value == "13") || (select.value == "14") || (select.value == "42")) {
+        dojo.removeAttr("workplace_id_" + rowIndex, "disabled");
         dojo.removeAttr("activity_category_id_" + rowIndex, "disabled");
         dojo.removeAttr("description_id_" + rowIndex, "disabled");
         if (rowIndex == GetFirstIdDescription()) {
@@ -830,6 +869,7 @@ function resetRowState(rowIndex, resetActType) {
     }
 
     dojo.attr("workplace_id_" + rowIndex, {
+        disabled:"disabled",
         value:"0"
     });
 
@@ -1142,7 +1182,7 @@ function checkDurationThenSendForm(){
     });
 
     if (
-        (totalDuration < (8 - overtimeThreshold) || totalDuration > (8 + overtimeThreshold) )
+        (totalDuration < (8 - undertimeThreshold) || totalDuration > (8 + overtimeThreshold) )
         || isHoliday || isVacation
     ) {
         var comment = dijit.byId("overtimeCauseComment");
@@ -1280,10 +1320,6 @@ function confirmTimeSheetCloseWindow() {
      event.returnValue = false;
      return false;
      } */
-}
-function setIDs() {
-    divId = dojo.byId("divisionID").value;
-    empId = dojo.byId("empIdID").value;
 }
 
 function openViewReportsWindow() {

@@ -101,10 +101,6 @@ public class TimeSheet {
         this.plan = plan;
     }
 
-    public String getPlanEscaped() {
-        return StringEscapeUtils.escapeHtml4(this.plan);
-    }
-
     public OvertimeCause getOvertimeCause() {
         return overtimeCause;
     }

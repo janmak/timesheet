@@ -410,7 +410,7 @@ public class TimeSheetFormValidator extends AbstractValidator {
             errors.rejectValue("overtimeCause", "error.tsform.workonholiday.zeroduration");
         }
 
-        if (Math.abs(totalDuration - WORK_DAY_DURATION) > propertyProvider.getOvertimeThreshold() && checkOvertime ||
+        if (totalDuration - WORK_DAY_DURATION > propertyProvider.getOvertimeThreshold() && WORK_DAY_DURATION - totalDuration > propertyProvider.getUndertimeThreshold() && checkOvertime ||
                 isHoliday || isVacation
                 ) {
             boolean isOvertime = totalDuration - WORK_DAY_DURATION > 0;

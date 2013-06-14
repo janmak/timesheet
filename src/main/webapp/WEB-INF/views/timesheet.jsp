@@ -23,6 +23,7 @@
     var unfinishedDayCauseList = ${unfinishedDayCauseJson};
     var overtimeCauseList = ${overtimeCauseJson};
     var overtimeThreshold = ${overtimeThreshold};
+    var undertimeThreshold = ${undertimeThreshold};
     var workplaceList = ${workplaceJson};
     var actTypeList = ${actTypeJson};
     var projectList = ${projectListJson};
@@ -268,6 +269,7 @@
     function CopyPlan() {
         var plan_text = dojo.byId("plan_textarea").innerHTML;
         plan_text = plan_text.replace(/<br>/g, '\n');
+        plan_text = plan_text.replace(/&amp;/g, '&');
         dojo.byId("description_id_" + GetFirstIdDescription()).value = plan_text;
     }
 </script>

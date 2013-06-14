@@ -142,7 +142,6 @@
             <span class="label">Подразделение</span>
             <form:select path="divisionId" id="divisionId" onchange="divisionChange(this)" class="without_dojo"
                          onmouseover="tooltip.show(getTitle(this));" onmouseout="tooltip.hide();">
-                <form:option label="" value="0"/>
                 <form:options items="${divisionList}" itemLabel="name" itemValue="id"/>
             </form:select>
 
@@ -242,7 +241,14 @@
                         <tr class="statusNoReport toplan">
                             <td class="date"><fmt:formatDate value="${report.calDate}" pattern="dd.MM.yyyy"/></td>
                             <td>Отчёта нет <a href="<%=request.getContextPath()%>/timesheet?date=<fmt:formatDate value="${report.calDate}" pattern="yyyy-MM-dd"/>&id=${employeeId}">(Создать)</a></td>
-                            <td></td>
+                            <c:choose>
+                                <c:when test="${report.vacationDay || report.illnessDay}">
+                                    <td class="duration">${report.duration}</td>
+                                </c:when>
+                                <c:otherwise>
+                                    <td></td>
+                                </c:otherwise>
+                            </c:choose>
                             <td>
                                 <c:if test="${report.illnessDay}">Болезнь</c:if>
                                 <c:if test="${report.vacationDay}">Отпуск</c:if>

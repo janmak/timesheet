@@ -248,6 +248,10 @@ public class SendMailService{
         new VacationApprovalAcceptanceSender(this, propertyProvider).sendMessage(vacationApproval);
     }
 
+    public void performVacationCreateMailing(Vacation vacation) {
+        new VacationCreateSender(this,propertyProvider,vacationApprovalService,managerRoleNameService).sendMessage(vacation);
+    }
+
     public String initMessageBodyForReport(TimeSheet timeSheet) {
         Map<String, Object> model1 = new HashMap<String, Object>();
         Iterator<TimeSheetDetail> iteratorTSD = timeSheet.getTimeSheetDetails().iterator();

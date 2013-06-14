@@ -113,7 +113,7 @@ public class TimeSheetServiceTest extends AbstractJsonTest {
             json.append("\"").append(DateTimeUtil.formatDate(lastTimeSheet.getCalDate().getCalDate()))
                     .append("\",");   //преобразование к  yyyy-MM-dd
             json.append("\"plan\":\"");
-            String lastPlan = lastTimeSheet.getPlanEscaped();
+            String lastPlan = lastTimeSheet.getPlan();
             if (lastPlan != null)
                 json.append("").append(lastPlan.replace("\r\n", "\\n"));
             json.append("\"}");

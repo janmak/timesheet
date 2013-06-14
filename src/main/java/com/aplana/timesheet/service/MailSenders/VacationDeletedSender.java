@@ -12,7 +12,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -34,6 +36,15 @@ public class VacationDeletedSender extends  AbstractVacationSenderWithCopyToAuth
         final Mail mail = new TimeSheetMail();
 
         mail.setToEmails(getToEmails(vacation));
+
+        final Collection<String> ccEmails = new ArrayList<String>();
+        Employee employee = vacation.getEmployee();
+        //оповещаем центр
+        if (employee!=null && employee.getDivision()!=null) {
+            ccEmails.add(employee.getDivision().getVacationEmail());
+        }
+
+        mail.setCcEmails(getNotBlankEmails(ccEmails));
         mail.setSubject(getSubject(vacation));
         mail.setParamsForGenerateBody(getParamsForGenerateBody(vacation));
 

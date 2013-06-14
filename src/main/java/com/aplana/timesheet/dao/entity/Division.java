@@ -59,6 +59,9 @@ public class Division implements Identifiable, Comparable<Division> {
     @Column(name = "email", length = 255)
     private String email;
 
+    @Column(name = "vacation_email", length = 255)
+    private String vacationEmail;
+
     public Division() {	}
 
     public Employee getLeaderId() {
@@ -161,6 +164,22 @@ public class Division implements Identifiable, Comparable<Division> {
         this.syncEmployye = syncEmployye;
     }
 
+    public boolean isCheck() {
+        return isCheck;
+    }
+
+    public void setCheck(boolean check) {
+        isCheck = check;
+    }
+
+    public String getVacationEmail() {
+        return vacationEmail;
+    }
+
+    public void setVacationEmail(String vacationEmail) {
+        this.vacationEmail = vacationEmail;
+    }
+
     public String getEmail() {
         return email;
     }
@@ -207,14 +226,6 @@ public class Division implements Identifiable, Comparable<Division> {
 
         return true;
 	}
-
-    public boolean isCheck() {
-        return isCheck;
-    }
-
-    public void setCheck(boolean check) {
-        isCheck = check;
-    }
 
     @Override
     public int compareTo(Division o) {

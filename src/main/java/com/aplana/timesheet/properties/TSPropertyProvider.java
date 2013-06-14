@@ -123,12 +123,21 @@ public class TSPropertyProvider {
     }
 
     public Double getOvertimeThreshold() {
-        return new Double(getProperties().getProperty("overtime.threshold", "1"));
+        return new Double(getProperties().getProperty("overtime.threshold.overtime", "1"));
+    }
+
+    public Double getUndertimeThreshold() {
+        return new Double(getProperties().getProperty("overtime.threshold.undertime", "3"));
     }
 
     public static final String DEFAULT_VACATION_MAIL_MARKER = "[VACATION REQUEST]";
     public String getVacationMailMarker() {
         return getProperties().getProperty("vacation.mail.marker", DEFAULT_VACATION_MAIL_MARKER);
+    }
+
+    public static final String DEFAULT_VACATION_CREATE_MAIL_MARKER = "[VACATION CREATE]";
+    public String getVacationCreateMailMarker() {
+        return getProperties().getProperty("vacation.create.mail.marker", DEFAULT_VACATION_CREATE_MAIL_MARKER);
     }
 
     final String DEFAULT_TIMESHEET_MAIL_MARKER = "[TIMESHEET]";
