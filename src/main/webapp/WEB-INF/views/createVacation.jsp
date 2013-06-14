@@ -16,7 +16,7 @@
         dojo.ready(function() {
             window.focus();
             dojo.byId("divisionId").value = ${divisionId};
-            divisionChange(dojo.byId("divisionId"));
+            vacationCreate_divisionChange(dojo.byId("divisionId"));
             dojo.byId("employeeId").value = ${employeeId};
         });
 
@@ -150,9 +150,8 @@
                 <span class="label">Подразделение</span>
             </td>
             <td>
-                <form:select path="divisionId" id="divisionId" onchange="divisionChange(this)" class="without_dojo"
+                <form:select path="divisionId" id="divisionId" onchange="vacationCreate_divisionChange(this)" class="without_dojo"
                              onmouseover="tooltip.show(getTitle(this));" onmouseout="tooltip.hide();">
-                    <form:option label="" value="0"/>
                     <form:options items="${divisionList}" itemLabel="name" itemValue="id"/>
                 </form:select>
             </td>
@@ -161,8 +160,8 @@
             </td>
             <td>
                 <form:select path="employeeId" id="employeeId" class="without_dojo" onmouseover="tooltip.show(getTitle(this));"
-                             onmouseout="tooltip.hide();" onchange="setDefaultEmployeeJob(-1);">
-                    <form:option items="${employeeList}" label="" value="0"/>
+                             onmouseout="tooltip.hide();">
+                    <form:options items="${employeeList}" itemLabel="name" itemValue="id"/>
                 </form:select>
             </td>
         </tr>
