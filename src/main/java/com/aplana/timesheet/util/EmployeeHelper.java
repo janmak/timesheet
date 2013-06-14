@@ -11,6 +11,8 @@ import com.aplana.timesheet.service.RegionService;
 import com.aplana.timesheet.service.TimeSheetService;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,6 +27,8 @@ import static com.aplana.timesheet.util.JsonUtil.aStringBuilder;
 
 @Service
 public class EmployeeHelper {
+
+    private static final Logger logger = LoggerFactory.getLogger(EmployeeHelper.class);
 
     private static final String ID = "id";
     private static final String VALUE = "value";
@@ -80,6 +84,14 @@ public class EmployeeHelper {
                         Date defaultDate = lastWorkdays.get(employee.getId());
                         if (defaultDate == null)
                             defaultDate = employee.getStartDate();
+
+                        Date curDate = java.util.Calendar.getInstance().getTime();
+                        Date lastTimeSheetDate = timeSheetService.getEmployeeLastDateTimeSheet(employee);
+                        if (lastTimeSheetDate != null) {
+                            if (defaultDate.after(curDate) && lastTimeSheetDate.equals(curDate)) {
+                                defaultDate = curDate;
+                            }
+                        }
 
                         objectNodeBuilder.withField(JOB_ID, aStringBuilder(employee.getJob().getId())).
                                 withField(DATE_BY_DEFAULT, JsonNodeBuilders.aStringBuilder(
