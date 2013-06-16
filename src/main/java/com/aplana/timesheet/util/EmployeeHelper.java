@@ -86,12 +86,9 @@ public class EmployeeHelper {
                             defaultDate = employee.getStartDate();
 
                         Date curDate = java.util.Calendar.getInstance().getTime();
-                        Date lastTimeSheetDate = timeSheetService.getEmployeeLastDateTimeSheet(employee);
-                        if (lastTimeSheetDate != null) {
-                            if (defaultDate.after(curDate) && lastTimeSheetDate.equals(curDate)) {
+                            if (defaultDate.after(curDate)) {
                                 defaultDate = curDate;
                             }
-                        }
 
                         objectNodeBuilder.withField(JOB_ID, aStringBuilder(employee.getJob().getId())).
                                 withField(DATE_BY_DEFAULT, JsonNodeBuilders.aStringBuilder(

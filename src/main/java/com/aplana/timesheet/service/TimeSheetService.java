@@ -458,8 +458,4 @@ public class TimeSheetService {
 
         return JsonUtil.format(builder);
     }
-
-    public Date getEmployeeLastDateTimeSheet(Employee employee) {
-       return timeSheetDAO.getEmployeeLastDateTimeSheet(employee);
-    }
 }

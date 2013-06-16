@@ -240,20 +240,4 @@ public class TimeSheetDAO {
 
         return query.getResultList();
     }
-
-    public Date getEmployeeLastDateTimeSheet(Employee employee) {
-        Query query = entityManager.createQuery(
-                "SELECT MAX(ts.calDate) FROM TimeSheet ts WHERE ts.employee = :employee"
-        ).setParameter("employee", employee);
-
-
-        if (!query.getResultList().isEmpty() && query.getSingleResult() != null) {
-            Calendar calendar = (Calendar) query.getSingleResult();
-            return calendar.getCalDate();
-        } else {
-            return null;
-        }
-
-    }
-
 }
