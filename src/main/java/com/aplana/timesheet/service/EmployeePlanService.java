@@ -25,9 +25,12 @@ public class EmployeePlanService {
     }
 
     @Transactional
-    public void store(List<EmployeePlan> employeePlans) {
+    public void mergeProjectPlans(List<EmployeePlan> employeePlans) {
         for (EmployeePlan employeePlan : employeePlans) {
-            employeePlanDAO.store(employeePlan);
+            if (employeePlan.getValue() == null || employeePlan.getValue() == 0)
+                employeePlanDAO.remove(employeePlan);
+            else
+                employeePlanDAO.store(employeePlan);
         }
     }
 

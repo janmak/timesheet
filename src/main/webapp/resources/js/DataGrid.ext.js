@@ -317,7 +317,9 @@ function normalize(/* Array */ modelFields, /* Array */ itemsToNormalize) {
         dojo.forEach(modelFields, function(field) {
             value = item[field];
 
-            normalizedCopy[field] = (dojo.isArray(value)) ? value[0] : value;
+            var normValue = (dojo.isArray(value)) ? value[0] : value;
+            normValue = ("" == normValue) ? 0 : normValue;
+            normalizedCopy[field] = normValue;
         });
 
         items.push(normalizedCopy);
