@@ -213,8 +213,17 @@ public class EmployeeDAO {
 	 * @param employee
 	 */
 	public Employee save(Employee employee) {
-		Employee empMerged = entityManager.merge(employee);
-		entityManager.flush();
+		Employee empMerged;
+        Employee empDb = getEmployee(employee.getEmail());
+        //если в базе есть дата увольнения, и дата не совпадает с лдапом, то дату в базе не меняем
+        if(empDb!=null && empDb.getEndDate()!=null && !empDb.getEndDate().equals(employee.getEndDate())){
+            employee.setEndDate(empDb.getEndDate());
+            empMerged = entityManager.merge(employee);
+            logger.debug("Final date not equal in ldap and database for Employee object id = {}", empMerged.getId());
+        }else{
+            empMerged = entityManager.merge(employee);
+        }
+        entityManager.flush();
 		logger.info("Persistence context synchronized to the underlying database.");
 		logger.debug("Flushed Employee object id = {}", empMerged.getId());
 
@@ -222,6 +231,17 @@ public class EmployeeDAO {
 
         return empMerged;
 	}
+
+    private Employee getEmployee(String email) {
+        if(email!=null && !email.isEmpty()){
+            Employee employee = (Employee) Iterables.getFirst(entityManager.createQuery(
+                    "FROM Employee emp WHERE email = :email"
+            ).setParameter("email", email).getResultList(), null);
+
+            return employee;
+        }
+        return null;
+    }
 
     public boolean isNotToSync(Employee employee) {
         final String email = employee.getEmail();

@@ -91,7 +91,7 @@ public class TimeSheetForm {
 
     public void unEscapeHTML() {
         plan = StringEscapeUtils.unescapeHtml4(plan);
-        overtimeCauseComment = StringEscapeUtils.unescapeHtml4(plan);
+        overtimeCauseComment = StringEscapeUtils.unescapeHtml4(overtimeCauseComment);
         for(TimeSheetTableRowForm part:timeSheetTablePart){
             if (part!=null) {
                 part.setDescription(StringEscapeUtils.unescapeHtml4(part.getDescription()));
