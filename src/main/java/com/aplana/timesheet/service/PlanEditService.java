@@ -53,8 +53,8 @@ public class PlanEditService {
 
         processJsonDataItems(employeePlans, employeeProjectPlans, rootNode, year, month);
 
-        employeePlanService.store(employeePlans);
-        employeeProjectPlanService.store(employeeProjectPlans);
+        employeePlanService.mergeProjectPlans(employeePlans);
+        employeeProjectPlanService.mergeEmployeeProjectPlans(employeeProjectPlans);
     }
 
     private void processJsonDataItems(
@@ -68,14 +68,14 @@ public class PlanEditService {
 
             final Employee employee = employeeService.find(employeeId);
 
-            addEmployeePlansAndRemoveIfNeed(employeePlans, year, month, employee, jsonNode);
+            addEmployeePlans(employeePlans, year, month, employee, jsonNode);
 
-            addEmployeeProjectPlansAndRemoveOldEntries(employeeProjectPlans, year, month, employee, jsonNode);
+            addEmployeeProjectPlans(employeeProjectPlans, year, month, employee, jsonNode);
         }
     }
 
-    private void addEmployeeProjectPlansAndRemoveOldEntries(List<EmployeeProjectPlan> employeeProjectPlans, Integer year, Integer month, Employee employee, JsonNode jsonNode) {
-        employeeProjectPlanService.remove(employee, year, month);
+    private void addEmployeeProjectPlans(List<EmployeeProjectPlan> employeeProjectPlans, Integer year, Integer month, Employee employee, JsonNode jsonNode) {
+        //employeeProjectPlanService.remove(employee, year, month); KSS APLANATS-850 Удалять будем только существующие записи с value=0. Удаление будет вызвано в методе com.aplana.timesheet.service.EmployeeProjectPlanService.mergeEmployeeProjectPlans
 
         if (jsonNode.getFields().containsKey(PROJECTS_PLANS_FIELD)) {
             for (JsonNode node : jsonNode.getArrayNode(PROJECTS_PLANS)) {
@@ -84,9 +84,8 @@ public class PlanEditService {
         }
     }
 
-    private void addEmployeePlansAndRemoveIfNeed(List<EmployeePlan> employeePlans, Integer year, Integer month, Employee employee, JsonNode jsonNode) {
+    private void addEmployeePlans(List<EmployeePlan> employeePlans, Integer year, Integer month, Employee employee, JsonNode jsonNode) {
         final Map<JsonStringNode, JsonNode> fields = jsonNode.getFields();
-        final List<EmployeePlan> employeePlansToDelete = new ArrayList<EmployeePlan>();
 
         JsonStringNode field;
 
@@ -102,12 +101,12 @@ public class PlanEditService {
                 employeePlan.setValue(JsonUtil.getFloatNumberValue(jsonNode, field.getText()));
 
                 employeePlans.add(employeePlan);
-            } else {
-                employeePlansToDelete.add(employeePlan);
             }
         }
 
-        employeePlanService.remove(employeePlansToDelete);
+        // KSS APLANATS-850 Удалять будем только существующие записи с value=0.
+        // Удаление будет вызвано в методе com.aplana.timesheet.service.EmployeePlanService.mergeProjectPlans
+
     }
 
     private EmployeePlan createEmployeePlanIfNeed(Integer year, Integer month, Employee employee, DictionaryItem dictionaryItem) {
