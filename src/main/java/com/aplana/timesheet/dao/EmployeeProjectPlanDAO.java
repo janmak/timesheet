@@ -59,4 +59,9 @@ public class EmployeeProjectPlanDAO {
             return null;
         }
     }
+
+    public void remove(EmployeeProjectPlan employeeProjectPlan) {
+        if (employeeProjectPlan.getId() != null)
+          entityManager.remove(employeeProjectPlan);
+    }
 }
