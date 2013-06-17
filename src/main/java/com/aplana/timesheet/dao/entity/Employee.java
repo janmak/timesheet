@@ -73,6 +73,9 @@ public class Employee implements Identifiable {
     @OneToMany(mappedBy = "employee", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<Illness> illnesses;
 
+    @OneToMany(mappedBy = "employee", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private Set<EmployeeProjectBillable> employeeProjectBillables;
+
     @Column(name = "not_to_sync", columnDefinition = "bool not null default false")
     private boolean notToSync;
 
@@ -278,4 +281,11 @@ public class Employee implements Identifiable {
         return sb.toString();
     }
 
+    public Set<EmployeeProjectBillable> getEmployeeProjectBillables() {
+        return employeeProjectBillables;
+    }
+
+    public void setEmployeeProjectBillables(Set<EmployeeProjectBillable> employeeProjectBillables) {
+        this.employeeProjectBillables = employeeProjectBillables;
+    }
 }

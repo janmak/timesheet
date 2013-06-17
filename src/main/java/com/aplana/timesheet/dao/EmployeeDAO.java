@@ -212,27 +212,18 @@ public class EmployeeDAO {
 	 * существующего сотрудника.
 	 * @param employee
 	 */
-	public Employee save(Employee employee) {
-		Employee empMerged;
-        Employee empDb = getEmployee(employee.getEmail());
-        //если в базе есть дата увольнения, и дата не совпадает с лдапом, то дату в базе не меняем
-        if(empDb!=null && empDb.getEndDate()!=null && !empDb.getEndDate().equals(employee.getEndDate())){
-            employee.setEndDate(empDb.getEndDate());
-            empMerged = entityManager.merge(employee);
-            logger.debug("Final date not equal in ldap and database for Employee object id = {}", empMerged.getId());
-        }else{
-            empMerged = entityManager.merge(employee);
-        }
+    public Employee save(Employee employee) {
+        Employee empMerged = entityManager.merge(employee);
         entityManager.flush();
-		logger.info("Persistence context synchronized to the underlying database.");
-		logger.debug("Flushed Employee object id = {}", empMerged.getId());
+        logger.info("Persistence context synchronized to the underlying database.");
+        logger.debug("Flushed Employee object id = {}", empMerged.getId());
 
         employee.setId(empMerged.getId());
 
         return empMerged;
-	}
+    }
 
-    private Employee getEmployee(String email) {
+    public Employee getEmployee(String email) {
         if(email!=null && !email.isEmpty()){
             Employee employee = (Employee) Iterables.getFirst(entityManager.createQuery(
                     "FROM Employee emp WHERE email = :email"
@@ -259,31 +250,6 @@ public class EmployeeDAO {
 
         return result != null &&  ! result.isEmpty() && result.get( 0 ).isNotToSync();
     }
-
-
-	/**
-	 * Сохраняет в базе новых сотрудников, либо обновляет данные уже
-	 * существующих сотрудников.
-	 * @param employee
-	 */
-	public StringBuffer setEmployees(List<Employee> employees) {
-        StringBuffer trace = new StringBuffer();
-		for (Employee emp : employees) {
-            if ( ! isNotToSync( emp ) ) {
-                trace.append( String.format(
-                        "%s user: %s %s\n", emp.getId() != null ? "Updated" : "Added", emp.getEmail(), emp.getName()
-                ) );
-
-                save(emp);
-            } else {
-                trace.append(String.format(
-                        "\nUser: %s %s marked not_to_sync.(Need update)\n%s\n\n",
-                        emp.getEmail(), emp.getName(), emp.toString()));
-            }
-        }
-        trace.append("\n\n");
-        return trace;
-	}
 
     public Double getWorkDaysOnIllnessWorked(Employee employee, Date beginDate, Date endDate) {
         Query query = entityManager.createQuery(
