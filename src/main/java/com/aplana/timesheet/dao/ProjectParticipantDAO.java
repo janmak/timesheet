@@ -35,7 +35,6 @@ public class ProjectParticipantDAO {
     public void save(ProjectParticipant participant)  {
         entityManager.merge(participant);
         entityManager.flush();
-        logger.info("Persistence context synchronized to the underlying database.");
         logger.debug("Flushed participant object id = {}", participant.getId());
     }
 

@@ -274,7 +274,7 @@ public class TimeSheetFormValidator extends AbstractValidator {
             Project project = projectService.find(projectId);
             // Необходимо указать проектную задачу
             if (project != null && project.isCqRequired()) {
-                if (cqId == null || cqId.equals("0")) {
+                if (cqId == null || cqId.equals(0)) {
                     errors.rejectValue("timeSheetTablePart[" + notNullRowNumber + "].cqId",
                             "error.tsform.cqid.required", getErrorMessageArgs(notNullRowNumber),
                             "Необходимо выбрать проектную задачу в строке " + (notNullRowNumber + 1) + ".");
