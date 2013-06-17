@@ -82,6 +82,9 @@ public class Employee implements Identifiable {
     @Column(name = "job_rate", columnDefinition = "float default 1", nullable = false)
     private Float jobRate = 1.0f;
 
+    @Column(nullable = false, columnDefinition = "bool not null default true")
+    private boolean billable = true;
+
     public Employee getManager2() {
         return manager2;
     }
@@ -216,6 +219,14 @@ public class Employee implements Identifiable {
 
     public void setJobRate(Float jobRate) {
         this.jobRate = jobRate;
+    }
+
+    public boolean isBillable() {
+        return billable;
+    }
+
+    public void setBillable(boolean billable) {
+        this.billable = billable;
     }
 
     //проверяем уволенный ли сотрудник
