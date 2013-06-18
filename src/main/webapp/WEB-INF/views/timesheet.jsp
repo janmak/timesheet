@@ -17,7 +17,6 @@
     dojo.require("dijit.form.Select");
     dojo.require("dijit.layout.TabContainer");
     dojo.require("dijit.layout.ContentPane");
-    dojo.require("dojox.widget.Standby");
     dojo.require(CALENDAR_EXT_PATH);
 
     var unfinishedDayCauseList = ${unfinishedDayCauseJson};
@@ -236,7 +235,8 @@
             else
                 setCookie('aplanaWorkPlace', workPlaceId, TimeAfter(7, 0, 0));
             timeSheetForm.action = "timesheet";
-            processing();
+            maskBody();
+
             // disabled не включается в submit. поэтому снимем аттрибут.
             dojo.removeAttr("divisionId", "disabled");
             dojo.removeAttr("employeeId", "disabled");
@@ -292,6 +292,8 @@
 </style>
 </head>
 <body>
+
+<div class="maskable" id="maskDiv"></div>
 
 <h1><fmt:message key="title.timesheet"/></h1>
 
@@ -536,6 +538,7 @@
             </tr>
         </table>
     </div>
+
 </form:form>
 </body>
 </html>
