@@ -37,7 +37,7 @@
 	</div>
 </c:if>
 <br>
-<b>${report}</b>
+${report}
 <br>
 <b>Отчет был создан ${creationDate} мск</b>
 <br>

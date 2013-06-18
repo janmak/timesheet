@@ -118,11 +118,10 @@
                     работы в выходной день:
                 #end
             </b></h2></li>
+            $overtimeCause.getOvertimeCause().getValue() <br>
             #set ($overtimeCauseComment = $overtimeCause.getComment())
             #if ($overtimeCauseComment != $null && $overtimeCauseComment.length() > 0)
-                $overtimeCauseComment
-            #else
-                $overtimeCause.getOvertimeCause().getValue()
+                <b>Комментарий: </b> $overtimeCauseComment
             #end
 
             #set ($compensation = $overtimeCause.getCompensation())
