@@ -311,7 +311,7 @@
         <div data-dojo-type="dijit.form.Textarea"
                   wrap="soft" id="overtimeCauseComment" rows="10" style="width: 99%;margin-top: 3px;"
                   placeHolder="Напишите причину, если нет подходящей в списке"
-                  tooltip="комментарий" data-dojo-props="value: '${timeSheetForm.overtimeCauseComment}'"></div>
+                  tooltip="комментарий">${timeSheetForm.overtimeCauseComment}</div>
         <div id="typeOfCompensationContainer" style="margin-top: 10px;">
             <div style="margin-bottom: 3px;">Тип компенсации</div>
             <select data-dojo-type="dijit.form.Select"style="width: 99%;" id="typeOfCompensation"
