@@ -128,6 +128,7 @@ public class TimeSheetController {
         logger.info("Processing form validation for employee {} ({}).", tsForm.getEmployeeId(), tsForm.getCalDate());
         tsFormValidator.validate(tsForm, result);
         if (result.hasErrors()) {
+            tsForm.unEscapeHTML();
             logger.info("TimeSheetForm for employee {} has errors. Form not validated.", tsForm.getEmployeeId());
             ModelAndView mavWithErrors = new ModelAndView("timesheet");
             mavWithErrors.addObject("timeSheetForm", tsForm);
@@ -202,11 +203,13 @@ public class TimeSheetController {
                 .getUnfinishedDayCauses()
         ) );
         result.put("overtimeThreshold", propertyProvider.getOvertimeThreshold());
+        result.put("undertimeThreshold", propertyProvider.getUndertimeThreshold());
 
         List<Division> divisions = divisionService.getDivisions();
         result.put("divisionList", divisions);
 
-        result.put("employeeListJson", employeeHelper.getEmployeeListJson(divisions, employeeService.isShowAll(request), true));
+        String employeeListJson = employeeHelper.getEmployeeListJson(divisions, employeeService.isShowAll(request), true);
+        result.put("employeeListJson", employeeListJson);
 
         List<DictionaryItem> categoryOfActivity = dictionaryItemService.getCategoryOfActivity();
         result.put("actCategoryList", categoryOfActivity);

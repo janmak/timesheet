@@ -8,7 +8,6 @@ import com.aplana.timesheet.enums.DictionaryEnum;
 import com.aplana.timesheet.enums.VacationStatusEnum;
 import com.aplana.timesheet.exception.service.VacationApprovalServiceException;
 import com.aplana.timesheet.form.CreateVacationForm;
-import com.aplana.timesheet.form.VacationsForm;
 import com.aplana.timesheet.form.validator.CreateVacationFormValidator;
 import com.aplana.timesheet.service.*;
 import com.aplana.timesheet.service.vacationapproveprocess.VacationApprovalProcessService;
@@ -62,6 +61,8 @@ public class CreateVacationController {
     private DivisionService divisionService;
     @Autowired
     protected EmployeeHelper employeeHelper;
+    @Autowired
+    protected SendMailService sendMailService;
     @Autowired
     protected HttpServletRequest request;
     @Autowired
@@ -187,6 +188,9 @@ public class CreateVacationController {
         } else {
             vacationApprovalProcessService.sendBackDateVacationApproved(vacation);
         }
+
+        sendMailService.performVacationCreateMailing(vacation);
+
         HttpSession session = request.getSession(false);
         session.setAttribute("employeeId", employeeId);
         return new ModelAndView(

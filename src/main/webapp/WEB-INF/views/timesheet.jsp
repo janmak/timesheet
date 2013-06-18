@@ -1,3 +1,4 @@
+<%@ page import="com.aplana.timesheet.form.TimeSheetForm" %>
 <%@taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 <%@page contentType="text/html" pageEncoding="UTF-8" %>
 
@@ -23,6 +24,7 @@
     var unfinishedDayCauseList = ${unfinishedDayCauseJson};
     var overtimeCauseList = ${overtimeCauseJson};
     var overtimeThreshold = ${overtimeThreshold};
+    var undertimeThreshold = ${undertimeThreshold};
     var workplaceList = ${workplaceJson};
     var actTypeList = ${actTypeJson};
     var projectList = ${projectListJson};
@@ -268,6 +270,7 @@
     function CopyPlan() {
         var plan_text = dojo.byId("plan_textarea").innerHTML;
         plan_text = plan_text.replace(/<br>/g, '\n');
+        plan_text = plan_text.replace(/&amp;/g, '&');
         dojo.byId("description_id_" + GetFirstIdDescription()).value = plan_text;
     }
 </script>
@@ -309,7 +312,7 @@
         <div data-dojo-type="dijit.form.Textarea"
                   wrap="soft" id="overtimeCauseComment" rows="10" style="width: 99%;margin-top: 3px;"
                   placeHolder="Напишите причину, если нет подходящей в списке"
-                  tooltip="комментарий" data-dojo-props="value: '${timeSheetForm.overtimeCauseComment}'"></div>
+                  tooltip="комментарий">${timeSheetForm.overtimeCauseComment}</div>
         <div id="typeOfCompensationContainer" style="margin-top: 10px;">
             <div style="margin-bottom: 3px;">Тип компенсации</div>
             <select data-dojo-type="dijit.form.Select"style="width: 99%;" id="typeOfCompensation"

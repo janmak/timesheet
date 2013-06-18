@@ -45,7 +45,8 @@ public class EmployeePlanDAO {
     }
 
     public void remove(EmployeePlan employeePlan) {
-        entityManager.remove(employeePlan);
+        if (employeePlan.getId() != null)
+          entityManager.remove(employeePlan);
     }
 
     public EmployeePlan tryFind(Employee employee, Integer year, Integer month, DictionaryItem dictionaryItem) {

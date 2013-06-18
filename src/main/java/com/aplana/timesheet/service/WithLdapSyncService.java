@@ -48,6 +48,9 @@ public class WithLdapSyncService {
     EmployeeDAO employeeDAO;
 
     @Autowired
+    EmployeeService employeeService;
+
+    @Autowired
     ProjectRoleDAO projectRoleDAO;
 
     @Autowired
@@ -143,7 +146,7 @@ public class WithLdapSyncService {
             Employee leader;
             String employeeLdap = (String) division.get(LdapDAO.LEADER);
             if ((leader = employeeDAO.findByLdapName(employeeLdap)) == null) {
-                leader = employeeDAO.save(createUser(ldapDAO.getEmployeeByLdapName(employeeLdap), true));
+                leader = employeeService.save(createUser(ldapDAO.getEmployeeByLdapName(employeeLdap), true));
             }
 
             dbDivision.setLeaderId(leader);
@@ -155,7 +158,7 @@ public class WithLdapSyncService {
     private void syncOtherEmployees(List<Employee> activeEmployeesNotInList, List<Integer> syncedEmployees) {
         for (Employee employee : activeEmployeesNotInList) {
             employee.setEndDate(new Timestamp(DateUtils.addDays(new Date(), 1).getTime()));
-            employeeDAO.save(employee);
+            employeeService.save(employee);
             syncedEmployees.add(employee.getId());
         }
     }
@@ -204,7 +207,7 @@ public class WithLdapSyncService {
                 if (!compareEmployees(employeeFromDb, employeeFromLdap)) {
                     logger.info("Employee in LDAP was changed. Update according employee in DB.");
                     mergeEmployees(employeeFromDb, employeeFromLdap);
-                    employeeDAO.save(employeeFromDb);
+                    employeeService.save(employeeFromDb);
                 } else {
                     logger.info("Employees are same. Go to next employee.");
                 }
@@ -215,7 +218,7 @@ public class WithLdapSyncService {
 
                 logger.info("According employee was not founded");
                 logger.info("Creating new Employee in DB...");
-                employeeFromDb = employeeDAO.save(createUser(employee));
+                employeeFromDb = employeeService.save(createUser(employee));
                 logger.info("…creating employee completed.");
             }
             syncedEmployees.add(employeeFromDb.getId());
@@ -326,7 +329,7 @@ public class WithLdapSyncService {
                 employee.setManager(employeeDAO.findByLdapName(employeeFromLdap.getManager()));
                 if (employee.getManager() == null) {
                     employee.setManager(
-                            employeeDAO.save(createUser(ldapDAO.getEmployeeByLdapName(employeeFromLdap.getManager()))));
+                            employeeService.save(createUser(ldapDAO.getEmployeeByLdapName(employeeFromLdap.getManager()))));
                 }
             }
         }

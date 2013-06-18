@@ -2,9 +2,14 @@ package com.aplana.timesheet.service.MailSenders;
 
 import com.aplana.timesheet.properties.TSPropertyProvider;
 import com.aplana.timesheet.service.SendMailService;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import org.apache.commons.lang.StringUtils;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -18,7 +23,6 @@ public abstract class AbstractSenderWithCcAddress<T> extends AbstractSenderWithA
         super(sendMailService, propertyProvider);
     }
 
-    @Override
     final protected List<Mail> getMailList(T params) {
         List<Mail> mailList = getMainMailList(params);
         String ccEmail = getCcEmail(params);
@@ -35,6 +39,15 @@ public abstract class AbstractSenderWithCcAddress<T> extends AbstractSenderWithA
         }
 
         return mailList;
+    }
+
+    final protected Iterable<String> getNotBlankEmails(Collection<String> ccEmails) {
+        return Iterables.filter(ccEmails, new Predicate<String>() {
+            @Override
+            public boolean apply(@Nullable String email) {
+                return StringUtils.isNotBlank(email);
+            }
+        });
     }
 
 }

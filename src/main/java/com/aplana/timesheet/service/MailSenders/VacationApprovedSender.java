@@ -6,16 +6,13 @@ import com.aplana.timesheet.dao.entity.Vacation;
 import com.aplana.timesheet.enums.VacationStatusEnum;
 import com.aplana.timesheet.properties.TSPropertyProvider;
 import com.aplana.timesheet.service.SendMailService;
-import com.google.common.base.Predicate;
 import com.google.common.collect.HashBasedTable;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Table;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateFormatUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -48,6 +45,10 @@ public class VacationApprovedSender extends AbstractVacationSenderWithCopyToAuth
                 new ArrayList<String>(getAdditionalEmailsForRegion(employee.getRegion()));
 
         ccEmails.add(getAssistantEmail(getManagersEmails(mail, employee)));
+        //оповещаем центр
+        if (employee.getDivision()!=null) {
+            ccEmails.add(employee.getDivision().getVacationEmail());
+        }
 
         mail.setCcEmails(getNotBlankEmails(ccEmails));
 
@@ -60,17 +61,8 @@ public class VacationApprovedSender extends AbstractVacationSenderWithCopyToAuth
         return Arrays.asList(mail);
     }
 
-    private Iterable<String> getNotBlankEmails(Collection<String> ccEmails) {
-        return Iterables.filter(ccEmails, new Predicate<String>() {
-            @Override
-            public boolean apply(@Nullable String email) {
-                return StringUtils.isNotBlank(email);
-            }
-        });
-    }
-
     private void addRejectedContent(Vacation vacation, Mail mail) {
-        mail.setSubject(getSubject(vacation));
+        mail.setSubject(getSubject(vacation, false));
         mail.setParamsForGenerateBody(getRejectedBody(vacation));
     }
 
@@ -85,7 +77,7 @@ public class VacationApprovedSender extends AbstractVacationSenderWithCopyToAuth
     }
 
     private void addApprovedContent(Vacation vacation, Mail mail) {
-        mail.setSubject(getSubject(vacation));
+        mail.setSubject(getSubject(vacation, true));
         mail.setParamsForGenerateBody(getApprovedBody(vacation));
     }
 
@@ -112,10 +104,10 @@ public class VacationApprovedSender extends AbstractVacationSenderWithCopyToAuth
         return table;
     }
 
-    private String getSubject(Vacation vacation) {
+    private String getSubject(Vacation vacation, Boolean accepted) {
         String beginDateStr = DateFormatUtils.format(vacation.getBeginDate(), DATE_FORMAT);
         String endDateStr = DateFormatUtils.format(vacation.getEndDate(), DATE_FORMAT);
-        return  String.format("Согласован отпуск %s - %s", beginDateStr, endDateStr);
+        return  String.format(accepted?"Согласован отпуск %s - %s":"Отклонен отпуск %s - %s", beginDateStr, endDateStr);
 //        return  String.format("Согласование %s сотрудника %s на период с %s - %s", vacation.getType().getValue(), vacation.getEmployee().getName(),
 //                        beginDateStr, endDateStr);
     }

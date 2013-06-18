@@ -2,6 +2,7 @@ package com.aplana.timesheet.service;
 
 import com.aplana.timesheet.dao.LdapDAO;
 import com.aplana.timesheet.dao.ProjectRolePermissionsDAO;
+import com.aplana.timesheet.service.ProjectParticipantService;
 import com.aplana.timesheet.dao.entity.*;
 import com.aplana.timesheet.dao.entity.ldap.EmployeeLdap;
 import com.aplana.timesheet.util.DateTimeUtil;
@@ -28,6 +29,8 @@ public class EmployeeLdapService extends AbstractServiceWithTransactionManagemen
     private EmployeeService employeeService;
     @Autowired
     private ProjectRoleService projectRoleService;
+    @Autowired
+    private ProjectParticipantService projectParticipantService;
 
     @Autowired
     private RegionService regionService;
@@ -170,6 +173,7 @@ public class EmployeeLdapService extends AbstractServiceWithTransactionManagemen
             //синхронизирует сотрудников, если есть что синхронизировать
             if (!empsToSync.isEmpty()) {
                 trace.append(employeeService.setEmployees(empsToSync));
+                projectParticipantService.deactivateEmployeesRights(empsToSync);
             } else {
                 logger.info("Nothing to sync.");
             }

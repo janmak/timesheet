@@ -317,7 +317,9 @@ function normalize(/* Array */ modelFields, /* Array */ itemsToNormalize) {
         dojo.forEach(modelFields, function(field) {
             value = item[field];
 
-            normalizedCopy[field] = (dojo.isArray(value)) ? value[0] : value;
+            var normValue = (dojo.isArray(value)) ? value[0] : value;
+            normValue = ("" == normValue) ? 0 : normValue;
+            normalizedCopy[field] = normValue;
         });
 
         items.push(normalizedCopy);
@@ -373,10 +375,12 @@ function getScrollableView(grid) {
 
 function updateGridStructure(grid) {
     var scrollableView = getScrollableView(grid);
-    var srcScroll = null;
+    var srcScrollVertical = null;
+    var srcScrollHorizontal = null;
 
     if (scrollableView) {
-        srcScroll = scrollableView.scrollTop;
+        srcScrollVertical = scrollableView.scrollTop;
+        srcScrollHorizontal = scrollableView.scrollLeft;
     }
 
     grid.setStructure(grid.structure);
@@ -385,9 +389,15 @@ function updateGridStructure(grid) {
     scrollableView = getScrollableView(grid);
 
     if (scrollableView) {
-        if (srcScroll) {
+        if (srcScrollVertical) {
             setTimeout(function() {
-                scrollableView.scrollTop = srcScroll;
+                scrollableView.scrollTop = srcScrollVertical;
+            }, 1);
+        }
+
+        if (srcScrollHorizontal) {
+            setTimeout(function() {
+                scrollableView.scrollLeft = srcScrollHorizontal;
             }, 1);
         }
 

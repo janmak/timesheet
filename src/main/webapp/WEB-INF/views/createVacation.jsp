@@ -1,3 +1,4 @@
+<%@ page import="com.aplana.timesheet.properties.TSPropertyProvider" %>
 <%@page contentType="text/html" pageEncoding="UTF-8" %>
 
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form" %>
@@ -5,6 +6,10 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
+
+<%
+    String rules = TSPropertyProvider.getVacationRulesUrl();
+%>
 
 <html>
 <head>
@@ -16,7 +21,7 @@
         dojo.ready(function() {
             window.focus();
             dojo.byId("divisionId").value = ${divisionId};
-            divisionChange(dojo.byId("divisionId"));
+            vacationCreate_divisionChange(dojo.byId("divisionId"));
             dojo.byId("employeeId").value = ${employeeId};
         });
 
@@ -134,6 +139,7 @@
 
 <h1><fmt:message key="title.createVacation"/></h1>
 <br/>
+<fmt:message key="vacation.rules.begin"/> <a href="<%=rules%>"><fmt:message key="vacation.rules.link"/></a>
 
 <form:form method="post" commandName="createVacationForm" name="mainForm">
     <form:errors path="*" cssClass="errors_box" delimiter="<br/><br/>" />
@@ -150,9 +156,8 @@
                 <span class="label">Подразделение</span>
             </td>
             <td>
-                <form:select path="divisionId" id="divisionId" onchange="divisionChange(this)" class="without_dojo"
+                <form:select path="divisionId" id="divisionId" onchange="vacationCreate_divisionChange(this)" class="without_dojo"
                              onmouseover="tooltip.show(getTitle(this));" onmouseout="tooltip.hide();">
-                    <form:option label="" value="0"/>
                     <form:options items="${divisionList}" itemLabel="name" itemValue="id"/>
                 </form:select>
             </td>
@@ -161,8 +166,8 @@
             </td>
             <td>
                 <form:select path="employeeId" id="employeeId" class="without_dojo" onmouseover="tooltip.show(getTitle(this));"
-                             onmouseout="tooltip.hide();" onchange="setDefaultEmployeeJob(-1);">
-                    <form:option items="${employeeList}" label="" value="0"/>
+                             onmouseout="tooltip.hide();">
+                    <form:options items="${employeeList}" itemLabel="name" itemValue="id"/>
                 </form:select>
             </td>
         </tr>
