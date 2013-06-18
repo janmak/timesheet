@@ -153,10 +153,17 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
         int summaryRejected = 0;
 
         for (int i  = firstYear; i <= lastYear; i++){
-            Map<String, Integer> map = getSummaryAndCalcDays(regionListForCalc, vacations, calDays, workDays, i);
-            summaryApproved += map.get("summaryApproved");
-            summaryRejected += map.get("summaryRejected");
-            calAndWorkDaysList.add(new VacationInYear(i, map.get("summaryCalDays"), map.get("summaryWorkDays")));
+            //Заполняются calDays, workDays
+            getSummaryAndCalcDays(regionListForCalc, vacations, calDays, workDays, i);//TODO возможно упростить, сделать вместо двух вызовов один
+            //Получаем списки, привязанные к типам отпусков
+            Map<DictionaryItem,List<Vacation>> typedVacationMap = vacationService.splitVacationByTypes(vacations);
+            //Проходим по существующим типам отпусков
+            for(DictionaryItem item:typedVacationMap.keySet()){
+                Map<String, Integer> map = getSummaryAndCalcDays(regionListForCalc, typedVacationMap.get(item), new ArrayList<Integer>(vacationsSize), new ArrayList<Integer>(vacationsSize), i);
+                summaryApproved += map.get("summaryApproved");
+                summaryRejected += map.get("summaryRejected");
+                calAndWorkDaysList.add(new VacationInYear(item.getValue(),i, map.get("summaryCalDays"), map.get("summaryWorkDays")));
+            }
         }
 
         modelAndView.addObject("summaryApproved", summaryApproved);

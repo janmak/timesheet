@@ -7,13 +7,13 @@ import com.aplana.timesheet.dao.entity.Vacation;
 import com.aplana.timesheet.enums.VacationStatusEnum;
 import com.aplana.timesheet.exception.service.DeleteVacationException;
 import com.aplana.timesheet.util.EnumsUtils;
+import com.google.common.collect.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author rshamsutdinov
@@ -121,5 +121,17 @@ public class VacationService {
 
     public int getVacationsWorkdaysCount(Employee employee, Integer year, Integer month, VacationStatusEnum status) {
         return vacationDAO.getVacationsWorkdaysCount(employee, year, month, VacationStatusEnum.APPROVED);
+    }
+
+    public Map<DictionaryItem, List<Vacation>> splitVacationByTypes(List<Vacation> vacations) {
+        Map<DictionaryItem, List<Vacation>> map = new HashMap<DictionaryItem, List<Vacation>>();
+        for (Vacation vac: vacations){
+            if(map.keySet().contains(vac.getType())){
+                map.get(vac.getType()).add(vac);
+            } else{
+                map.put(vac.getType(), Lists.newArrayList(vac));
+            }
+        }
+        return map;
     }
 }

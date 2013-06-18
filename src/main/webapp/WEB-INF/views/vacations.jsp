@@ -54,7 +54,7 @@
                 selectedAllRegion = true;
             }
 
-            dojo.byId("<%= EMPLOYEE_ID %>").value = ${employeeId};
+            dojo.byId("<%= EMPLOYEE_ID %>").value = ${employeeId!=null?employeeId:0};
             dojo.byId("<%= VACATION_ID %>").setAttribute("disabled", "disabled");
         });
 
@@ -62,7 +62,7 @@
         var regionsIdList = ${regionsIdList};
         var managerList = ${managerListJson};
         var selectedAllRegion = null;
-        var selectedEmployee = ${employeeId};
+        var selectedEmployee = ${employeeId!=null?employeeId:0};
 
         function showVacations() {
             var calFromDate = dojo.byId("<%= CAL_FROM_DATE %>").value;
@@ -534,6 +534,7 @@
                                 <thead>
                                 <tr>
                                     <th width="170">Год</th>
+                                    <th width="170">Тип отпуска</th>
                                     <th width="170">Календарные дни</th>
                                     <th width="170">Рабочие дни</th>
                                 </tr>
@@ -542,6 +543,7 @@
                                     <c:forEach var="cal" items="${calDaysCount}">
                                         <tr>
                                             <td>${cal.year}</td>
+                                            <td>${cal.vacationType}</td>
                                             <td>${cal.summaryCalDays}</td>
                                             <td>${cal.summaryWorkDays}</td>
                                         </tr>
