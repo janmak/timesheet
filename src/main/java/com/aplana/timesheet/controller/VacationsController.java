@@ -56,7 +56,7 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
         HttpSession session = request.getSession(false);
         Employee employee = session.getAttribute("employeeId") != null
                 ? employeeService.find((Integer)session.getAttribute("employeeId"))
-                : securityService.getSecurityPrincipal().getEmployee();
+                : employeeService.find(securityService.getSecurityPrincipal().getEmployee().getId());
         vacationsForm.setDivisionId(employee.getDivision().getId());
         vacationsForm.setEmployeeId(employee.getId());
         vacationsForm.setRegionsIdList(getRegionIdList());
@@ -72,14 +72,10 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
                 dictionaryItemService.getItemsByDictionaryId(DictionaryEnum.VACATION_TYPE.getId()));
         modelAndView.addObject("curEmployee", securityService.getSecurityPrincipal().getEmployee());
 
-        if (session.getAttribute("employeeId") != null){
-            vacationsForm.setVacationType(0);
-            vacationsForm.setRegions(new ArrayList<Integer>());
-            vacationsForm.getRegions().add(employee.getRegion().getId());
-            return showVacations(vacationsForm, null);
-        }else{
-            return modelAndView;
-        }
+        vacationsForm.setVacationType(0);
+        vacationsForm.setRegions(new ArrayList<Integer>());
+        vacationsForm.getRegions().add(employee.getRegion().getId());
+        return showVacations(vacationsForm, null);
     }
 
     @RequestMapping(value = "/vacations", method = RequestMethod.POST)
@@ -252,7 +248,7 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
                         differRegionVacations.add(vac);
                     }
                 }
-                final int vacationsSize = differRegionVacations.size();
+                final int regionVacationsSize = differRegionVacations.size();
                 if (!differRegionVacations.isEmpty()){
                     final Vacation firstVacation = differRegionVacations.get(0);
                     Date minDate = firstVacation.getBeginDate();
@@ -286,11 +282,11 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
                     calendar.set(Calendar.YEAR, year);
                     final Date currentYearEndDate = calendar.getTime();
 
-                    for (int i = 0; i < vacationsSize; i++) {
+                    for (int i = 0; i < regionVacationsSize; i++) {
                         final Vacation vacation = differRegionVacations.get(i);
                         final int holidaysCount = getHolidaysCount(holidaysForRegion, vacation.getBeginDate(), vacation.getEndDate());
 
-                        final int calDaysCount = calDays.get(i);
+                        final int calDaysCount = getDiffInDays(vacation.getBeginDate(), vacation.getEndDate());
                         final int workDaysCount = calDaysCount - holidaysCount;
 
                         workDays.add(workDaysCount);
