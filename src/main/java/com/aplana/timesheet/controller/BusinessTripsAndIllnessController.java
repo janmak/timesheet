@@ -4,8 +4,8 @@ import com.aplana.timesheet.controller.quickreport.BusinessTripsQuickReport;
 import com.aplana.timesheet.controller.quickreport.IllnessesQuickReport;
 import com.aplana.timesheet.controller.quickreport.QuickReport;
 import com.aplana.timesheet.controller.quickreport.QuickReportGenerator;
-import com.aplana.timesheet.dao.entity.*;
 import com.aplana.timesheet.dao.entity.Calendar;
+import com.aplana.timesheet.dao.entity.*;
 import com.aplana.timesheet.enums.PermissionsEnum;
 import com.aplana.timesheet.enums.QuickReportTypesEnum;
 import com.aplana.timesheet.enums.RegionsEnum;
@@ -63,6 +63,7 @@ public class BusinessTripsAndIllnessController extends AbstractController{
     private static final Logger logger = LoggerFactory.getLogger(BusinessTripsAndIllnessController.class);
 
     private static final SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy");
+    public static final int ALL_EMPLOYEES = -1;
 
     @Autowired
     SecurityService securityService;
@@ -162,15 +163,29 @@ public class BusinessTripsAndIllnessController extends AbstractController{
     }
 
     private ModelAndView getBusinessTripsOrIllnessReport(Integer divisionId, Integer employeeId, Integer year, Integer month, Integer printtype) throws BusinessTripsAndIllnessControllerException {
-        Employee employee = employeeService.find(employeeId);
+        List<Employee> sickEmployee = new ArrayList<Employee>();
+        HashMap<Employee, QuickReport> reports = new HashMap<Employee, QuickReport>();
         List<Calendar> years = DateTimeUtil.getYearsList(calendarService);
         List<Division> divisionList = divisionService.getDivisions();
-        PermissionsEnum recipientPermission = getRecipientPermission(employee);
-        if (recipientPermission == null) { //сотрудник запрашивает отчет другого сотрудника (не свой), но нет прав на просмотр чужих отчетов
-            employee = getTimeSheetUser();    //формируем отчет для него
+        final boolean allFlag = (employeeId == ALL_EMPLOYEES);
+
+        if (allFlag) {
+            sickEmployee = employeeService.getAllEmployeesDivision(divisionService.find(divisionId));
+        } else {
+            sickEmployee.add(employeeService.find(employeeId));
         }
-        QuickReport report = getReport(printtype, employee, month, year);
-        return  fillResponseModel(divisionId, year, month, printtype, employee, years, divisionList, report, recipientPermission);
+
+        for (Employee employee : sickEmployee) {
+            PermissionsEnum recipientPermission = getRecipientPermission(employee);
+
+            if (recipientPermission == null) { //сотрудник запрашивает отчет другого сотрудника (не свой), но нет прав на просмотр чужих отчетов
+                continue;
+            }
+
+            reports.put(employee, getReport(printtype, employee, month, year));
+        }
+
+        return fillResponseModel(divisionId, year, month, printtype, sickEmployee.get(0), years, divisionList, reports, allFlag);
     }
 
     @RequestMapping(value = "/businesstripsandillness/{divisionId}/{employeeId}/{year}/{month}/{reportTypeId}")
@@ -283,21 +298,27 @@ public class BusinessTripsAndIllnessController extends AbstractController{
      * заполняем данные об отчетах сотрудников и возвращаем формочку с табличкой по нужному типу отчетов
      */
     private ModelAndView fillResponseModel(Integer divisionId, Integer year, Integer month, Integer printtype,
-                                           Employee employee, List<Calendar> years, List<Division> divisionList, QuickReport report, PermissionsEnum recipientPermission) {
+                                           Employee employee, List<Calendar> years, List<Division> divisionList,
+                                           HashMap<Employee ,QuickReport> reports, boolean forAll) {
         ModelAndView modelAndView = new ModelAndView("businesstripsandillness");
+
         modelAndView.addObject("year", year);
         modelAndView.addObject("month", month);
         modelAndView.addObject("divisionId", divisionId);
-        modelAndView.addObject("employeeId", employee.getId());
+        modelAndView.addObject("employeeId", (forAll) ? ALL_EMPLOYEES : employee.getId());
         modelAndView.addObject("yearsList", years);
-        modelAndView.addObject("employeeName", employee.getName());
+        modelAndView.addObject("employeeName", (forAll) ? "" : employee.getName());
         modelAndView.addObject("monthList", DateTimeUtil.getMonthListJson(years, calendarService));
         modelAndView.addObject("divisionList", divisionList);
         modelAndView.addObject("employeeListJson", employeeHelper.getEmployeeListJson(divisionList, employeeService.isShowAll(request)));
-        report.setPeriodicalsList(clearDuplicatePeriodicals(report.getPeriodicalsList()));
-        modelAndView.addObject("reports", report);
+
+        for (QuickReport report : reports.values()) {
+           report.setPeriodicalsList(clearDuplicatePeriodicals(report.getPeriodicalsList()));
+        }
+
+        modelAndView.addObject("reportsMap", reports);
         modelAndView.addObject("reportFormed", printtype);
-        modelAndView.addObject("recipientPermission", recipientPermission);
+        modelAndView.addObject("forAll",forAll);
 
         return modelAndView;
     }
