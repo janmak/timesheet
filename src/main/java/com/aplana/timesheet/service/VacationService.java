@@ -134,4 +134,8 @@ public class VacationService {
         }
         return map;
     }
+
+    public List<Vacation> findVacationsNeedsApproval(Integer employeeId) {
+        return vacationDAO.findVacationsNeedApproval(employeeId);
+    }
 }

@@ -289,8 +289,8 @@
                 return;
             }
 
-            dojo.byId("vacationId").removeAttribute("disabled");
-            dojo.byId("vacationId").value = vac_id;
+            dojo.byId("<%= VACATION_ID %>").removeAttribute("disabled");
+            dojo.byId("<%= VACATION_ID %>").value = vac_id;
             vacationsForm.action =
                     "<%=request.getContextPath()%>/vacations";
             vacationsForm.submit();
@@ -327,6 +327,7 @@
 
 <h1><fmt:message key="title.vacations"/></h1>
 <br/>
+<a target="_blank" href="<c:url value='/vacations_needs_approval'/>"><fmt:message key="link.vacation.approval"/></a>
 
 <form:form method="post" commandName="vacationsForm" name="mainForm">
     <form:hidden path="<%= VACATION_ID%>" />

@@ -392,4 +392,41 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
         }));
     }
 
+    @RequestMapping(value = "/vacations_needs_approval")
+    public ModelAndView showVacationsNeedsApproval(
+            @ModelAttribute(VACATION_FORM) VacationsForm vacationsForm,
+            BindingResult result) {
+
+        if (vacationsForm.getVacationId() != null) {
+            try {
+                vacationService.deleteVacation(vacationsForm.getVacationId());
+                vacationsForm.setVacationId(null);
+            } catch (DeleteVacationException ex) {
+                result.rejectValue("vacationId", "error.vacations.deletevacation.failed", ex.getLocalizedMessage());
+            }
+        }
+        Employee employee = securityService.getSecurityPrincipal().getEmployee();
+        final ModelAndView modelAndView = createModelAndViewForEmployee("vacationsNeedsApproval", employee.getId(), employee.getDivision().getId());
+
+        modelAndView.addObject("curEmployee", securityService.getSecurityPrincipal().getEmployee());
+
+        final List<Vacation> vacations = vacationService.findVacationsNeedsApproval(employee.getId());
+        final int vacationsSize = vacations.size();
+
+        final List<Integer> calDays = new ArrayList<Integer>(vacationsSize);
+        final List<Integer> workDays = new ArrayList<Integer>(vacationsSize);
+
+        modelAndView.addObject("vacationsList", revertList(vacations));
+        modelAndView.addObject("calDays", calDays);
+        modelAndView.addObject("workDays", workDays);
+        List<Region> regionListForCalc = new ArrayList<Region>();
+        List<Integer> filledRegionsId = getRegionIdList();
+        for (Integer i : filledRegionsId){
+            regionListForCalc.add(regionService.find(i));
+        }
+        getSummaryAndCalcDays(regionListForCalc, vacations, calDays, workDays, new Date().getYear() + 1900);//TODO возможно упростить, сделать вместо двух вызовов один
+
+        return modelAndView;
+    }
+
 }

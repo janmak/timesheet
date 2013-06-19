@@ -4,6 +4,7 @@ import com.aplana.timesheet.dao.entity.DictionaryItem;
 import com.aplana.timesheet.dao.entity.Employee;
 import com.aplana.timesheet.dao.entity.Vacation;
 import com.aplana.timesheet.enums.VacationStatusEnum;
+import com.google.common.collect.Lists;
 import org.hibernate.Hibernate;
 import org.springframework.stereotype.Repository;
 
@@ -11,6 +12,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -130,5 +132,20 @@ public class VacationDAO {
         } catch (NoResultException ex) {
             return null;
         }
+    }
+
+    public List<Vacation> findVacationsNeedApproval(Integer employeeId) {
+        List<Integer> statuses = Lists.newArrayList(VacationStatusEnum.APPROVED.getId(),VacationStatusEnum.REJECTED.getId());
+        final Query query =
+                entityManager.createQuery("select distinct v from VacationApproval va " +
+                        "left outer join va.vacation as v " +
+                        "left outer join va.manager as m " +
+                        "left outer join v.status as s " +
+                        "where (m.id = :emp_id ) and (s.id not in (:statuses)) " +
+                        "order by v.beginDate")
+                        .setParameter("emp_id", employeeId)
+                        .setParameter("statuses", statuses);
+
+        return query.getResultList();
     }
 }
