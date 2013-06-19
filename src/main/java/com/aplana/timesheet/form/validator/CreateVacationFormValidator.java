@@ -108,10 +108,11 @@ public class CreateVacationFormValidator extends AbstractValidator {
                 );
             }
             if (calendarService.find(toDate) == null){
+                Integer year = toDate.getYear() + 1900;
                 errors.rejectValue(
                         "calToDate",
                         "error.createVacation.wrongyear",
-                        new Object[]{toDate.getYear()+1900},
+                        new Object[]{year.toString()},
                         WRONG_YEAR_ERROR_MESSAGE
                 );
             }
