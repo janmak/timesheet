@@ -69,7 +69,7 @@
         #foreach ($overtimeCauseString in $overtimeCauseStrings)
             <span>$overtimeCauseString</span><br>
         #end
-        #if ($paramsForGenerateBody.get($first, "overtimeComment") != $null)
+        #if ($paramsForGenerateBody.get($first, "overtimeComment") != $null && $paramsForGenerateBody.get($first, "overtimeComment").length() > 0)
             <b>Комментарий: </b>
             $paramsForGenerateBody.get($first, "overtimeComment")
         #end
