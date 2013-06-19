@@ -5,7 +5,6 @@ import com.aplana.timesheet.dao.entity.Project;
 import com.aplana.timesheet.dao.entity.VacationApproval;
 import com.aplana.timesheet.dao.entity.VacationApprovalResult;
 import com.aplana.timesheet.enums.ProjectRolesEnum;
-import com.aplana.timesheet.exception.service.VacationApprovalServiceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,9 +68,10 @@ public class ManagerRoleNameService {
     private Boolean isLineManager(Employee employee, Employee manager){
         Integer man = employee.getManager() != null
                 ? employee.getManager().getId() : null;
+        /* APLANATS-865
         Integer man2 = employee.getManager2() != null
-                ? employee.getManager2().getId() : null;
-        if (!(manager.getId().equals(man) || manager.getId().equals(man2))){
+                ? employee.getManager2().getId() : null;*/
+        if (!(manager.getId().equals(man) /*|| manager.getId().equals(man2)*/)){
             if(man != null){
                 return isLineManager(employee.getManager(), manager);
             }else{

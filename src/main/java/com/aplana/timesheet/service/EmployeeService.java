@@ -276,11 +276,12 @@ public class EmployeeService {
             employees.add(manager);
             employees.addAll(getLinearEmployees(manager));
         }
+        /* APLANATS-865
         Employee manager2 = employee.getManager2();
         if(manager2 !=null){
             employees.add(manager2);
             employees.addAll(getLinearEmployees(manager2));
-        }
+        }*/
         return employees;
     }
 }
