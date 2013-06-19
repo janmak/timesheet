@@ -1,3 +1,4 @@
+<%@ page import="com.aplana.timesheet.properties.TSPropertyProvider" %>
 <%@page contentType="text/html" pageEncoding="UTF-8" %>
 
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form" %>
@@ -5,6 +6,10 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
+
+<%
+    String rules = TSPropertyProvider.getVacationRulesUrl();
+%>
 
 <html>
 <head>
@@ -134,6 +139,7 @@
 
 <h1><fmt:message key="title.createVacation"/></h1>
 <br/>
+<fmt:message key="vacation.rules.begin"/> <a href="<%=rules%>"><fmt:message key="vacation.rules.link"/></a>
 
 <form:form method="post" commandName="createVacationForm" name="mainForm">
     <form:errors path="*" cssClass="errors_box" delimiter="<br/><br/>" />

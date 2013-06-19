@@ -210,6 +210,10 @@ public class TSPropertyProvider {
         return getProperties().getProperty("timesheet.help.url");
     }
 
+    public static String getVacationRulesUrl() {
+        return getProperties().getProperty("vacation.rules.url");
+    }
+
     /**
      * Единый метод для загрузки почтовых настроек
      *
