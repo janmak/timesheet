@@ -160,10 +160,11 @@ public class VacationApprovalAutoProcessService extends AbstractVacationApproval
             return true;
         }
 
-        Boolean manager2Result = getManager2Result(vacation);       //если второй линейный отказал - сразу возвращаем отказ
+        /* APLANATS-865
+         Boolean manager2Result = getManager2Result(vacation);       //если второй линейный отказал - сразу возвращаем отказ
         if (BooleanUtils.isFalse(manager2Result)) {
             return manager2Result;
-        }
+        }*/
 
         int lineManagerDaysToApprove = getControlTimeForLineManager(vacation);
         VacationApproval lineManagerApproval = getTopLineManagerApproval(vacation);
@@ -177,9 +178,9 @@ public class VacationApprovalAutoProcessService extends AbstractVacationApproval
             return lineManagerApproval.getResult();
         }
 
-        if (manager2Result != null) {       //после проверки всех линейных, если они не отвечают и если второй линейный вынес решение - возвращаем его
+        /*if (manager2Result != null) {       //после проверки всех линейных, если они не отвечают и если второй линейный вынес решение - возвращаем его
             return manager2Result;
-        }
+        }*/
 
         VacationApproval approvalResult = prepareApproveLetterForLineManagerOfEmployee(vacation, lineManagerApproval.getManager());
         if (approvalResult != null) {

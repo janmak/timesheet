@@ -56,17 +56,7 @@ public abstract class AbstractVacationApprovalProcessService extends AbstractSer
     public void sendVacationApprovedMessages (Vacation vacation) {
         List<VacationApproval> vacationApprovals = vacationApprovalService.getAllApprovalsForVacation(vacation);
         vacationApprovals.add(createNewVacationApproval(vacation, new Date(), vacation.getEmployee()));
-        Boolean leaderAlreadyInList = false;
-        if (vacation.getEmployee()!=null && vacation.getEmployee().getDivision()!=null && vacation.getEmployee().getDivision().getLeaderId()!=null && vacation.getEmployee().getDivision().getLeaderId().getId()!=null) {
-            for (VacationApproval vacationApproval : vacationApprovals) {
-                if (vacationApproval!=null && vacationApproval.getManager()!=null && vacationApproval.getManager().getId().equals(vacation.getEmployee().getDivision().getLeaderId().getId())) {
-                    leaderAlreadyInList = true;
-                }
-            }
-        }
-        if (!leaderAlreadyInList) {
-            vacationApprovals.add(createNewVacationApproval(vacation, new Date(), vacation.getEmployee().getDivision().getLeaderId()));
-        }
+
         List<String> emails = prepareEmailsListForVacationApprovedMessage(vacationApprovals);
         sendMailService.performVacationApprovedSender(vacation, emails);
     }
@@ -141,7 +131,7 @@ public abstract class AbstractVacationApprovalProcessService extends AbstractSer
         vacationService.store(vacation);
 
         sendVacationApprovedMessages(vacation);  //делаем рассылку о том, что отпуск согласован
-        
+
         return status;
     }
 
@@ -161,7 +151,7 @@ public abstract class AbstractVacationApprovalProcessService extends AbstractSer
         if (managerApproveResult.values().contains(false)) {        //один из менеджеров отказал в отпуске! :(
             return setFinalStatusForVacationAndSendVacationApprovedMessages(vacation, false);
         }
-        
+
         if (managerApproveResult.values().contains(null)) {       //если отпуск по каким-то проектам еще ожидает решения
             return null;
         }
@@ -186,6 +176,7 @@ public abstract class AbstractVacationApprovalProcessService extends AbstractSer
 
         VacationApproval lineManagerApproval = getTopLineManagerApproval(vacation);   //проверяем, посылалось ли письмо линейным руководителям
         if (lineManagerApproval == null) {      //если не посылалось, посылаем
+            /* APLANATS-865
             VacationApproval lineManager2VacationApproval = null;
             if (vacation.getEmployee().getManager2() != null) {
                 lineManager2VacationApproval = vacationApprovalService.tryGetManagerApproval(vacation, vacation.getEmployee().getManager2());
@@ -196,13 +187,13 @@ public abstract class AbstractVacationApprovalProcessService extends AbstractSer
                     lineManager2VacationApproval = createNewVacationApproval(vacation, new Date(), vacation.getEmployee().getManager2());
                     lineManager2VacationApproval = vacationApprovalService.store(lineManager2VacationApproval);
                 }
-            }
+            }*/
 
             lineManagerApproval = prepareApproveLetterForLineManagerOfEmployee(vacation, vacation.getEmployee());
             sendMailService.performVacationApproveRequestSender(lineManagerApproval);
-            if (lineManager2VacationApproval != null) {
+            /*if (lineManager2VacationApproval != null) {
                 sendMailService.performVacationApproveRequestSender(lineManager2VacationApproval);
-            }
+            }*/
         }
     }
 
@@ -246,7 +237,7 @@ public abstract class AbstractVacationApprovalProcessService extends AbstractSer
 
         return employee;
     }
-    
+
     /**
      * проверяем, одобрено ли заявление на отпуск руководителями переданных проектов
      */
@@ -446,6 +437,7 @@ public abstract class AbstractVacationApprovalProcessService extends AbstractSer
     /**
      * Получаем результат второго линейного
      */
+    /* APLANATS-865
     protected Boolean getManager2Result(Vacation vacation) {
         if (vacation.getEmployee().getManager2() == null) {
             return null;
@@ -454,7 +446,7 @@ public abstract class AbstractVacationApprovalProcessService extends AbstractSer
         VacationApproval lineManager2Approval = vacationApprovalService.tryGetManagerApproval(vacation, vacation.getEmployee().getManager2());
 
         return (lineManager2Approval != null) ? lineManager2Approval.getResult() : null;
-    }
+    }*/
 
     /**
      * получаем мексимальное количество дней, за которое линейный руководитель должен утвердить заявление на отпуск

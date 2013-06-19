@@ -45,9 +45,20 @@ public class VacationApprovedSender extends AbstractVacationSenderWithCopyToAuth
                 new ArrayList<String>(getAdditionalEmailsForRegion(employee.getRegion()));
 
         ccEmails.add(getAssistantEmail(getManagersEmails(mail, employee)));
-        //оповещаем центр
-        if (employee.getDivision()!=null) {
+
+        // оповещаем отдел кадров подразделения
+        if (employee.getDivision() != null) {
             ccEmails.add(employee.getDivision().getVacationEmail());
+        }
+
+        // оповещаем РЦК
+        if (employee.getDivision() != null && employee.getDivision().getLeaderId() != null) {
+            ccEmails.add(employee.getDivision().getLeaderId().getEmail());
+        }
+
+        // оповещаем второго линейного руководителя
+        if (employee.getManager2() != null) {
+           ccEmails.add(employee.getManager2().getEmail());
         }
 
         mail.setCcEmails(getNotBlankEmails(ccEmails));

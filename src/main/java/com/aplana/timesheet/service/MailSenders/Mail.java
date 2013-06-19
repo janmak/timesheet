@@ -66,7 +66,7 @@ public abstract class Mail {
 
     public void setCcEmails(Iterable<String> ccEmails) {
         if (ccEmails != null){
-            this.ccEmails = clearDuplicates(ccEmails); //удаляем дупликаты;
+            this.ccEmails = clearDuplicates(ccEmails); //удаляем дубликаты;
         }
     }
 

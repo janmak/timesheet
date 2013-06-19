@@ -48,11 +48,12 @@ public class VacationApprovalProcessService extends AbstractVacationApprovalProc
             return lineManagerApproval.getResult();
         }
 
+        /* APLANATS-865
         Boolean manager2VacationApproval = getManager2Result(vacation);     //проверяем результат второго линейного
         if (manager2VacationApproval != null) {
             setFinalStatusForVacationAndSendVacationApprovedMessages(vacation, manager2VacationApproval);
             return manager2VacationApproval;
-        }
+        }*/
 
         return null;
     }
@@ -71,10 +72,6 @@ public class VacationApprovalProcessService extends AbstractVacationApprovalProc
         }
         for (Project project : projects) {
             managers.put(project.getManager().getEmail(), project.getManager());
-        }
-
-        if (vacation.getEmployee().getManager2() != null) {
-            managers.put(vacation.getEmployee().getManager2().getEmail(), vacation.getEmployee().getManager2());
         }
 
         if (managerExists(vacation.getEmployee())) {
