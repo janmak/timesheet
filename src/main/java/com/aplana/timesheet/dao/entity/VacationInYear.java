@@ -6,6 +6,7 @@ package com.aplana.timesheet.dao.entity;
  */
 public class VacationInYear {
 
+    private String vacationType;
     private Integer year;
     private Integer summaryCalDays;
     private Integer summaryWorkDays;
@@ -14,7 +15,8 @@ public class VacationInYear {
         super();
     }
 
-    public VacationInYear(Integer year, Integer summaryCalDays, Integer summaryWorkDays){
+    public VacationInYear(String vacationType, Integer year, Integer summaryCalDays, Integer summaryWorkDays){
+        this.vacationType = vacationType;
         this.year = year;
         this.summaryCalDays = summaryCalDays;
         this.summaryWorkDays  = summaryWorkDays;
@@ -42,5 +44,13 @@ public class VacationInYear {
 
     public void setSummaryWorkDays(Integer summaryWorkDays) {
         this.summaryWorkDays = summaryWorkDays;
+    }
+
+    public String getVacationType() {
+        return vacationType;
+    }
+
+    public void setVacationType(String vacationType) {
+        this.vacationType = vacationType;
     }
 }

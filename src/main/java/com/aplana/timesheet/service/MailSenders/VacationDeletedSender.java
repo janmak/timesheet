@@ -67,7 +67,7 @@ public class VacationDeletedSender extends  AbstractVacationSenderWithCopyToAuth
         final Employee employee = params.getEmployee();
         final Employee curUser = sendMailService.getSecurityPrincipal().getEmployee();
 
-        if (params.getAuthor().equals(curUser)) {
+        if (params.getEmployee().equals(curUser)) {
             stringBuilder.append("своё заявление");
         } else {
             stringBuilder.append(

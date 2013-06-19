@@ -117,7 +117,7 @@ public class EmployeeService {
      */
     @Transactional
     public void setEmployee(Employee employee) {
-        employeeDAO.save(employee);
+        save(employee);
     }
 
     /**
@@ -127,7 +127,40 @@ public class EmployeeService {
      */
     @Transactional
     public StringBuffer setEmployees(List<Employee> employees) {
-        return employeeDAO.setEmployees(employees);
+        StringBuffer trace = new StringBuffer();
+        for (Employee emp : employees) {
+            if (!employeeDAO.isNotToSync(emp)) {
+                trace.append(String.format(
+                        "%s user: %s %s\n", emp.getId() != null ? "Updated" : "Added", emp.getEmail(), emp.getName()
+                ));
+
+                save(emp);
+            } else {
+                trace.append(String.format(
+                        "\nUser: %s %s marked not_to_sync.(Need update)\n%s\n\n",
+                        emp.getEmail(), emp.getName(), emp.toString()));
+            }
+        }
+        trace.append("\n\n");
+        return trace;
+    }
+
+    /**
+     * Сохраняет в базе нового сотрудника, либо обновляет данные уже
+     * существующего сотрудника.
+     * @param employee
+     */
+    public Employee save(Employee employee) {
+        Employee empDb = employeeDAO.getEmployee(employee.getEmail());
+        //если в базе есть дата увольнения, и дата не совпадает с лдапом, то дату в базе не меняем
+        if(empDb!=null && empDb.getEndDate()!=null && !empDb.getEndDate().equals(employee.getEndDate())){
+            employee.setEndDate(empDb.getEndDate());
+            empDb = employeeDAO.save(employee);
+            logger.debug("Final date not equal in ldap and database for Employee object id = {}", empDb.getId());
+        }else{
+            empDb = employeeDAO.save(employee);
+        }
+        return empDb;
     }
 
     @Transactional(readOnly = true)
@@ -243,11 +276,12 @@ public class EmployeeService {
             employees.add(manager);
             employees.addAll(getLinearEmployees(manager));
         }
+        /* APLANATS-865
         Employee manager2 = employee.getManager2();
         if(manager2 !=null){
             employees.add(manager2);
             employees.addAll(getLinearEmployees(manager2));
-        }
+        }*/
         return employees;
     }
 }

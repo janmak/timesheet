@@ -41,6 +41,10 @@ public class DateTimeUtil {
         SimpleDateFormat sdf = new SimpleDateFormat(dateFormat);
         Date result = new Date();
 
+        if(date==null || date.isEmpty()){
+            logger.error("Error while parsing empty string into date");
+            return result;
+        }
         try {
             result = sdf.parse(date);
         } catch (ParseException e) {

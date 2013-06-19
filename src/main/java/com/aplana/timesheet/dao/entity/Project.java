@@ -51,6 +51,9 @@ public class Project {
                     @JoinColumn(name = "division_id", nullable = false) })
 	private Set<Division> divisions;
 
+    @OneToMany(mappedBy = "project", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private Set<EmployeeProjectBillable> employeeProjectBillables;
+
     @Column(name = "start_date", columnDefinition = "date")
     private Date startDate;
 
@@ -161,5 +164,13 @@ public class Project {
 
     public void setTimeSheetDetail(Set<TimeSheetDetail> timeSheetDetail) {
         this.timeSheetDetail = timeSheetDetail;
+    }
+
+    public Set<EmployeeProjectBillable> getEmployeeProjectBillables() {
+        return employeeProjectBillables;
+    }
+
+    public void setEmployeeProjectBillables(Set<EmployeeProjectBillable> employeeProjectBillables) {
+        this.employeeProjectBillables = employeeProjectBillables;
     }
 }

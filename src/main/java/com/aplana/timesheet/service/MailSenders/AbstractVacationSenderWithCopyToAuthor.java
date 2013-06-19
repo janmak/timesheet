@@ -22,7 +22,7 @@ public abstract class AbstractVacationSenderWithCopyToAuthor extends AbstractSen
     @Override
     final protected void initMessageBody(Mail mail, MimeMessage message) throws MessagingException {
         try {
-            message.setText(mail.getParamsForGenerateBody().get(FIRST, MAIL_BODY), "UTF-8", "plain");
+            message.setText(mail.getParamsForGenerateBody().get(FIRST, MAIL_BODY), "UTF-8", "html");
         } catch (MessagingException e) {
             logger.error("Error while init message body.", e);
         }

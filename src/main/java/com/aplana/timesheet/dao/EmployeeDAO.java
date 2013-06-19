@@ -212,16 +212,27 @@ public class EmployeeDAO {
 	 * существующего сотрудника.
 	 * @param employee
 	 */
-	public Employee save(Employee employee) {
-		Employee empMerged = entityManager.merge(employee);
-		entityManager.flush();
-		logger.info("Persistence context synchronized to the underlying database.");
-		logger.debug("Flushed Employee object id = {}", empMerged.getId());
+    public Employee save(Employee employee) {
+        Employee empMerged = entityManager.merge(employee);
+        entityManager.flush();
+        logger.info("Persistence context synchronized to the underlying database.");
+        logger.debug("Flushed Employee object id = {}", empMerged.getId());
 
         employee.setId(empMerged.getId());
 
         return empMerged;
-	}
+    }
+
+    public Employee getEmployee(String email) {
+        if(email!=null && !email.isEmpty()){
+            Employee employee = (Employee) Iterables.getFirst(entityManager.createQuery(
+                    "FROM Employee emp WHERE email = :email"
+            ).setParameter("email", email).getResultList(), null);
+
+            return employee;
+        }
+        return null;
+    }
 
     public boolean isNotToSync(Employee employee) {
         final String email = employee.getEmail();
@@ -239,31 +250,6 @@ public class EmployeeDAO {
 
         return result != null &&  ! result.isEmpty() && result.get( 0 ).isNotToSync();
     }
-
-
-	/**
-	 * Сохраняет в базе новых сотрудников, либо обновляет данные уже
-	 * существующих сотрудников.
-	 * @param employee
-	 */
-	public StringBuffer setEmployees(List<Employee> employees) {
-        StringBuffer trace = new StringBuffer();
-		for (Employee emp : employees) {
-            if ( ! isNotToSync( emp ) ) {
-                trace.append( String.format(
-                        "%s user: %s %s\n", emp.getId() != null ? "Updated" : "Added", emp.getEmail(), emp.getName()
-                ) );
-
-                save(emp);
-            } else {
-                trace.append(String.format(
-                        "\nUser: %s %s marked not_to_sync.(Need update)\n%s\n\n",
-                        emp.getEmail(), emp.getName(), emp.toString()));
-            }
-        }
-        trace.append("\n\n");
-        return trace;
-	}
 
     public Double getWorkDaysOnIllnessWorked(Employee employee, Date beginDate, Date endDate) {
         Query query = entityManager.createQuery(
@@ -382,7 +368,7 @@ public class EmployeeDAO {
     }
 
     public List<Employee> getManagerListForAllEmployee(){
-        Query query= entityManager.createQuery("select distinct emp.manager from Employee as emp");
+        Query query= entityManager.createQuery("select distinct emp.manager as manager from Employee as emp where emp.endDate is null order by 1");
         return query.getResultList();
     }
 

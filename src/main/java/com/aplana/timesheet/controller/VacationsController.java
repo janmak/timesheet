@@ -64,22 +64,16 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
 
         vacationsForm.setCalToDate(DateTimeUtil.currentYearLastDay());
         vacationsForm.setCalFromDate(DateTimeUtil.currentMonthFirstDay());
-        modelAndView.addObject("managerId", vacationsForm.getManagerId());
-        modelAndView.addObject("regionId", VacationsForm.ALL_VALUE);
-        modelAndView.addObject("regionList", getRegionList());
-        modelAndView.addObject("regionsIdList", getRegionIdList());
+
         modelAndView.addObject("vacationTypes",
                 dictionaryItemService.getItemsByDictionaryId(DictionaryEnum.VACATION_TYPE.getId()));
         modelAndView.addObject("curEmployee", securityService.getSecurityPrincipal().getEmployee());
 
-        if (session.getAttribute("employeeId") != null){
-            vacationsForm.setVacationType(0);
-            vacationsForm.setRegions(new ArrayList<Integer>());
-            vacationsForm.getRegions().add(employee.getRegion().getId());
-            return showVacations(vacationsForm, null);
-        }else{
-            return modelAndView;
-        }
+        vacationsForm.setVacationType(0);
+        vacationsForm.setRegions(new ArrayList<Integer>());
+        // APLANATS-867
+        vacationsForm.getRegions().add(VacationsForm.ALL_VALUE);
+        return showVacations(vacationsForm, null);
     }
 
     @RequestMapping(value = "/vacations", method = RequestMethod.POST)
@@ -153,10 +147,17 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
         int summaryRejected = 0;
 
         for (int i  = firstYear; i <= lastYear; i++){
-            Map<String, Integer> map = getSummaryAndCalcDays(regionListForCalc, vacations, calDays, workDays, i);
-            summaryApproved += map.get("summaryApproved");
-            summaryRejected += map.get("summaryRejected");
-            calAndWorkDaysList.add(new VacationInYear(i, map.get("summaryCalDays"), map.get("summaryWorkDays")));
+            //Заполняются calDays, workDays
+            getSummaryAndCalcDays(regionListForCalc, vacations, calDays, workDays, i);//TODO возможно упростить, сделать вместо двух вызовов один
+            //Получаем списки, привязанные к типам отпусков
+            Map<DictionaryItem,List<Vacation>> typedVacationMap = vacationService.splitVacationByTypes(vacations);
+            //Проходим по существующим типам отпусков
+            for(DictionaryItem item:typedVacationMap.keySet()){
+                Map<String, Integer> map = getSummaryAndCalcDays(regionListForCalc, typedVacationMap.get(item), new ArrayList<Integer>(vacationsSize), new ArrayList<Integer>(vacationsSize), i);
+                summaryApproved += map.get("summaryApproved");
+                summaryRejected += map.get("summaryRejected");
+                calAndWorkDaysList.add(new VacationInYear(item.getValue(),i, map.get("summaryCalDays"), map.get("summaryWorkDays")));
+            }
         }
 
         modelAndView.addObject("summaryApproved", summaryApproved);
@@ -164,6 +165,7 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
         modelAndView.addObject("curEmployee", securityService.getSecurityPrincipal().getEmployee());
 
         modelAndView.addObject("calDaysCount", calAndWorkDaysList);
+        modelAndView.addObject(VacationsForm.MANAGER_ID, vacationsForm.getManagerId());
 
         return modelAndView;
     }
@@ -383,6 +385,43 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
                 );
             }
         }));
+    }
+
+    @RequestMapping(value = "/vacations_needs_approval")
+    public ModelAndView showVacationsNeedsApproval(
+            @ModelAttribute(VACATION_FORM) VacationsForm vacationsForm,
+            BindingResult result) {
+
+        if (vacationsForm.getVacationId() != null) {
+            try {
+                vacationService.deleteVacation(vacationsForm.getVacationId());
+                vacationsForm.setVacationId(null);
+            } catch (DeleteVacationException ex) {
+                result.rejectValue("vacationId", "error.vacations.deletevacation.failed", ex.getLocalizedMessage());
+            }
+        }
+        Employee employee = securityService.getSecurityPrincipal().getEmployee();
+        final ModelAndView modelAndView = createModelAndViewForEmployee("vacationsNeedsApproval", employee.getId(), employee.getDivision().getId());
+
+        modelAndView.addObject("curEmployee", securityService.getSecurityPrincipal().getEmployee());
+
+        final List<Vacation> vacations = vacationService.findVacationsNeedsApproval(employee.getId());
+        final int vacationsSize = vacations.size();
+
+        final List<Integer> calDays = new ArrayList<Integer>(vacationsSize);
+        final List<Integer> workDays = new ArrayList<Integer>(vacationsSize);
+
+        modelAndView.addObject("vacationsList", revertList(vacations));
+        modelAndView.addObject("calDays", calDays);
+        modelAndView.addObject("workDays", workDays);
+        List<Region> regionListForCalc = new ArrayList<Region>();
+        List<Integer> filledRegionsId = getRegionIdList();
+        for (Integer i : filledRegionsId){
+            regionListForCalc.add(regionService.find(i));
+        }
+        getSummaryAndCalcDays(regionListForCalc, vacations, calDays, workDays, new Date().getYear() + 1900);//TODO возможно упростить, сделать вместо двух вызовов один
+
+        return modelAndView;
     }
 
 }

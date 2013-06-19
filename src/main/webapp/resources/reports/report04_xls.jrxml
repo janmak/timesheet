@@ -61,7 +61,7 @@
 	<columnHeader>
 		<band height="13" splitType="Stretch">
 			<staticText>
-				<reportElement uuid="666f9751-4e11-4d41-8559-2cdb8683501f" style="Column header" x="0" y="0" width="356" height="13"/>
+				<reportElement uuid="666f9751-4e11-4d41-8559-2cdb8683501f" style="Column header" x="0" y="0" width="355" height="13"/>
 				<textElement/>
 				<text><![CDATA[Сотрудник]]></text>
 			</staticText>
@@ -80,7 +80,7 @@
 	<detail>
 		<band height="13">
 			<textField>
-				<reportElement uuid="7a7e6366-f415-4c0a-a4b5-ff5dd916d517" style="Detail" x="0" y="0" width="356" height="13" forecolor="#000000" backcolor="#CCCCCC"/>
+				<reportElement uuid="7a7e6366-f415-4c0a-a4b5-ff5dd916d517" style="Detail" x="0" y="0" width="355" height="13"/>
 				<textElement/>
 				<textFieldExpression><![CDATA[$F{name}]]></textFieldExpression>
 			</textField>
