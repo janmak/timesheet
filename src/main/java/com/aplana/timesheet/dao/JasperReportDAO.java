@@ -308,7 +308,7 @@ public class JasperReportDAO {
 
     private List getResultList( Report02 report ) {
         boolean hasProject = report.getProjectId() != null && report.getProjectId() != 0;
-
+        boolean hasDiv = report.getDivisionOwnerId() != null && report.getDivisionOwnerId() != 0;
         boolean withRegionClause   = report.hasRegions()                && !report.isAllRegions();
         boolean withDivisionClause = report.getEmplDivisionId() != null && report.getEmplDivisionId() != 0;
         boolean withEmployeeClasue = report.getEmployeeId()     != null && report.getEmployeeId    () != 0;
@@ -323,7 +323,7 @@ public class JasperReportDAO {
                     withDivisionClause ? DIVISION_CLAUSE : WITHOUT_CLAUSE,
                     withRegionClause   ? REGION_CLAUSE   : WITHOUT_CLAUSE
             )).setParameter("projectId", report.getProjectId());
-        } else if ( report.getFilterProjects()) {
+        } else if ( hasDiv ) {
             // Выборка по всем проектам центра
             query = entityManager.createQuery( String.format( report02QueryString,
                     "join p.divisions dp ",

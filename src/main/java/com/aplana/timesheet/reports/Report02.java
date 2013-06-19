@@ -16,8 +16,6 @@ public class Report02 extends BaseReport {
         return jrNameFile;
     }
 
-    private boolean filterProjects = true;
-
     private Integer projectId;
 
     private Integer emplDivisionId;
@@ -38,14 +36,6 @@ public class Report02 extends BaseReport {
 
     public void setEmplDivisionId(Integer emplDivisionId) {
         this.emplDivisionId = emplDivisionId;
-    }
-
-    public Boolean getFilterProjects() {
-        return filterProjects;
-    }
-
-    public void setFilterProjects(Boolean filterProjects) {
-        this.filterProjects = filterProjects;
     }
 
     public Integer getProjectId() {
