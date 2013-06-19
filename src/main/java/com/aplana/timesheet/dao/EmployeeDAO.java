@@ -382,7 +382,7 @@ public class EmployeeDAO {
     }
 
     public List<Employee> getManagerListForAllEmployee(){
-        Query query= entityManager.createQuery("select distinct emp.manager from Employee as emp");
+        Query query= entityManager.createQuery("select distinct emp.manager from Employee as emp where emp.endDate is null");
         return query.getResultList();
     }
 

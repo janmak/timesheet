@@ -64,17 +64,15 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
 
         vacationsForm.setCalToDate(DateTimeUtil.currentYearLastDay());
         vacationsForm.setCalFromDate(DateTimeUtil.currentMonthFirstDay());
-        modelAndView.addObject("managerId", vacationsForm.getManagerId());
-        modelAndView.addObject("regionId", VacationsForm.ALL_VALUE);
-        modelAndView.addObject("regionList", getRegionList());
-        modelAndView.addObject("regionsIdList", getRegionIdList());
+
         modelAndView.addObject("vacationTypes",
                 dictionaryItemService.getItemsByDictionaryId(DictionaryEnum.VACATION_TYPE.getId()));
         modelAndView.addObject("curEmployee", securityService.getSecurityPrincipal().getEmployee());
 
         vacationsForm.setVacationType(0);
         vacationsForm.setRegions(new ArrayList<Integer>());
-        vacationsForm.getRegions().add(employee.getRegion().getId());
+        // APLANATS-867
+        vacationsForm.getRegions().add(VacationsForm.ALL_VALUE);
         return showVacations(vacationsForm, null);
     }
 
@@ -160,6 +158,7 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
         modelAndView.addObject("curEmployee", securityService.getSecurityPrincipal().getEmployee());
 
         modelAndView.addObject("calDaysCount", calAndWorkDaysList);
+        modelAndView.addObject(VacationsForm.MANAGER_ID, vacationsForm.getManagerId());
 
         return modelAndView;
     }

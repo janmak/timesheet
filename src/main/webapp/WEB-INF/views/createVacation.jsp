@@ -141,7 +141,7 @@
 <br/>
 <fmt:message key="vacation.rules.begin"/> <a href="<%=rules%>"><fmt:message key="vacation.rules.link"/></a>
 
-<form:form method="post" commandName="createVacationForm" name="mainForm">
+<form:form method="post" commandName="createVacationForm" name="mainForm" cssStyle="padding-top: 5px;">
     <form:errors path="*" cssClass="errors_box" delimiter="<br/><br/>" />
 
     <%--<form:hidden path="employeeId" />--%>
