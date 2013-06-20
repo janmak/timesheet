@@ -102,7 +102,7 @@
             function deleteTimeSheet(id, calDate) {
                 var tmp = calDate.substring(0, 10).split('-');
                 var date = new Date(tmp[0], tmp[1]-1, tmp[2]);
-                if (confirm("Вы действительно хотите удалить отчет за " + date.format("dd.mm.yyyy"))) {
+                if (confirm("Вы действительно хотите удалить отчет ${employeeName} за " + date.format("dd.mm.yyyy"))) {
                     dojo.byId("commandURL").value = window.location;
                     mainForm.action = "<%=request.getContextPath()%>/timesheetDel/" + id;
                     mainForm.submit();
