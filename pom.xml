@@ -465,5 +465,12 @@
             <artifactId>aspectjweaver</artifactId>
             <version>1.6.10</version>
         </dependency>
+        <!--padeg-->
+        <dependency>
+            <groupId>lib.padeg</groupId>
+            <artifactId>padeg</artifactId>
+            <version>3.3.0.24</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 </project>
