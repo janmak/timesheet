@@ -197,7 +197,22 @@ public class JasperReportDAO {
                         "        END AS col_9," +
                         "        region.name AS col_10," +
                         "        vacations.id AS col_11," +
-                        "        illnesses.id AS col_12 " +
+                        "        illnesses.id AS col_12," +
+                        "        CASE" +
+                        "           WHEN (holidays.id is not null) " +
+                        "               THEN 1 " +
+                        "           ELSE " +
+                        "               CASE " +
+                        "                   WHEN (vacations.id is not null) " +
+                        "                       THEN 2 " +
+                        "                   ELSE " +
+                        "                       CASE " +
+                        "                           WHEN (illnesses.id is not null) " +
+                        "                               THEN 3 " +
+                        "                           ELSE 0" +
+                        "                       END" +
+                        "               END" +
+                        "        END AS day_type  " +
                         "FROM " +
                         "       time_sheet_detail timesheet_details " +
                         "       INNER JOIN time_sheet timesheet ON timesheet_details.time_sheet_id=timesheet.id " +
@@ -239,9 +254,7 @@ public class JasperReportDAO {
                         "        OR illnesses.id is not null " +
                         "ORDER BY" +
                         "        employee.name," +
-                        "        holidays.id desc," +
-                        "        vacations.id, " +
-                        "        illnesses.id, " +
+                        "        day_type," +
                         "        timesheet.caldate"
         );
 

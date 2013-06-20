@@ -19,12 +19,6 @@
         dojo.require("dojox.html.entities");
         require(["dojo/parser", "dijit/TitlePane"]);
 
-        function createVacation() {
-            vacationsForm.action =
-                    "<%=request.getContextPath()%>/createVacation/-1";
-            vacationsForm.submit();
-        }
-
         function deleteVacation(vac_id) {
             if (!confirm("Удалить заявку?")) {
                 return;
@@ -51,8 +45,7 @@
 <table id="vacations">
     <thead>
     <tr>
-        <th width="15" class="create-button">
-            <img src="<c:url value="/resources/img/add.gif"/>" title="Создать" onclick="createVacation()"/>
+        <th width="15">
         </th>
         <th width="160">Статус</th>
         <th width="220">Тип отпуска</th>

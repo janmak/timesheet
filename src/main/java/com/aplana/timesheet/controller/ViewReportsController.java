@@ -88,8 +88,8 @@ public class ViewReportsController extends AbstractControllerForEmployeeWithYear
         mav.addObject("durationFact", durationFact.doubleValue());
         mav.addObject(
                 "durationPlan",
-                (calendarService.getWorkDaysCountForRegion(
-                        employee.getRegion(),
+                (calendarService.getEmployeeRegionWorkDaysCount(
+                        employee,
                         year,
                         month
                 ) * TimeSheetConstants.WORK_DAY_DURATION * employee.getJobRate())
