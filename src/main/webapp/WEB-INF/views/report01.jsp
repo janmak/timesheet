@@ -40,7 +40,7 @@
             <div id="form_header">
                 <table class="report_params" cellspacing="3">
                     <tr>
-                        <td><span class="label">Центр</span><span style="color:red">*</span></td>
+                        <td><span class="label"><fmt:message key="label.r01.center"/></span><span style="color:red">*</span></td>
                         <td><form:select id="divisionId" name="divisionOwnerId" cssClass="without_dojo"
                                          onmouseover="tooltip.show(getTitle(this));"
                                          onmouseout="tooltip.hide();" path="divisionOwnerId">
@@ -49,14 +49,14 @@
                         </form:select></td>
                     </tr>
                     <tr>
-                        <td><span class="label">Начало периода</span><span style="color:red">*</span></td>
+                        <td><span class="label"><fmt:message key="label.r01.begin.date"/></span><span style="color:red">*</span></td>
                         <td><form:input path="beginDate" id="beginDate" name="beginDate" class="date_picker"
                                         data-dojo-id="fromDate"
                                         data-dojo-type='dijit/form/DateTextBox'
                                         required="false"
                                         onmouseover="tooltip.show(getTitle(this));"
                                         onmouseout="tooltip.hide();"/></td>
-                        <td><span class="label">Окончание периода</span><span style="color:red">*</span></td>
+                        <td><span class="label"><fmt:message key="label.r01.end.date"/></span><span style="color:red">*</span></td>
                         <td><form:input path="endDate" id="endDate" name="endDate" class="date_picker"
                                         data-dojo-id="toDate"
                                         data-dojo-type='dijit/form/DateTextBox'
@@ -66,14 +66,14 @@
                     </tr>
                     <tr>
                         <td style="width: 225px">
-                            <span class="label" style="float:left">Регион</span>
+                            <span class="label" style="float:left"><fmt:message key="label.r01.region"/></span>
                             <span style="color:red">*</span>
 							<span style="float: right">
 								<span>
 									<form:checkbox  id="allRegions" name="allRegions"  path="allRegions"
                                                     onchange="allRegionsCheckBoxChange(this.checked)" />
 								</span>
-								<span>Все регионы</span>
+								<span><fmt:message key="label.r01.all.regions"/></span>
 							</span>
                         </td>
                     </tr>
@@ -87,22 +87,27 @@
                             </form:select>
 	                    </td>
                     </tr>
+                    <tr>
+                        <td colspan="4">
+							<form:checkbox  id="showNonBillable" name="showNonBillable"  path="showNonBillable"/>
+                            <label for="showNonBillable"><fmt:message key="label.r01.show.non.billable"/></label>
+                        </td>
+                    </tr>
                 </table>
                 <div class="radiogroup">
                     <div class="label"><fmt:message key="report.formattitle"/></div>
                     <ul class="radio">
                         <li><input type=radio name="printtype" id="printtype1" value="1" checked/><label
-                                for="printtype1">HTML</label></li>
-                        <li><input type=radio name="printtype" id="printtype2" value="2"/><label for="printtype2">MS
-                            Excel</label>
+                                for="printtype1"><fmt:message key="label.r01.html"/></label></li>
+                        <li><input type=radio name="printtype" id="printtype2" value="2"/><label for="printtype2"><fmt:message key="label.r01.excel"/></label>
                         </li>
-                        <li><input type=radio name="printtype" id="printtype3" value="3"/><label for="printtype3">PDF</label>
+                        <li><input type=radio name="printtype" id="printtype3" value="3"/><label for="printtype3"><fmt:message key="label.r01.pdf"/></label>
                         </li>
                     </ul>
                 </div>
             </div>
 
-            <button id="make_report_button" style="width:210px" type="submit">Сформировать отчет</button>
+            <button id="make_report_button" style="width:210px" type="submit"><fmt:message key="label.r01.form.report"/></button>
         </form:form>
 </body>
 
