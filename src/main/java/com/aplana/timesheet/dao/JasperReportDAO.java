@@ -39,7 +39,8 @@ public class JasperReportDAO {
     static {
         //может быть это вынести в сам класс Reports? kss - нет, это мапинг полей datasource для отчета, его логично делать там же, где формируются данные.
         fieldsMap.put( Report01.class, new String[] { "id", "name", "caldate", "projnames", "overtime", "duration",
-                "holiday", "region", "projdetail", "durationdetail", "region_name", "vacation", "illness" } );
+                "holiday", "region", "projdetail", "durationdetail", "region_name", "project_role", "vacation", "illness",
+                "billable", "overtime_cause", "comment", "compensation", "vacation_type" } );
         fieldsMap.put( Report02.class, new String[] { "name", "empldivision", "project",
                 "taskname", "duration", "holiday", "region", "region_name" } );
         fieldsMap.put( Report03.class, new String[] { "name", "empldivision", "project", "taskname",
@@ -167,7 +168,7 @@ public class JasperReportDAO {
             workDaySeparator="holidays.calDate is null AND";
         }
 
-        // К сожалению HQL не может ворочить сложные запросы, прищлось писать native sql-запрос
+        // К сожалению HQL не может ворочить сложные запросы, пришлось писать native sql-запрос
         Query query = entityManager.createNativeQuery(
                 "SELECT " +
                         "        employee.id AS col_0," +
@@ -196,8 +197,17 @@ public class JasperReportDAO {
                         "            ELSE cast(-1 as float4) " +
                         "        END AS col_9," +
                         "        region.name AS col_10," +
-                        "        vacations.id AS col_11," +
-                        "        illnesses.id AS col_12," +
+                        "        project_role.name AS col_11," +
+                        "        vacations.id AS col_12," +
+                        "        illnesses.id AS col_13," +
+                        "        CASE " +
+                        "            WHEN (epbillable.billable is not null) THEN epbillable.billable" +
+                        "            ELSE employee.billable" +
+                        "        END AS billable, " +
+                        "        over_cause.value AS col_15, " +
+                        "        overtime.comment AS col_16, " +
+                        "        compensation.value AS col_17, " +
+                        "        vacation_type.value AS col_18, " +
                         "        CASE" +
                         "           WHEN (holidays.id is not null) " +
                         "               THEN 1 " +
@@ -212,7 +222,7 @@ public class JasperReportDAO {
                         "                           ELSE 0" +
                         "                       END" +
                         "               END" +
-                        "        END AS day_type  " +
+                        "        END AS day_type " +
                         "FROM " +
                         "       time_sheet_detail timesheet_details " +
                         "       INNER JOIN time_sheet timesheet ON timesheet_details.time_sheet_id=timesheet.id " +
@@ -222,11 +232,16 @@ public class JasperReportDAO {
                         "       LEFT OUTER JOIN calendar calendar  ON timesheet.caldate=calendar.caldate " +
                         "       LEFT OUTER JOIN holiday holidays   ON calendar.caldate=holidays.caldate " +
                         "       LEFT OUTER JOIN project project    ON timesheet_details.proj_id=project.id " +
+                        "       LEFT OUTER JOIN employee_project_billable epbillable    ON project.id=epbillable.project_id and employee.id=epbillable.employee_id " +
+                        "       LEFT OUTER JOIN overtime_cause overtime    ON overtime.timesheet_id=timesheet.id " +
+                        "       LEFT OUTER JOIN dictionary_item over_cause    ON over_cause.id=overtime.overtime_cause_id " +
+                        "       LEFT OUTER JOIN dictionary_item compensation    ON compensation.id=overtime.compensation_id " +
                         "       LEFT OUTER JOIN project_role project_role ON timesheet_details.projectrole_id=project_role.id " +
                         "       LEFT OUTER JOIN vacation vacations ON " +
                         "               employee.id=vacations.employee_id AND " +
                         "               timesheet.caldate BETWEEN vacations.begin_date AND vacations.end_date " +
                         "               AND vacations.status_id=:status" +
+                        "       LEFT OUTER JOIN dictionary_item vacation_type    ON vacation_type.id=vacations.type_id " +
                         "       LEFT OUTER JOIN illness illnesses ON " +
                         "               employee.id=illnesses.employee_id AND " +
                         "               timesheet.caldate BETWEEN illnesses.begin_date AND illnesses.end_date " +
@@ -234,6 +249,7 @@ public class JasperReportDAO {
                                 (withDivisionClause ? "division.id = :emplDivisionId AND " : "") +
                                 (withRegionClause ? "region.id in :regionIds AND " : "") +
                                 workDaySeparator +
+                                (!report.getShowNonBillable()?"(epbillable.billable = 'true' OR (epbillable.billable is null AND employee.billable = 'true')) AND ":"")+
                         "        timesheet_details.act_type in :actTypes AND " +
                         "        timesheet.caldate BETWEEN :beginDate AND :endDate AND " +
                         "        (holidays.region is null OR holidays.region=region.id) " +
@@ -245,8 +261,14 @@ public class JasperReportDAO {
                         "        holidays.region ," +
                         "        col_8 ," +
                         "        region.name ," +
+                        "        project_role.name, " +
                         "        vacations.id ," +
-                        "        illnesses.id " +
+                        "        illnesses.id ," +
+                        "        epbillable.billable," +
+                        "        vacation_type.value, " +
+                        "        over_cause.value, " +
+                        "        overtime.comment, " +
+                        "        compensation.value " +
                         "HAVING" +
                         "        sum(timesheet_details.duration) > 8 " +
                         "        OR holidays.id is not null " +
