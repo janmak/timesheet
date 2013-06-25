@@ -56,8 +56,6 @@ public class CreateVacationController {
     @Autowired
     private VacationService vacationService;
     @Autowired
-    private VacationApprovalProcessService vacationApprovalProcessService;
-    @Autowired
     private DivisionService divisionService;
     @Autowired
     protected EmployeeHelper employeeHelper;
@@ -167,29 +165,7 @@ public class CreateVacationController {
             return getModelAndView(employee);
         }
 
-        final Vacation vacation = new Vacation();
-
-        vacation.setCreationDate(new Date());
-        vacation.setBeginDate(DateTimeUtil.stringToTimestamp(createVacationForm.getCalFromDate()));
-        vacation.setEndDate(DateTimeUtil.stringToTimestamp(createVacationForm.getCalToDate()));
-        vacation.setComment(createVacationForm.getComment().trim());
-        vacation.setType(dictionaryItemService.find(createVacationForm.getVacationType()));
-        vacation.setAuthor(curEmployee);
-        vacation.setEmployee(employee);
-
-        vacation.setStatus(dictionaryItemService.find(
-                isApprovedVacation ? VacationStatusEnum.APPROVED.getId() : VacationStatusEnum.APPROVEMENT_WITH_PM.getId()
-        ));
-
-        vacationService.store(vacation);
-
-        if ( needsToBeApproved(vacation )) {
-            vacationApprovalProcessService.sendVacationApproveRequestMessages(vacation);       //рассылаем письма о согласовании отпуска
-        } else {
-            vacationApprovalProcessService.sendBackDateVacationApproved(vacation);
-        }
-
-        sendMailService.performVacationCreateMailing(vacation);
+        vacationService.createAndMailngVacation(createVacationForm,employee,curEmployee,isApprovedVacation);
 
         HttpSession session = request.getSession(false);
         session.setAttribute("employeeId", employeeId);
@@ -198,10 +174,6 @@ public class CreateVacationController {
                         "redirect:../../vacations"
                 )
         );
-    }
-
-    private boolean needsToBeApproved(Vacation vacation) {
-        return ! vacation.getStatus().getId().equals(VacationStatusEnum.APPROVED.getId());
     }
 
     @RequestMapping(value = "/validateAndCreateVacation", method = RequestMethod.GET)
