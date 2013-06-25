@@ -252,4 +252,8 @@ public class TSPropertyProvider {
     public static String getProperiesFilePath() {
         return System.getProperty("pathToTsProperties");
     }
+
+    public String getPathLibraryPadeg() {
+        return getProperties().getProperty("path.library.padeg",StringUtils.EMPTY);
+    }
 }

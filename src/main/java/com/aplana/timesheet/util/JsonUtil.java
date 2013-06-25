@@ -7,6 +7,7 @@ import argo.saj.InvalidSyntaxException;
 
 import java.util.List;
 import java.util.Locale;
+import java.text.*;
 
 import static argo.jdom.JsonNodeBuilders.anArrayBuilder;
 
@@ -68,6 +69,26 @@ public class JsonUtil {
         return argo.jdom.JsonNodeBuilders.aStringBuilder(
                 n != null ? n.toString() : "0"
         );
+    }
+
+    /**
+     * Возвращает строку ы виде "n/m"
+     * @param n
+     * @param m
+     * @return "n / m"
+     */
+    public static JsonNodeBuilder aNumberBuilder(Double n, Double m) {
+        String s = formatDouble(n) +"/"+ formatDouble(m);
+        return argo.jdom.JsonNodeBuilders.aStringBuilder(
+                s != null ? s : "0"
+        );
+
+    }
+
+    public static String formatDouble(Double d){
+        DecimalFormat format = new DecimalFormat();
+        format.setDecimalSeparatorAlwaysShown(false);
+        return format.format(d);
     }
 
 }

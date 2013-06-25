@@ -133,7 +133,8 @@ public class EmployeeHelper {
                                     &&(employee.getManager().getId().equals(manager.getId()))){
                                 JsonObjectNodeBuilder objectNodeBuilder = anObjectBuilder().
                                         withField(ID, aStringBuilder(employee.getId())).
-                                        withField(VALUE, JsonNodeBuilders.aStringBuilder(getValue(employee)));
+                                        withField(VALUE, JsonNodeBuilders.aStringBuilder(getValue(employee))).
+                                        withField(REGION_ID, aStringBuilder(employee.getRegion().getId()));
                                 if (addDetails) {
 
                                     Date defaultDate = lastWorkdays.get(employee.getId());

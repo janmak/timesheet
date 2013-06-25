@@ -6,10 +6,17 @@ import com.aplana.timesheet.dao.entity.Employee;
 import com.aplana.timesheet.dao.entity.Vacation;
 import com.aplana.timesheet.enums.VacationStatusEnum;
 import com.aplana.timesheet.exception.service.DeleteVacationException;
+import com.aplana.timesheet.exception.service.VacationApprovalServiceException;
+import com.aplana.timesheet.form.CreateVacationForm;
+import com.aplana.timesheet.service.vacationapproveprocess.VacationApprovalProcessService;
+import com.aplana.timesheet.util.DateTimeUtil;
 import com.aplana.timesheet.util.EnumsUtils;
 import com.google.common.collect.Lists;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
@@ -20,7 +27,7 @@ import java.util.*;
  * @version 1.0
  */
 @Service
-public class VacationService {
+public class VacationService extends AbstractServiceWithTransactionManagement {
 
     @Autowired
     private VacationDAO vacationDAO;
@@ -33,6 +40,14 @@ public class VacationService {
 
     @Autowired
     private EmployeeService employeeService;
+
+    @Autowired
+    private DictionaryItemService dictionaryItemService;
+
+    @Autowired
+    private VacationApprovalProcessService vacationApprovalProcessService;
+
+    private static final Logger logger = LoggerFactory.getLogger(VacationService.class);
 
     @Transactional
     public void store(Vacation vacation) {
@@ -133,5 +148,54 @@ public class VacationService {
             }
         }
         return map;
+    }
+
+    public List<Vacation> findVacationsNeedsApproval(Integer employeeId) {
+        return vacationDAO.findVacationsNeedApproval(employeeId);
+    }
+
+    public void createAndMailngVacation(CreateVacationForm createVacationForm, Employee employee, Employee curEmployee, boolean isApprovedVacation)
+            throws VacationApprovalServiceException {
+
+        final Vacation vacation = new Vacation();
+
+        vacation.setCreationDate(new Date());
+        vacation.setBeginDate(DateTimeUtil.stringToTimestamp(createVacationForm.getCalFromDate()));
+        vacation.setEndDate(DateTimeUtil.stringToTimestamp(createVacationForm.getCalToDate()));
+        vacation.setComment(createVacationForm.getComment().trim());
+        vacation.setType(dictionaryItemService.find(createVacationForm.getVacationType()));
+        vacation.setAuthor(curEmployee);
+        vacation.setEmployee(employee);
+
+        vacation.setStatus(dictionaryItemService.find(
+                isApprovedVacation ? VacationStatusEnum.APPROVED.getId() : VacationStatusEnum.APPROVEMENT_WITH_PM.getId()
+        ));
+
+        TransactionStatus transactionStatus = null;
+
+        try {
+            transactionStatus = getNewTransaction();
+
+            store(vacation);
+
+            if (needsToBeApproved(vacation)) {
+                vacationApprovalProcessService.sendVacationApproveRequestMessages(vacation);       //рассылаем письма о согласовании отпуска
+            } else {
+                vacationApprovalProcessService.sendBackDateVacationApproved(vacation);
+            }
+            commit(transactionStatus);
+        } catch (VacationApprovalServiceException e) {
+            if (transactionStatus != null) {
+                rollback(transactionStatus);
+                logger.error("Transaction rollbacked. Error saving vacation: {} ",e);
+            } else {
+                logger.error("TransactionStatus is null.");
+            }
+        }
+        sendMailService.performVacationCreateMailing(vacation);
+    }
+
+    private boolean needsToBeApproved(Vacation vacation) {
+        return !vacation.getStatus().getId().equals(VacationStatusEnum.APPROVED.getId());
     }
 }

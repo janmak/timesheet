@@ -425,7 +425,6 @@ public class PlanEditController {
         final boolean showFacts = form.getShowFacts();
 
         JsonObjectNodeBuilder builder;
-        Region region;
         int workDaysCount;
 
         for (Employee employee : employees) {
@@ -433,9 +432,8 @@ public class PlanEditController {
                     withField(EMPLOYEE_ID, JsonUtil.aNumberBuilder(employee.getId())).
                     withField(EMPLOYEE, aStringBuilder(employee.getName()));
 
-            region = employee.getRegion();
+            workDaysCount = calendarService.getEmployeeRegionWorkDaysCount(employee, year, month);
 
-            workDaysCount = calendarService.getWorkDaysCountForRegion(region, year, month, employee.getStartDate());
 
             final double summaryPlan = TimeSheetConstants.WORK_DAY_DURATION * workDaysCount * employee.getJobRate();
 
@@ -459,7 +457,7 @@ public class PlanEditController {
         }
     }
 
-    private Map<String, JsonNodeBuilder> getPlans(Employee employee, Integer year, Integer month, double summaryPlan) {
+    private Map<String, JsonNodeBuilder> getPlans(Employee employee, Integer year, Integer month, Double summaryPlan) {
         final Division division = employee.getDivision();
         final Map<String, JsonNodeBuilder> map = Maps.newHashMap();
 
@@ -487,6 +485,9 @@ public class PlanEditController {
             );
         }
 
+        Double summaryWorkHours = getEmployeeProjectDurationPlan(employee, year, month);
+        Double nonProjectDuration = getEmployeeNonProjectDuration(employee, year, month);
+
         sumOfPlanCharge += nilIfNull(centerProjectsPlan) + nilIfNull(centerPresalesPlan);
 
         appendNumberField(map, CENTER_PROJECTS_PLAN, centerProjectsPlan);
@@ -504,7 +505,7 @@ public class PlanEditController {
 
         map.put(
                 SUMMARY_PLAN,
-                JsonUtil.aNumberBuilder(summaryPlan)
+                JsonUtil.aNumberBuilder(summaryWorkHours+nonProjectDuration, summaryPlan)
         );
 
         map.put(
@@ -659,6 +660,24 @@ public class PlanEditController {
         }
         saveCookie(form, response);
         return "redirect:" + PLAN_EDIT_URL;
+    }
+
+    public Double getEmployeeProjectDurationPlan(Employee employee, Integer year, Integer month) {
+        Double duration = 0.0;
+        for (EmployeeProjectPlan employeeProjectPlan : employeeProjectPlanService.find(employee, year, month)) {
+            duration += nilIfNull(employeeProjectPlan.getValue());
+        }
+        return duration;
+    }
+
+    public Double getEmployeeNonProjectDuration(Employee employee, Integer year, Integer month) {
+        Double duration = 0.0;
+        for (EmployeePlan employeePlan : employeePlanService.find(employee, year, month)) {
+            if (employeePlan.getType()!= null && employeePlan.getType().getId().equals(EmployeePlanType.NON_PROJECT.getId())) {
+                duration += nilIfNull(employeePlan.getValue());
+            }
+        }
+        return duration;
     }
 
 }

@@ -8,7 +8,8 @@
 
 <script
         src="<%=request.getContextPath()%><%= DOJO_PATH %>/dojo/dojo.js"
-        djConfig="parseOnLoad: true">
+        djConfig="parseOnLoad: true,
+                  locale:'ru'">
 </script>
 <script
         src="<%= getResRealPath("/resources/js/timesheet.js", application) %>">

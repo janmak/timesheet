@@ -54,10 +54,6 @@
 								<form:option label="Все" value="0"/>
 								<form:options items="${divisionList}" itemLabel="name" itemValue="id"/>
 							</form:select></td>
-						<td colspan="2" align="right"><form:checkbox path="filterProjects" name="filterProjects" id="filterProjects"
-									   cssClass="checkbox_without_dojo"
-									   onchange="fillProjectListByDivision()"
-									   label="Показывать только проекты/пресейлы центра"/></td>
 					</tr>
 					<tr>
 						<td><span class="label">Проект</span></td>

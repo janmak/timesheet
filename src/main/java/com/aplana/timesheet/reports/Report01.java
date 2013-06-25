@@ -10,6 +10,8 @@ public class Report01 extends BaseReport {
 	
 	private OvertimeCategory category;
 
+    private Boolean showNonBillable=true;
+
     @Override
     public String getJRName() {
         return jrName;
@@ -27,4 +29,12 @@ public class Report01 extends BaseReport {
 	public void setCategory(OvertimeCategory category) {
 		this.category = category;
 	}
+
+    public Boolean getShowNonBillable() {
+        return showNonBillable;
+    }
+
+    public void setShowNonBillable(Boolean showNonBillable) {
+        this.showNonBillable = showNonBillable;
+    }
 }

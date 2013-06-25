@@ -9,18 +9,22 @@ import com.aplana.timesheet.form.validator.ViewReportsFormValidator;
 import com.aplana.timesheet.service.CalendarService;
 import com.aplana.timesheet.service.TimeSheetService;
 import com.aplana.timesheet.util.DateTimeUtil;
+import com.aplana.timesheet.constants.PadegConstants;
+import com.aplana.timesheet.properties.TSPropertyProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import javax.annotation.*;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.math.BigDecimal;
 import java.util.Iterator;
 import java.util.List;
+import padeg.lib.Padeg;
 
 @Controller
 public class ViewReportsController extends AbstractControllerForEmployeeWithYears {
@@ -33,10 +37,21 @@ public class ViewReportsController extends AbstractControllerForEmployeeWithYear
     @Autowired
     private CalendarService calendarService;
 
+    @Autowired
+    TSPropertyProvider propertyProvider;
+
     @RequestMapping(value = "/viewreports", method = RequestMethod.GET)
     public String sendViewReports() {
         java.util.Calendar calendar = java.util.Calendar.getInstance();
         return String.format("redirect:/viewreports/%s/%s/%s/%s", securityService.getSecurityPrincipal().getEmployee().getDivision().getId(), securityService.getSecurityPrincipal().getEmployee().getId(), calendar.get(java.util.Calendar.YEAR), calendar.get(java.util.Calendar.MONTH) + 1);
+    }
+
+    @PostConstruct
+    public void initPadeg() {
+        if (Padeg.setDictionary(propertyProvider.getPathLibraryPadeg())) {
+            Padeg.updateExceptions();
+        } else
+            logger.error("Cannot load exceptions for padeg module");
     }
 
     @RequestMapping(value = "/viewreports/{divisionId}/{employeeId}/{year}/{month}")
@@ -60,6 +75,7 @@ public class ViewReportsController extends AbstractControllerForEmployeeWithYear
         mav.addObject("monthList", DateTimeUtil.getMonthListJson((List<Calendar>) mav.getModel().get(YEARS_LIST), calendarService));
         List<DayTimeSheet> dayTimeSheets = timeSheetService.findDatesAndReportsForEmployee(employee, year, month);
         mav.addObject("reports", dayTimeSheets);
+        mav.addObject("employeeName",Padeg.getFIOPadegFS(employee.getName(),true,PadegConstants.Roditelnyy));
         BigDecimal durationFact = BigDecimal.ZERO;
         for (Iterator<DayTimeSheet> iterator = dayTimeSheets.iterator(); iterator.hasNext(); ) {
             DayTimeSheet next = iterator.next();
@@ -72,8 +88,8 @@ public class ViewReportsController extends AbstractControllerForEmployeeWithYear
         mav.addObject("durationFact", durationFact.doubleValue());
         mav.addObject(
                 "durationPlan",
-                (calendarService.getWorkDaysCountForRegion(
-                        employee.getRegion(),
+                (calendarService.getEmployeeRegionWorkDaysCount(
+                        employee,
                         year,
                         month
                 ) * TimeSheetConstants.WORK_DAY_DURATION * employee.getJobRate())

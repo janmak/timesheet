@@ -138,10 +138,13 @@
 <body>
 
 <h1><fmt:message key="title.createVacation"/></h1>
-<br/>
-<fmt:message key="vacation.rules.begin"/> <a href="<%=rules%>"><fmt:message key="vacation.rules.link"/></a>
 
-<form:form method="post" commandName="createVacationForm" name="mainForm">
+<div style="height: 50px">
+    <br/>
+    <fmt:message key="vacation.rules.begin"/> <a href="<%=rules%>"><fmt:message key="vacation.rules.link"/></a>
+    <br/>
+</div>
+<form:form method="post" commandName="createVacationForm" name="mainForm" cssStyle="padding-top: 5px;">
     <form:errors path="*" cssClass="errors_box" delimiter="<br/><br/>" />
 
     <%--<form:hidden path="employeeId" />--%>

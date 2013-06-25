@@ -406,10 +406,10 @@
                 <th style="min-width: 100px">Место работы</th>
                 <th style="min-width: 200px">Название проекта/пресейла</th>
                 <th style="min-width: 130px">Проектная роль</th>
-                <th style="min-width: 170px">Активность</th>
+                <th style="width: 170px">Активность</th>
                 <th style="min-width: 130px">Задача</th>
                 <th style="min-width: 30px">ч.</th>
-                <th style="min-width: 200px">Комментарии</th>
+                <th style="min-width: 240px">Комментарии</th>
                 <th style="min-width: 200px">Проблемы</th>
             </tr>
 
