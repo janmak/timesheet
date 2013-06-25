@@ -4,6 +4,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+<%@ taglib uri="http://www.springframework.org/security/tags" prefix="sec"%>
 
 <html>
     <head>
@@ -41,30 +42,42 @@
                 messagebox.innerHTML = "<b>" + msg + "</b>";
             }
 
+            function updateShowUser() {
+                var checked = dojo.byId("allUserCheckBox").checked;
+                var url = "/admin/update/hidealluser";
+
+                if (checked) {
+                    url = "/admin/update/showalluser";
+                }
+
+                dojo.xhrGet({
+                    url: url
+                });
+            }
+
         </script>
     </head>
+
     <body>
         <h1><fmt:message key="title.adminpanel"/></h1>
 
         <br/>
 
         <div id="messageBox"></div>
-
+        <input type="checkbox" name="showAllUser" id="allUserCheckBox" onChange="updateShowUser();"
+               <c:if test="${showalluser == true}">checked="checked"</c:if>
+                > <fmt:message key="link.showalluser"/>
+        <br/>
+        <br/>
         <ul>
-            <li><a href="admin/update/ldap"><fmt:message key="link.updateldap"/></a></li>
-            <li><a href="admin/update/checkreport"><fmt:message key="link.checkemails"/></a></li>
-            <li><a href="admin/update/oqsync"><fmt:message key="link.oqsync"/></a></li>
-            <li><a href="admin/update/properties" id="updateProperties"><fmt:message key="link.update.properties"/></a></li>
-            <%--<li><a href="admin/update/objectSid"><fmt:message key="link.update.object.sid"/></a></li>--%>
-            <%--<li><a href="admin/update/assignmentleaders"><fmt:message key="link.assignmentleaders"/></a></li>--%>
-            <c:choose>
-                <c:when test="${showalluser == true}">
-                    <li><a href="admin/update/hidealluser"><fmt:message key="link.hidealluser"/></a></li>
-                </c:when>
-                <c:otherwise>
-                    <li><a href="admin/update/showalluser"><fmt:message key="link.showalluser"/></a></li>
-                </c:otherwise>
-            </c:choose>
+                <li><a href="admin/update/ldap"><fmt:message key="link.updateldap"/></a></li>
+                <li><a href="admin/update/checkreport"><fmt:message key="link.checkemails"/></a></li>
+                <li><a href="admin/update/oqsync"><fmt:message key="link.oqsync"/></a></li>
+                <li><a href="admin/update/properties" id="updateProperties"><fmt:message
+                        key="link.update.properties"/></a></li>
+                <%--<li><a href="admin/update/objectSid"><fmt:message key="link.update.object.sid"/></a></li>--%>
+                <%--<li><a href="admin/update/assignmentleaders"><fmt:message key="link.assignmentleaders"/></a></li>--%>
+
         </ul>
 
     </body>

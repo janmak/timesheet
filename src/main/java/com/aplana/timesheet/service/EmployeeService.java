@@ -18,6 +18,8 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 
+import static com.aplana.timesheet.constants.RoleConstants.ROLE_ADMIN;
+
 @Service
 public class EmployeeService {
 
@@ -42,6 +44,9 @@ public class EmployeeService {
     }
 
     public Boolean isShowAll(HttpServletRequest request) {
+        if(!request.isUserInRole(ROLE_ADMIN))
+            return false;
+
         Boolean isShowAll = false;
         Cookie[] cookies = request.getCookies();
         if (cookies != null) {
