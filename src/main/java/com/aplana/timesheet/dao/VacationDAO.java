@@ -52,6 +52,17 @@ public class VacationDAO {
         return query.getResultList();
     }
 
+    public List<Vacation> findVacations(Integer year, Integer month, Integer employeeId) {
+        final Query query =
+                entityManager.createQuery("from Vacation v " +
+                        "where v.employee.id = :emp_id " +
+                        "and (YEAR(v.beginDate) = :year or YEAR(v.endDate) = :year) " +
+                        "and (MONTH(v.beginDate) = :month or MONTH(v.endDate) = :month) order by v.beginDate")
+                        .setParameter("emp_id", employeeId).setParameter("year", year).setParameter("month",month);
+
+        return query.getResultList();
+    }
+
     public void store(Vacation vacation) {
         final Vacation mergedVacation = entityManager.merge(vacation);
 

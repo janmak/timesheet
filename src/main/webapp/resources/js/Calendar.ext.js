@@ -3,7 +3,9 @@ var CALENDAR_EXT_PATH = "com.aplana.dijit.ext";
 dojo.require("dijit.Calendar");
 dojo.provide(CALENDAR_EXT_PATH);
 
+var url = '';
 var dateInfoHolder = [];
+var gEmployeeId = 0;
 
 dojo.declare(CALENDAR_EXT_PATH + ".Calendar", dijit.Calendar, {
     getClassForDate:function (date) {
@@ -39,11 +41,19 @@ dojo.declare(CALENDAR_EXT_PATH + ".SimpleCalendar", com.aplana.dijit.ext.Calenda
     }
 });
 
-function initCurrentDateInfo(employeeId, date) {
+function initCurrentDateInfo(employeeId, date, typeCal) {
     if (typeof date == typeof undefined || date == null) {
         date = new Date();
     }
-
+    // определяется тип возвращаемых данных для календаря:
+    // для отчетов - report, для отпусков - vacation
+    if (typeCal == null) {
+        url = "/calendar/dates"
+    } else if (typeCal == "report"){
+        url = "/calendar/dates"
+    }  else {
+        url = "/calendar/vacationDates"
+    }
     colorDayWithReportFromThreeMonth(date.getFullYear(), correctLength(date.getMonth() + 1), employeeId, null);
 }
 
@@ -73,7 +83,7 @@ function colorDayWithReportFromThreeMonth(/* int */ year, /* int */ month, emplo
     //загружает список дней с раскраской календаря за месяц
     function loadCalendarColors(/* int */ year, /* int */ month, /* int */ employeeId) {
         dojo.xhrGet({
-            url: getContextPath() + "/calendar/dates",
+            url: getContextPath() + url,
             headers: {
                 "If-Modified-Since":"Sat, 1 Jan 2000 00:00:00 GMT"
             },
@@ -89,6 +99,7 @@ function colorDayWithReportFromThreeMonth(/* int */ year, /* int */ month, emplo
                 } catch (e) {}
 
                 if (data && ioArgs && ioArgs.args && ioArgs.args.content) {
+                    gEmployeeId =  ioArgs.args.content.employeeId;
                     dateInfoHolder[ioArgs.args.content.queryYear + "-" + ioArgs.args.content.queryMonth  + ":" + ioArgs.args.content.employeeId] = data;
 
                     if (calendar) {
@@ -99,10 +110,27 @@ function colorDayWithReportFromThreeMonth(/* int */ year, /* int */ month, emplo
             error:function (err, ioArgs) {
                 if (err && ioArgs && ioArgs.args && ioArgs.args.content) {
                     // Если ошибка - не будем ничего рисовать. При следующем запросе на отрисовку - снова будет сделана попытка получения данных за этот месяц
-                    dateInfoHolder[ioArgs.args.content.queryYear + "-" + ioArgs.args.content.queryMonth  + ":" + ioArgs.args.content.employeeId] = null;
+                    dateInfoHolder[ioArgs.args.content.queryYear + "-" + ioArgs.args.content.queryMonth  + ":" + ioArgs.args.content.employeeIdemployeeId] = null;
                 }
             }
         });
+    }
+}
+
+function getTypeDay(date) {
+    var dDate = new Date(Date.parse(date));
+    var par1 = new String(dDate.getFullYear().toString() + "-"
+        + String(dDate.getMonth() + 1).replace(/^(.)$/, "0$1") + ":"
+        + gEmployeeId.toString());
+
+    var par2 = new String(dDate.getFullYear().toString() + "-" + String(dDate.getMonth() + 1).replace(/^(.)$/, "0$1")
+        + "-" + String(dDate.getDate()).replace(/^(.)$/, "0$1"));
+
+    if (dateInfoHolder[par1] !== undefined) {
+        return dateInfoHolder[par1][par2];
+    }
+    else {
+        return 0
     }
 }
 

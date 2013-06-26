@@ -23,6 +23,7 @@
             dojo.byId("divisionId").value = ${divisionId};
             vacationCreate_divisionChange(dojo.byId("divisionId"));
             dojo.byId("employeeId").value = ${employeeId};
+            initCurrentDateInfo(${employee.id},dijit.byId('calFromDate').value,'vacation');
         });
 
         dojo.require("dijit.form.DateTextBox");
@@ -32,16 +33,41 @@
             return "${employee.id}";
         }
 
-        initCurrentDateInfo(getEmployeeId());
-
-        dojo.declare("Calendar", com.aplana.dijit.ext.SimpleCalendar, {
+        dojo.declare("Calendar", com.aplana.dijit.ext.Calendar, {
             getEmployeeId: getEmployeeId
+            ,
+            getClassForDateInfo: function (dateInfo, date) {
+                switch (dateInfo) {
+             /*       <sec:authorize access="not hasRole('ROLE_ADMIN')">
+                    case "1":// этот день прошел
+                        return 'classDateRedBack';
+                        break;
+                    </sec:authorize>*/
+                    case "2":   //выходной или праздничный день
+                        return 'classDateRedText';
+                        break;
+                    case "3":   //в этот день имеется отпуск
+                        return 'classDateRedBack';
+                        break;
+                    case "0":   //день без отпуска
+                        if (date <= getFirstWorkDate()) // день раньше начала работы
+                            return '';
+                        else return 'classDateGreen';
+                    default: // Никаких классов не назначаем, если нет информации
+                        return '';
+                        break;
+                }
+            }
         });
 
-        dojo.declare("DateTextBox", dijit.form.DateTextBox, {
+        dojo.declare("DateTextBox", com.aplana.dijit.ext.DateTextBox, {
             popupClass: "Calendar"
-            <sec:authorize access="not hasRole('ROLE_ADMIN')">
+            <sec:authorize access="hasRole('ROLE_ADMIN')">
             , isDisabledDate: function(date) {
+                var typeDay = new Number(getTypeDay(date));
+                if (typeDay == 3) {
+                    return true;
+                } else
                 return (date <= new Date());
             }
             </sec:authorize>
@@ -134,6 +160,20 @@
             window.location = "<%= request.getContextPath() %>/vacations";
         }
     </script>
+    <style type="text/css">
+
+        .classDateGreen {
+            background-color: #97e68d !important;
+        }
+
+        .classDateRedBack {
+            background-color: #f58383 !important;
+        }
+
+        .time_sheet_row select {
+            width: 100%;
+        }
+    </style>
 </head>
 <body>
 
@@ -169,7 +209,9 @@
             </td>
             <td>
                 <form:select path="employeeId" id="employeeId" class="without_dojo" onmouseover="tooltip.show(getTitle(this));"
-                             onmouseout="tooltip.hide();">
+                             onmouseout="tooltip.hide();"
+                             onchange="initCurrentDateInfo(this.value,dijit.byId('calFromDate').value,'vacation');"
+                        >
                     <form:options items="${employeeList}" itemLabel="name" itemValue="id"/>
                 </form:select>
             </td>
@@ -179,7 +221,7 @@
                 <span class="label">Дата с</span>
             </td>
             <td>
-                <form:input path="calFromDate" id="calFromDate" class="date_picker" data-dojo-type="DateTextBox"
+                <form:input path="calFromDate" id="calFromDate" class="date_picker" required="true" data-dojo-type="DateTextBox"
                             onMouseOver="tooltip.show(getTitle(this));" onMouseOut="tooltip.hide();" />
             </td>
         </tr>
@@ -189,7 +231,7 @@
                 <span class="label">Дата по</span>
             </td>
             <td>
-                <form:input path="calToDate" id="calToDate" class="date_picker" data-dojo-type="DateTextBox"
+                <form:input path="calToDate" id="calToDate" class="date_picker" required="true" data-dojo-type="DateTextBox"
                             onMouseOver="tooltip.show(getTitle(this));" onMouseOut="tooltip.hide();" onChange="updateExitToWork();" />
                 <div id="exitToWork"></div>
             </td>
