@@ -61,16 +61,18 @@
         });
 
         dojo.declare("DateTextBox", com.aplana.dijit.ext.DateTextBox, {
-            popupClass: "Calendar"
-            <sec:authorize access="hasRole('ROLE_ADMIN')">
-            , isDisabledDate: function(date) {
+            popupClass: "Calendar", isDisabledDate: function (date) {
                 var typeDay = new Number(getTypeDay(date));
                 if (typeDay == 3) {
                     return true;
                 } else
-                return (date <= new Date());
+                <sec:authorize access="not hasRole('ROLE_ADMIN')">
+                    return (date <= new Date());
+                </sec:authorize>
+                <sec:authorize access="hasRole('ROLE_ADMIN')">
+                    return false;
+                </sec:authorize>
             }
-            </sec:authorize>
         });
 
         var employeeList = ${employeeListJson};
