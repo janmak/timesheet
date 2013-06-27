@@ -4,6 +4,7 @@ import com.aplana.timesheet.dao.entity.Employee;
 import com.aplana.timesheet.dao.entity.Project;
 import com.aplana.timesheet.dao.entity.Vacation;
 import com.aplana.timesheet.dao.entity.VacationApproval;
+import org.hibernate.Hibernate;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
@@ -37,6 +38,10 @@ public class VacationApprovalDAO {
         }
 
         return (VacationApproval)query.getSingleResult();
+    }
+
+    public VacationApproval find(Integer id) {
+        return entityManager.find(VacationApproval.class, id);
     }
 
     public VacationApproval store(VacationApproval vacationApproval){
@@ -97,5 +102,10 @@ public class VacationApprovalDAO {
     public List<VacationApproval> getAllApprovalsForVacation(Vacation vacation) {
         return entityManager.createQuery("from VacationApproval as va where va.vacation = :vacation")
                 .setParameter("vacation", vacation).getResultList();
+    }
+
+    public void deleteVacationApproval(VacationApproval vacationApproval) {
+        Hibernate.initialize(vacationApproval);
+        entityManager.remove(vacationApproval);
     }
 }

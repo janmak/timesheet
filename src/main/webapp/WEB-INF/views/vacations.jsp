@@ -11,6 +11,8 @@
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 
 <c:set var="vacationApproved" value="<%=VacationStatusEnum.APPROVED.getId()%>"/>
+<c:set var="vacationAprovementWiyhLm" value="<%=VacationStatusEnum.APPROVEMENT_WITH_LM.getId()%>"/>
+<c:set var="vacationAprovementWiyhPm" value="<%=VacationStatusEnum.APPROVEMENT_WITH_PM.getId()%>"/>
 
 <html>
 <head>
@@ -325,6 +327,17 @@ function deleteVacation(parentElement, vac_id) {
             vacationsForm.submit();
         }
 
+function deleteApprover(apr_id) {
+    if (!confirm("Удалить утверждающего?")) {
+        return;
+    } else {
+        console.log("apr_id = " + apr_id);
+        dojo.byId("<%= APPROVAL_ID %>").value = apr_id;
+        vacationsForm.action = "<%=request.getContextPath()%>/vacations";
+        vacationsForm.submit();
+    }
+}
+
 /* Добавляет в указанный select пустой option. */
 function insertAllInclusiveOption(select) {
     var option = dojo.doc.createElement("option");
@@ -360,6 +373,7 @@ function sortSelect(select) {
 
 <form:form method="post" commandName="vacationsForm" name="mainForm">
     <form:hidden path="<%= VACATION_ID%>"/>
+    <form:hidden path="<%= APPROVAL_ID%>"/>
     <table class="without_borders">
         <colgroup>
             <col width="130"/>
@@ -531,6 +545,22 @@ function sortSelect(select) {
                                                     <fmt:formatDate value="${va.requestDate}" pattern="dd.MM.yyyy"/>
                                                 </c:otherwise>
                                             </c:choose>
+                                        </td>
+                                        <td>
+                                        <sec:authorize access="
+                                               hasRole('ROLE_ADMIN') and
+                                                ${
+                                                    ((vacation.status.id eq vacationAprovementWiyhLm)
+                                                    or (vacation.status.id eq vacationAprovementWiyhPm))
+                                                    and (!va.result)
+                                                }
+                                        ">
+                                                <div class="delete-button">
+                                                    <img src="<c:url value="/resources/img/delete.png"/>"
+                                                         title="Удалить утверждающего"
+                                                         onclick="deleteApprover(${va.id})"/>
+                                                </div>
+                                        </sec:authorize>
                                         </td>
                                     </tr>
                                 </c:forEach>
