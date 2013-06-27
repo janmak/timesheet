@@ -175,7 +175,7 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
         List<Vacation> vacations = new ArrayList<Vacation>();
         if (regionsId.get(0) != -1){
             for (Integer i : regionsId){
-                if (managerId != 0){ //Есть выбранные регионы и руководитель
+                if (managerId != -1){ //Есть выбранные регионы и руководитель
                     List<Integer> employeesId = findEmployeeByManager(divisionId, managerId, i);
                     for (Integer e : employeesId){
                         List<Vacation> empVacation = vacationService.findVacations(e, beginDate, endDate, typeId);
@@ -194,7 +194,7 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
                 }
             }
         }else{
-            if (managerId != 0){ //Выбраны все регионы и руководитель
+            if (managerId != -1){ //Выбраны все регионы и руководитель
                 List<Integer> employeesId = findEmployeeByManager(divisionId, managerId, regionsId.get(0));
                 for (Integer e : employeesId){
                     List<Vacation> empVacation = vacationService.findVacations(e, beginDate, endDate, typeId);
