@@ -18,14 +18,15 @@
 	<field name="date" class="java.sql.Date"/>
 	<field name="name" class="java.lang.String"/>
 	<field name="region_name" class="java.lang.String"/>
+	<field name="role" class="java.lang.String"/>
 	<group name="Group1">
 		<groupExpression><![CDATA[$F{name}]]></groupExpression>
 		<groupHeader>
 			<band height="30">
 				<textField>
-					<reportElement uuid="d3b1fb3d-1fbd-43a9-b678-e4c6de9c18f1" style="Group Header 1" x="50" y="6" width="280" height="24" forecolor="#000000" backcolor="#CCCCCC"/>
+					<reportElement uuid="d3b1fb3d-1fbd-43a9-b678-e4c6de9c18f1" style="Group Header 1" x="50" y="6" width="500" height="24" forecolor="#000000" backcolor="#CCCCCC"/>
 					<textElement/>
-					<textFieldExpression><![CDATA[$F{name} + " (" + $F{region_name} + ")"]]></textFieldExpression>
+					<textFieldExpression><![CDATA[$F{name} + " (" + $F{region_name} + ", " + $F{role} + ")"]]></textFieldExpression>
 				</textField>
 			</band>
 		</groupHeader>

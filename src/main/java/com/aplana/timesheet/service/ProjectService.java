@@ -106,20 +106,28 @@ public class ProjectService {
     }
 
     /**
+     * Возвращает абсолютно все проекты
+     * @return
+     */
+    public List<Project> getAllProjects(){
+        return projectDAO.getAllProjects();
+    }
+
+    /**
      * Возвращает список проектов с указанием подразделения РП проекта
      *
      */
     @Transactional(readOnly = true)
     public String getProjectListWithOwnerDivisionJson(List<Division> divisions) {
         final JsonArrayNodeBuilder builder = anArrayBuilder();
-        final List<Project> projectList = projectDAO.getProjects();
+        final List<Project> projectList = getAllProjects();
 
         for (Project project : projectList) {
             final JsonObjectNodeBuilder projectBuilder = getProjectBuilder(project);
 
             projectBuilder.withField(
                     "ownerDivisionId",
-                    JsonUtil.aStringBuilder(project.getManager().getDivision().getId())
+                    JsonUtil.aStringBuilder(project.getManager()!=null&&project.getManager().getDivision()!=null?project.getManager().getDivision().getId():0)
             );
 
             builder.withElement(projectBuilder);
@@ -151,9 +159,7 @@ public class ProjectService {
                 logger.debug("For division {} available {} projects.", division.getId(), projects.size());
 
                 for (Project project : projects) {
-                    if (project.isActive()) {
-                        projectsBuilder.withElement(getProjectBuilder(project));
-                    }
+                    projectsBuilder.withElement(getProjectBuilder(project));
                 }
             }
 
@@ -173,7 +179,7 @@ public class ProjectService {
      * @return
      */
     public String getProjectListJson() {
-        return getProjectListAsJson(getProjects());
+        return getProjectListAsJson(getAllProjects());
     }
 
     public String getProjectListAsJson(List<Project> projects) {
@@ -200,7 +206,8 @@ public class ProjectService {
         return anObjectBuilder().
                 withField(ID, JsonUtil.aStringBuilder(project.getId())).
                 withField(VALUE, aStringBuilder(project.getName())).
-                withField("state", JsonUtil.aStringBuilder(project.getState().getId()));
+                withField("state", JsonUtil.aStringBuilder(project.getState().getId())).
+                withField("active", JsonUtil.aStringBuilder(Boolean.valueOf(project.isActive())));
     }
 
     public List<Project> getEmployeeProjectPlanByDates(Employee employee, HashMap<Integer, Set<Integer>> dates) {

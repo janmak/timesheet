@@ -151,9 +151,15 @@ function updateMultipleForSelect(select) {
 function sortManager() {
     var divisionId = dojo.byId("<%= DIVISION_ID %>").value;
     var managerSelect = dojo.byId("<%= MANAGER_ID %>");
-    var managerOption = null;
-
+    var managerOption = dojo.doc.createElement("option");
+    dojo.attr(managerOption, {
+        value:-1
+    });
+    managerOption.title = "Все";
+    managerOption.innerHTML = "Все";
     managerSelect.options.length = 0;
+    managerSelect.appendChild(managerOption);
+
     for (var i = 0; i < managerList.length; i++) {
         if (managerList[i].divId == divisionId) {
             managerOption = dojo.doc.createElement("option");

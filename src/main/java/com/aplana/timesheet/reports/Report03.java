@@ -16,7 +16,7 @@ public class Report03 extends BaseReport {
         return jrNameFile;
     }
 
-    private boolean filterProjects = true;
+    private Boolean showInactiveProjects = false;
 
     private Integer projectId = 0;
 
@@ -25,6 +25,8 @@ public class Report03 extends BaseReport {
     private Integer employeeId;
 
     private Integer divisionId;
+
+    private Boolean showNonBillable=true;
 
     public Integer getEmployeeId() {
         return employeeId;
@@ -42,14 +44,6 @@ public class Report03 extends BaseReport {
         this.emplDivisionId = emplDivisionId;
     }
 
-    public Boolean getFilterProjects() {
-        return filterProjects;
-    }
-
-    public void setFilterProjects(Boolean filterProjects) {
-        this.filterProjects = filterProjects;
-    }
-
     public Integer getProjectId() {
         return projectId;
     }
@@ -64,5 +58,21 @@ public class Report03 extends BaseReport {
 
     public void setDivisionId(Integer divisionId) {
         this.divisionId = divisionId;
+    }
+
+    public Boolean getShowInactiveProjects() {
+        return showInactiveProjects;
+    }
+
+    public void setShowInactiveProjects(Boolean showInactiveProjects) {
+        this.showInactiveProjects = showInactiveProjects;
+    }
+
+    public Boolean getShowNonBillable() {
+        return showNonBillable;
+    }
+
+    public void setShowNonBillable(Boolean showNonBillable) {
+        this.showNonBillable = showNonBillable;
     }
 }

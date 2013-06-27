@@ -157,7 +157,7 @@ public class BusinessTripsAndIllnessAddController extends AbstractController{
         final Timestamp endDate = DateTimeUtil.stringToTimestamp(endDateStr, DATE_FORMAT);
         //final Employee employee = employeeService.find(employeeId);  //скорее всего, проекты надо для конкретного сотрудника брать будет. пока не надо.
 
-        List<Project> projects = projectService.getProjectsByDates(beginDate, endDate);
+        List<Project> projects = projectService.getAllProjects();
 
         return projectService.getProjectListAsJson(projects);
     }
