@@ -25,8 +25,12 @@
 			<style forecolor="#00BFFF"/>
 		</conditionalStyle>
 		<conditionalStyle>
-			<conditionExpression><![CDATA[new Boolean($F{day_type}.equals(new Integer(3)))]]></conditionExpression>
+			<conditionExpression><![CDATA[new Boolean($F{day_type}.equals(new Integer(3))||$F{day_type}.equals(new Integer(4)))]]></conditionExpression>
 			<style forecolor="#ADFF2F"/>
+		</conditionalStyle>
+		<conditionalStyle>
+			<conditionExpression><![CDATA[new Boolean($F{day_type}.equals(new Integer(5)))]]></conditionExpression>
+			<style forecolor="#FF69B4"/>
 		</conditionalStyle>
 	</style>
 	<parameter name="reportParams" class="com.aplana.timesheet.reports.Report03" isForPrompting="false"/>
