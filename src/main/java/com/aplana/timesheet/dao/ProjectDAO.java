@@ -165,6 +165,16 @@ public class ProjectDAO {
         return query.getResultList();
     }
 
+    /**
+     * Возвращает абсолютно все проекты
+     * @return
+     */
+    public List<Project> getAllProjects() {
+        Query query = entityManager.createQuery("from Project p");
+
+        return query.getResultList();
+    }
+
     public List<Project> getEmployeeProjectPlanByDates(Employee employee, HashMap<Integer, Set<Integer>> dates) {
         List<Project> projects = new ArrayList<Project>();
         for (Integer year : dates.keySet()) {

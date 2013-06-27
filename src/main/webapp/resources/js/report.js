@@ -64,10 +64,11 @@ function fillProjectListByDivision(division) {
     if (division == null) {
         division = dojo.byId("divisionId");
 
-        if (division.value == 0)
-            division.value = defaultDivisionId;
+        if (division.value == null)
+            division.value = 0;
     }
     var divisionId = division.value;
+    var showInactiveProjects = dojo.byId("showInactiveProjects").checked;
     var projectSelect = dojo.byId("projectId");
     dojo.removeAttr(projectSelect, "disabled");
     //Очищаем список проектов.
@@ -75,21 +76,23 @@ function fillProjectListByDivision(division) {
     var hasAny = false;
     if (divisionId == 0) {
         for (var i = 0; i < fullProjectList.length; i++) {
-            projectOption = dojo.doc.createElement("option");
-            dojo.attr(projectOption, {
-                value: fullProjectList[i].id
-            });
-            projectOption.title = fullProjectList[i].value;
-            projectOption.innerHTML = fullProjectList[i].value;
-            projectSelect.appendChild(projectOption);
-            hasAny = true;
-
+            if (showInactiveProjects==true || projectListWithOwnerDivision[i].active=='true') {
+                projectOption = dojo.doc.createElement("option");
+                dojo.attr(projectOption, {
+                    value: fullProjectList[i].id
+                });
+                projectOption.title = fullProjectList[i].value;
+                projectOption.innerHTML = fullProjectList[i].value;
+                projectSelect.appendChild(projectOption);
+                hasAny = true;
+            }
         }
     } else {
+        console.log(projectListWithOwnerDivision);
         dojo.removeAttr("projectId", "disabled");
         dojo.removeAttr("divisionId", "disabled");
         for (var i = 0; i < projectListWithOwnerDivision.length; i++) {
-            if (divisionId == projectListWithOwnerDivision[i].ownerDivisionId) {
+            if (divisionId == projectListWithOwnerDivision[i].ownerDivisionId && (showInactiveProjects==true || projectListWithOwnerDivision[i].active=='true')) {
                 projectOption = dojo.doc.createElement("option");
                 dojo.attr(projectOption, {
                     value: projectListWithOwnerDivision[i].id
@@ -103,6 +106,7 @@ function fillProjectListByDivision(division) {
     }
     sortSelectOptions(projectSelect);
     validateAndAddNewOption(hasAny, divisionId, projectSelect);
+    if(divisionId==0)projectSelect.value=0;
 }
 
 function validateAndAddNewOption(hasAny, divisionId, select){
@@ -117,7 +121,7 @@ function validateAndAddNewOption(hasAny, divisionId, select){
 function setDefaultValuesForReport2And3(){
     reportForm.emplDivisionId.value = 0;
     reportForm.employeeId.value = 0;
+    reportForm.projectId.value = 0;
     fillProjectListByDivision(reportForm.divisionId);
     fillEmployeeListByDivision(reportForm.emplDivisionId);
-    reportForm.projectId.value = 0;
 }

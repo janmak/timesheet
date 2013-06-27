@@ -71,6 +71,12 @@ public class JsonUtil {
         );
     }
 
+    public static JsonNodeBuilder aStringBuilder(Boolean b) {
+        return argo.jdom.JsonNodeBuilders.aStringBuilder(
+                b != null ? b.toString() : ""
+        );
+    }
+
     /**
      * Возвращает строку ы виде "n/m"
      * @param n
