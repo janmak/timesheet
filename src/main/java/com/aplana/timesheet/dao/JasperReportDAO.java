@@ -48,7 +48,7 @@ public class JasperReportDAO {
                 "caldate", "duration", "day_type", "region", "region_name", "project_role", "project_state", "billable", "vacation_type" } );
         fieldsMap.put( Report04.class, new String[] { "date", "name", "region_name", "role" } );
         fieldsMap.put( Report05.class, new String[] { "calDate", "name", "value", "pctName", "actType",
-                "pctRole", "taskName", "duration", "description", "problem", "region_name" } );
+                "role", "taskName", "duration", "description", "problem", "region_name", "workplace", "project_role", "day_type", "billable", "plan" } );
         fieldsMap.put( Report06.class, new String[] { "duration", "act_type", "name", "act_cat", "region_name" } );
     }
 
@@ -676,38 +676,59 @@ public class JasperReportDAO {
     private List getResultList( Report05 report ) {
         boolean withRegionClause   = report.hasRegions()                && !report.isAllRegions();
         boolean withDivisionClause = report.getDivisionOwnerId() != null && report.getDivisionOwnerId() != 0;
-        boolean withEmployeeClasue = report.getEmployeeId() != null && report.getEmployeeId    () != 0;
+        boolean withEmployeeClause = report.getEmployeeId() != null && report.getEmployeeId    () != 0;
 
-        Query query = entityManager.createQuery(
+        Query query = entityManager.createNativeQuery(
                 "select " +
-                        "ts.calDate.calDate, " +
-                        "empl.name, " +
-                        "td.actType.value, " +
-                        "td.project.name, " +
-                        "td.actCat.value, " +
-                        "empl.job.name, " +
-                        "COALESCE(pt.cqId, ''), " +
-                        "td.duration, " +
-                        "td.description, " +
-                        "td.problem, " +
-                        "r.name " +
-                        "from TimeSheetDetail td " +
-                        "left outer join td.projectTask as pt " +
-                        "inner join td.timeSheet ts " +
-                        "inner join ts.employee empl " +
-                        "join empl.division d " +
-                        "join empl.region r " +
-                        "where " +
-                        (withDivisionClause ? DIVISION_CLAUSE : WITHOUT_CLAUSE) +
-                        (withRegionClause ? REGION_CLAUSE : WITHOUT_CLAUSE) +
-                        (withEmployeeClasue ? EMPLOYEE_CLAUSE : WITHOUT_CLAUSE) +
-                        "td.timeSheet.calDate.calDate between :beginDate and :endDate " +
-                        "order by td.timeSheet.employee.name,td.timeSheet.calDate.calDate");
+                        "calendar.calDate as col_0, " +
+                        "empl.name as col_1, " +
+                        "act_type.value as col_2, " +
+                        "project.name as col_3, " +
+                        "act_cat.value as col_4, " +
+                        "job.name as col_5, " +
+                        "COALESCE(project_task.cq_id, '') as col_6, " +
+                        "timesheet_details.duration as col_7, " +
+                        "timesheet_details.description as col_8, " +
+                        "timesheet_details.problem as col_9, " +
+                        "region.name as col_10, " +
+                        "workplace.value as col_11," +
+                        "project_role.name as col_12," +
+                        "CASE" +
+                        "   WHEN (holidays.id is not null) " +
+                        "       THEN 1 " +
+                        "   ELSE 0" +
+                        "END as col_13, " +
+                        "CASE " +
+                        "    WHEN (epbillable.billable is not null) THEN epbillable.billable " +
+                        "    ELSE empl.billable " +
+                        "END as col_14, " +
+                        "timesheet.plan as col_15 " +
+                "FROM time_sheet_detail AS timesheet_details " +
+                        "INNER JOIN time_sheet timesheet ON timesheet_details.time_sheet_id=timesheet.id " +
+                        "INNER JOIN employee empl    ON timesheet.emp_id=empl.id " +
+                        "INNER JOIN calendar calendar  ON timesheet.caldate=calendar.caldate " +
+                        "INNER JOIN project project    ON timesheet_details.proj_id=project.id " +
+                        "INNER JOIN region region        ON empl.region=region.id " +
+                        "INNER JOIN project_role project_role        ON timesheet_details.projectrole_id=project_role.id " +
+                        "INNER JOIN project_role job        ON empl.job=job.id " +
+                        "INNER JOIN division division    ON empl.division=division.id " +
+                        "LEFT OUTER JOIN project_task project_task ON timesheet_details.task_id=project_task.id " +
+                        "LEFT OUTER JOIN dictionary_item act_type    ON timesheet_details.act_type=act_type.id " +
+                        "LEFT OUTER JOIN dictionary_item act_cat    ON timesheet_details.act_cat=act_cat.id " +
+                        "LEFT OUTER JOIN dictionary_item workplace    ON timesheet_details.workplace_id=workplace.id " +
+                        "LEFT OUTER JOIN holiday holidays   ON calendar.caldate=holidays.caldate " +
+                        "LEFT OUTER JOIN employee_project_billable epbillable    ON project.id=epbillable.project_id and empl.id=epbillable.employee_id " +
+                "where " +
+                        (withDivisionClause ? DIVISION_SQL_CLAUSE : WITHOUT_CLAUSE) +
+                        (withRegionClause ? REGION_SQL_CLAUSE : WITHOUT_CLAUSE) +
+                        (withEmployeeClause ? EMPLOYEE_SQL_CLAUSE : WITHOUT_CLAUSE) +
+                        "calendar.calDate between :beginDate and :endDate " +
+                "order by calendar.calDate, empl.name ");
 
         if (withRegionClause) {
 			query.setParameter("regionIds", report.getRegionIds());
 		}
-        if (withEmployeeClasue) {
+        if (withEmployeeClause) {
             query.setParameter("emplId", report.getEmployeeId());
         }
         if (withDivisionClause) {

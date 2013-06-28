@@ -1,81 +1,89 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="report4" pageWidth="842" pageHeight="595" orientation="Landscape" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20">
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="report4" pageWidth="1080" pageHeight="595" orientation="Landscape" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="8d6bde43-b877-4cfd-a56f-e7b885af1db9">
 	<property name="net.sf.jasperreports.print.keep.full.text" value="true"/>
-	<property name="ireport.zoom" value="1.5"/>
+	<property name="ireport.zoom" value="1.2396694214876043"/>
 	<property name="ireport.x" value="0"/>
 	<property name="ireport.y" value="0"/>
 	<import value="com.aplana.timesheet.util.DateTimeUtil"/>
 	<style name="Normal" isDefault="true" pdfFontName="arial.ttf" pdfEncoding="Cp1251"/>
-	<style name="Title" isDefault="false" style="Normal" fontName="Arial" fontSize="26"/>
-	<style name="SubTitle" isDefault="false" style="Normal" forecolor="#666666" fontName="Arial" fontSize="18"/>
-	<style name="SubTitle 2" isDefault="false" style="Normal" forecolor="#666666" fontName="Arial" fontSize="13"/>
-	<style name="Group Header 1" isDefault="false" style="Normal" forecolor="#666666" fontName="Arial" fontSize="18"/>
-	<style name="Group Header 2" isDefault="false" style="Normal" forecolor="#666666" fontName="Arial" fontSize="14" isBold="true"/>
-	<style name="Group Header 3" isDefault="false" style="Normal" forecolor="#000000" fontName="Arial" fontSize="13" isBold="true"/>
-	<style name="Column header" isDefault="false" style="Normal" forecolor="#666666" fontName="Arial" fontSize="12" isBold="true"/>
-	<style name="Detail" isDefault="false" style="Normal" backcolor="#FF0000" fontName="Arial" fontSize="12"/>
+	<style name="Title" style="Normal" fontName="Arial" fontSize="26"/>
+	<style name="SubTitle" style="Normal" forecolor="#666666" fontName="Arial" fontSize="18"/>
+	<style name="SubTitle 2" style="Normal" forecolor="#666666" fontName="Arial" fontSize="13"/>
+	<style name="Group Header 1" style="Normal" forecolor="#666666" fontName="Arial" fontSize="18"/>
+	<style name="Group Header 2" style="Normal" forecolor="#666666" fontName="Arial" fontSize="14" isBold="true"/>
+	<style name="Group Header 3" style="Normal" forecolor="#000000" fontName="Arial" fontSize="13" isBold="true"/>
+	<style name="Column header" style="Normal" forecolor="#666666" fontName="Arial" fontSize="12" isBold="true"/>
+	<style name="Detail" style="Normal" backcolor="#FF0000" fontName="Arial" fontSize="12">
+		<conditionalStyle>
+			<conditionExpression><![CDATA[!$F{billable}]]></conditionExpression>
+			<style forecolor="#006400"/>
+		</conditionalStyle>
+	</style>
 	<parameter name="reportParams" class="com.aplana.timesheet.reports.Report05" isForPrompting="false"/>
-	<field name="calDate" class="java.sql.Timestamp"/>
+	<field name="calDate" class="java.sql.Date"/>
 	<field name="name" class="java.lang.String"/>
 	<field name="value" class="java.lang.String"/>
 	<field name="pctName" class="java.lang.String"/>
 	<field name="actType" class="java.lang.String"/>
-	<field name="pctRole" class="java.lang.String"/>
+	<field name="role" class="java.lang.String"/>
 	<field name="taskName" class="java.lang.String"/>
-	<field name="duration" class="java.lang.Double"/>
+	<field name="duration" class="java.math.BigDecimal"/>
 	<field name="description" class="java.lang.String"/>
 	<field name="problem" class="java.lang.String"/>
 	<field name="region_name" class="java.lang.String"/>
+	<field name="project_role" class="java.lang.String"/>
+	<field name="workplace" class="java.lang.String"/>
+	<field name="day_type" class="java.lang.Integer"/>
+	<field name="billable" class="java.lang.Boolean"/>
+	<field name="plan" class="java.lang.String"/>
 	<group name="Group1">
-		<groupExpression><![CDATA[$F{name}]]></groupExpression>
+		<groupExpression><![CDATA[new SimpleDateFormat("dd-MM-yyyy").format($F{calDate})]]></groupExpression>
 		<groupHeader>
 			<band height="32">
 				<textField>
-					<reportElement style="Group Header 1" x="0" y="6" width="553" height="24" forecolor="#000000" backcolor="#CCCCCC"/>
+					<reportElement uuid="79061fa6-cd31-404b-8c66-039aea106c02" style="SubTitle" x="0" y="7" width="468" height="24" forecolor="#000000" backcolor="#CCCCCC"/>
 					<textElement/>
-					<textFieldExpression class="java.lang.String"><![CDATA[$F{name} + ", " + $F{region_name}]]></textFieldExpression>
-				</textField>
-				<line>
-					<reportElement x="80" y="31" width="720" height="1"/>
-				</line>
-			</band>
-		</groupHeader>
-	</group>
-	<group name="Group2">
-		<groupExpression><![CDATA[new SimpleDateFormat("dd-MM-yyyy").format($F{calDate})]]></groupExpression>
-		<groupHeader>
-			<band height="30">
-				<textField>
-					<reportElement style="SubTitle" x="80" y="6" width="553" height="24" forecolor="#000000" backcolor="#CCCCCC"/>
-					<textElement/>
-					<textFieldExpression class="java.lang.String"><![CDATA[new SimpleDateFormat("dd-MM-yyyy").format($F{calDate})]]></textFieldExpression>
+					<textFieldExpression><![CDATA[new SimpleDateFormat("dd-MM-yyyy").format($F{calDate}) + " " + (!$F{day_type}.equals(0) && $F{region_name} == null ? "Общий выходной" : !$F{day_type}.equals(0) && $F{region_name} != null ? "Региональный выходной" : "Рабочий день")]]></textFieldExpression>
 				</textField>
 			</band>
 		</groupHeader>
 		<groupFooter>
-			<band height="6">
+			<band height="1"/>
+		</groupFooter>
+	</group>
+	<group name="Group2">
+		<groupExpression><![CDATA[$F{name}]]></groupExpression>
+		<groupHeader>
+			<band height="1">
 				<line>
-					<reportElement x="80" y="0" width="720" height="1"/>
+					<reportElement uuid="3f8beb5c-fd77-468d-a2c0-5a920900b060" positionType="FixRelativeToBottom" x="40" y="0" width="1000" height="1"/>
 				</line>
 			</band>
-		</groupFooter>
+			<band height="24">
+				<textField>
+					<reportElement uuid="f04d940a-f855-4d3f-9b37-122481acaf0d" style="Group Header 1" x="40" y="0" width="553" height="24" forecolor="#000000" backcolor="#CCCCCC"/>
+					<textElement/>
+					<textFieldExpression><![CDATA[$F{name} + ", " + $F{region_name} + ", " + $F{role}]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupHeader>
 	</group>
 	<title>
 		<band height="125" splitType="Stretch">
 			<staticText>
-				<reportElement style="Title" x="0" y="0" width="555" height="77"/>
+				<reportElement uuid="e07f3913-ded0-4c30-aa1f-b734293e6511" style="Title" x="0" y="0" width="1040" height="77"/>
 				<textElement textAlignment="Center" verticalAlignment="Middle"/>
 				<text><![CDATA[Отчет №5. Детализация трудозатрат для СК]]></text>
 			</staticText>
-            <textField>
-                <reportElement style="SubTitle" x="0" y="77" width="555" height="24"/>
-                <textElement textAlignment="Center"/>
-                <textFieldExpression class="java.lang.String"><![CDATA["Регион : "+ $P{reportParams}.wellFormedRegionList()]]></textFieldExpression>
-            </textField>
 			<textField>
-				<reportElement style="SubTitle" x="0" y="101" width="555" height="24"/>
+				<reportElement uuid="5d9cb9aa-4638-403e-81b7-28cd94591461" style="SubTitle" x="0" y="77" width="1040" height="24"/>
 				<textElement textAlignment="Center"/>
-				<textFieldExpression class="java.lang.String"><![CDATA["с " + DateTimeUtil.formatDateString($P{reportParams}.getBeginDate()) +
+				<textFieldExpression><![CDATA["Регион : "+ $P{reportParams}.wellFormedRegionList()]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="b5074aa9-1a4b-4486-b768-78aeb1412a4f" style="SubTitle" x="0" y="101" width="1040" height="24"/>
+				<textElement textAlignment="Center"/>
+				<textFieldExpression><![CDATA["с " + DateTimeUtil.formatDateString($P{reportParams}.getBeginDate()) +
 " по " + DateTimeUtil.formatDateString($P{reportParams}.getEndDate())]]></textFieldExpression>
 			</textField>
 		</band>
@@ -84,135 +92,155 @@
 		<band splitType="Stretch"/>
 	</pageHeader>
 	<columnHeader>
-		<band height="22" splitType="Stretch">
+		<band height="22">
 			<staticText>
-				<reportElement style="Column header" x="0" y="0" width="80" height="20"/>
+				<reportElement uuid="33a90eac-274a-45ac-8212-542fde2ec707" style="Column header" x="40" y="0" width="80" height="20"/>
 				<textElement/>
 				<text><![CDATA[Сотрудник]]></text>
 			</staticText>
 			<staticText>
-				<reportElement style="Column header" x="80" y="0" width="40" height="20"/>
-				<textElement/>
-				<text><![CDATA[Дата списания]]></text>
-			</staticText>
-			<staticText>
-				<reportElement style="Column header" x="120" y="0" width="100" height="20"/>
+				<reportElement uuid="c7779794-6baa-49c9-a137-c4fd2a7d5077" style="Column header" x="208" y="0" width="100" height="20"/>
 				<textElement/>
 				<text><![CDATA[Тип активности]]></text>
 			</staticText>
 			<staticText>
-				<reportElement style="Column header" x="220" y="0" width="100" height="20"/>
+				<reportElement uuid="81fbc107-841a-4a6d-9fa9-6696a2b45303" style="Column header" x="308" y="0" width="100" height="20"/>
 				<textElement/>
 				<text><![CDATA[Название проекта]]></text>
 			</staticText>
 			<staticText>
-				<reportElement style="Column header" x="320" y="0" width="100" height="20"/>
+				<reportElement uuid="90640c9c-653e-42a3-9b1c-8aa7a820b414" style="Column header" x="468" y="0" width="100" height="20"/>
 				<textElement/>
 				<text><![CDATA[Проектная роль]]></text>
 			</staticText>
 			<staticText>
-				<reportElement style="Column header" x="420" y="0" width="90" height="20"/>
+				<reportElement uuid="913f9ff4-d662-4436-8d27-9d7864a716b0" style="Column header" x="568" y="0" width="90" height="20"/>
 				<textElement/>
 				<text><![CDATA[Категория активности]]></text>
 			</staticText>
 			<staticText>
-				<reportElement style="Column header" x="510" y="0" width="60" height="20"/>
+				<reportElement uuid="913ec528-703e-49f5-b476-cb694af40a52" style="Column header" x="408" y="0" width="60" height="20"/>
 				<textElement/>
 				<text><![CDATA[Задача]]></text>
 			</staticText>
 			<staticText>
-				<reportElement style="Column header" x="570" y="0" width="50" height="20"/>
+				<reportElement uuid="aa36de10-5e6d-4071-b6ed-f2fa90c1859e" style="Column header" x="658" y="0" width="50" height="20"/>
 				<textElement/>
 				<text><![CDATA[Часы]]></text>
 			</staticText>
 			<staticText>
-				<reportElement style="Column header" x="620" y="0" width="90" height="20"/>
+				<reportElement uuid="8b2f7153-05a3-4484-abb0-40be532011e4" style="Column header" x="708" y="0" width="90" height="20"/>
 				<textElement/>
 				<text><![CDATA[Комментарии]]></text>
 			</staticText>
 			<staticText>
-				<reportElement style="Column header" x="710" y="0" width="90" height="20"/>
+				<reportElement uuid="9def3338-9433-438b-a6ba-0f47190e52a9" style="Column header" x="798" y="0" width="114" height="20"/>
 				<textElement/>
 				<text><![CDATA[Проблемы]]></text>
 			</staticText>
+			<staticText>
+				<reportElement uuid="0c4293cd-5c08-440c-9384-77e684d1a180" style="Column header" x="0" y="0" width="40" height="20"/>
+				<textElement/>
+				<text><![CDATA[Дата списания]]></text>
+			</staticText>
 			<line>
-				<reportElement positionType="FixRelativeToBottom" x="0" y="21" width="800" height="1"/>
+				<reportElement uuid="865b0bc3-b549-4e91-a856-4385f688e608" positionType="FixRelativeToBottom" x="0" y="21" width="1040" height="1"/>
 				<graphicElement>
 					<pen lineWidth="0.5" lineColor="#999999"/>
 				</graphicElement>
 			</line>
+			<staticText>
+				<reportElement uuid="1a318359-8a01-44cb-9853-d2da5c413590" style="Column header" x="120" y="0" width="88" height="20"/>
+				<textElement/>
+				<text><![CDATA[Место работы]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="3b2e0b97-dd5c-4296-a845-a15b6761ce2d" style="Column header" x="912" y="0" width="128" height="20"/>
+				<textElement/>
+				<text><![CDATA[План]]></text>
+			</staticText>
 		</band>
 	</columnHeader>
 	<detail>
-		<band height="35">
-			<textField>
-				<reportElement style="Detail" x="120" y="1" width="100" height="30"/>
+		<band height="21">
+			<textField isStretchWithOverflow="true">
+				<reportElement uuid="87f577f9-170d-4e48-8f38-152e98381710" style="Detail" stretchType="RelativeToTallestObject" x="208" y="0" width="100" height="20"/>
 				<textElement/>
-				<textFieldExpression class="java.lang.String"><![CDATA[$F{value}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{value}]]></textFieldExpression>
 			</textField>
 			<textField isStretchWithOverflow="true">
-				<reportElement style="Detail" x="220" y="1" width="100" height="30"/>
+				<reportElement uuid="cf84af2b-d0e9-4b39-ba10-2b7c767ebdf1" style="Detail" stretchType="RelativeToTallestObject" x="308" y="0" width="100" height="20"/>
 				<textElement/>
-				<textFieldExpression class="java.lang.String"><![CDATA[$F{pctName}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{pctName}]]></textFieldExpression>
 			</textField>
-			<textField>
-				<reportElement style="Detail" x="320" y="1" width="100" height="30"/>
+			<textField isStretchWithOverflow="true">
+				<reportElement uuid="842a51c6-264a-4780-8cdd-c7ea92389af7" style="Detail" stretchType="RelativeToTallestObject" x="468" y="0" width="100" height="20"/>
 				<textElement/>
-				<textFieldExpression class="java.lang.String"><![CDATA[$F{pctRole}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{role}]]></textFieldExpression>
 			</textField>
-			<textField>
-				<reportElement style="Detail" x="420" y="1" width="90" height="30"/>
+			<textField isStretchWithOverflow="true">
+				<reportElement uuid="afc0d0b8-e896-4df3-8c4b-f9df18ffa523" style="Detail" stretchType="RelativeToTallestObject" x="568" y="0" width="90" height="20"/>
 				<textElement/>
-				<textFieldExpression class="java.lang.String"><![CDATA[$F{actType}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{actType}]]></textFieldExpression>
 			</textField>
-			<textField>
-				<reportElement style="Detail" x="510" y="1" width="60" height="30"/>
+			<textField isStretchWithOverflow="true">
+				<reportElement uuid="02820baa-75f6-422d-af4e-aed006db0260" style="Detail" stretchType="RelativeToTallestObject" x="408" y="0" width="60" height="20"/>
 				<textElement/>
-				<textFieldExpression class="java.lang.String"><![CDATA[$F{taskName}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{taskName}]]></textFieldExpression>
 			</textField>
-			<textField pattern="###0.0">
-				<reportElement style="Detail" x="570" y="1" width="50" height="30"/>
+			<textField isStretchWithOverflow="true" pattern="###0.0">
+				<reportElement uuid="681ec018-6d3e-45b1-a885-74eaabd50173" style="Detail" stretchType="RelativeToTallestObject" x="658" y="0" width="50" height="20"/>
 				<textElement/>
-				<textFieldExpression class="java.lang.String"><![CDATA[new DecimalFormat("###0.0").format($F{duration})]]></textFieldExpression>
+				<textFieldExpression><![CDATA[new DecimalFormat("###0.0").format($F{duration})]]></textFieldExpression>
 			</textField>
-			<textField>
-				<reportElement style="Detail" x="620" y="1" width="90" height="30"/>
+			<textField isStretchWithOverflow="true">
+				<reportElement uuid="14097a06-ba57-49f7-9dc4-45e23f293c42" style="Detail" stretchType="RelativeToTallestObject" x="708" y="0" width="90" height="20"/>
 				<textElement/>
-				<textFieldExpression class="java.lang.String"><![CDATA[$F{description}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{description}]]></textFieldExpression>
 			</textField>
-			<textField>
-				<reportElement style="Detail" x="710" y="1" width="90" height="30"/>
+			<textField isStretchWithOverflow="true">
+				<reportElement uuid="461dfd85-2c41-4469-8b78-309d82e408e6" style="Detail" stretchType="RelativeToTallestObject" x="798" y="1" width="114" height="20"/>
 				<textElement/>
-				<textFieldExpression class="java.lang.String"><![CDATA[$F{problem}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{problem}]]></textFieldExpression>
 			</textField>
-			<line>
-				<reportElement x="120" y="0" width="680" height="1"/>
-			</line>
+			<textField isStretchWithOverflow="true">
+				<reportElement uuid="ae0e462b-373c-4946-8390-b1f5a49385a3" style="Detail" stretchType="RelativeToTallestObject" x="120" y="0" width="88" height="20"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$F{workplace}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement uuid="ef5f802e-9f66-41be-a3d4-e001ccac18a5" style="Detail" stretchType="RelativeToTallestObject" x="912" y="0" width="128" height="20"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$F{plan}]]></textFieldExpression>
+			</textField>
 		</band>
 	</detail>
 	<pageFooter>
 		<band height="20" splitType="Stretch">
 			<textField>
-				<reportElement style="Column header" x="433" y="0" width="80" height="20"/>
+				<reportElement uuid="df7a634f-1e32-4c3e-a796-f5b91cac56c5" style="Column header" x="433" y="0" width="80" height="20"/>
 				<textElement textAlignment="Right">
 					<font size="10" isBold="false"/>
 				</textElement>
-				<textFieldExpression class="java.lang.String"><![CDATA["Page "+$V{PAGE_NUMBER}+" of"]]></textFieldExpression>
+				<textFieldExpression><![CDATA["Page "+$V{PAGE_NUMBER}+" of"]]></textFieldExpression>
 			</textField>
 			<textField evaluationTime="Report">
-				<reportElement style="Column header" x="513" y="0" width="40" height="20"/>
+				<reportElement uuid="d75c079d-4890-4d5c-8c81-eb26bd22bc9d" style="Column header" x="513" y="0" width="40" height="20"/>
 				<textElement>
 					<font size="10" isBold="false"/>
 				</textElement>
-				<textFieldExpression class="java.lang.String"><![CDATA[" " + $V{PAGE_NUMBER}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[" " + $V{PAGE_NUMBER}]]></textFieldExpression>
 			</textField>
 			<textField pattern="EEEEE dd MMMMM yyyy">
-				<reportElement style="Column header" x="0" y="0" width="197" height="20"/>
+				<reportElement uuid="e9999ea9-eb09-4995-8a79-77513ae8f0c8" style="Column header" x="0" y="0" width="197" height="20"/>
 				<textElement>
 					<font size="10" isBold="false"/>
 				</textElement>
-				<textFieldExpression class="java.lang.String"><![CDATA[new java.util.Date().toString()]]></textFieldExpression>
+				<textFieldExpression><![CDATA[new java.util.Date().toString()]]></textFieldExpression>
 			</textField>
+			<line>
+				<reportElement uuid="c5e25804-7f40-4bda-a9cd-b8a6c727769b" positionType="FixRelativeToBottom" x="0" y="0" width="1040" height="1"/>
+			</line>
 		</band>
 	</pageFooter>
 	<summary>
