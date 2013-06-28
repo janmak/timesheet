@@ -1232,9 +1232,18 @@ function checkDurationThenSendForm(){
 
 
 function submitWithOvertimeCauseSet(){
+    var comment = dijit.byId("overtimeCauseComment").get("value");
+    var required = dijit.byId("overtimeCauseComment").get("required");
+
+    if (comment == "" && required == true) {
+        tooltip.show("Комментарий для причины 'Другое' является обязательным!");
+        return;
+    }
+
     dojo.byId("overtimeCauseComment_hidden").value = dijit.byId("overtimeCauseComment").get('value');
-    dojo.byId("overtimeCause_hidden").value = dijit.byId("overtimeCause").get('value');
+    dojo.byId("overtimeCause_hidden").value = comment;
     dojo.byId("typeOfCompensation_hidden").value = dijit.byId("typeOfCompensation").get('value');
+
 
     dijit.byId('dialogOne').hide();
     submitform('send');
