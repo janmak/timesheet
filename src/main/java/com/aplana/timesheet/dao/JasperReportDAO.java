@@ -46,7 +46,7 @@ public class JasperReportDAO {
                 "taskname", "duration", "day_type", "region", "region_name", "project_role", "project_state", "billable", "vacation_type" } );
         fieldsMap.put( Report03.class, new String[] { "name", "empldivision", "project", "taskname",
                 "caldate", "duration", "day_type", "region", "region_name", "project_role", "project_state", "billable", "vacation_type" } );
-        fieldsMap.put( Report04.class, new String[] { "date", "name", "region_name" } );
+        fieldsMap.put( Report04.class, new String[] { "date", "name", "region_name", "role" } );
         fieldsMap.put( Report05.class, new String[] { "calDate", "name", "value", "pctName", "actType",
                 "pctRole", "taskName", "duration", "description", "problem", "region_name" } );
         fieldsMap.put( Report06.class, new String[] { "duration", "act_type", "name", "act_cat", "region_name" } );
@@ -617,44 +617,47 @@ public class JasperReportDAO {
 
         // К сожалению HQL не может ворочить сложные запросы, прищлось писать native sql-запрос
         Query query = entityManager.createNativeQuery(
-            "SELECT\n" +
-                    "        calendar.caldate AS col_0,\n" +
-                    "        employee.name AS col_1,\n" +
-                    "        region.name AS col_2\n" +
-                    "FROM\n" +
-                    "        calendar calendar \n" +
-                    "        CROSS JOIN employee employee \n" +
-                    "        INNER JOIN division division ON employee.division=division.id  \n" +
-                    "        LEFT JOIN illness illnesses ON \n" +
-                    "                employee.id=illnesses.employee_id AND \n" +
-                    "                (calendar.caldate BETWEEN illnesses.begin_date AND illnesses.end_date) AND \n" +
-                    "                (illnesses.begin_date <= :endDate AND illnesses.end_date >= :beginDate)\n" +
-                    "        LEFT JOIN vacation vacations ON \n" +
-                    "                employee.id=vacations.employee_id AND \n" +
-                    "                (calendar.caldate BETWEEN vacations.begin_date AND vacations.end_date) AND \n" +
-                    "                (vacations.begin_date <= :endDate AND vacations.end_date >= :beginDate) AND \n" +
-                    "                (vacations.status_id = :statusId),\n" +
-                    "        region region \n" +
-                    "WHERE \n" +
-                             ( withDivisionClause ? "        division.id=:emplDivisionId AND \n" : "") +
-                             ( withRegionClause   ? "        (employee.region IN (:regionIds)) AND \n" : "" ) +
-                    "        illnesses.id IS NULL AND\n" +
-                    "        vacations.id IS NULL AND\n" +
-                    "        employee.region=region.id AND \n" +
-                    "        (calendar.caldate BETWEEN :beginDate AND \n" +
-                    "                CASE WHEN employee.end_date IS NOT NULL THEN \n" +
-                    "                        CASE WHEN employee.end_date<:endDate THEN employee.end_date ELSE :endDate END \n" +
-                    "                ELSE :endDate end) AND\n" +
-                    "        employee.not_to_sync=FALSE AND \n" +
-                    "        (employee.manager IS NOT NULL) AND \n" +
-                    "        (calendar.caldate NOT IN \n" +
-                    "                (SELECT timesheet.caldate FROM time_sheet timesheet WHERE timesheet.emp_id=employee.id)) AND \n" +
-                    "        (calendar.caldate NOT IN  \n" +
-                    "                (SELECT holiday.caldate FROM holiday holiday WHERE holiday.region IS NULL OR holiday.region=employee.region)) AND \n" +
-                    "        employee.start_date<=calendar.caldate \n" +
-                    "ORDER BY\n" +
-                    "        employee.name, \n" +
-                    "        calendar.caldate\n"
+            "SELECT " +
+                    "        calendar.caldate AS col_0, " +
+                    "        employee.name AS col_1, " +
+                    "        region.name AS col_2, " +
+                    "        project_role.name as col_3 " +
+                    "FROM " +
+                    "        calendar calendar  " +
+                    "        CROSS JOIN employee employee  " +
+                    "        INNER JOIN division division ON employee.division=division.id " +
+                    "        INNER JOIN project_role project_role ON employee.job=project_role.id " +
+                    "        LEFT JOIN illness illnesses ON  " +
+                    "                employee.id=illnesses.employee_id AND  " +
+                    "                (calendar.caldate BETWEEN illnesses.begin_date AND illnesses.end_date) AND  " +
+                    "                (illnesses.begin_date <= :endDate AND illnesses.end_date >= :beginDate) " +
+                    "        LEFT JOIN vacation vacations ON  " +
+                    "                employee.id=vacations.employee_id AND  " +
+                    "                (calendar.caldate BETWEEN vacations.begin_date AND vacations.end_date) AND  " +
+                    "                (vacations.begin_date <= :endDate AND vacations.end_date >= :beginDate) AND  " +
+                    "                (vacations.status_id = :statusId), " +
+                    "        region region  " +
+                    "WHERE  " +
+                             ( withDivisionClause ? "        division.id=:emplDivisionId AND  " : "") +
+                             ( withRegionClause   ? "        (employee.region IN (:regionIds)) AND  " : "" ) +
+                    "        illnesses.id IS NULL AND " +
+                    "        vacations.id IS NULL AND " +
+                    "        employee.region=region.id AND  " +
+                    "        (calendar.caldate BETWEEN :beginDate AND  " +
+                    "                CASE WHEN employee.end_date IS NOT NULL THEN  " +
+                    "                        CASE WHEN employee.end_date<:endDate THEN employee.end_date ELSE :endDate END  " +
+                    "                ELSE :endDate end) AND " +
+                    "        employee.not_to_sync=FALSE AND  " +
+                    "        (employee.manager IS NOT NULL) AND  " +
+                    "        (calendar.caldate NOT IN  " +
+                    "                (SELECT timesheet.caldate FROM time_sheet timesheet WHERE timesheet.emp_id=employee.id)) AND  " +
+                    "        (calendar.caldate NOT IN   " +
+                    "                (SELECT holiday.caldate FROM holiday holiday WHERE holiday.region IS NULL OR holiday.region=employee.region)) AND  " +
+                    "        employee.start_date<=calendar.caldate  " +
+                    "ORDER BY " +
+                    "        employee.name,  " +
+                    "        calendar.caldate, " +
+                    "        project_role.name "
         );
 
         if (withRegionClause) {

@@ -19,6 +19,7 @@ public class VacationsForm extends AbstractFormForEmployee {
     public static final String VACATION_TYPE = "vacationType";
     public static final String CAL_FROM_DATE = "calFromDate";
     public static final String CAL_TO_DATE = "calToDate";
+    public static final String APPROVAL_ID = "approvalID";
 
     private Integer year;
     private Integer vacationId;
@@ -29,6 +30,7 @@ public class VacationsForm extends AbstractFormForEmployee {
     private List<Integer> regions;
     private List<Integer> regionsIdList;
     private Integer regionId;
+    private Integer approvalID;
 
     public Integer getYear() {
         return year;
@@ -100,5 +102,13 @@ public class VacationsForm extends AbstractFormForEmployee {
 
     public void setRegionId(Integer regionId) {
         this.regionId = regionId;
+    }
+
+    public Integer getApprovalID() {
+        return approvalID;
+    }
+
+    public void setApprovalID(Integer approverID) {
+        this.approvalID = approverID;
     }
 }

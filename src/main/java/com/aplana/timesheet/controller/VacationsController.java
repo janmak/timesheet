@@ -4,6 +4,7 @@ import com.aplana.timesheet.dao.entity.*;
 import com.aplana.timesheet.enums.DictionaryEnum;
 import com.aplana.timesheet.enums.VacationStatusEnum;
 import com.aplana.timesheet.exception.service.DeleteVacationException;
+import com.aplana.timesheet.exception.service.VacationApprovalServiceException;
 import com.aplana.timesheet.form.VacationsForm;
 import com.aplana.timesheet.form.validator.VacationsFormValidator;
 import com.aplana.timesheet.service.*;
@@ -48,6 +49,8 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
     private EmployeeService employeeService;
     @Autowired
     private DivisionService divisionService;
+    @Autowired
+    private VacationApprovalService vacationApprovalService;
 
     @RequestMapping(value = "/vacations", method = RequestMethod.GET)
     public ModelAndView prepareToShowVacations(
@@ -89,6 +92,7 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
         vacationsFormValidator.validate(vacationsForm, result);
 
         final Integer vacationId = vacationsForm.getVacationId();
+        final Integer approverId = vacationsForm.getApprovalID();
 
         if (vacationId != null) {
             try {
@@ -96,6 +100,15 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
                 vacationsForm.setVacationId(null);
             } catch (DeleteVacationException ex) {
                 result.rejectValue("vacationId", "error.vacations.deletevacation.failed", ex.getLocalizedMessage());
+            }
+        }
+
+        if (vacationId == null && approverId != null) {
+            try {
+                vacationApprovalService.deleteVacationApprovalByIdAndCheckIsApproved(approverId);
+                vacationsForm.setApprovalID(null);
+            } catch (VacationApprovalServiceException e) {
+                result.rejectValue("approvalID", "error.vacations.deletevacation.failed", e.getLocalizedMessage());
             }
         }
 
@@ -175,7 +188,7 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
         List<Vacation> vacations = new ArrayList<Vacation>();
         if (regionsId.get(0) != -1){
             for (Integer i : regionsId){
-                if (managerId != 0){ //Есть выбранные регионы и руководитель
+                if (managerId != -1){ //Есть выбранные регионы и руководитель
                     List<Integer> employeesId = findEmployeeByManager(divisionId, managerId, i);
                     for (Integer e : employeesId){
                         List<Vacation> empVacation = vacationService.findVacations(e, beginDate, endDate, typeId);
@@ -194,7 +207,7 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
                 }
             }
         }else{
-            if (managerId != 0){ //Выбраны все регионы и руководитель
+            if (managerId != -1){ //Выбраны все регионы и руководитель
                 List<Integer> employeesId = findEmployeeByManager(divisionId, managerId, regionsId.get(0));
                 for (Integer e : employeesId){
                     List<Vacation> empVacation = vacationService.findVacations(e, beginDate, endDate, typeId);

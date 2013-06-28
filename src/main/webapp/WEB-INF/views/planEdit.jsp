@@ -52,7 +52,15 @@
 <script type="text/javascript">
 var hasChanges = false;
 
+
 dojo.addOnLoad(function () {
+
+    dojo.require(['dojox.grid.DataGrid'],
+            function(DataGrid) {
+                var grid = new DataGrid({keepSelection: true}, div);
+            }
+    );
+
     updateMultipleForSelect(dojo.byId("<%= REGIONS %>"));
     updateMultipleForSelect(dojo.byId("<%= PROJECT_ROLES %>"));
 
