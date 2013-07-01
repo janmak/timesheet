@@ -64,11 +64,21 @@ public class VacationService extends AbstractServiceWithTransactionManagement {
         return vacationDAO.getAllNotApprovedVacationsIds();
     }
 
-    public long getIntersectVacationsCount(Integer employeeId, Timestamp fromDate, Timestamp toDate) {
+    public long getIntersectVacationsCount(Integer employeeId, Timestamp fromDate, Timestamp toDate, DictionaryItem item) {
         return vacationDAO.getIntersectVacationsCount(
                 employeeId,
                 fromDate,
-                toDate
+                toDate,
+                item
+        );
+    }
+
+    public Long getIntersectPlannedVacationsCount(Integer employeeId, Date fromDate, Date toDate, DictionaryItem item) {
+        return vacationDAO.getIntersectPlannedVacationsCount(
+                employeeId,
+                fromDate,
+                toDate,
+                item
         );
     }
 
@@ -82,6 +92,14 @@ public class VacationService extends AbstractServiceWithTransactionManagement {
 
     public List<Vacation> findVacations(Integer employeeId, Date beginDate, Date endDate, DictionaryItem typeId) {
         return vacationDAO.findVacations(employeeId, beginDate, endDate, typeId);
+    }
+
+    public List<Vacation> findVacationsByTypes(Integer year, Integer month, Integer employeeId,  List<DictionaryItem> types) {
+        return vacationDAO.findVacationsByTypes(year,  month,  employeeId, types);
+    }
+
+    public List<Vacation> findVacationsByType(Integer year, Integer month, Integer employeeId,  DictionaryItem type) {
+        return vacationDAO.findVacationsByType(year, month, employeeId, type);
     }
 
     @Transactional

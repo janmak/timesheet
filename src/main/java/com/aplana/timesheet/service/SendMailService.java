@@ -232,6 +232,10 @@ public class SendMailService{
         new VacationApproveRequestSender(this, propertyProvider, vacationApprovalService, managerRoleNameService).sendMessage(vacationApproval);
     }
 
+    public void performPlannedVacationApproveRequestSender(Vacation vacation, List<String> emails) {
+        new PlannedVacationApprovedSender(this, propertyProvider, emails).sendMessage(vacation);
+    }
+
     public void performVacationApprovedSender (Vacation vacation, List<String> emails) {
         new VacationApprovedSender(this, propertyProvider, emails).sendMessage(vacation);
     }

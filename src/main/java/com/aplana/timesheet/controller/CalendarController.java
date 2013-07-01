@@ -5,6 +5,8 @@ import com.aplana.timesheet.service.EmployeeService;
 import com.aplana.timesheet.service.VacationService;
 import com.aplana.timesheet.util.JsonUtil;
 import com.aplana.timesheet.util.ViewReportHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -43,6 +45,7 @@ public class CalendarController extends AbstractController {
     @Autowired
     private EmployeeService employeeService;
 
+    private static final Logger logger = LoggerFactory.getLogger(CalendarController.class);
 
     @RequestMapping(value = "/calendar/dates", headers = "Accept=application/json")
     @ResponseBody
@@ -91,7 +94,17 @@ public class CalendarController extends AbstractController {
             @RequestParam("queryMonth") Integer queryMonth,
             @RequestParam("employeeId") Integer employeeId
     ) {
-        return viewReportHelper.getDateVacationListJson(queryYear, queryMonth, employeeId);
+      //  return viewReportHelper.getDateVacationListJson(queryYear, queryMonth, employeeId);// отмечаем в календаре только обычные отпуска
+        return viewReportHelper.getDateVacationWithPlannedListJson(queryYear, queryMonth, employeeId); // отмечаем в календаре обычные и плановые отпуска
     }
 
+    @RequestMapping(value = "/calendar/vacationDatesPlanned", headers = "Accept=application/json")
+    @ResponseBody
+    public String vacationDatesPlanned(
+            @RequestParam("queryYear") Integer queryYear,
+            @RequestParam("queryMonth") Integer queryMonth,
+            @RequestParam("employeeId") Integer employeeId
+    ) {
+        return viewReportHelper.getDateVacationWithPlannedListJson(queryYear, queryMonth, employeeId);
+    }
 }

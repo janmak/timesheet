@@ -12,7 +12,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -63,6 +62,30 @@ public class VacationDAO {
         return query.getResultList();
     }
 
+    public List<Vacation> findVacationsByTypes(Integer year, Integer month, Integer employeeId,  List<DictionaryItem> types) {
+        final Query query =
+                entityManager.createQuery("from Vacation v " +
+                        "where v.employee.id = :emp_id " +
+                        "and (YEAR(v.beginDate) = :year or YEAR(v.endDate) = :year) " +
+                        "and (MONTH(v.beginDate) = :month or MONTH(v.endDate) = :month) " +
+                        "and v.type in :types order by v.beginDate")
+                        .setParameter("emp_id", employeeId).setParameter("year", year).setParameter("month",month).setParameter("types",types);
+
+        return query.getResultList();
+    }
+
+    public List<Vacation> findVacationsByType(Integer year, Integer month, Integer employeeId,  DictionaryItem type) {
+        final Query query =
+                entityManager.createQuery("from Vacation v " +
+                        "where v.employee.id = :emp_id " +
+                        "and (YEAR(v.beginDate) = :year or YEAR(v.endDate) = :year) " +
+                        "and (MONTH(v.beginDate) = :month or MONTH(v.endDate) = :month) " +
+                        "and v.type = :type order by v.beginDate")
+                        .setParameter("emp_id", employeeId).setParameter("year", year).setParameter("month",month).setParameter("type",type);
+
+        return query.getResultList();
+    }
+
     public void store(Vacation vacation) {
         final Vacation mergedVacation = entityManager.merge(vacation);
 
@@ -77,14 +100,28 @@ public class VacationDAO {
         entityManager.remove(vacation);
     }
 
-    public Long getIntersectVacationsCount(Integer employeeId, Date fromDate, Date toDate) {
+    public Long getIntersectVacationsCount(Integer employeeId, Date fromDate, Date toDate, DictionaryItem typeVacation) {
         final Query query = entityManager.createQuery(
                 "select count(*) as c " +
                 "from Vacation v, DictionaryItem di " +
                 "where di.id = :status_id and ((:from_date between v.beginDate and v.endDate) or (:to_date between v.beginDate and v.endDate) or (v.beginDate between :from_date and :to_date))" +
-                        " and not v.status = di and v.employee.id = :emp_id"
+                        " and not v.status = di and v.employee.id = :emp_id and v.type <> :type"
         ).setParameter("from_date", fromDate).setParameter("to_date", toDate).
-                setParameter("status_id", VacationStatusEnum.REJECTED.getId()).setParameter("emp_id", employeeId);
+                setParameter("status_id", VacationStatusEnum.REJECTED.getId()).setParameter("emp_id", employeeId).setParameter("type",typeVacation);;
+
+        return (Long) query.getSingleResult();
+    }
+
+    public Long getIntersectPlannedVacationsCount(Integer employeeId, Date fromDate, Date toDate, DictionaryItem typeVacation) {
+        final Query query = entityManager.createQuery(
+                "select count(*) as c " +
+                        "from Vacation v, DictionaryItem di " +
+                        "where di.id = :status_id and ((:from_date between v.beginDate and v.endDate) or " +
+                        "(:to_date between v.beginDate and v.endDate) or " +
+                        "(v.beginDate between :from_date and :to_date))" +
+                        " and not v.status = di and v.employee.id = :emp_id and v.type = :type"
+        ).setParameter("from_date", fromDate).setParameter("to_date", toDate).
+                setParameter("status_id", VacationStatusEnum.REJECTED.getId()).setParameter("emp_id", employeeId).setParameter("type",typeVacation);
 
         return (Long) query.getSingleResult();
     }

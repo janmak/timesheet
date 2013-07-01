@@ -2,6 +2,7 @@ package com.aplana.timesheet.service.vacationapproveprocess;
 
 import com.aplana.timesheet.dao.entity.*;
 import com.aplana.timesheet.enums.VacationStatusEnum;
+import com.aplana.timesheet.enums.VacationTypesEnum;
 import com.aplana.timesheet.exception.service.CalendarServiceException;
 import com.aplana.timesheet.exception.service.VacationApprovalServiceException;
 import com.aplana.timesheet.properties.TSPropertyProvider;
@@ -315,24 +316,89 @@ public abstract class AbstractVacationApprovalProcessService extends AbstractSer
                 isProjectParticipantInAllProjects &= (employee.equals(project.getManager()));
             }
 
-            if (isProjectParticipantInAllProjects) {
-                // если нет проектов ни в планах, ни в списаниях - сразу утверждаем у линейного
-                setApprovementWithLineManagerStatusAndSendMessages(vacation);
+            boolean isPlannedVacation = vacation.getType().getId().equals(VacationTypesEnum.PLANNED.getId());
+
+            if (isPlannedVacation) {
+                sendNoticeForPlannedVacaton(projects, vacation);
             } else {
-                Map<String, VacationApproval> juniorProjectManagersVacationApprovals = prepareJuniorProjectManagersVacationApprovals(projects, vacation);
-                Map<String, VacationApproval> allManagerVacationApprovals = prepareProjectManagersVacationApprovals(juniorProjectManagersVacationApprovals, projects, vacation);
-                // если список утверждающих менеджеров пустой - сразу утверждаем у линейного
-                if(allManagerVacationApprovals==null || allManagerVacationApprovals.isEmpty()){
+                if (isProjectParticipantInAllProjects) {
+                    // если нет проектов ни в планах, ни в списаниях - сразу утверждаем у линейного
                     setApprovementWithLineManagerStatusAndSendMessages(vacation);
-                }
-                for (VacationApproval vacationApproval : allManagerVacationApprovals.values()) {
-                    sendMailService.performVacationApproveRequestSender(vacationApproval);
+                } else {
+                    Map<String, VacationApproval> juniorProjectManagersVacationApprovals = prepareJuniorProjectManagersVacationApprovals(projects, vacation);
+                    Map<String, VacationApproval> allManagerVacationApprovals = prepareProjectManagersVacationApprovals(juniorProjectManagersVacationApprovals, projects, vacation);
+                    // если список утверждающих менеджеров пустой - сразу утверждаем у линейного
+                    if (allManagerVacationApprovals == null || allManagerVacationApprovals.isEmpty()) {
+                        setApprovementWithLineManagerStatusAndSendMessages(vacation);
+                    }
+                    for (VacationApproval vacationApproval : allManagerVacationApprovals.values()) {
+                        sendMailService.performVacationApproveRequestSender(vacationApproval);
+                    }
                 }
             }
         } catch (CalendarServiceException ex) {
             throw new VacationApprovalServiceException (VACATION_APPROVE_MAILS_SEND_FAILED_EXCEPTION_MESSAGE, ex);
         }
 
+    }
+
+    private void sendNoticeForPlannedVacaton(List<Project> projects, Vacation vacation) throws VacationApprovalServiceException {
+        List<String> emails = new ArrayList<String>();
+        Map<Employee, List<Project>> juniorProjectManagersAndProjects =
+                employeeService.getJuniorProjectManagersAndProjects(projects, vacation);
+        for (Map.Entry entry: juniorProjectManagersAndProjects.entrySet()) {
+            emails.add(((Employee) entry.getKey()).getEmail());
+        }
+
+        for (Project project : projects) {
+            Employee manager = project.getManager();
+            String email = manager.getEmail();
+            if (!emails.contains(email)) {
+                emails.add(email);
+            }
+        }
+
+        addLineManagers(emails, vacation);
+        addSecondManager(emails, vacation);
+        vacation.setStatus(dictionaryItemService.find(VacationStatusEnum.APPROVED.getId()));     //в БД отмечаем, что отпуск утвержден
+        vacationService.store(vacation);
+        for (String s : emails){
+            logger.debug(">>>>>email = {}",s);
+        }
+        sendMailService.performPlannedVacationApproveRequestSender(vacation, emails);
+    }
+
+    private void addSecondManager(List<String> emails, Vacation vacation) {
+        Employee manager2 = vacation.getAuthor().getManager2();
+        if (manager2 != null) {
+            String email = manager2.getEmail();
+            if (!emails.contains(email)) {
+                emails.add(email);
+            }
+        }
+    }
+
+    /**
+     * добавляем емейлы для уведомлений линейному руководителю сотрудника и всем руководителям руководителя сотрудника вплоть до РЦК включительно
+     */
+    private void addLineManagers(List<String> emails, Vacation vacation) throws VacationApprovalServiceException {
+        Employee manager = vacation.getAuthor().getManager();
+        String email = manager.getEmail();
+        if (!emails.contains(email)) {
+            emails.add(email);
+        }
+        addLineManagerRecursive(manager, emails);
+    }
+
+    private void addLineManagerRecursive(Employee manager, List<String> emails) throws VacationApprovalServiceException {
+        Employee employeeManager = manager.getManager();
+        if (employeeManager != null) {
+            String email = employeeManager.getEmail();
+            if (!emails.contains(email)) {
+                emails.add(email);
+            }
+            addLineManagerRecursive(employeeManager, emails);
+        }
     }
 
     /**
