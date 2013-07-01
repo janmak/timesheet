@@ -234,6 +234,7 @@ function addNewRow() {
 
 function setActDescription(rowIndex){
     var label = dojo.byId("act_description_" + rowIndex);
+    var act_label = dojo.byId("activity_category_id_" + rowIndex);
     if (label == null) { return; }
     var actCat = (dojo.byId("activity_category_id_" + rowIndex)).value;
     var actType = (dojo.byId("activity_type_id_" + rowIndex)).value;
@@ -738,6 +739,14 @@ function getTitle(processed) {
     else {
         select = processed.target;
     }
+    //костыль чтобы в категории активности отображалось описание
+    if(select.id.indexOf("activity_category_id_")+1){
+        var description = dojo.byId("act_description_" + select.id.substring(21)).innerHTML;
+        if(description && description.trim()!=""){
+            return  description;
+        }
+    }
+    //
     var index = select.selectedIndex;
     if (select.options != null) {
         if ((index > -1) && (select.options[index].text != "")) {
