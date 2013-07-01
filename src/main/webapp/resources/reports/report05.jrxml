@@ -36,6 +36,10 @@
 	<field name="day_type" class="java.lang.Integer"/>
 	<field name="billable" class="java.lang.Boolean"/>
 	<field name="plan" class="java.lang.String"/>
+	<variable name="showPlan" class="java.lang.Boolean" resetType="Group" resetGroup="Group2" calculation="Variance">
+		<variableExpression><![CDATA[$V{showPlan}==null?true:false]]></variableExpression>
+		<initialValueExpression><![CDATA[null]]></initialValueExpression>
+	</variable>
 	<group name="Group1">
 		<groupExpression><![CDATA[new SimpleDateFormat("dd-MM-yyyy").format($F{calDate})]]></groupExpression>
 		<groupHeader>
@@ -203,7 +207,7 @@
 				<textElement/>
 				<textFieldExpression><![CDATA[$F{problem}]]></textFieldExpression>
 			</textField>
-			<textField isStretchWithOverflow="true">
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
 				<reportElement uuid="ae0e462b-373c-4946-8390-b1f5a49385a3" style="Detail" stretchType="RelativeToTallestObject" x="300" y="0" width="154" height="20"/>
 				<textElement/>
 				<textFieldExpression><![CDATA[$F{workplace}]]></textFieldExpression>
@@ -211,7 +215,7 @@
 			<textField isStretchWithOverflow="true">
 				<reportElement uuid="ef5f802e-9f66-41be-a3d4-e001ccac18a5" style="Detail" stretchType="RelativeToTallestObject" x="1646" y="0" width="194" height="20"/>
 				<textElement/>
-				<textFieldExpression><![CDATA[$F{plan}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$V{showPlan}?$F{plan}:""]]></textFieldExpression>
 			</textField>
 		</band>
 	</detail>
