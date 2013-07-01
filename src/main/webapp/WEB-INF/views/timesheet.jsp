@@ -1,4 +1,6 @@
-<%@ page import="com.aplana.timesheet.form.TimeSheetForm" %>
+<%@ page import="com.aplana.timesheet.enums.OvertimeCausesEnum" %>
+<%@ page import="com.aplana.timesheet.enums.UndertimeCausesEnum" %>
+<%@ page import="com.aplana.timesheet.enums.WorkOnHolidayCausesEnum" %>
 <%@taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 <%@page contentType="text/html" pageEncoding="UTF-8" %>
 
@@ -20,6 +22,8 @@
     dojo.require("dijit.layout.ContentPane");
     dojo.require("dojox.widget.Standby");
     dojo.require(CALENDAR_EXT_PATH);
+    dojo.require("dijit.form.ValidationTextBox");
+    dojo.require("dojo.parser");
 
     var unfinishedDayCauseList = ${unfinishedDayCauseJson};
     var overtimeCauseList = ${overtimeCauseJson};
@@ -273,6 +277,18 @@
         plan_text = plan_text.replace(/&amp;/g, '&');
         dojo.byId("description_id_" + GetFirstIdDescription()).value = plan_text;
     }
+    function requiredCommentSet(){
+        var overtimeCause = dijit.byId("overtimeCause").get("value");
+        var undertimeExp = (overtimeCause ==<%= UndertimeCausesEnum.OTHER.getId() %>);
+        var workOnHolidayExp = (overtimeCause ==<%= WorkOnHolidayCausesEnum.OTHER.getId() %>)
+        var overtimeExp = (overtimeCause ==<%= OvertimeCausesEnum.OTHER.getId() %>)
+
+        if (undertimeExp || overtimeExp || workOnHolidayExp) {
+            dijit.byId("overtimeCauseComment").attr("required", true);
+        } else {
+            dijit.byId("overtimeCauseComment").attr("required", false);
+        }
+     }
 </script>
 <style type="text/css">
     #date_warning {
@@ -306,10 +322,11 @@
             </span>
         </div>
         <div style="margin-bottom: 3px;">Выберите причину</div>
-        <div id="overtimeCause" onChange="overtimeCauseChange(this)" data-dojo-type="dijit.form.Select"
+        <div id="overtimeCause" onChange="overtimeCauseChange(this);requiredCommentSet();" data-dojo-type="dijit.form.Select"
              style="width: 99%;" data-dojo-props="value: '${timeSheetForm.overtimeCause}'"></div>
         <div style="margin-top: 10px;"><span>Комментарий</span></div>
-        <div data-dojo-type="dijit.form.Textarea"
+        <div data-dojo-type="dijit.form.ValidationTextBox"
+                  data-dojo-prop="missingMessage:'Комментарий для причины 'Другое' является обязательным!'"
                   wrap="soft" id="overtimeCauseComment" rows="10" style="width: 99%;margin-top: 3px;"
                   placeHolder="Напишите причину, если нет подходящей в списке"
                   tooltip="комментарий">${timeSheetForm.overtimeCauseComment}</div>
@@ -324,7 +341,7 @@
             </select>
         </div>
         <button id="confirmOvertimeCauseButton" style="margin-top: 10px; margin-left: -1px"
-                onclick="submitWithOvertimeCauseSet()">
+                onclick="submitWithOvertimeCauseSet()" onmouseout="tooltip.hide()">
             Продолжить
         </button>
     </div>
