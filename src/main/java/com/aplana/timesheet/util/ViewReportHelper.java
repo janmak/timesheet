@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.Temporal;
+import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -166,7 +167,6 @@ public class ViewReportHelper {
         }
 
         String format = JsonUtil.format(builder.build());
-        logger.debug(format);
         return format;
     }
 
@@ -225,5 +225,28 @@ public class ViewReportHelper {
             }
         }
         return count;
+    }
+
+    public Date getNextWorkDay(Date day, Integer employeeId, Map<Date, Integer> inVacationDates, Boolean retrieve) {
+        java.util.Calendar mycal = java.util.Calendar.getInstance();
+        mycal.setTime(day);
+        Integer month = mycal.get(java.util.Calendar.MONTH) + 1;
+        Integer year = mycal.get(java.util.Calendar.YEAR);
+        if (inVacationDates == null || retrieve) {
+            inVacationDates = getVacationWithPlannedMap(year, month, employeeId, false);
+        }
+        Date nextDay = DateUtils.addDays(day, 1);
+        mycal.setTime(nextDay);
+        Integer nextMonth = mycal.get(java.util.Calendar.MONTH) + 1;
+        if (inVacationDates.size() > 0) {
+            if (inVacationDates.get(nextDay) != null && inVacationDates.get(nextDay) == TYPICAL_DAY_MARK) {
+                return nextDay;
+            } else {
+                return getNextWorkDay(nextDay, employeeId, inVacationDates, nextMonth != month);
+            }
+        } else {
+            return null;
+        }
+
     }
 }

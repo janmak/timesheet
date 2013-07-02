@@ -9,6 +9,8 @@ import com.aplana.timesheet.enums.VacationTypesEnum;
 import com.aplana.timesheet.service.DictionaryItemService;
 import com.google.common.collect.Lists;
 import org.hibernate.Hibernate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -34,6 +36,8 @@ public class VacationDAO {
 
     @Autowired
     private DictionaryItemService dictionaryItemService;
+
+    private static final Logger logger = LoggerFactory.getLogger(VacationDAO.class);
 
     /**
      * Список заявлений на отпуск для конкретного сотрудника
@@ -206,6 +210,13 @@ public class VacationDAO {
             textQuery += "and v.type_id in :types_id";
         }
 
+        String sfa =  String.format(
+                textQuery,
+                String.format("%d-%d-1", year, month)
+        );
+        logger.debug(">>>>>>>>>>>>>>>>>>>>>>>> {}", sfa);
+
+
         final Query query = entityManager.createNativeQuery(
             String.format(
                     textQuery,
@@ -226,7 +237,7 @@ public class VacationDAO {
 
             query.setParameter("types_id", typesVac) ;
         }
-
+        logger.debug(">>>>>>>>>>>>>>>>>>>>>>>> {}", query.toString());
         return ((Number) query.getSingleResult()).intValue();
     }
 

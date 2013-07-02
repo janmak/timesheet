@@ -11,6 +11,7 @@ import com.aplana.timesheet.form.validator.CreateVacationFormValidator;
 import com.aplana.timesheet.service.*;
 import com.aplana.timesheet.util.DateTimeUtil;
 import com.aplana.timesheet.util.EmployeeHelper;
+import com.aplana.timesheet.util.ViewReportHelper;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateFormatUtils;
@@ -25,6 +26,7 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.sql.Timestamp;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -56,6 +58,8 @@ public class CreateVacationController {
     private DivisionService divisionService;
     @Autowired
     protected EmployeeHelper employeeHelper;
+    @Autowired
+    private ViewReportHelper viewReportHelper;
     @Autowired
     protected SendMailService sendMailService;
     @Autowired
@@ -128,18 +132,19 @@ public class CreateVacationController {
     ) {
         try {
             final Timestamp date = DateTimeUtil.stringToTimestamp(dateString, CreateVacationForm.DATE_FORMAT);
-            final Employee employee = employeeService.find(employeeId);
+            //final Employee employee = employeeService.find(employeeId);
 
             return String.format(
                     "Выход на работу: %s",
                     DateFormatUtils.format(
-                        calendarService.getNextWorkDay(getCalendar(date), employee.getRegion()).getCalDate(),
-                        CreateVacationForm.DATE_FORMAT
+                            //calendarService.getNextWorkDay(getCalendar(date), employee.getRegion()).getCalDate(),
+                            viewReportHelper.getNextWorkDay(date, employeeId, null, true),
+                            CreateVacationForm.DATE_FORMAT
                     )
             );
         } catch (Exception th) {
             logger.error(CANT_GET_EXIT_TO_WORK_EXCEPTION_MESSAGE, th);
-            return StringUtils.EMPTY;
+            return CANT_GET_EXIT_TO_WORK_EXCEPTION_MESSAGE;//StringUtils.EMPTY;
         }
     }
 
