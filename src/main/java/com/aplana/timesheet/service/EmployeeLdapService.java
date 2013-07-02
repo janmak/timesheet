@@ -361,14 +361,16 @@ public class EmployeeLdapService extends AbstractServiceWithTransactionManagemen
 
             case EMPLOYEE:
             case DIVISION_MANAGER:
-                //Employee empInDbByObjectSid = employeeService.findByObjectSid( employeeLdap.getObjectSid() );
-                Employee empInDbByMail = employeeService.findByEmail(employeeLdap.getEmail());
-                if (empInDbByMail != null) {
-                    employee.setId(empInDbByMail.getId());
-                    employee.setStartDate(empInDbByMail.getStartDate());
-                    employee.getPermissions().addAll(empInDbByMail.getPermissions());
-                    employee.setJobRate(empInDbByMail.getJobRate());
-                    employee.setManager2(empInDbByMail.getManager2());
+                Employee empInDb = employeeService.findByLdapCN(employeeLdap.getLdapCn());
+                if (empInDb == null) {
+                    empInDb = employeeService.findByEmail(employeeLdap.getEmail());
+                }
+                if (empInDb != null) {
+                    employee.setId(empInDb.getId());
+                    employee.setStartDate(empInDb.getStartDate());
+                    employee.getPermissions().addAll(empInDb.getPermissions());
+                    employee.setJobRate(empInDb.getJobRate());
+                    employee.setManager2(empInDb.getManager2());
                     //есть сотрудник в БД
                     //Миша: для существующих поле манагер не обновлялось, при этом остальные поля должны обновляться
                     //сперва должно сравниваться по полю LDAP, если нет то по полю EMAIL, если нет то считать что сотрудник новый и добавлять

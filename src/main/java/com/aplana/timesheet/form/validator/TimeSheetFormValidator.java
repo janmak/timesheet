@@ -14,6 +14,7 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.BooleanUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -83,7 +84,7 @@ public class TimeSheetFormValidator extends AbstractValidator {
         validateDuration(tsForm, employee, errors, tsTablePart);
 
         // План на след. день нужен только если есть строки списания
-        final boolean planNecessary = tsTablePart != null && !tsTablePart.isEmpty();
+        final boolean planNecessary = tsTablePart != null && !tsTablePart.isEmpty() && BooleanUtils.isTrue(employee.getDivision().getPlansRequired());
         validatePlan(tsForm, emplJob, planNecessary, errors);
 
         if (tsTablePart != null) {
