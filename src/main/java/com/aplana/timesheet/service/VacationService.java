@@ -5,12 +5,14 @@ import com.aplana.timesheet.dao.entity.DictionaryItem;
 import com.aplana.timesheet.dao.entity.Employee;
 import com.aplana.timesheet.dao.entity.Vacation;
 import com.aplana.timesheet.enums.VacationStatusEnum;
+import com.aplana.timesheet.enums.VacationTypesEnum;
 import com.aplana.timesheet.exception.service.DeleteVacationException;
 import com.aplana.timesheet.exception.service.VacationApprovalServiceException;
 import com.aplana.timesheet.form.CreateVacationForm;
 import com.aplana.timesheet.service.vacationapproveprocess.VacationApprovalProcessService;
 import com.aplana.timesheet.util.DateTimeUtil;
 import com.aplana.timesheet.util.EnumsUtils;
+import com.aplana.timesheet.util.ViewReportHelper;
 import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,6 +48,9 @@ public class VacationService extends AbstractServiceWithTransactionManagement {
 
     @Autowired
     private VacationApprovalProcessService vacationApprovalProcessService;
+
+    @Autowired
+    private ViewReportHelper viewReportHelper;
 
     private static final Logger logger = LoggerFactory.getLogger(VacationService.class);
 
@@ -96,6 +101,10 @@ public class VacationService extends AbstractServiceWithTransactionManagement {
 
     public List<Vacation> findVacationsByTypes(Integer year, Integer month, Integer employeeId,  List<DictionaryItem> types) {
         return vacationDAO.findVacationsByTypes(year,  month,  employeeId, types);
+    }
+
+    public List<Vacation> findVacationsByTypesAndStatuses(Integer year, Integer month, Integer employeeId,  List<DictionaryItem> types, List<DictionaryItem> statuses) {
+        return vacationDAO.findVacationsByTypesAndStatuses(year, month, employeeId, types, statuses);
     }
 
     public List<Vacation> findVacationsByType(Integer year, Integer month, Integer employeeId,  DictionaryItem type) {
@@ -157,7 +166,12 @@ public class VacationService extends AbstractServiceWithTransactionManagement {
 
 
     public int getVacationsWorkdaysCount(Employee employee, Integer year, Integer month, VacationStatusEnum status) {
-        return vacationDAO.getVacationsWorkdaysCount(employee, year, month, VacationStatusEnum.APPROVED);
+        int vacationsWorkdaysCount = vacationDAO.getVacationsWorkdaysCount(employee, year, month, VacationStatusEnum.APPROVED, null, true);
+        return vacationsWorkdaysCount;
+    }
+
+    public Double getVacationsWorkdaysCount(Employee employee, Integer year, Integer month) {
+         return viewReportHelper.getCountVacationAndPlannedVacationDays(year,month,employee.getId()).doubleValue();
     }
 
     public Map<DictionaryItem, List<Vacation>> splitVacationByTypes(List<Vacation> vacations) {
@@ -200,10 +214,16 @@ public class VacationService extends AbstractServiceWithTransactionManagement {
 
             store(vacation);
 
-            if (needsToBeApproved(vacation)) {
-                vacationApprovalProcessService.sendVacationApproveRequestMessages(vacation);       //рассылаем письма о согласовании отпуска
+            boolean isPlannedVacation = vacation.getType().getId().equals(VacationTypesEnum.PLANNED.getId());
+
+            if (isPlannedVacation) {
+                vacationApprovalProcessService.sendNoticeForPlannedVacaton(vacation);
             } else {
-                vacationApprovalProcessService.sendBackDateVacationApproved(vacation);
+                if (needsToBeApproved(vacation)) {
+                    vacationApprovalProcessService.sendVacationApproveRequestMessages(vacation);       //рассылаем письма о согласовании отпуска
+                } else {
+                    vacationApprovalProcessService.sendBackDateVacationApproved(vacation);
+                }
             }
             commit(transactionStatus);
         } catch (VacationApprovalServiceException e) {

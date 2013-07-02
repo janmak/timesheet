@@ -51,6 +51,7 @@
 
 <script type="text/javascript">
 var hasChanges = false;
+const VACATION_PLAN_COLUMN = 'vacation_plan';
 
 
 dojo.addOnLoad(function () {
@@ -218,7 +219,7 @@ if (dataJson.length > 0) {
                     <sec:authorize access="hasRole('ROLE_PLAN_EDIT')">
                     <c:if test="${editable}">
                     editable:dojo.some(modelFieldsForSave, function (fieldForSave) {
-                        return (field == fieldForSave);
+                        return ((field == fieldForSave) && (field !== VACATION_PLAN_COLUMN));
                     })
                     </c:if>
                     </sec:authorize>

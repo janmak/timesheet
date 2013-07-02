@@ -490,6 +490,9 @@ public class PlanEditController {
 
         sumOfPlanCharge += nilIfNull(centerProjectsPlan) + nilIfNull(centerPresalesPlan);
 
+        Double vacationPlan = vacationService.getVacationsWorkdaysCount(employee, year, month);
+        vacationPlan*=TimeSheetConstants.WORK_DAY_DURATION;
+
         appendNumberField(map, CENTER_PROJECTS_PLAN, centerProjectsPlan);
         appendNumberField(map, CENTER_PRESALES_PLAN, centerPresalesPlan);
 
@@ -512,6 +515,8 @@ public class PlanEditController {
                 PERCENT_OF_CHARGE_PLAN,
                 aStringBuilder(formatPercentOfCharge(sumOfPlanCharge / summaryPlan))
         );
+
+        appendNumberField(map, VACATION_PLAN, vacationPlan);
 
         return map;
     }

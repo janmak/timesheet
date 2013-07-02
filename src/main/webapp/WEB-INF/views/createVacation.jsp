@@ -33,7 +33,7 @@
         dojo.require(CALENDAR_EXT_PATH);
 
         function getEmployeeId() {
-            return "${employee.id}";
+            return dojo.byId("employeeId").value;
         }
 
         function getUrl() {
@@ -267,7 +267,7 @@
             <td>
                 <form:select path="employeeId" id="employeeId" class="without_dojo" onmouseover="tooltip.show(getTitle(this));"
                              onmouseout="tooltip.hide();"
-                             onchange="initCurrentDateInfo(this.value,dijit.byId('calFromDate').value, getUrl());"
+                             onchange="dateInfoHolder = []"
                         >
                     <form:options items="${employeeList}" itemLabel="name" itemValue="id"/>
                 </form:select>

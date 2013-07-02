@@ -12,8 +12,8 @@ public enum DictionaryEnum implements TSEnum {
     UNDERTIME_CAUSE(10, "Причины недоработок"),
     OVERTIME_CAUSE(11, "Причины переработок"),
     TYPES_OF_COMPENSATION(13, "Типы компенсации"),
-    WORK_ON_HOLIDAY_CAUSE(14, "Причины работы в выходной день");
-
+    WORK_ON_HOLIDAY_CAUSE(14, "Причины работы в выходной день"),
+    VACATION_STATUS(8,"Статусы отпусков");
 
     private int id;
     private String name;

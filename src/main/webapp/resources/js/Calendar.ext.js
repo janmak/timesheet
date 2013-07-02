@@ -45,7 +45,6 @@ function initCurrentDateInfo(employeeId, date, urlAddress) {
     if (typeof date == typeof undefined || date == null) {
         date = new Date();
     }
-
     if (urlAddress != null) {
         url = urlAddress;
     } else {
