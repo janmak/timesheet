@@ -179,7 +179,7 @@ public class JasperReportService {
             report = JasperCompileManager.compileReport(context.getRealPath("/resources/reports/" + reportName + ".jrxml"));
 
             // кэширование бинарника отчета
-            compiledReports.put(reportName, report);
+            //compiledReports.put(reportName, report);
         } else {
             logger.info("Loading jasper project " + reportName + " from repository");
             report = compiledReports.get(reportName);
