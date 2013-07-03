@@ -169,23 +169,28 @@
             return false;
         }
 
-        function updateExitToWork() {
-            var date = dojo.byId("calToDate").value;
+        function updateExitToWorkAndCountVacationDay() {
+            var fromDate = dojo.byId("calFromDate").value;
+            var endDate = dojo.byId("calToDate").value;
+
             var exitToWorkElement = dojo.byId("exitToWork");
 
-            if (typeof date == typeof undefined || date == null || date.length == 0) {
+            if ((typeof fromDate == typeof undefined || fromDate == null || fromDate.length == 0)
+                    ||(typeof endDate == typeof undefined || endDate == null || endDate.length == 0)) {
                 exitToWorkElement.innerHTML = '';
             } else {
                 exitToWorkElement.innerHTML =
                         "<img src=\"<c:url value="/resources/img/loading_small.gif"/>\"/>";
 
                 dojo.xhrGet({
-                    url: "<%= request.getContextPath()%>/getExitToWork/${employee.id}/" + date + "/",
-                    handleAs: "text",
-
+                    url: "<%= request.getContextPath()%>/getExitToWorkAndCountVacationDay",
+                    handleAs: "json",
+                    content:{beginDate:fromDate, endDate:endDate, employeeId:getEmployeeId()},
                     load: function(data) {
                         if (data.size != 0) {
-                            exitToWorkElement.innerHTML = data;
+                            exitToWorkElement.innerHTML = "Количество рабочих дней в отпуске :" + data.vacationWorkDayCount+
+                                    "<br>Количество дней в отпуске :"+data.vacationDayCount+
+                                    "<br>Дата выхода на работу: " + data.exitDate;
                         } else {
                             exitToWorkElement.innerHTML = "Не удалось получить дату выхода из отпуска!";
                         }
@@ -303,7 +308,7 @@
                         <form:input path="calToDate" id="calToDate" class="date_picker" required="true"
                                     data-dojo-type="DateTextBox"
                                     onMouseOver="tooltip.show(getTitle(this));" onMouseOut="tooltip.hide();"
-                                    onChange="updateExitToWork();"/>
+                                    onChange="updateExitToWorkAndCountVacationDay();"/>
                     </td>
                     <td>
                         <div class="question-hint">

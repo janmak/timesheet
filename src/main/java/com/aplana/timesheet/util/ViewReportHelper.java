@@ -127,7 +127,7 @@ public class ViewReportHelper {
      * @param month
      * @param vacations
      * @param vacationDates мапа с днями и отмеченными выходными и праздниками
-     * @param markValue     метка дня (обычный, плановый)
+     * @param markValue     метка дня (обычный, плановый, пересечение отпусков)
      */
     private void checkVacationDay(Integer year, Integer month, List<Vacation> vacations, Map<Date, Integer> vacationDates, Integer markValue) {
         Date lastDayofMonth = calendarService.getMaxDateMonth(year, month);
@@ -170,6 +170,14 @@ public class ViewReportHelper {
         return format;
     }
 
+    /**
+     *
+     * @param year
+     * @param month
+     * @param employeeId
+     * @param needForCalcCount
+     * @return
+     */
     private Map<Date, Integer> getVacationWithPlannedMap(Integer year, Integer month, Integer employeeId, Boolean needForCalcCount) {
         Map<Date, Integer> vacationDates = new HashMap<Date, Integer>();
         Date currentDate = new Date((new Date()).getTime());
@@ -214,7 +222,7 @@ public class ViewReportHelper {
      * @param year
      * @param month
      * @param employeeId
-     * @return
+     * @return количество дней утвержденных отпусков (+плановых), без учета отпусков с отработкой
      */
     public Integer getCountVacationAndPlannedVacationDays(Integer year, Integer month, Integer employeeId) {
         Integer count = 0;
@@ -227,22 +235,29 @@ public class ViewReportHelper {
         return count;
     }
 
-    public Date getNextWorkDay(Date day, Integer employeeId, Map<Date, Integer> inVacationDates, Boolean retrieve) {
+    /**
+     * Рекурсивный поиск даты выхода на работу
+     * @param dayEndVacation дата окончания отпуска
+     * @param employeeId
+     * @param inVacationDates при вызове метода передавать null, мапа необходима для рекурсивного вызова
+     * @return дату выхода на работу без учета
+     */
+    public Date getNextWorkDay(Date dayEndVacation, Integer employeeId, Map<Date, Integer> inVacationDates) {
         java.util.Calendar mycal = java.util.Calendar.getInstance();
-        mycal.setTime(day);
+        mycal.setTime(dayEndVacation);
         Integer month = mycal.get(java.util.Calendar.MONTH) + 1;
         Integer year = mycal.get(java.util.Calendar.YEAR);
-        if (inVacationDates == null || retrieve) {
+        if (inVacationDates == null) {
             inVacationDates = getVacationWithPlannedMap(year, month, employeeId, false);
         }
-        Date nextDay = DateUtils.addDays(day, 1);
+        Date nextDay = DateUtils.addDays(dayEndVacation, 1);
         mycal.setTime(nextDay);
         Integer nextMonth = mycal.get(java.util.Calendar.MONTH) + 1;
         if (inVacationDates.size() > 0) {
             if (inVacationDates.get(nextDay) != null && inVacationDates.get(nextDay) == TYPICAL_DAY_MARK) {
                 return nextDay;
             } else {
-                return getNextWorkDay(nextDay, employeeId, inVacationDates, nextMonth != month);
+                return getNextWorkDay(nextDay, employeeId, nextMonth != month ? null : inVacationDates);
             }
         } else {
             return null;

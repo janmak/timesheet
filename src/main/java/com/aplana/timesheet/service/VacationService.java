@@ -1,8 +1,10 @@
 package com.aplana.timesheet.service;
 
+import argo.jdom.JsonObjectNodeBuilder;
 import com.aplana.timesheet.dao.VacationDAO;
 import com.aplana.timesheet.dao.entity.DictionaryItem;
 import com.aplana.timesheet.dao.entity.Employee;
+import com.aplana.timesheet.dao.entity.Holiday;
 import com.aplana.timesheet.dao.entity.Vacation;
 import com.aplana.timesheet.enums.VacationStatusEnum;
 import com.aplana.timesheet.enums.VacationTypesEnum;
@@ -12,8 +14,12 @@ import com.aplana.timesheet.form.CreateVacationForm;
 import com.aplana.timesheet.service.vacationapproveprocess.VacationApprovalProcessService;
 import com.aplana.timesheet.util.DateTimeUtil;
 import com.aplana.timesheet.util.EnumsUtils;
+import com.aplana.timesheet.util.JsonUtil;
 import com.aplana.timesheet.util.ViewReportHelper;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import org.apache.commons.lang.time.DateFormatUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,8 +27,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Nullable;
 import java.sql.Timestamp;
 import java.util.*;
+
+import static argo.jdom.JsonNodeBuilders.aStringBuilder;
+import static argo.jdom.JsonNodeBuilders.anObjectBuilder;
 
 /**
  * @author rshamsutdinov
@@ -52,7 +62,12 @@ public class VacationService extends AbstractServiceWithTransactionManagement {
     @Autowired
     private ViewReportHelper viewReportHelper;
 
+    @Autowired
+    protected CalendarService calendarService;
+
     private static final Logger logger = LoggerFactory.getLogger(VacationService.class);
+
+    public static final String CANT_GET_EXIT_TO_WORK_EXCEPTION_MESSAGE = "Не удалось получить дату выхода из отпуска и количество дней.";
 
     @Transactional
     public void store(Vacation vacation) {
@@ -239,5 +254,56 @@ public class VacationService extends AbstractServiceWithTransactionManagement {
 
     private boolean needsToBeApproved(Vacation vacation) {
         return !vacation.getStatus().getId().equals(VacationStatusEnum.APPROVED.getId());
+    }
+
+    public String getExitToWorkAndCountVacationDayJson(String beginDate,String endDate, Integer employeeId){
+        final JsonObjectNodeBuilder builder = anObjectBuilder();
+        try {
+            final Timestamp endDateT = DateTimeUtil.stringToTimestamp(endDate, CreateVacationForm.DATE_FORMAT);
+            final Timestamp beginDateT = DateTimeUtil.stringToTimestamp(beginDate, CreateVacationForm.DATE_FORMAT);
+            //Получаем день выхода на работу
+            String format = DateFormatUtils.format(viewReportHelper.getNextWorkDay(endDateT, employeeId, null),
+                    CreateVacationForm.DATE_FORMAT);
+            builder.withField("exitDate", aStringBuilder(format));
+            Employee emp = employeeService.find(employeeId);
+            //Получаем кол-во выходных в отпуске
+            final List<Holiday> holidaysForRegion =
+                    calendarService.getHolidaysForRegion(beginDateT, endDateT, emp.getRegion());
+            final Integer holidaysCount = getHolidaysCount(holidaysForRegion,beginDateT, endDateT);
+            //Получаем кол-во дней в отпуске
+            Integer vacationDayCount = DateTimeUtil.getAllDaysCount(beginDateT, endDateT).intValue();
+            //Получаем кол-во дней в отпуске за исключением выходых
+            Integer vacationWorkCount=0;
+            if (vacationDayCount > 0) {
+                vacationWorkCount = vacationDayCount - holidaysCount;
+            }
+
+            builder.withField("vacationWorkDayCount", aStringBuilder(vacationWorkCount.toString()));
+            builder.withField("vacationDayCount", aStringBuilder((vacationDayCount<=0)?"0":vacationDayCount.toString()));
+            return JsonUtil.format(builder);
+        } catch (Exception th) {
+            logger.error(CANT_GET_EXIT_TO_WORK_EXCEPTION_MESSAGE, th);
+            return CANT_GET_EXIT_TO_WORK_EXCEPTION_MESSAGE;
+        }
+    }
+
+    /**
+     * Вычисление кол-ва выходных дней в заданном периоде
+     * @param holidaysForRegion
+     * @param beginDate
+     * @param endDate
+     * @return  кол-ва выходных дней в заданном периоде
+     */
+    public int getHolidaysCount(List<Holiday> holidaysForRegion, final Date beginDate, final Date endDate) {
+        return Iterables.size(Iterables.filter(holidaysForRegion, new Predicate<Holiday>() {
+            @Override
+            public boolean apply(@Nullable Holiday holiday) {
+                final Timestamp calDate = holiday.getCalDate().getCalDate();
+                return (
+                        calDate.compareTo(beginDate) == 0 || calDate.compareTo(endDate) == 0 ||
+                                calDate.after(beginDate) && calDate.before(endDate)
+                );
+            }
+        }));
     }
 }

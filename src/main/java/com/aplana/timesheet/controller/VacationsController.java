@@ -303,7 +303,7 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
 
                     for (int i = 0; i < vacationsSize; i++) {
                         final Vacation vacation = differRegionVacations.get(i);
-                        final int holidaysCount = getHolidaysCount(holidaysForRegion, vacation.getBeginDate(), vacation.getEndDate());
+                        final int holidaysCount = vacationService.getHolidaysCount(holidaysForRegion, vacation.getBeginDate(), vacation.getEndDate());
 
                         final int calDaysCount = calDays.get(i);
                         final int workDaysCount = calDaysCount - holidaysCount;
@@ -329,11 +329,11 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
                             } if (beginYear < year && year == endYear){
                                 long days = DateUtils.getFragmentInDays(endDate, Calendar.YEAR);
                                 summaryCalDays += days;
-                                summaryWorkDays += days - getHolidaysCount(holidaysForRegion, currentYearBeginDate, endDate);
+                                summaryWorkDays += days - vacationService.getHolidaysCount(holidaysForRegion, currentYearBeginDate, endDate);
                             } if (beginYear == year && year < endYear){
                                 long days = DateUtils.getFragmentInDays(beginDate, Calendar.YEAR);
                                 summaryCalDays += days;
-                                summaryWorkDays += days - getHolidaysCount(holidaysForRegion, currentYearBeginDate, beginDate);
+                                summaryWorkDays += days - vacationService.getHolidaysCount(holidaysForRegion, currentYearBeginDate, beginDate);
                             }
 
                             summaryApproved++;
@@ -384,20 +384,6 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
             list.set(list.size()-i-1, vac);
         }
         return list;
-    }
-
-    private int getHolidaysCount(List<Holiday> holidaysForRegion, final Date beginDate, final Date endDate) {
-        return Iterables.size(Iterables.filter(holidaysForRegion, new Predicate<Holiday>() {
-            @Override
-            public boolean apply(@Nullable Holiday holiday) {
-                final Timestamp calDate = holiday.getCalDate().getCalDate();
-
-                return (
-                        calDate.compareTo(beginDate) == 0 || calDate.compareTo(endDate) == 0 ||
-                                calDate.after(beginDate) && calDate.before(endDate)
-                );
-            }
-        }));
     }
 
     @RequestMapping(value = "/vacations_needs_approval")
