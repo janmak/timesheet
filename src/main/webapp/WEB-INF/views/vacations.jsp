@@ -482,9 +482,10 @@ function sortSelect(select) {
         </th>
         <th width="160">Статус</th>
         <th width="220">Тип отпуска</th>
-        <th width="120">Дата с</th>
-        <th width="120">Дата по</th>
-        <th width="130">Кол-во календарных дней</th>
+        <th width="110">Дата создания</th>
+        <th width="110">Дата с</th>
+        <th width="110">Дата по</th>
+        <th width="120">Кол-во календарных дней</th>
         <th width="130">Кол-во рабочих дней</th>
         <th width="270">Комментарий</th>
         <th width="270">Сотрудник</th>
@@ -575,6 +576,7 @@ function sortSelect(select) {
                     </c:if>
                 </td>
                 <td class="centered">${vacation.type.value}</td>
+                <td class="date"><fmt:formatDate value="${vacation.creationDate}" pattern="dd.MM.yyyy"/></td>
                 <td class="date"><fmt:formatDate value="${vacation.beginDate}" pattern="dd.MM.yyyy"/></td>
                 <td class="date"><fmt:formatDate value="${vacation.endDate}" pattern="dd.MM.yyyy"/></td>
                 <td class="centered">${calDays[lp.index]}</td>

@@ -2,7 +2,6 @@ package com.aplana.timesheet.service.vacationapproveprocess;
 
 import com.aplana.timesheet.dao.entity.*;
 import com.aplana.timesheet.enums.VacationStatusEnum;
-import com.aplana.timesheet.enums.VacationTypesEnum;
 import com.aplana.timesheet.exception.service.CalendarServiceException;
 import com.aplana.timesheet.exception.service.VacationApprovalServiceException;
 import com.aplana.timesheet.properties.TSPropertyProvider;
@@ -359,7 +358,7 @@ public abstract class AbstractVacationApprovalProcessService extends AbstractSer
         addSecondManager(emails, vacation);
         vacation.setStatus(dictionaryItemService.find(VacationStatusEnum.APPROVED.getId()));     //в БД отмечаем, что отпуск утвержден
         vacationService.store(vacation);
-        sendMailService.performPlannedVacationApproveRequestSender(vacation, emails);
+        sendMailService.performPlannedVacationCreateRequestSender(vacation, emails);
     }
 
     private void addSecondManager(List<String> emails, Vacation vacation) {

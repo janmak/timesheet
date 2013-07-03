@@ -21,14 +21,14 @@ import java.util.*;
  * Date: 01.07.13
  * Time: 11:15
  */
-public class PlannedVacationApprovedSender extends AbstractVacationSenderWithCopyToAuthor {
+public class PlannedVacationCreateSender extends AbstractVacationSenderWithCopyToAuthor {
 
-    private static final Logger logger = LoggerFactory.getLogger(PlannedVacationApprovedSender.class);
+    private static final Logger logger = LoggerFactory.getLogger(PlannedVacationCreateSender.class);
 
     private final List<String> emails;
 
-    public PlannedVacationApprovedSender(SendMailService sendMailService, TSPropertyProvider propertyProvider,
-                                  List<String> emails) {
+    public PlannedVacationCreateSender(SendMailService sendMailService, TSPropertyProvider propertyProvider,
+                                       List<String> emails) {
         super(sendMailService, propertyProvider);
         this.emails = emails;
     }
@@ -67,6 +67,7 @@ public class PlannedVacationApprovedSender extends AbstractVacationSenderWithCop
         String regionNameStr = vacation.getEmployee().getRegion().getName();
         String beginDateStr = DateFormatUtils.format(vacation.getBeginDate(), DATE_FORMAT);
         String endDateStr = DateFormatUtils.format(vacation.getEndDate(), DATE_FORMAT);
+        String creationDate = DateFormatUtils.format(vacation.getCreationDate(), DATE_FORMAT);
         String authorVacation = Padeg.getFIOPadegFS(vacation.getAuthor().getName(), true, PadegConstants.Tvoritelnyy);
         String commentStr = StringUtils.EMPTY;
         if (StringUtils.isNotBlank(vacation.getComment())) {
@@ -79,7 +80,7 @@ public class PlannedVacationApprovedSender extends AbstractVacationSenderWithCop
         stringBuilder.append(String.format("из г. %s ", regionNameStr));
         stringBuilder.append(String.format("на период с %s - %s. ", beginDateStr, endDateStr));
         stringBuilder.append(String.format("%s", commentStr));
-        stringBuilder.append(String.format("Запись о планируемом отпуске создана %s.",authorVacation));
+        stringBuilder.append(String.format("Запись о планируемом отпуске создана %s. Дата создания %s.",authorVacation,creationDate));
 
         return stringBuilder.toString();
     }
