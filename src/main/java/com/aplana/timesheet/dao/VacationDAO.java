@@ -255,4 +255,23 @@ public class VacationDAO {
 
         return query.getResultList();
     }
+
+    public Long findVacationsNeedApprovalCount(Integer employeeId) {
+        List<Integer> statuses = Lists.newArrayList(VacationStatusEnum.APPROVED.getId(),VacationStatusEnum.REJECTED.getId());
+        try {
+            final Query query =
+                    entityManager.createQuery("select count(distinct v) from VacationApproval va " +
+                            "left outer join va.vacation as v " +
+                            "left outer join va.manager as m " +
+                            "left outer join v.status as s " +
+                            "where (m.id = :emp_id ) and (s.id not in (:statuses)) " +
+                            "group by v.beginDate ")
+                            .setParameter("emp_id", employeeId)
+                            .setParameter("statuses", statuses);
+
+            return (Long) query.getSingleResult();
+        } catch (NoResultException e) {
+            return 0l;
+        }
+    }
 }

@@ -16,9 +16,7 @@ import org.apache.commons.lang.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.annotation.Nullable;
@@ -145,6 +143,7 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
         modelAndView.addObject("workDays", workDays);
         modelAndView.addObject("vacationTypes",
                 dictionaryItemService.getItemsByDictionaryId(DictionaryEnum.VACATION_TYPE.getId()));
+        modelAndView.addObject("vacationNeedsApprovalCount", vacationService.findVacationsNeedsApprovalCount(employeeId));
         List<Region> regionListForCalc = new ArrayList<Region>();
         List<Integer> filledRegionsId = vacationsForm.getRegions().get(0).equals(-1)
                 ? getRegionIdList()
@@ -419,4 +418,14 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
         return modelAndView;
     }
 
+    /**
+     * Возвращает количество неутвержденных заявлений на отпуск в виде строк '(X)'
+     */
+    @RequestMapping(value = "/vacations/count", produces = "text/plain;charset=UTF-8")
+    @ResponseBody
+    public String getVacationsCount() {
+        Employee employee = securityService.getSecurityPrincipal().getEmployee();
+        Integer vacationsNeedsApprovalCount = vacationService.findVacationsNeedsApprovalCount(employee.getId());
+        return vacationsNeedsApprovalCount>0?"("+vacationsNeedsApprovalCount+")":"";
+    }
 }

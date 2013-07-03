@@ -8,6 +8,25 @@
 
 %>
 
+<script type="text/javascript">
+    dojo.addOnLoad(function () {
+        getVacationsNeedsApprovalCountString();
+    });
+    function getVacationsNeedsApprovalCountString(){
+        dojo.xhrGet({
+            url: getContextPath() + "/vacations/count",
+            timeout:10000,
+            load:function (data) {
+                if (data) {
+                    dojo.byId("vacationCount").innerHTML = data;
+                } else {
+                    dojo.byId("vacationCount").innerHTML = "";
+                }
+            },
+        });
+
+    }
+</script>
 <a href="<c:url value='/'/>"><img id="logo" src="<%=request.getContextPath()%>/resources/img/logo.png"
                                   alt="Aplana Software"/></a>
 
@@ -28,7 +47,7 @@
                         <li><a href="<c:url value='/planEdit'/>"><fmt:message key="title.planEdit"/></a></li>
                         </sec:authorize>
                         <li><a href="<c:url value='/businesstripsandillness'/>"><fmt:message key="title.businesstripsandillness"/></a></li>
-                        <li><a href="<c:url value='/vacations'/>"><fmt:message key="title.vacations"/></a></li>
+                        <li><a href="<c:url value='/vacations'/>"><fmt:message key="title.vacations"/><span id="vacationCount"></span></a></li>
                         <sec:authorize access="hasAnyRole('ROLE_ADMIN', 'ROLE_MANAGER')">
                             <li><a href="<c:url value='/managertools'/>"><fmt:message key="title.manager"/></a></li>
                         </sec:authorize>

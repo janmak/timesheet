@@ -49,11 +49,13 @@
         </th>
         <th width="160">Статус</th>
         <th width="220">Тип отпуска</th>
+        <th width="120">Дата создания</th>
         <th width="120">Дата с</th>
         <th width="120">Дата по</th>
         <th width="130">Кол-во календарных дней</th>
         <th width="130">Кол-во рабочих дней</th>
         <th width="270">Комментарий</th>
+        <th width="270">Сотрудник</th>
     </tr>
     </thead>
     <tbody>
@@ -119,17 +121,19 @@
                 </c:if>
             </td>
             <td class="centered">${vacation.type.value}</td>
+            <td class="date"><fmt:formatDate value="${vacation.creationDate}" pattern="dd.MM.yyyy"/></td>
             <td class="date"><fmt:formatDate value="${vacation.beginDate}" pattern="dd.MM.yyyy"/></td>
             <td class="date"><fmt:formatDate value="${vacation.endDate}" pattern="dd.MM.yyyy"/></td>
             <td class="centered">${calDays[lp.index]}</td>
             <td class="centered">${workDays[lp.index]}</td>
-            <td>
+            <td class="centered">
                 ${vacation.comment}
                 <c:if test="${vacation.author.id ne vacation.employee.id}">
-                    <c:if test="${fn:length(vacation.comment) != 0}"><br/></br></c:if>
+                    <c:if test="${fn:length(vacation.comment) != 0}"><br/><br/></c:if>
                     Заявка создана сотрудником ${vacation.author.name}
                 </c:if>
             </td>
+            <td class="centered">${vacation.employee.name}</td>
         </tr>
     </c:forEach>
     </tbody>

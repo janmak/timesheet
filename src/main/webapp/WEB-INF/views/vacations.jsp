@@ -376,6 +376,10 @@ function sortSelect(select) {
 <h1><fmt:message key="title.vacations"/></h1>
 <br/>
 <a target="_blank" href="<c:url value='/vacations_needs_approval'/>"><fmt:message key="link.vacation.approval"/></a>
+<br/>
+<a><fmt:message key="title.approval.waiting">
+    <fmt:param value="${vacationNeedsApprovalCount}"/>
+</fmt:message></a>
 
 <form:form method="post" commandName="vacationsForm" name="mainForm">
     <form:hidden path="<%= VACATION_ID%>"/>
@@ -497,7 +501,7 @@ function sortSelect(select) {
     <c:choose>
     <c:when test="${fn:length(vacationsList) == 0}">
     <tr>
-        <td colspan="11">Нет ни одного заявления на отпуск, удовлетворяющего выбранным параметрам</td>
+        <td colspan="12">Нет ни одного заявления на отпуск, удовлетворяющего выбранным параметрам</td>
     </tr>
     </tbody>
     </c:when>
@@ -581,10 +585,10 @@ function sortSelect(select) {
                 <td class="date"><fmt:formatDate value="${vacation.endDate}" pattern="dd.MM.yyyy"/></td>
                 <td class="centered">${calDays[lp.index]}</td>
                 <td class="centered">${workDays[lp.index]}</td>
-                <td>
+                <td class="centered">
                         ${vacation.comment}
                     <c:if test="${vacation.author.id ne vacation.employee.id}">
-                        <c:if test="${fn:length(vacation.comment) != 0}"><br/></br></c:if>
+                        <c:if test="${fn:length(vacation.comment) != 0}"><br/><br/></c:if>
                         Заявка создана сотрудником ${vacation.author.name}
                     </c:if>
                 </td>
