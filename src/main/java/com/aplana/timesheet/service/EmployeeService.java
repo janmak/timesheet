@@ -1,11 +1,14 @@
 package com.aplana.timesheet.service;
 
+import argo.jdom.JsonArrayNodeBuilder;
 import com.aplana.timesheet.constants.TimeSheetConstants;
 import com.aplana.timesheet.dao.EmployeeDAO;
 import com.aplana.timesheet.dao.entity.*;
 import com.aplana.timesheet.enums.PermissionsEnum;
+import com.aplana.timesheet.util.JsonUtil;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
+import org.apache.commons.lang.StringUtils;
 import org.apache.velocity.app.VelocityEngine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,6 +21,10 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 
+import static argo.jdom.JsonNodeBuilders.aStringBuilder;
+import static argo.jdom.JsonNodeBuilders.anArrayBuilder;
+import static argo.jdom.JsonNodeBuilders.anObjectBuilder;
+import static argo.jdom.JsonNodeFactories.string;
 import static com.aplana.timesheet.constants.RoleConstants.ROLE_ADMIN;
 
 @Service
@@ -200,6 +207,10 @@ public class EmployeeService {
         return employeeDAO.getDivisionEmployees(divisionId, date, regionIds, projectRoleIds);
     }
 
+    public List<Employee> getDivisionEmployeesByManager(Integer divisionId, Date date, List<Integer> regionIds, List<Integer> projectRoleIds,Integer managerId) {
+        return employeeDAO.getDivisionEmployeesByManager(divisionId, date, regionIds, projectRoleIds,managerId);
+    }
+
     public List<Employee> getEmployees() {
         return employeeDAO.getEmployees();
     }
@@ -255,6 +266,25 @@ public class EmployeeService {
 
     public List<Employee> getManagerListForAllEmployee(){
         return employeeDAO.getManagerListForAllEmployee();
+    }
+
+    public String getManagerListJson(){
+        final JsonArrayNodeBuilder builder = anArrayBuilder();
+        List<Employee> managers = employeeDAO.getManagerListForAllEmployee();
+        builder.withElement(
+                anObjectBuilder().
+                        withField("number", JsonUtil.aNumberBuilder(0)).
+                        withField("value", string(StringUtils.EMPTY))
+        );
+        for (Employee manager : managers) {
+            builder.withElement(
+                    anObjectBuilder().
+                            withField("id", JsonUtil.aStringBuilder(manager.getId())).
+                            withField("name", aStringBuilder(manager.getName())).
+                            withField("division",aStringBuilder(manager.getDivision().getId().toString()))
+            );
+        }
+        return JsonUtil.format(builder);
     }
 
     public List<Integer> getEmployeesIdByDivisionManagerRegion(Integer divisionId, Integer managerId, Integer regionId){

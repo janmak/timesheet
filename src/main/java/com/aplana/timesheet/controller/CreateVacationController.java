@@ -57,8 +57,6 @@ public class CreateVacationController {
     @Autowired
     protected EmployeeHelper employeeHelper;
     @Autowired
-    private ViewReportHelper viewReportHelper;
-    @Autowired
     protected SendMailService sendMailService;
     @Autowired
     protected HttpServletRequest request;

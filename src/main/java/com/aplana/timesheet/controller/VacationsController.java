@@ -365,10 +365,6 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
         return regionService.getRegions();
     }
 
-    private List<Employee> getManagerList() {
-        return employeeService.getManagerListForAllEmployee();
-    }
-
     private List<Integer> getRegionIdList(){
         List<Integer> regionsIdList = new ArrayList<Integer>();
         for (Region region : getRegionList()){

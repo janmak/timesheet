@@ -210,13 +210,6 @@ public class VacationDAO {
             textQuery += "and v.type_id in :types_id";
         }
 
-        String sfa =  String.format(
-                textQuery,
-                String.format("%d-%d-1", year, month)
-        );
-        logger.debug(">>>>>>>>>>>>>>>>>>>>>>>> {}", sfa);
-
-
         final Query query = entityManager.createNativeQuery(
             String.format(
                     textQuery,
@@ -237,7 +230,6 @@ public class VacationDAO {
 
             query.setParameter("types_id", typesVac) ;
         }
-        logger.debug(">>>>>>>>>>>>>>>>>>>>>>>> {}", query.toString());
         return ((Number) query.getSingleResult()).intValue();
     }
 

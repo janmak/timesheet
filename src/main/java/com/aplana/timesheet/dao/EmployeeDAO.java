@@ -400,4 +400,24 @@ public class EmployeeDAO {
                 .setParameter("managerId", managerId);
         return query.getResultList();
     }
+
+    public List<Employee> getDivisionEmployeesByManager(Integer divisionId, Date date, List<Integer> regionIds, List<Integer> projectRoleIds, Integer managerId) {
+        final Calendar calendar = Calendar.getInstance();
+
+        calendar.setTime(date);
+
+        final Query query = entityManager.createQuery(
+                "from Employee e where e.division.id = :div_id" +
+                        " and ((:date_month >= MONTH(e.startDate) and :date_year = YEAR(e.startDate) or :date_year > YEAR(e.startDate))" +
+                        "       and (e.endDate is null or :date_month <= MONTH(e.endDate) and :date_year = YEAR(e.endDate) or :date_year < YEAR(e.endDate)))" +
+                        " and (e.region.id in :region_ids or " + ALL_REGIONS + " in (:region_ids))" +
+                        " and (e.job.id in :project_role_ids or " + ALL_PROJECT_ROLES + " in (:project_role_ids))" +
+                        " and (e.manager.id = :manager_Id or e.manager2.id = :manager_Id)" +
+                        " order by e.name"
+        ).setParameter("div_id", divisionId).setParameter("date_month", calendar.get(Calendar.MONTH) + 1).
+                setParameter("date_year", calendar.get(Calendar.YEAR)).
+                setParameter("region_ids", regionIds).setParameter("project_role_ids", projectRoleIds).setParameter("manager_Id",managerId);
+
+        return query.getResultList();
+    }
 }
