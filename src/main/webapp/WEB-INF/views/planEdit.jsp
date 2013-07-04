@@ -502,12 +502,11 @@ function log(text){
     .blockYearMonth {
         float: left;
         position: relative;
-        top: -2px;
     }
     .blockRegion {
         float: left;
         position: relative;
-        top: -4px;
+        top: -8px;
     }
 </style>
 </head>
