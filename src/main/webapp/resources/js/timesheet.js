@@ -1271,8 +1271,15 @@ function submitWithOvertimeCauseSet(){
         return;
     }
 
+    var overtimeCause = dijit.byId("overtimeCause").get("value");
+
+    if (overtimeCause == 0) {
+        tooltip.show("Необходимо указать причину!");
+        return;
+    }
+
     dojo.byId("overtimeCauseComment_hidden").value = dijit.byId("overtimeCauseComment").get('value');
-    dojo.byId("overtimeCause_hidden").value = comment;
+    dojo.byId("overtimeCause_hidden").value = overtimeCause;
     dojo.byId("typeOfCompensation_hidden").value = dijit.byId("typeOfCompensation").get('value');
 
 

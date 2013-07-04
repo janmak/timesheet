@@ -348,7 +348,6 @@ public class TimeSheetFormValidator extends AbstractValidator {
 
     private void validateDuration(TimeSheetForm tsForm, Employee employee, Errors errors, List<TimeSheetTableRowForm> timeSheetTablePart) {
         double totalDuration = 0;
-        boolean checkOvertime = true;
 
         int notNullRowNumber = 0;
         if (timeSheetTablePart != null) { // Проверяем заполненность строк отчета только если они есть :)
@@ -413,9 +412,11 @@ public class TimeSheetFormValidator extends AbstractValidator {
 
         Boolean isDivisionLeader = employeeService.isEmployeeDivisionLeader(employee.getId());
 
+        Boolean hasCause = tsForm.getOvertimeCause() != null && tsForm.getOvertimeCause() >0;
+
         if (((totalDuration - WORK_DAY_DURATION > propertyProvider.getOvertimeThreshold()) ||
-                ((WORK_DAY_DURATION - totalDuration > propertyProvider.getUndertimeThreshold()) && !isDivisionLeader) )
-                && checkOvertime || isHoliday || isVacation
+                ((WORK_DAY_DURATION - totalDuration > propertyProvider.getUndertimeThreshold()) && !isDivisionLeader) ||
+                (isHoliday || isVacation)) && !hasCause
                 ) {
             boolean isOvertime = totalDuration - WORK_DAY_DURATION > 0;
             String concreteName = isHoliday || isVacation ? "работы в выходной день" : (isOvertime ? "переработок" : "недоработок");
