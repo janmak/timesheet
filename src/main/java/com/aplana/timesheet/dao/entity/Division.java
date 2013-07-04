@@ -62,6 +62,9 @@ public class Division implements Identifiable, Comparable<Division> {
     @Column(name = "vacation_email", length = 255)
     private String vacationEmail;
 
+    @Column(name = "plans_required")
+    private Boolean plansRequired;
+
     public Division() {	}
 
     public Employee getLeaderId() {
@@ -187,6 +190,15 @@ public class Division implements Identifiable, Comparable<Division> {
     public void setEmail(String email) {
         this.email = email;
     }
+
+    public Boolean getPlansRequired() {
+        return plansRequired;
+    }
+
+    public void setPlansRequired(Boolean plansRequired) {
+        this.plansRequired = plansRequired;
+    }
+
 
     public String toString() {
 		StringBuilder sb = new StringBuilder()

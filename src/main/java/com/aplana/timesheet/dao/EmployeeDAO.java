@@ -420,4 +420,11 @@ public class EmployeeDAO {
 
         return query.getResultList();
     }
+
+    public Employee findByLdapCN(String ldapCN) {
+        return (Employee) Iterables.getFirst(entityManager.createQuery(
+                "FROM Employee emp WHERE ldap = :ldap"
+        ).setParameter("ldap", ldapCN).getResultList(), null);
+    }
+    
 }

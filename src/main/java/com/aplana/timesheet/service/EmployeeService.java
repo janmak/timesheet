@@ -319,4 +319,11 @@ public class EmployeeService {
         }*/
         return employees;
     }
+
+    /**
+     * Ищет сотрудника по LdapCN
+     */
+    public Employee findByLdapCN(String LdapCN) {
+        return employeeDAO.findByLdapCN(LdapCN);
+    }
 }
