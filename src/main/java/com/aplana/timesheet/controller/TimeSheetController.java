@@ -10,6 +10,7 @@ import com.aplana.timesheet.form.validator.TimeSheetFormValidator;
 import com.aplana.timesheet.properties.TSPropertyProvider;
 import com.aplana.timesheet.service.*;
 import com.aplana.timesheet.util.EmployeeHelper;
+import com.aplana.timesheet.util.JsonUtil;
 import com.aplana.timesheet.util.TimeSheetUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,6 +24,8 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static argo.jdom.JsonNodeFactories.*;
 
 @Controller
 public class TimeSheetController {
@@ -266,4 +269,18 @@ public class TimeSheetController {
         return timeSheetService.getListOfActDescriptoin();
     }
 
+
+    @RequestMapping(value = "/employee/isDivisionLeader", headers = "Accept=application/json")
+    @ResponseBody
+    public String isDivisionLeader(
+            @RequestParam("employeeId") Integer employeeId
+    ) {
+        return JsonUtil.format(
+                object(
+                        field(
+                                "isDivisionLeader",
+                                employeeService.isEmployeeDivisionLeader(employeeId) ? trueNode() : falseNode())
+                )
+        );
+    }
 }

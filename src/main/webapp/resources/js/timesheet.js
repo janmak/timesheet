@@ -1141,6 +1141,7 @@ function checkDurationThenSendForm(){
 
     var isHoliday = false;
     var isVacation = false;
+    var isDivisionLeader = false;
 
     dojo.xhrGet({
         url: getContextPath() + "/calendar/isholiday",
@@ -1190,10 +1191,32 @@ function checkDurationThenSendForm(){
         }
     });
 
-    if (
-        (totalDuration < (8 - undertimeThreshold) || totalDuration > (8 + overtimeThreshold) )
-        || isHoliday || isVacation
-    ) {
+    dojo.xhrGet({
+        url: getContextPath() + "/employee/isDivisionLeader",
+        headers: {
+            "If-Modified-Since":"Sat, 1 Jan 2000 00:00:00 GMT"
+        },
+        handleAs: "text",
+        timeout: 1000,
+        failOk: true,
+        content: { employeeId: dojo.byId('employeeId').value },
+        sync: true,
+
+        load: function(dataAsText, ioArgs) {
+            var data;
+            try {
+                data = dojo.fromJson(dataAsText);
+            } catch (e) {}
+
+            if (data) {
+                isDivisionLeader = data.isDivisionLeader
+            }
+        }
+    });
+
+    var check = (((totalDuration < (8 - undertimeThreshold)) && !isDivisionLeader)|| totalDuration > (8 + overtimeThreshold) ) || isHoliday || isVacation;
+    //if ( check ) {
+        if ( false ) {
         var comment = dijit.byId("overtimeCauseComment");
 
         /*comment.on("mouseover", function() {

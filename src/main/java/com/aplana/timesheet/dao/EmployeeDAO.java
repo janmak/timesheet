@@ -426,5 +426,12 @@ public class EmployeeDAO {
                 "FROM Employee emp WHERE ldap = :ldap"
         ).setParameter("ldap", ldapCN).getResultList(), null);
     }
-    
+
+    public Boolean isEmployeeDivisionLeader(Integer employeeID) {
+        Long slavesCount = (Long) entityManager.createQuery("select count (*) from Division as e " +
+                "where e.leaderId.id = :employeeID")
+                .setParameter("employeeID", employeeID)
+                .getSingleResult();
+        return slavesCount > 0;
+    }
 }

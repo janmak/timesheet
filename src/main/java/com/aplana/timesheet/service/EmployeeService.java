@@ -15,6 +15,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.annotation.Nullable;
 import javax.servlet.http.Cookie;
@@ -24,7 +27,8 @@ import java.util.*;
 import static argo.jdom.JsonNodeBuilders.aStringBuilder;
 import static argo.jdom.JsonNodeBuilders.anArrayBuilder;
 import static argo.jdom.JsonNodeBuilders.anObjectBuilder;
-import static argo.jdom.JsonNodeFactories.string;
+import static argo.jdom.JsonNodeFactories.*;
+import static argo.jdom.JsonNodeFactories.falseNode;
 import static com.aplana.timesheet.constants.RoleConstants.ROLE_ADMIN;
 
 @Service
@@ -208,7 +212,7 @@ public class EmployeeService {
     }
 
     public List<Employee> getDivisionEmployeesByManager(Integer divisionId, Date date, List<Integer> regionIds, List<Integer> projectRoleIds,Integer managerId) {
-        return employeeDAO.getDivisionEmployeesByManager(divisionId, date, regionIds, projectRoleIds,managerId);
+        return employeeDAO.getDivisionEmployeesByManager(divisionId, date, regionIds, projectRoleIds, managerId);
     }
 
     public List<Employee> getEmployees() {
@@ -225,6 +229,11 @@ public class EmployeeService {
 
     public Boolean isLineManager(Employee employee) {
         return employeeDAO.isLineManager(employee);
+    }
+
+
+    public Boolean isEmployeeDivisionLeader(Integer employeeID) {
+        return employeeDAO.isEmployeeDivisionLeader(employeeID);
     }
 
     /**
