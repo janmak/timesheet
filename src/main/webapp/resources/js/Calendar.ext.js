@@ -41,19 +41,16 @@ dojo.declare(CALENDAR_EXT_PATH + ".SimpleCalendar", com.aplana.dijit.ext.Calenda
     }
 });
 
-function initCurrentDateInfo(employeeId, date, typeCal) {
+function initCurrentDateInfo(employeeId, date, urlAddress) {
     if (typeof date == typeof undefined || date == null) {
         date = new Date();
     }
-    // определяется тип возвращаемых данных для календаря:
-    // для отчетов - report, для отпусков - vacation
-    if (typeCal == null) {
-        url = "/calendar/dates"
-    } else if (typeCal == "report"){
-        url = "/calendar/dates"
-    }  else {
-        url = "/calendar/vacationDates"
+    if (urlAddress != null) {
+        url = urlAddress;
+    } else {
+        url = '/calendar/dates';
     }
+
     colorDayWithReportFromThreeMonth(date.getFullYear(), correctLength(date.getMonth() + 1), employeeId, null);
 }
 
@@ -63,7 +60,7 @@ function colorDayWithReportFromThreeMonth(/* int */ year, /* int */ month, emplo
     }
 
     loadCalendarColors(year, month, employeeId);
-    var monthPrev =  parseInt(month, 10) - 1;
+    var monthPrev = parseInt(month, 10) - 1;
     var yearPrev = year;
     if (monthPrev <= 0){
         monthPrev = 12;

@@ -246,4 +246,24 @@ public class CalendarDAO {
 
         return ((Long) entityManager.createQuery(select).getSingleResult()).intValue();
     }
+
+    public Date tryGetMaxDateMonth(Integer year, Integer month) {
+        final Query query = entityManager.createQuery(
+                "select MAX(calDate)" +
+                        " from Calendar c" +
+                        " where YEAR(c.calDate) = :year and MONTH(c.calDate) = :month"
+        ).setParameter("year", year).setParameter("month", month);
+
+        return (Date) query.getSingleResult();
+    }
+
+    public Date tryGetMinDateMonth(Integer year, Integer month) {
+        final Query query = entityManager.createQuery(
+                "select MIN(calDate)" +
+                        " from Calendar c" +
+                        " where YEAR(c.calDate) = :year and MONTH(c.calDate) = :month"
+        ).setParameter("year", year).setParameter("month", month);
+
+        return (Date) query.getSingleResult();
+    }
 }

@@ -49,7 +49,7 @@ public class JasperReportDAO {
         fieldsMap.put( Report04.class, new String[] { "date", "name", "region_name", "role" } );
         fieldsMap.put( Report05.class, new String[] { "calDate", "name", "value", "pctName", "actType",
                 "role", "taskName", "duration", "description", "problem", "region_name", "workplace", "project_role", "day_type", "billable", "plan" } );
-        fieldsMap.put( Report06.class, new String[] { "duration", "act_type", "name", "act_cat", "region_name" } );
+        fieldsMap.put( Report06.class, new String[] { "duration", "project_role", "name", "act_cat", "region_name", "role", "act_type", "begin_date", "end_date"} );
     }
 
     private static final Logger logger = LoggerFactory.getLogger(JasperReportDAO.class);
@@ -743,16 +743,20 @@ public class JasperReportDAO {
     @VisibleForTesting
     List getResultList(Report06 report) {
         boolean withRegionClause   = report.hasRegions()                && !report.isAllRegions();
+        boolean withDatesClause   = !report.isAllDates();
 
         boolean withProjectClause = !report.getProjectId().equals(0);
 
         Query query = entityManager.createQuery(
                 "SELECT " +
                         "sum(tsd.duration), " +
-                        "act.projectRole.name, " +
+                        "tsd.projectRole.name, " +
                         "tsd.timeSheet.employee.name, " +
                         "tsd.actCat.value, " +
-                        "r.name " +
+                        "r.name, " +
+                        "tsd.timeSheet.employee.job.name, " +
+                        "tsd.actType.value " +
+                        (",min(tsd.timeSheet.calDate.calDate), max(tsd.timeSheet.calDate.calDate) ") +
                 "FROM " +
                         "TimeSheetDetail tsd, " +
                         "AvailableActivityCategory act " +
@@ -763,17 +767,58 @@ public class JasperReportDAO {
                         "tsd.actCat=act.actCat AND " +
                         (withRegionClause ? REGION_CLAUSE : WITHOUT_CLAUSE) +
                         (withProjectClause ? PROJECT_CLAUSE : WITHOUT_CLAUSE) +
-                        "tsd.timeSheet.calDate.calDate between :beginDate AND :endDate AND " +
-                        "act.projectRole=tsd.timeSheet.employee.job " +
-                "GROUP BY act.projectRole.name, tsd.timeSheet.employee.name, tsd.actCat.value, r.name " +
+                        (withDatesClause?"tsd.timeSheet.calDate.calDate between :beginDate AND :endDate AND ":WITHOUT_CLAUSE) +
+                        "act.projectRole=tsd.projectRole " +
+                "GROUP BY " +
+                        "tsd.projectRole.name, " +
+                        "act.projectRole.name, " +
+                        "tsd.timeSheet.employee.name, " +
+                        "tsd.actCat.value, " +
+                        "r.name, " +
+                        "tsd.timeSheet.employee.job.name, " +
+                        "tsd.actType.value " +
                 "ORDER BY tsd.timeSheet.employee.name asc");
+        //нужен только для случая если период не указан
+        Query datesQuery = null;
+        if (!withDatesClause) {
+            datesQuery = entityManager.createQuery(
+                    "SELECT " +
+                            "new map(min(tsd.timeSheet.calDate.calDate) as minDate, " +
+                            "max(tsd.timeSheet.calDate.calDate) as maxDate) " +
+                    "FROM " +
+                            "TimeSheetDetail tsd " +
+                            "join tsd.timeSheet.employee empl " +
+                            "join empl.region r " +
+                    "WHERE " +
+                            (withRegionClause ? REGION_CLAUSE : WITHOUT_CLAUSE) +
+                            (withProjectClause ? PROJECT_CLAUSE : WITHOUT_CLAUSE) +
+                            (withDatesClause?"tsd.timeSheet.calDate.calDate between :beginDate AND :endDate AND":WITHOUT_CLAUSE)+
+                            "true is true ");
+        }
 
-        if (withRegionClause)
-			query.setParameter("regionIds", report.getRegionIds());
-        if (withProjectClause)
+        if (withRegionClause){
+            query.setParameter("regionIds", report.getRegionIds());
+            if (!withDatesClause) {
+                datesQuery.setParameter("regionIds", report.getRegionIds());
+            }
+        }
+        if (withProjectClause){
             query.setParameter("projectId", report.getProjectId());
-        query.setParameter("beginDate", DateTimeUtil.stringToTimestamp( report.getBeginDate() ));
-        query.setParameter("endDate", DateTimeUtil.stringToTimestamp(report.getEndDate()));
+            if (!withDatesClause) {
+                datesQuery.setParameter("projectId", report.getProjectId());
+            }
+        }
+        if (withDatesClause) {
+            query.setParameter("beginDate", DateTimeUtil.stringToTimestamp( report.getBeginDate() ));
+            query.setParameter("endDate", DateTimeUtil.stringToTimestamp(report.getEndDate()));
+        }
+        if (!withDatesClause) {
+            Map<String, Timestamp> dates= (Map<String, Timestamp>) datesQuery.getSingleResult();
+            if(dates!=null){
+                report.setBeginDate(DateTimeUtil.formatDate(dates.get("minDate")));
+                report.setEndDate(DateTimeUtil.formatDate(dates.get("maxDate")));
+            }
+        }
 
         return query.getResultList();
     }

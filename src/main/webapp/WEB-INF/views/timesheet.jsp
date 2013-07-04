@@ -131,7 +131,7 @@
         refreshPlans(dijit.byId('calDate').value, dojo.byId('employeeId').value);
 
         // инициализация данных по выходным и отчетам для текущей даты
-        initCurrentDateInfo('${timeSheetForm.employeeId}', dijit.byId('calDate').value,'report');
+        initCurrentDateInfo('${timeSheetForm.employeeId}', dijit.byId('calDate').value,'/calendar/dates');
     });
 
     function refreshPlans(date, employeeId) {
@@ -365,7 +365,7 @@
         <form:select path="employeeId" id="employeeId" class="without_dojo" onmouseover="tooltip.show(getTitle(this));"
                      cssStyle="width: auto"
                      onmouseout="tooltip.hide();" onchange="setDefaultEmployeeJob(-1);
-                     initCurrentDateInfo(this.value, dijit.byId('calDate').value,'report');
+                     initCurrentDateInfo(this.value, dijit.byId('calDate').value,'/calendar/dates');
                      refreshPlans(dijit.byId('calDate').value, this.value); setDefaultDate(this.value)">
             <form:option label="" value="0"/>
         </form:select>

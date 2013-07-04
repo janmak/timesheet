@@ -17,6 +17,18 @@ function allRegionsCheckBoxChange(checked){
     }
 }
 
+function allDatesCheckBoxChange(checked){
+    var begin = "beginDate";
+    var end = "endDate";
+    if (checked) {
+        dijit.byId(begin).set("readOnly", true);
+        dijit.byId(end).set("readOnly", true);
+    } else {
+        dijit.byId(begin).set("readOnly", false);
+        dijit.byId(end).set("readOnly", false);
+    }
+}
+
 function setDefaultRegion(){
     var allRegions = dojo.byId("allRegions");
     if (allRegions != null){

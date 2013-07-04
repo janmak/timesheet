@@ -4,11 +4,11 @@ import argo.jdom.JsonObjectNodeBuilder;
 import com.aplana.timesheet.dao.HolidayDAO;
 import com.aplana.timesheet.dao.entity.*;
 import com.aplana.timesheet.dao.entity.Calendar;
+import com.aplana.timesheet.enums.DictionaryEnum;
+import com.aplana.timesheet.enums.VacationStatusEnum;
+import com.aplana.timesheet.enums.VacationTypesEnum;
 import com.aplana.timesheet.form.entity.DayTimeSheet;
-import com.aplana.timesheet.service.CalendarService;
-import com.aplana.timesheet.service.EmployeeService;
-import com.aplana.timesheet.service.TimeSheetService;
-import com.aplana.timesheet.service.VacationService;
+import com.aplana.timesheet.service.*;
 import org.apache.commons.lang.time.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +16,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.Temporal;
+import java.sql.Timestamp;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -40,7 +43,17 @@ public class ViewReportHelper {
     @Autowired
     private EmployeeService employeeService;
 
+    @Autowired
+    private DictionaryItemService dictionaryItemService;
+
     private static final Logger logger = LoggerFactory.getLogger(ViewReportHelper.class);
+
+    final private Integer PLANNED_VACATION_MARK = 4;
+    final private Integer VACATION_MARK = 3;
+    final private Integer CROSS_VACATION_MARK = 5;
+    final private Integer PREVIOUS_DAY_MARK = 1;
+    final private Integer HOLIDAY_MARK = 2;
+    final private Integer TYPICAL_DAY_MARK = 0;
 
     @Transactional
     public String getDateReportsListJson(Integer year, Integer month, Integer employeeId) {
@@ -68,45 +81,187 @@ public class ViewReportHelper {
         final JsonObjectNodeBuilder builder = anObjectBuilder();
         final List<Vacation> vacations = vacationService.findVacations(year, month, employeeId);
         Map<Date, Integer> vacationDates = new HashMap<Date, Integer>();
+        Date currentDate = new Date((new java.util.Date()).getTime());
+
+        addMonthDays(year, month, employeeId, vacationDates, currentDate);
+
+        checkVacationDay(year, month, vacations, vacationDates, VACATION_MARK);
+
+        for (Map.Entry date : vacationDates.entrySet()) {
+            final String sdate = new SimpleDateFormat(DateTimeUtil.DATE_PATTERN).format(date.getKey());
+            builder.withField(sdate, aStringBuilder(date.getValue().toString()));
+        }
+
+        String format = JsonUtil.format(builder.build());
+        logger.debug(format);
+        return format;
+    }
+
+    /**
+     * В мапу добавляются все дни месяца с учетом прошедших дней, выходных и праздников
+     * @param year
+     * @param month
+     * @param employeeId
+     * @param vacationDates
+     * @param currentDate
+     */
+    private void addMonthDays(Integer year, Integer month, Integer employeeId, Map<Date, Integer> vacationDates, Date currentDate) {
         Employee emp = employeeService.find(employeeId);
         List<Calendar> monthDays = calendarService.getDateList(year, month);
-        Date currentDate = new Date((new java.util.Date()).getTime());
-        //Добавляем в мапу все дни месяца
+
         for (Calendar day : monthDays) {
             if (!holidayDAO.isWorkDay(day.getCalDate().toString(), emp.getRegion())) {
-                if (!day.getCalDate().before(currentDate)) {
-                    vacationDates.put(day.getCalDate(), 2);  //если выходной или праздничный день
-                } else {
-                    vacationDates.put(day.getCalDate(), 1);  //если это прошедший день
-                }
+                vacationDates.put(day.getCalDate(), HOLIDAY_MARK);  //если выходной или праздничный день
             } else if (day.getCalDate().before(currentDate)) {
-                vacationDates.put(day.getCalDate(), 1);  //если это прошедший день
+                vacationDates.put(day.getCalDate(), PREVIOUS_DAY_MARK);  //если это прошедший день
             } else {
-                vacationDates.put(day.getCalDate(), 0);
+                vacationDates.put(day.getCalDate(), TYPICAL_DAY_MARK);
             }
         }
-        //отмечаем дни отпуска
-        for (Vacation vacation : vacations) {
-            if (!vacation.getEndDate().before(currentDate)) {
-                //количество дней в отпуске
-                Long cnt = DateTimeUtil.getAllDaysCount(vacation.getBeginDate(), vacation.getEndDate()) - 1;
+    }
+
+    /**
+     * Метод отмечает дни обычного отпуска, полнового и их пересечения
+     *
+     * @param year
+     * @param month
+     * @param vacations
+     * @param vacationDates мапа с днями и отмеченными выходными и праздниками
+     * @param markValue     метка дня (обычный, плановый, пересечение отпусков)
+     */
+    private void checkVacationDay(Integer year, Integer month, List<Vacation> vacations, Map<Date, Integer> vacationDates, Integer markValue) {
+        Date lastDayofMonth = calendarService.getMaxDateMonth(year, month);
+        Date firstDayofMonth = calendarService.getMinDateMonth(year, month);
+        if (vacationDates != null) {
+            for (Vacation vacation : vacations) {
+                Long cnt = DateTimeUtil.getAllDaysCount(vacation.getBeginDate(), vacation.getEndDate()) - 1;//количество дней в отпуске
                 for (Long i = 0L; i <= cnt; i++) {
                     Date vacationDay = DateUtils.addDays(vacation.getBeginDate(), i.intValue());
-                    if (vacationDay.after(currentDate)) {
-                        if (vacationDates.get(vacationDay) != null) {
-                            vacationDates.put(vacationDay, 3);
+                    if (!vacationDay.after(lastDayofMonth) && !vacationDay.before(firstDayofMonth)) {
+                        if (vacationDates.get(vacationDay) != HOLIDAY_MARK) {
+                            if (vacationDates.get(vacationDay) != null && (markValue != PLANNED_VACATION_MARK)) {
+                                vacationDates.put(vacationDay, markValue);
+                            } else {
+                                if (vacationDates.get(vacationDay) == VACATION_MARK) {
+                                    vacationDates.put(vacationDay, CROSS_VACATION_MARK);
+                                } else {
+                                    vacationDates.put(vacationDay, markValue);
+                                }
+                            }
                         }
-                        ;
                     }
                 }
             }
         }
-        for (Map.Entry date: vacationDates.entrySet()) {
+    }
+
+    @Transactional
+    public String getDateVacationWithPlannedListJson(Integer year, Integer month, Integer employeeId) {
+        final JsonObjectNodeBuilder builder = anObjectBuilder();
+
+        Map<Date, Integer> vacationDates = getVacationWithPlannedMap(year, month, employeeId, false);
+
+        for (Map.Entry date : vacationDates.entrySet()) {
             final String sdate = new SimpleDateFormat(DateTimeUtil.DATE_PATTERN).format(date.getKey());
             builder.withField(sdate, aStringBuilder(date.getValue().toString()));
         }
 
         String format = JsonUtil.format(builder.build());
         return format;
+    }
+
+    /**
+     *
+     * @param year
+     * @param month
+     * @param employeeId
+     * @param needForCalcCount
+     * @return
+     */
+    private Map<Date, Integer> getVacationWithPlannedMap(Integer year, Integer month, Integer employeeId, Boolean needForCalcCount) {
+        Map<Date, Integer> vacationDates = new HashMap<Date, Integer>();
+        Date currentDate = new Date((new Date()).getTime());
+
+        addMonthDays(year, month, employeeId, vacationDates, currentDate);
+
+        List<DictionaryItem> typesVac = dictionaryItemService.getItemsByDictionaryId(DictionaryEnum.VACATION_TYPE.getId());
+        DictionaryItem planned = dictionaryItemService.find(VacationTypesEnum.PLANNED.getId());
+        typesVac.remove(planned);
+
+        final List<Vacation> vacations;
+
+        // Если необходимо посчитать дни отпуска сотрудника в getCountVacationAndPlannedVacationDays за выбранный месяц
+        // то считаем дни «Отпуска с сохранением содержания» ( утвержденные заявление и заявления на согласовании) +
+        // дни «Отпуска без сохранения содержания»( утвержденные заявление и заявления на согласовании), +
+        // дни «Планируемого отпуска»
+        if (needForCalcCount) {
+            //без учета отпусков с отработкой
+            typesVac.remove(dictionaryItemService.find(VacationTypesEnum.WITH_NEXT_WORKING.getId()));
+
+            List<DictionaryItem> statusVac = dictionaryItemService.getItemsByDictionaryId(DictionaryEnum.VACATION_STATUS.getId());
+            //нужны только утвержденные отпуска
+            statusVac.remove(dictionaryItemService.find(VacationStatusEnum.REJECTED.getId()));
+
+            vacations = vacationService.findVacationsByTypesAndStatuses(year, month, employeeId, typesVac, statusVac);
+        } else {
+            vacations = vacationService.findVacationsByTypes(year, month, employeeId, typesVac);
+        }
+
+        checkVacationDay(year, month, vacations, vacationDates, VACATION_MARK);
+
+        final List<Vacation> vacationsPlanned = vacationService.findVacationsByType(year, month, employeeId, planned);
+
+        //Отмечаем плановые отпуска
+        checkVacationDay(year, month, vacationsPlanned, vacationDates, PLANNED_VACATION_MARK);
+        return vacationDates;
+    }
+
+    /**
+     * Возвращает количество дней утвержденных отпусков (+плановых), без учета отпусков с отработкой
+     *
+     * @param year
+     * @param month
+     * @param employeeId
+     * @return количество дней утвержденных отпусков (+плановых), без учета отпусков с отработкой
+     */
+    public Integer getCountVacationAndPlannedVacationDays(Integer year, Integer month, Integer employeeId) {
+        Integer count = 0;
+        Map<Date, Integer> vacationDates = getVacationWithPlannedMap(year, month, employeeId, true);
+        for (Map.Entry date : vacationDates.entrySet()) {
+            if (date.getValue() == PLANNED_VACATION_MARK || date.getValue() == VACATION_MARK || date.getValue() == CROSS_VACATION_MARK) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    /**
+     * Рекурсивный поиск даты выхода на работу
+     * @param dayEndVacation дата окончания отпуска
+     * @param employeeId
+     * @param inVacationDates при вызове метода передавать null, мапа необходима для рекурсивного вызова
+     * @return дату выхода на работу без учета
+     */
+    public Date getNextWorkDay(Date dayEndVacation, Integer employeeId, Map<Date, Integer> inVacationDates) {
+        java.util.Calendar mycal = java.util.Calendar.getInstance();
+        mycal.setTime(dayEndVacation);
+        Integer month = mycal.get(java.util.Calendar.MONTH) + 1;
+        Integer year = mycal.get(java.util.Calendar.YEAR);
+        if (inVacationDates == null) {
+            inVacationDates = getVacationWithPlannedMap(year, month, employeeId, false);
+        }
+        Date nextDay = DateUtils.addDays(dayEndVacation, 1);
+        mycal.setTime(nextDay);
+        Integer nextMonth = mycal.get(java.util.Calendar.MONTH) + 1;
+        if (inVacationDates.size() > 0) {
+            if (inVacationDates.get(nextDay) != null && inVacationDates.get(nextDay) == TYPICAL_DAY_MARK) {
+                return nextDay;
+            } else {
+                return getNextWorkDay(nextDay, employeeId, nextMonth != month ? null : inVacationDates);
+            }
+        } else {
+            return null;
+        }
+
     }
 }

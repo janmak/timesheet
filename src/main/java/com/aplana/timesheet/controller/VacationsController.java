@@ -16,9 +16,7 @@ import org.apache.commons.lang.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.annotation.Nullable;
@@ -145,6 +143,7 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
         modelAndView.addObject("workDays", workDays);
         modelAndView.addObject("vacationTypes",
                 dictionaryItemService.getItemsByDictionaryId(DictionaryEnum.VACATION_TYPE.getId()));
+        modelAndView.addObject("vacationNeedsApprovalCount", vacationService.findVacationsNeedsApprovalCount(employeeId));
         List<Region> regionListForCalc = new ArrayList<Region>();
         List<Integer> filledRegionsId = vacationsForm.getRegions().get(0).equals(-1)
                 ? getRegionIdList()
@@ -303,7 +302,7 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
 
                     for (int i = 0; i < vacationsSize; i++) {
                         final Vacation vacation = differRegionVacations.get(i);
-                        final int holidaysCount = getHolidaysCount(holidaysForRegion, vacation.getBeginDate(), vacation.getEndDate());
+                        final int holidaysCount = vacationService.getHolidaysCount(holidaysForRegion, vacation.getBeginDate(), vacation.getEndDate());
 
                         final int calDaysCount = calDays.get(i);
                         final int workDaysCount = calDaysCount - holidaysCount;
@@ -329,11 +328,11 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
                             } if (beginYear < year && year == endYear){
                                 long days = DateUtils.getFragmentInDays(endDate, Calendar.YEAR);
                                 summaryCalDays += days;
-                                summaryWorkDays += days - getHolidaysCount(holidaysForRegion, currentYearBeginDate, endDate);
+                                summaryWorkDays += days - vacationService.getHolidaysCount(holidaysForRegion, currentYearBeginDate, endDate);
                             } if (beginYear == year && year < endYear){
                                 long days = DateUtils.getFragmentInDays(beginDate, Calendar.YEAR);
                                 summaryCalDays += days;
-                                summaryWorkDays += days - getHolidaysCount(holidaysForRegion, currentYearBeginDate, beginDate);
+                                summaryWorkDays += days - vacationService.getHolidaysCount(holidaysForRegion, currentYearBeginDate, beginDate);
                             }
 
                             summaryApproved++;
@@ -365,10 +364,6 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
         return regionService.getRegions();
     }
 
-    private List<Employee> getManagerList() {
-        return employeeService.getManagerListForAllEmployee();
-    }
-
     private List<Integer> getRegionIdList(){
         List<Integer> regionsIdList = new ArrayList<Integer>();
         for (Region region : getRegionList()){
@@ -384,20 +379,6 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
             list.set(list.size()-i-1, vac);
         }
         return list;
-    }
-
-    private int getHolidaysCount(List<Holiday> holidaysForRegion, final Date beginDate, final Date endDate) {
-        return Iterables.size(Iterables.filter(holidaysForRegion, new Predicate<Holiday>() {
-            @Override
-            public boolean apply(@Nullable Holiday holiday) {
-                final Timestamp calDate = holiday.getCalDate().getCalDate();
-
-                return (
-                        calDate.compareTo(beginDate) == 0 || calDate.compareTo(endDate) == 0 ||
-                                calDate.after(beginDate) && calDate.before(endDate)
-                );
-            }
-        }));
     }
 
     @RequestMapping(value = "/vacations_needs_approval")
@@ -437,4 +418,14 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
         return modelAndView;
     }
 
+    /**
+     * Возвращает количество неутвержденных заявлений на отпуск в виде строк '(X)'
+     */
+    @RequestMapping(value = "/vacations/count", produces = "text/plain;charset=UTF-8")
+    @ResponseBody
+    public String getVacationsCount() {
+        Employee employee = securityService.getSecurityPrincipal().getEmployee();
+        Integer vacationsNeedsApprovalCount = vacationService.findVacationsNeedsApprovalCount(employee.getId());
+        return vacationsNeedsApprovalCount>0?"("+vacationsNeedsApprovalCount+")":"";
+    }
 }

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="report4" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="ceaec857-b656-4164-bd02-a86611c4a678">
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="report4" pageWidth="768" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="ceaec857-b656-4164-bd02-a86611c4a678">
 	<property name="net.sf.jasperreports.print.keep.full.text" value="true"/>
 	<property name="ireport.zoom" value="1.5"/>
 	<property name="ireport.x" value="0"/>
@@ -16,6 +16,8 @@
 	<field name="name" class="java.lang.String"/>
 	<field name="act_cat" class="java.lang.String"/>
 	<field name="region_name" class="java.lang.String"/>
+	<field name="project_role" class="java.lang.String"/>
+	<field name="role" class="java.lang.String"/>
 	<group name="Group1">
 		<groupExpression><![CDATA[$F{name}]]></groupExpression>
 	</group>
@@ -25,17 +27,17 @@
 	<title>
 		<band height="125" splitType="Stretch">
 			<staticText>
-				<reportElement uuid="c9c6ba2f-32a4-44c2-be37-059faabe442c" style="Title" x="0" y="0" width="555" height="77"/>
+				<reportElement uuid="c9c6ba2f-32a4-44c2-be37-059faabe442c" style="Title" x="0" y="0" width="728" height="77"/>
 				<textElement textAlignment="Center" verticalAlignment="Middle"/>
 				<text><![CDATA[Отчет №6. Распределение трудозатрат в проекте для СК]]></text>
 			</staticText>
 			<textField>
-				<reportElement uuid="873b15d9-70d8-46b6-8e19-ff3ee39a4439" style="SubTitle" x="0" y="77" width="555" height="24"/>
+				<reportElement uuid="873b15d9-70d8-46b6-8e19-ff3ee39a4439" style="SubTitle" x="0" y="77" width="728" height="24"/>
 				<textElement textAlignment="Center"/>
 				<textFieldExpression><![CDATA["Регион : "+ $P{reportParams}.wellFormedRegionList()]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement uuid="e69d93fc-190a-4619-a237-2c4de82f02a6" style="SubTitle" x="0" y="101" width="555" height="24"/>
+				<reportElement uuid="e69d93fc-190a-4619-a237-2c4de82f02a6" style="SubTitle" x="0" y="101" width="728" height="24"/>
 				<textElement textAlignment="Center"/>
 				<textFieldExpression><![CDATA["с " + DateTimeUtil.formatDateString($P{reportParams}.getBeginDate()) +
 " по " + DateTimeUtil.formatDateString($P{reportParams}.getEndDate())]]></textFieldExpression>
@@ -48,58 +50,78 @@
 	<columnHeader>
 		<band height="13" splitType="Stretch">
 			<staticText>
-				<reportElement uuid="f4a3d3ec-6402-40ce-bbca-6144ecdf1a29" style="Column header" x="0" y="0" width="97" height="13"/>
+				<reportElement uuid="f4a3d3ec-6402-40ce-bbca-6144ecdf1a29" style="Column header" x="0" y="0" width="117" height="13"/>
 				<textElement/>
 				<text><![CDATA[Сотрудник]]></text>
 			</staticText>
 			<staticText>
-				<reportElement uuid="f4a3d3ec-6402-40ce-bbca-6144ecdf1a29" style="Column header" x="97" y="0" width="75" height="13"/>
+				<reportElement uuid="f4a3d3ec-6402-40ce-bbca-6144ecdf1a29" style="Column header" x="117" y="0" width="87" height="13"/>
 				<textElement/>
 				<text><![CDATA[Регион]]></text>
 			</staticText>
 			<staticText>
-				<reportElement uuid="727e194c-546d-4f52-81ee-01b573270ef1" style="Column header" x="172" y="0" width="127" height="13"/>
+				<reportElement uuid="727e194c-546d-4f52-81ee-01b573270ef1" style="Column header" x="412" y="0" width="127" height="13"/>
 				<textElement/>
 				<text><![CDATA[Проектная роль]]></text>
 			</staticText>
 			<staticText>
-				<reportElement uuid="e8df06b7-ba2a-4447-a2b6-f2775c01d5b3" style="Column header" x="299" y="0" width="194" height="13"/>
+				<reportElement uuid="e8df06b7-ba2a-4447-a2b6-f2775c01d5b3" style="Column header" x="539" y="0" width="129" height="13"/>
 				<textElement/>
 				<text><![CDATA[Категория активности]]></text>
 			</staticText>
 			<staticText>
-				<reportElement uuid="af943e1d-1117-4ad4-9d91-06695d5bae65" style="Column header" x="493" y="0" width="60" height="13"/>
+				<reportElement uuid="af943e1d-1117-4ad4-9d91-06695d5bae65" style="Column header" x="668" y="0" width="60" height="13"/>
 				<textElement/>
 				<text><![CDATA[Часы]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="102f4059-671f-4009-8cf8-897598c01b45" style="Column header" x="204" y="0" width="128" height="13"/>
+				<textElement/>
+				<text><![CDATA[Роль в системе]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="b54a578b-5108-49e8-989f-2d9721cb74e9" style="Column header" x="332" y="0" width="80" height="13"/>
+				<textElement/>
+				<text><![CDATA[Тип активности]]></text>
 			</staticText>
 		</band>
 	</columnHeader>
 	<detail>
 		<band height="13">
-			<textField>
-				<reportElement uuid="489c7b58-ef21-46d0-869f-9ede54d4bd9d" style="Detail" x="0" y="0" width="97" height="13"/>
+			<textField isStretchWithOverflow="true">
+				<reportElement uuid="489c7b58-ef21-46d0-869f-9ede54d4bd9d" style="Detail" stretchType="RelativeToTallestObject" x="0" y="0" width="117" height="13"/>
 				<textElement/>
 				<textFieldExpression><![CDATA[$F{name}]]></textFieldExpression>
 			</textField>
-			<textField>
-				<reportElement uuid="dad2f0d7-1747-440d-bd44-da1ed519fda4" style="Detail" x="97" y="0" width="75" height="13"/>
+			<textField isStretchWithOverflow="true">
+				<reportElement uuid="dad2f0d7-1747-440d-bd44-da1ed519fda4" style="Detail" stretchType="RelativeToTallestObject" x="117" y="0" width="87" height="13"/>
 				<textElement/>
 				<textFieldExpression><![CDATA[$F{region_name}]]></textFieldExpression>
 			</textField>
-			<textField>
-				<reportElement uuid="555954ad-cdc2-4dc8-a5cf-489682d31f3a" style="Detail" x="172" y="0" width="127" height="13"/>
+			<textField isStretchWithOverflow="true">
+				<reportElement uuid="555954ad-cdc2-4dc8-a5cf-489682d31f3a" style="Detail" stretchType="RelativeToTallestObject" x="412" y="0" width="127" height="13"/>
 				<textElement/>
-				<textFieldExpression><![CDATA[$F{act_type}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{project_role}]]></textFieldExpression>
 			</textField>
-			<textField>
-				<reportElement uuid="94b10d60-6a4d-471f-9b2f-9742ac817255" style="Detail" x="299" y="0" width="194" height="13"/>
+			<textField isStretchWithOverflow="true">
+				<reportElement uuid="94b10d60-6a4d-471f-9b2f-9742ac817255" style="Detail" stretchType="RelativeToTallestObject" x="539" y="0" width="129" height="13"/>
 				<textElement/>
 				<textFieldExpression><![CDATA[$F{act_cat}]]></textFieldExpression>
 			</textField>
-			<textField pattern="###0.0">
-				<reportElement uuid="90c0d099-174c-4810-b44f-34741c784a17" style="Detail" x="493" y="0" width="60" height="13"/>
+			<textField pattern="###0.0" isStretchWithOverflow="true">
+				<reportElement uuid="90c0d099-174c-4810-b44f-34741c784a17" style="Detail" stretchType="RelativeToTallestObject" x="668" y="0" width="60" height="13"/>
 				<textElement/>
 				<textFieldExpression><![CDATA[$F{duration}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement uuid="f7ab66dc-21c4-4c9a-b9a0-dba570c52151" style="Detail" stretchType="RelativeToTallestObject" x="204" y="0" width="128" height="13"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$F{role}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement uuid="4bed5c57-9eab-45d4-b85a-1a30278d92c9" style="Detail" stretchType="RelativeToTallestObject" x="332" y="0" width="80" height="13"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$F{act_type}]]></textFieldExpression>
 			</textField>
 		</band>
 	</detail>

@@ -3,16 +3,15 @@ package com.aplana.timesheet.controller;
 import com.aplana.timesheet.dao.entity.Calendar;
 import com.aplana.timesheet.dao.entity.Division;
 import com.aplana.timesheet.dao.entity.Employee;
-import com.aplana.timesheet.dao.entity.Vacation;
 import com.aplana.timesheet.enums.DictionaryEnum;
-import com.aplana.timesheet.enums.VacationStatusEnum;
+import com.aplana.timesheet.enums.VacationTypesEnum;
 import com.aplana.timesheet.exception.service.VacationApprovalServiceException;
 import com.aplana.timesheet.form.CreateVacationForm;
 import com.aplana.timesheet.form.validator.CreateVacationFormValidator;
 import com.aplana.timesheet.service.*;
-import com.aplana.timesheet.service.vacationapproveprocess.VacationApprovalProcessService;
 import com.aplana.timesheet.util.DateTimeUtil;
 import com.aplana.timesheet.util.EmployeeHelper;
+import com.aplana.timesheet.util.ViewReportHelper;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateFormatUtils;
@@ -36,8 +35,6 @@ import java.util.List;
  */
 @Controller
 public class CreateVacationController {
-
-    public static final String CANT_GET_EXIT_TO_WORK_EXCEPTION_MESSAGE = "Не удалось получить дату выхода из отпуска.";
 
     private static final Logger logger = LoggerFactory.getLogger(BusinessTripsAndIllnessController.class);
 
@@ -63,8 +60,6 @@ public class CreateVacationController {
     protected SendMailService sendMailService;
     @Autowired
     protected HttpServletRequest request;
-    @Autowired
-    private VacationsController vacationsController;
 
     @RequestMapping(value = "/createVacation", method = RequestMethod.GET)
     public String prepareToCreateVacation() {
@@ -112,6 +107,7 @@ public class CreateVacationController {
         modelAndView.addObject("divisionList", divisionList);
         modelAndView.addObject("employeeListJson", employeeHelper.getEmployeeListJson(divisionList, employeeService.isShowAll(request)));
         modelAndView.addObject("typeWithRequiredComment", CreateVacationFormValidator.TYPE_WITH_REQUIRED_COMMENT);
+        modelAndView.addObject("typeVacationPlanned", VacationTypesEnum.PLANNED.getId());
 
         return modelAndView;
     }
@@ -124,27 +120,14 @@ public class CreateVacationController {
         return calendar;
     }
 
-    @RequestMapping(value = "/getExitToWork/{employeeId}/{date}", produces = "text/plain;charset=UTF-8")
+    @RequestMapping(value = "/getExitToWorkAndCountVacationDay",  produces = "text/plain;Charset=UTF-8")
     @ResponseBody
-    public String getExitToWork(
-            @PathVariable("employeeId") Integer employeeId,
-            @PathVariable("date") String dateString
+    public String getExitToWorkAndCountVacationDay(
+                                           @RequestParam("beginDate") String beginDate,
+                                           @RequestParam("endDate") String endDate,
+                                           @RequestParam("employeeId") Integer employeeId
     ) {
-        try {
-            final Timestamp date = DateTimeUtil.stringToTimestamp(dateString, CreateVacationForm.DATE_FORMAT);
-            final Employee employee = employeeService.find(employeeId);
-
-            return String.format(
-                    "Выход на работу: %s",
-                    DateFormatUtils.format(
-                        calendarService.getNextWorkDay(getCalendar(date), employee.getRegion()).getCalDate(),
-                        CreateVacationForm.DATE_FORMAT
-                    )
-            );
-        } catch (Exception th) {
-            logger.error(CANT_GET_EXIT_TO_WORK_EXCEPTION_MESSAGE, th);
-            return StringUtils.EMPTY;
-        }
+        return vacationService.getExitToWorkAndCountVacationDayJson(beginDate,endDate,employeeId);
     }
 
     @RequestMapping(value = "/validateAndCreateVacation/{employeeId}/{approved}", method = RequestMethod.POST)
