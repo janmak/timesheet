@@ -573,7 +573,7 @@ public class PlanEditController {
 
                 final Project project = timeSheetDetail.getProject();
 
-                if (project != null && project.isActive()) {
+                if (project != null) {
                     projectId = project.getId();
 
                     final Employee manager = project.getManager();
