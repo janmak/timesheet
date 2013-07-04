@@ -118,7 +118,7 @@ public class ProjectService {
      *
      */
     @Transactional(readOnly = true)
-    public String getProjectListWithOwnerDivisionJson(List<Division> divisions) {
+    public String getProjectListWithOwnerDivisionJson() {
         final JsonArrayNodeBuilder builder = anArrayBuilder();
         final List<Project> projectList = getAllProjects();
 

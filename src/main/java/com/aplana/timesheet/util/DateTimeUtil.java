@@ -125,7 +125,6 @@ public class DateTimeUtil {
      * @return Timestamp
      */
     public static Timestamp stringToTimestamp(String Date) {
-        logger.debug("Datestring {}", Date);
         return new Timestamp(stringToTimestamp(Date, DATE_PATTERN).getTime());
     }
 
