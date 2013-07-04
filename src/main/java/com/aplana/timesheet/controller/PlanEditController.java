@@ -18,7 +18,6 @@ import com.aplana.timesheet.util.JsonUtil;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.jfree.util.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -542,7 +541,7 @@ public class PlanEditController {
 
                 final Project project = timeSheetDetail.getProject();
 
-                if (project != null && project.isActive()) {
+                if (project != null) {
                     projectId = project.getId();
 
                     final Employee manager = project.getManager();
