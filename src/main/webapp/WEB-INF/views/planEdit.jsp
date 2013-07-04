@@ -532,9 +532,19 @@ function log(text){
                                 <form:select path="<%= DIVISION_ID %>" class="without_dojo"
                                              onmouseover="showTooltip(this);"
                                              onmouseout="tooltip.hide();"
-                                        onchange="updateManagerList(this.value)">
+                                             onchange="updateManagerList(this.value)">
                                     <form:option label="" value="0"/>
                                     <form:options items="${divisionList}" itemLabel="name" itemValue="id"/>
+                                </form:select>
+                            </td>
+                            <td>
+                                <span class="label">Год:</span>
+                            </td>
+                            <td>
+                                <form:select path="<%= YEAR %>" class="without_dojo" onmouseover="showTooltip(this);"
+                                             onmouseout="tooltip.hide();" onchange="updateMonthList(this.value)">
+                                    <form:option label="" value="0"/>
+                                    <form:options items="${yearList}" itemLabel="year" itemValue="year"/>
                                 </form:select>
                             </td>
                         </tr>
@@ -550,26 +560,6 @@ function log(text){
                                     <form:options items="${managerList}" itemLabel="name" itemValue="id"/>
                                 </form:select>
                             </td>
-                        </tr>
-                    </table>
-                </div>
-            </td>
-            <td class="topAlignTD">
-                <div class="blockYearMonth">
-                    <table>
-                        <tr>
-                            <td>
-                                <span class="label">Год:</span>
-                            </td>
-                            <td>
-                                <form:select path="<%= YEAR %>" class="without_dojo" onmouseover="showTooltip(this);"
-                                             onmouseout="tooltip.hide();" onchange="updateMonthList(this.value)">
-                                    <form:option label="" value="0"/>
-                                    <form:options items="${yearList}" itemLabel="year" itemValue="year"/>
-                                </form:select>
-                            </td>
-                        </tr>
-                        <tr>
                             <td>
                                 <span class="label">Месяц:</span>
                             </td>
@@ -579,6 +569,38 @@ function log(text){
                                     <form:option label="" value="0"/>
                                     <form:options items="${monthList}" itemLabel="monthTxt" itemValue="month"/>
                                 </form:select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="4" style="padding-top: 10px;">
+                                <table>
+                                    <tr>
+                                        <td style="text-align: center">
+                                            <button id="show" style="width:150px;vertical-align: middle;" type="submit"
+                                                    onclick="return validate()">Показать
+                                            </button>
+                                        </td>
+
+                                        <td>
+                                            <div>
+                                                <form:checkbox id="<%= SHOW_PLANS %>" path="<%= SHOW_PLANS %>"
+                                                               label="Показывать плановые показатели"/>
+                                            </div>
+                                            <div style="padding-top: 5px;">
+                                                <form:checkbox id="<%= SHOW_FACTS %>" path="<%= SHOW_FACTS %>"
+                                                               label="Показывать фактические показатели"/>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div>
+                                                <form:checkbox path="<%= SHOW_PROJECTS %>" label="Проекты"/>
+                                            </div>
+                                            <div style="padding-top: 5px;">
+                                                <form:checkbox path="<%= SHOW_PRESALES %>" label="Пресейлы"/>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </table>
                             </td>
                         </tr>
                     </table>
@@ -623,45 +645,13 @@ function log(text){
                 </div>
             </td>
         </tr>
-        <tr>
-            <td>
-                <div>
-                    <form:checkbox id="<%= SHOW_PLANS %>" path="<%= SHOW_PLANS %>"
-                                   label="Показывать плановые показатели"/>
-                </div>
-                <div>
-                    <form:checkbox id="<%= SHOW_FACTS %>" path="<%= SHOW_FACTS %>"
-                                   label="Показывать фактические показатели"/>
-                </div>
-            </td>
-            <td>
-                <table>
-                    <tr>
-                        <td>
-                            <div>
-                                <form:checkbox path="<%= SHOW_PROJECTS %>" label="Проекты"/>
-                            </div>
-                            <div>
-                                <form:checkbox path="<%= SHOW_PRESALES %>" label="Пресейлы"/>
-                            </div>
-                        </td>
-                        <td style="text-align: right">
-                            <button id="show" style="width:150px;vertical-align: middle;" type="submit"
-                                    onclick="return validate()">Показать
-                            </button>
-                        </td>
-                    </tr>
-                </table>
-            </td>
-        </tr>
     </table>
 
     <sec:authorize access="hasRole('ROLE_PLAN_EDIT')">
-        <br/>
         <c:if test="${fn:length(jsonDataToShow) > 0 and editable}">
-            <button style="width:150px;vertical-align: middle;" onclick="save()" type="button">Сохранить планы</button>
+            <button style="width:150px;margin-left: 23px;" onclick="save()" type="button">Сохранить планы</button>
         </c:if>
-        <button style="vertical-align: middle;" onclick="createPlanForPeriod()" type="button">
+        <button style="margin-left: 20px;" onclick="createPlanForPeriod()" type="button">
             Запланировать на период
         </button>
     </sec:authorize>
@@ -672,7 +662,7 @@ function log(text){
 <c:if test="${fn:length(jsonDataToShow) > 0}">
     <div dojoType="dojox.layout.ContentPane" style="width: 100%; min-width: 1260px;">
         <div id="myTable" jsId="<%= GRID_JS_ID %>" dojoType="dojox.grid.DataGrid" store="myStore"
-             selectionMode="none" canSort="false" query="myQuery" <%--autoHeight="true"--%> style="height: 550px;"
+             selectionMode="none" canSort="false" query="myQuery" <%--autoHeight="true"--%> style="height: 620px;"
              structure="myLayout"></div>
     </div>
 </c:if>
