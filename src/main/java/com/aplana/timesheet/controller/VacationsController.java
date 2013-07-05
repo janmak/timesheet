@@ -1,5 +1,6 @@
 package com.aplana.timesheet.controller;
 
+import com.aplana.timesheet.constants.PadegConstants;
 import com.aplana.timesheet.dao.entity.*;
 import com.aplana.timesheet.enums.DictionaryEnum;
 import com.aplana.timesheet.enums.VacationStatusEnum;
@@ -7,17 +8,21 @@ import com.aplana.timesheet.exception.service.DeleteVacationException;
 import com.aplana.timesheet.exception.service.VacationApprovalServiceException;
 import com.aplana.timesheet.form.VacationsForm;
 import com.aplana.timesheet.form.validator.VacationsFormValidator;
+import com.aplana.timesheet.properties.TSPropertyProvider;
 import com.aplana.timesheet.service.*;
 import com.aplana.timesheet.util.DateTimeUtil;
 import com.aplana.timesheet.util.EnumsUtils;
+import com.aplana.timesheet.util.TimeSheetUser;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import org.apache.commons.lang.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
+import padeg.lib.Padeg;
 
 import javax.annotation.Nullable;
 import javax.servlet.http.HttpSession;
@@ -49,6 +54,10 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
     private DivisionService divisionService;
     @Autowired
     private VacationApprovalService vacationApprovalService;
+    @Autowired
+    MessageSource messageSource;
+    @Autowired
+    private SecurityService securityService;
 
     @RequestMapping(value = "/vacations", method = RequestMethod.GET)
     public ModelAndView prepareToShowVacations(
@@ -143,7 +152,22 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
         modelAndView.addObject("workDays", workDays);
         modelAndView.addObject("vacationTypes",
                 dictionaryItemService.getItemsByDictionaryId(DictionaryEnum.VACATION_TYPE.getId()));
-        modelAndView.addObject("vacationNeedsApprovalCount", vacationService.findVacationsNeedsApprovalCount(employeeId));
+        TimeSheetUser timeSheetUser = securityService.getSecurityPrincipal();
+        Integer vacationsNeedsApprovalCount = 0;
+        if (timeSheetUser!=null && timeSheetUser.getEmployee()!=null) {
+            vacationsNeedsApprovalCount = vacationService.findVacationsNeedsApprovalCount(timeSheetUser.getEmployee().getId());
+        }
+        modelAndView.addObject("vacationNeedsApprovalCount", vacationsNeedsApprovalCount);
+        String approvalPart=null;
+        if (vacationsNeedsApprovalCount<5 && vacationsNeedsApprovalCount>0) {
+                approvalPart = messageSource.getMessage("title.approval.part",null,null);
+        } else {
+                approvalPart = messageSource.getMessage("title.approval.parts", null, null);
+        }
+        if(approvalPart!=null && vacationsNeedsApprovalCount!=1){
+            approvalPart = Padeg.getOfficePadeg(approvalPart, PadegConstants.Roditelnyy);
+        }
+        modelAndView.addObject("approvalPart", approvalPart);
         List<Region> regionListForCalc = new ArrayList<Region>();
         List<Integer> filledRegionsId = vacationsForm.getRegions().get(0).equals(-1)
                 ? getRegionIdList()

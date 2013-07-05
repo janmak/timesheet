@@ -378,7 +378,17 @@ function sortSelect(select) {
 <a target="_blank" href="<c:url value='/vacations_needs_approval'/>"><fmt:message key="link.vacation.approval"/></a>
 <br/>
 <a><fmt:message key="title.approval.waiting">
+    <c:choose>
+        <c:when test="${vacationNeedsApprovalCount!=1}">
+            <fmt:message key="title.waiting.parts" var="waitingPart"/>
+        </c:when>
+        <c:otherwise>
+            <fmt:message key="title.waiting.part" var="waitingPart"/>
+        </c:otherwise>
+    </c:choose>
+    <fmt:param value="${waitingPart}"/>
     <fmt:param value="${vacationNeedsApprovalCount}"/>
+    <fmt:param value="${approvalPart}"/>
 </fmt:message></a>
 
 <form:form method="post" commandName="vacationsForm" name="mainForm">
