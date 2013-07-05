@@ -8,25 +8,6 @@
 
 %>
 
-<script type="text/javascript">
-    dojo.addOnLoad(function () {
-        getVacationsNeedsApprovalCountString();
-    });
-    function getVacationsNeedsApprovalCountString(){
-        dojo.xhrGet({
-            url: getContextPath() + "/vacations/count",
-            timeout:10000,
-            load:function (data) {
-                if (data) {
-                    dojo.byId("vacationCount").innerHTML = data;
-                } else {
-                    dojo.byId("vacationCount").innerHTML = "";
-                }
-            },
-        });
-
-    }
-</script>
 <a href="<c:url value='/'/>"><img id="logo" src="<%=request.getContextPath()%>/resources/img/logo.png"
                                   alt="Aplana Software"/></a>
 

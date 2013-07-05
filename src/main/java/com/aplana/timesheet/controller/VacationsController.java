@@ -8,13 +8,10 @@ import com.aplana.timesheet.exception.service.DeleteVacationException;
 import com.aplana.timesheet.exception.service.VacationApprovalServiceException;
 import com.aplana.timesheet.form.VacationsForm;
 import com.aplana.timesheet.form.validator.VacationsFormValidator;
-import com.aplana.timesheet.properties.TSPropertyProvider;
 import com.aplana.timesheet.service.*;
 import com.aplana.timesheet.util.DateTimeUtil;
 import com.aplana.timesheet.util.EnumsUtils;
 import com.aplana.timesheet.util.TimeSheetUser;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
 import org.apache.commons.lang.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
@@ -24,9 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import padeg.lib.Padeg;
 
-import javax.annotation.Nullable;
 import javax.servlet.http.HttpSession;
-import java.sql.Timestamp;
 import java.util.*;
 import java.util.Calendar;
 
@@ -445,7 +440,7 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
     /**
      * Возвращает количество неутвержденных заявлений на отпуск в виде строк '(X)'
      */
-    @RequestMapping(value = "/vacations/count", produces = "text/plain;charset=UTF-8")
+    @RequestMapping(value = "/vacations/count", headers = "Accept=text/plain;Charset=UTF-8")
     @ResponseBody
     public String getVacationsCount() {
         Employee employee = securityService.getSecurityPrincipal().getEmployee();
