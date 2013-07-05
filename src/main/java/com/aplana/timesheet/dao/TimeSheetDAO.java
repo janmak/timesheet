@@ -216,6 +216,9 @@ public class TimeSheetDAO {
                 " INNER JOIN calendar calnext ON calnext.caldate>tscal.maxcaldate" +
                 " LEFT OUTER JOIN holiday h ON h.calDate=calnext.calDate and (h.region=r.id or h.region is null)" +
                 " WHERE d.id=:division and (h.id is null)" +
+                "and not EXISTS (select i.employee_id,cal.caldate from calendar cal\n" +
+                "RIGHT JOIN illness i on cal.caldate between i.begin_date and i.end_date where \n" +
+                "calnext.caldate = cal.caldate and emp1.id= i.employee_id)" +
                 " GROUP BY 1" +
                 " ORDER BY 1").setParameter("division", division);
 
