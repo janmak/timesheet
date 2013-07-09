@@ -335,4 +335,8 @@ public class EmployeeService {
     public Employee findByLdapCN(String LdapCN) {
         return employeeDAO.findByLdapCN(LdapCN);
     }
+
+    public List<Employee> getEmployeeByRegionAndManagerAndDivision(List<Integer> regions, Integer divisionId, Integer manager) {
+      return employeeDAO.getEmployeeByRegionAndManagerAndDivision(regions,divisionId, manager);
+    }
 }

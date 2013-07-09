@@ -503,7 +503,7 @@ function log(text){
         float: left;
         position: relative;
     }
-    .blockRegion {
+    .blockElement {
         float: left;
         position: relative;
         top: -8px;
@@ -606,7 +606,7 @@ function log(text){
                 </div>
             </td>
             <td>
-                <div class="blockRegion">
+                <div class="blockElement">
                     <table>
                         <tr>
                             <td class="topAlignTD">
@@ -625,7 +625,7 @@ function log(text){
                 </div>
             </td>
             <td>
-                <div class="blockRegion">
+                <div class="blockElement">
                     <table>
                         <tr>
                             <td class="topAlignTD">

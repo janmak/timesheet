@@ -207,4 +207,16 @@ public class CalendarService {
     public Date getMinDateMonth(Integer year, Integer month) {
         return calendarDAO.tryGetMinDateMonth(year,month);
     }
+
+    public Integer getYearFromDate(Date date) {
+        java.util.Calendar calendar = java.util.Calendar.getInstance(java.util.TimeZone.getDefault(), java.util.Locale.getDefault());
+        calendar.setTime(date);
+        return calendar.get(java.util.Calendar.YEAR);
+    }
+
+    public Integer getMonthFromDate(Date date) {
+        java.util.Calendar calendar = java.util.Calendar.getInstance(java.util.TimeZone.getDefault(), java.util.Locale.getDefault());
+        calendar.setTime(date);
+        return calendar.get(java.util.Calendar.MONTH)+1;
+    }
 }
