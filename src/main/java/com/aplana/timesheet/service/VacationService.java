@@ -9,6 +9,7 @@ import com.aplana.timesheet.dao.entity.Vacation;
 import com.aplana.timesheet.enums.VacationStatusEnum;
 import com.aplana.timesheet.enums.VacationTypesEnum;
 import com.aplana.timesheet.exception.service.DeleteVacationException;
+import com.aplana.timesheet.exception.service.NotDataForYearInCalendarException;
 import com.aplana.timesheet.exception.service.VacationApprovalServiceException;
 import com.aplana.timesheet.form.CreateVacationForm;
 import com.aplana.timesheet.service.vacationapproveprocess.VacationApprovalProcessService;
@@ -185,7 +186,7 @@ public class VacationService extends AbstractServiceWithTransactionManagement {
         return vacationsWorkdaysCount;
     }
 
-    public Double getVacationsWorkdaysCount(Employee employee, Integer year, Integer month) {
+    public Double getVacationsWorkdaysCount(Employee employee, Integer year, Integer month) throws NotDataForYearInCalendarException {
          return viewReportHelper.getCountVacationAndPlannedVacationDays(year,month,employee.getId()).doubleValue();
     }
 
@@ -266,9 +267,16 @@ public class VacationService extends AbstractServiceWithTransactionManagement {
             final Timestamp endDateT = DateTimeUtil.stringToTimestamp(endDate, CreateVacationForm.DATE_FORMAT);
             final Timestamp beginDateT = DateTimeUtil.stringToTimestamp(beginDate, CreateVacationForm.DATE_FORMAT);
             //Получаем день выхода на работу
-            Date nextWorkDay = viewReportHelper.getNextWorkDay(endDateT, employeeId, null);
-            if (nextWorkDay == null) throw new Exception("getExitToWorkAndCountVacationDayJson: cannot find next work day (maybe in DB there aren't " +
-                    "calendar dates for end date, check table Calendar)");
+            Date nextWorkDay = null;
+            try {
+                nextWorkDay = viewReportHelper.getNextWorkDay(endDateT, employeeId, null);
+            } catch (NotDataForYearInCalendarException e) {
+                String message = e.getMessage();
+                logger.error("Error in getExitToWorkAndCountVacationDayJson : "+ message);
+                builder.withField("error", aStringBuilder(message));
+                String outString = JsonUtil.format(builder);
+                return outString;
+            }
             String format = DateFormatUtils.format(nextWorkDay, CreateVacationForm.DATE_FORMAT);
             builder.withField("exitDate", aStringBuilder(format));
             Employee emp = employeeService.find(employeeId);

@@ -184,12 +184,22 @@
                     handleAs: "json",
                     content:{beginDate:fromDate, endDate:endDate, employeeId:getEmployeeId()},
                     load: function(data) {
-                        console.log("data = "+ data);
                         if (data.size != 0) {
                             exitToWorkElement.setAttribute("class", "");
-                            exitToWorkElement.innerHTML = "Количество рабочих дней в отпуске :" + data.vacationWorkDayCount+
-                                    "<br>Количество дней в отпуске :"+data.vacationDayCount+
-                                    "<br>Дата выхода на работу: " + data.exitDate;
+                            if (data.error != undefined) {
+                                var errorField = dojo.byId("errorField");
+                                errorField.innerHTML = "<div style='background: #F9F7BA;padding: 5px;color: #F00;'>" +data.error+"</div>";
+                                exitToWorkElement.innerHTML="";
+                                if (dojo.byId("createVacationForm.errors") != undefined) {
+                                    dojo.destroy("createVacationForm.errors");
+                                }
+                            } else {
+                                var errorField = dojo.byId("errorField");
+                                errorField.innerHTML = "";
+                                exitToWorkElement.innerHTML = "Количество рабочих дней в отпуске :" + data.vacationWorkDayCount +
+                                        "<br>Количество дней в отпуске :" + data.vacationDayCount +
+                                        "<br>Дата выхода на работу: " + data.exitDate;
+                            }
                         } else {
                             exitToWorkElement.innerHTML = "Не удалось получить дату выхода из отпуска!";
                         }
@@ -239,16 +249,15 @@
 
 <h1><fmt:message key="title.createVacation"/></h1>
 
-<div style="height: 50px">
+<div style="height: 40px">
     <br/>
     <fmt:message key="vacation.rules.begin"/> <a href="<%=rules%>"><fmt:message key="vacation.rules.link"/></a>
     <br/>
 </div>
+<div id="errorField"></div>
 <form:form method="post" commandName="createVacationForm" name="mainForm" cssStyle="padding-top: 5px;">
     <form:errors path="*" cssClass="errors_box" delimiter="<br/><br/>" />
-
     <%--<form:hidden path="employeeId" />--%>
-
     <table class="without_borders">
         <colgroup>
             <col width="150" />

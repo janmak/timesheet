@@ -9,6 +9,7 @@ import com.aplana.timesheet.enums.EmployeePlanType;
 import com.aplana.timesheet.enums.TSEnum;
 import com.aplana.timesheet.enums.TypesOfActivityEnum;
 import com.aplana.timesheet.enums.VacationStatusEnum;
+import com.aplana.timesheet.exception.service.NotDataForYearInCalendarException;
 import com.aplana.timesheet.form.PlanEditForm;
 import com.aplana.timesheet.form.validator.PlanEditFormValidator;
 import com.aplana.timesheet.service.*;
@@ -515,7 +516,12 @@ public class PlanEditController {
 
         sumOfPlanCharge += nilIfNull(centerProjectsPlan) + nilIfNull(centerPresalesPlan);
 
-        Double vacationPlan = vacationService.getVacationsWorkdaysCount(employee, year, month);
+        Double vacationPlan = 0.0;
+        try {
+            vacationPlan = vacationService.getVacationsWorkdaysCount(employee, year, month);
+        } catch (NotDataForYearInCalendarException e) {
+            LOGGER.error("Error in com.aplana.timesheet.controller.PlanEditController.getPlans : " + e.getMessage());
+        }
         vacationPlan*=TimeSheetConstants.WORK_DAY_DURATION;
 
         appendNumberField(map, CENTER_PROJECTS_PLAN, centerProjectsPlan);

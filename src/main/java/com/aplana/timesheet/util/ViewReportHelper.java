@@ -8,6 +8,7 @@ import com.aplana.timesheet.enums.DictionaryEnum;
 import com.aplana.timesheet.enums.VacationStatusEnum;
 import com.aplana.timesheet.enums.VacationTypesEnum;
 import com.aplana.timesheet.form.entity.DayTimeSheet;
+import com.aplana.timesheet.exception.service.NotDataForYearInCalendarException;
 import com.aplana.timesheet.service.*;
 import org.apache.commons.lang.time.DateUtils;
 import org.slf4j.Logger;
@@ -77,7 +78,7 @@ public class ViewReportHelper {
     }
 
     @Transactional
-    public String getDateVacationListJson(Integer year, Integer month, Integer employeeId) {
+    public String getDateVacationListJson(Integer year, Integer month, Integer employeeId) throws NotDataForYearInCalendarException {
         final JsonObjectNodeBuilder builder = anObjectBuilder();
         final List<Vacation> vacations = vacationService.findVacations(year, month, employeeId);
         Map<Date, Integer> vacationDates = new HashMap<Date, Integer>();
@@ -105,10 +106,12 @@ public class ViewReportHelper {
      * @param vacationDates
      * @param currentDate
      */
-    private void addMonthDays(Integer year, Integer month, Integer employeeId, Map<Date, Integer> vacationDates, Date currentDate) {
+    private void addMonthDays(Integer year, Integer month, Integer employeeId, Map<Date, Integer> vacationDates, Date currentDate) throws NotDataForYearInCalendarException {
         Employee emp = employeeService.find(employeeId);
         List<Calendar> monthDays = calendarService.getDateList(year, month);
-
+        if (monthDays == null || monthDays.size() == 0)
+            throw new NotDataForYearInCalendarException(String.format("Календарь на %s год еще не заполнен, " +
+                    "оформите заявление позже или обратитесь в службу поддержки системы", year.toString()));
         for (Calendar day : monthDays) {
             if (!holidayDAO.isWorkDay(day.getCalDate().toString(), emp.getRegion())) {
                 vacationDates.put(day.getCalDate(), HOLIDAY_MARK);  //если выходной или праздничный день
@@ -156,10 +159,16 @@ public class ViewReportHelper {
     }
 
     @Transactional
-    public String getDateVacationWithPlannedListJson(Integer year, Integer month, Integer employeeId) {
+    public String getDateVacationWithPlannedListJson(Integer year, Integer month, Integer employeeId){
         final JsonObjectNodeBuilder builder = anObjectBuilder();
 
-        Map<Date, Integer> vacationDates = getVacationWithPlannedMap(year, month, employeeId, false);
+        Map<Date, Integer> vacationDates = null;
+
+        try {
+            vacationDates = getVacationWithPlannedMap(year, month, employeeId, false);
+        } catch (NotDataForYearInCalendarException e) {
+            logger.error("Error in getDateVacationWithPlannedListJson : " + e.getMessage());
+        }
 
         for (Map.Entry date : vacationDates.entrySet()) {
             final String sdate = new SimpleDateFormat(DateTimeUtil.DATE_PATTERN).format(date.getKey());
@@ -171,14 +180,14 @@ public class ViewReportHelper {
     }
 
     /**
-     *
+     * Возвращает мапу с отмеченными обчными и планируемыми отпусками
      * @param year
      * @param month
      * @param employeeId
      * @param needForCalcCount
-     * @return
+     * @return мапу с отмеченными обчными и планируемыми отпусками
      */
-    private Map<Date, Integer> getVacationWithPlannedMap(Integer year, Integer month, Integer employeeId, Boolean needForCalcCount) {
+    private Map<Date, Integer> getVacationWithPlannedMap(Integer year, Integer month, Integer employeeId, Boolean needForCalcCount) throws NotDataForYearInCalendarException {
         Map<Date, Integer> vacationDates = new HashMap<Date, Integer>();
         Date currentDate = new Date((new Date()).getTime());
 
@@ -224,7 +233,7 @@ public class ViewReportHelper {
      * @param employeeId
      * @return количество дней утвержденных отпусков (+плановых), без учета отпусков с отработкой
      */
-    public Integer getCountVacationAndPlannedVacationDays(Integer year, Integer month, Integer employeeId) {
+    public Integer getCountVacationAndPlannedVacationDays(Integer year, Integer month, Integer employeeId) throws NotDataForYearInCalendarException {
         Integer count = 0;
         Map<Date, Integer> vacationDates = getVacationWithPlannedMap(year, month, employeeId, true);
         for (Map.Entry date : vacationDates.entrySet()) {
@@ -242,7 +251,7 @@ public class ViewReportHelper {
      * @param inVacationDates при вызове метода передавать null, мапа необходима для рекурсивного вызова
      * @return дату выхода на работу без учета
      */
-    public Date getNextWorkDay(Date dayEndVacation, Integer employeeId, Map<Date, Integer> inVacationDates) {
+    public Date getNextWorkDay(Date dayEndVacation, Integer employeeId, Map<Date, Integer> inVacationDates) throws NotDataForYearInCalendarException {
         java.util.Calendar mycal = java.util.Calendar.getInstance();
         mycal.setTime(dayEndVacation);
         Integer month = mycal.get(java.util.Calendar.MONTH) + 1;
