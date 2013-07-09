@@ -266,8 +266,10 @@ public class VacationService extends AbstractServiceWithTransactionManagement {
             final Timestamp endDateT = DateTimeUtil.stringToTimestamp(endDate, CreateVacationForm.DATE_FORMAT);
             final Timestamp beginDateT = DateTimeUtil.stringToTimestamp(beginDate, CreateVacationForm.DATE_FORMAT);
             //Получаем день выхода на работу
-            String format = DateFormatUtils.format(viewReportHelper.getNextWorkDay(endDateT, employeeId, null),
-                    CreateVacationForm.DATE_FORMAT);
+            Date nextWorkDay = viewReportHelper.getNextWorkDay(endDateT, employeeId, null);
+            if (nextWorkDay == null) throw new Exception("getExitToWorkAndCountVacationDayJson: cannot find next work day (maybe in DB there aren't " +
+                    "calendar dates for end date, check table Calendar)");
+            String format = DateFormatUtils.format(nextWorkDay, CreateVacationForm.DATE_FORMAT);
             builder.withField("exitDate", aStringBuilder(format));
             Employee emp = employeeService.find(employeeId);
             //Получаем кол-во выходных в отпуске
@@ -281,10 +283,10 @@ public class VacationService extends AbstractServiceWithTransactionManagement {
             if (vacationDayCount > 0) {
                 vacationWorkCount = vacationDayCount - holidaysCount;
             }
-
             builder.withField("vacationWorkDayCount", aStringBuilder(vacationWorkCount.toString()));
             builder.withField("vacationDayCount", aStringBuilder((vacationDayCount<=0)?"0":vacationDayCount.toString()));
-            return JsonUtil.format(builder);
+            String outString = JsonUtil.format(builder);
+            return outString;
         } catch (Exception th) {
             logger.error(CANT_GET_EXIT_TO_WORK_EXCEPTION_MESSAGE, th);
             return CANT_GET_EXIT_TO_WORK_EXCEPTION_MESSAGE;

@@ -24,9 +24,6 @@
             vacationCreate_divisionChange(dojo.byId("divisionId"));
             dojo.byId("employeeId").value = ${employeeId};
             initCurrentDateInfo(${employee.id},dijit.byId('calFromDate').value,getUrl());
-
-
-
         });
 
         dojo.require("dijit.form.DateTextBox");
@@ -187,7 +184,9 @@
                     handleAs: "json",
                     content:{beginDate:fromDate, endDate:endDate, employeeId:getEmployeeId()},
                     load: function(data) {
+                        console.log("data = "+ data);
                         if (data.size != 0) {
+                            exitToWorkElement.setAttribute("class", "");
                             exitToWorkElement.innerHTML = "Количество рабочих дней в отпуске :" + data.vacationWorkDayCount+
                                     "<br>Количество дней в отпуске :"+data.vacationDayCount+
                                     "<br>Дата выхода на работу: " + data.exitDate;
@@ -198,7 +197,7 @@
 
                     error: function(error) {
                         exitToWorkElement.setAttribute("class", "error");
-                        exitToWorkElement.innerHTML = error;
+                        exitToWorkElement.innerHTML = "Не удалось получить дату выхода из отпуска!";
                     }
                 });
             }
@@ -230,7 +229,6 @@
             width: 20px;
             height: 20px;
         }
-
 
         .time_sheet_row select {
             width: 100%;
