@@ -18,6 +18,7 @@
         var businessTripReportType = 7;
 
         dojo.ready(function () {
+            window.focus();
             <sec:authorize access="hasAnyRole('VIEW_ILLNESS_BUSINESS_TRIP', 'CHANGE_ILLNESS_BUSINESS_TRIP')">
                 dojo.byId("divisionId").value = ${divisionId};
                 divisionChanged(dojo.byId("divisionId").value);
