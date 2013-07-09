@@ -487,7 +487,7 @@ function sortSelect(select) {
 
     <form:errors path="*" cssClass="errors_box" delimiter="<br/><br/>"/>
 </form:form>
-<br/>
+
 <table id="vacations">
     <thead>
     <tr>
@@ -495,12 +495,12 @@ function sortSelect(select) {
             <img src="<c:url value="/resources/img/add.gif"/>" title="Создать" onclick="createVacation();"/>
         </th>
         <th width="160">Статус</th>
-        <th width="220">Тип отпуска</th>
-        <th width="110">Дата создания</th>
-        <th width="110">Дата с</th>
-        <th width="110">Дата по</th>
-        <th width="120">Кол-во календарных дней</th>
-        <th width="130">Кол-во рабочих дней</th>
+        <th width="200">Тип отпуска</th>
+        <th width="150">Дата создания</th>
+        <th width="80">Дата с</th>
+        <th width="80">Дата по</th>
+        <th width="110">Кол-во календарных дней</th>
+        <th width="120">Кол-во рабочих дней</th>
         <th width="270">Комментарий</th>
         <th width="270">Сотрудник</th>
         <th width="200">Центр</th>
@@ -590,7 +590,7 @@ function sortSelect(select) {
                     </c:if>
                 </td>
                 <td class="centered">${vacation.type.value}</td>
-                <td class="date"><fmt:formatDate value="${vacation.creationDate}" pattern="dd.MM.yyyy"/></td>
+                <td class="date"><fmt:formatDate value="${vacation.creationDate}" pattern="dd.MM.yyyy HH:mm"/></td>
                 <td class="date"><fmt:formatDate value="${vacation.beginDate}" pattern="dd.MM.yyyy"/></td>
                 <td class="date"><fmt:formatDate value="${vacation.endDate}" pattern="dd.MM.yyyy"/></td>
                 <td class="centered">${calDays[lp.index]}</td>
