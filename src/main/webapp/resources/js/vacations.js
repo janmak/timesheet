@@ -39,3 +39,18 @@ function checkEmployeeData(divisionId, empId) {
 
     return false;
 }
+
+function getVacationsNeedsApprovalCountString(){
+    dojo.xhrGet({
+        url: getContextPath() + "/vacations/count",
+        timeout:10000,
+        load:function (data) {
+            if (data) {
+                dojo.byId("vacationCount").innerHTML = data;
+            } else {
+                dojo.byId("vacationCount").innerHTML = "";
+            }
+        },
+    });
+
+}
