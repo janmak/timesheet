@@ -13,6 +13,8 @@
 <c:set var="vacationApproved" value="<%=VacationStatusEnum.APPROVED.getId()%>"/>
 <c:set var="vacationAprovementWiyhLm" value="<%=VacationStatusEnum.APPROVEMENT_WITH_LM.getId()%>"/>
 <c:set var="vacationAprovementWiyhPm" value="<%=VacationStatusEnum.APPROVEMENT_WITH_PM.getId()%>"/>
+<c:set var="vacationAprovedByPm" value="<%=VacationStatusEnum.APPROVED_BY_PM.getId()%>"/>
+<c:set var="vacationRejected" value="<%=VacationStatusEnum.REJECTED.getId()%>"/>
 
 <html>
 <head>
@@ -532,7 +534,20 @@ function sortSelect(select) {
                         </div>
                     </sec:authorize>
                 </td>
-                <td class="centered">
+                <c:choose>
+                <c:when test="${vacation.status.id == vacationApproved}">
+                <td id="statusTd" class="centered" style="background: #afffc3">
+                    </c:when>
+                    <c:when test="${vacation.status.id == vacationRejected}">
+                <td id="statusTd" class="centered" style="background: #ffc0c0">
+                    </c:when>
+                    <c:when test="${vacation.status.id == vacationAprovementWiyhLm || vacation.status.id == vacationAprovementWiyhPm || vacation.status.id == vacationAprovedByPm}">
+                <td id="statusTd" class="centered" style="background: #75aaff">
+                    </c:when>
+                    <c:otherwise>
+                <td id="statusTd" class="centered">
+                    </c:otherwise>
+                </c:choose>
                         ${vacation.status.value}
                     <c:if test="${fn:length(vacation.vacationApprovals) > 0}">
                         <div data-dojo-type="dijit/TitlePane" data-dojo-props="title: 'Согласующие', open: false"
@@ -588,6 +603,7 @@ function sortSelect(select) {
                             </table>
                         </div>
                     </c:if>
+
                 </td>
                 <td class="centered">${vacation.type.value}</td>
                 <td class="date"><fmt:formatDate value="${vacation.creationDate}" pattern="dd.MM.yyyy HH:mm"/></td>

@@ -80,7 +80,8 @@ public class BusinessTripsAndIllnessAddController extends AbstractController{
             @ModelAttribute("businesstripsandillnessadd") BusinessTripsAndIllnessAddForm tsForm,
             BindingResult result){
         Employee employee = employeeService.find(employeeId);
-
+        tsForm.setBeginDate(new Date());
+        tsForm.setEndDate(new Date());
         return getModelAndViewCreation(employee);
     }
 
@@ -186,7 +187,7 @@ public class BusinessTripsAndIllnessAddController extends AbstractController{
         int year = calendar.get(java.util.Calendar.YEAR);
         int month = calendar.get(java.util.Calendar.MONTH) + 1;
 
-        return new ModelAndView (String.format("redirect:/businesstripsandillness/%s/%s/%s/%s/%s", divisionId, employeeId, year, month, reportType.getId()));
+        return new ModelAndView(String.format("redirect:/businesstripsandillness/%s/%s/%s", divisionId, employeeId, reportType.getId()));
     }
 
     /**

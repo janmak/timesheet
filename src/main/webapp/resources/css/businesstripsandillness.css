@@ -45,6 +45,7 @@
 }
 .lowspace {
     margin: 6px;
+    font-weight: bold;
 }
 
 table.no_border, table.no_border td {
@@ -61,5 +62,9 @@ TD {
 
 .labelDiv{
     width: 140px;
-    margin-top: 5px;
+
+}
+
+.labelBold {
+
 }

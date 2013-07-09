@@ -30,7 +30,8 @@
         });
 
         dojo.declare("DateTextBox", dijit.form.DateTextBox, {
-            popupClass:"dijit.Calendar"
+            popupClass:"dijit.Calendar",
+            datePattern: 'dd.MM.yyyy'
         });
 
         dojo.require("dijit.form.DateTextBox");
@@ -293,7 +294,7 @@
             <tr>
                 <td>
                     <div class="horizontalBlock labelDiv">
-                    <span class="lowspace">Подразделение:</span>
+                    <span class="lowspace labelBold">Подразделение:</span>
                     </div>
                 </td>
                 <td>
@@ -303,8 +304,8 @@
                         <form:options items="${divisionList}" itemLabel="name" itemValue="id"/>
                     </form:select>
                 </td>
-                <td rowspan="5" style="padding: 5px;vertical-align: top;">
-                    <span class="label">Регионы:</span>
+                <td rowspan="5" style="padding: 9px;vertical-align: top;">
+                    <span class="lowspace">Регионы:</span>
                 </td>
                 <td rowspan="5" style="padding: 5px;vertical-align: top;">
                     <form:select path="regions" onmouseover="showTooltip(this)" size="6"
@@ -331,7 +332,7 @@
             </tr>
             <tr>
                 <td>
-                    <span class="lowspace">Сотрудник:</span>
+                    <span class="lowspace ">Сотрудник:</span>
                 </td>
                 <td>
                     <form:select path="employeeId" id="employeeId" class="without_dojo" cssClass="date_picker"
@@ -370,8 +371,8 @@
         </tr>
         <tr>
             <td colspan="2">
-                <div class="floatleft lowspace" style="width: 50px">
-                    <span>Тип:</span>
+                <div class="horizontalBlock" style="width: 50px;  margin-top: 5px;">
+                    <span class="lowspace">Тип:</span>
                 </div>
                 <div class="floatleft">
                     <form:select path="reportType" id="reportType" onMouseOver="tooltip.show(getTitle(this));"
