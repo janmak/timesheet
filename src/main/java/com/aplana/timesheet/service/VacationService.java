@@ -320,4 +320,10 @@ public class VacationService extends AbstractServiceWithTransactionManagement {
             }
         }));
     }
+
+    @Transactional
+    public Boolean isDayVacationWithoutPlanned(Employee employee, Date date){
+        Boolean dayVacationWithoutPlanned = vacationDAO.isDayVacationWithoutPlanned(employee, date);
+        return dayVacationWithoutPlanned;
+    }
 }

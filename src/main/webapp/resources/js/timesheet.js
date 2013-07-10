@@ -1168,7 +1168,7 @@ function checkDurationThenSendForm(){
     });
 
     dojo.xhrGet({
-        url: getContextPath() + "/calendar/isvacation",
+        url: getContextPath() + "/calendar/isvacationwithoutplanned",
         headers: {
             "If-Modified-Since":"Sat, 1 Jan 2000 00:00:00 GMT"
         },
@@ -1390,8 +1390,6 @@ function openBusinessTripsAndIllnessWindow() {
 Запускаем Standby widget на весь экран
  */
 function processing() {
-  var standByElement = new dojox.widget.Standby({target: dojo.query("body")[0], zIndex:1000});
-
   document.body.appendChild(standByElement.domNode);
   standByElement.startup();
   standByElement.show();

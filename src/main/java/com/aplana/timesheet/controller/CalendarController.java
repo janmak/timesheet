@@ -30,6 +30,7 @@ public class CalendarController extends AbstractController {
     public static final String ISHOLIDAY_EMPLOYEE_ID = "employeeId";
     public static final String IS_VACATION_FIELD = "isVacation";
     public static final String CALENDAR_ISVACATION_URL = "/calendar/isvacation";
+    public static final String CALENDAR_ISVACATIONWITHOUTPLANNED_URL = "/calendar/isvacationwithoutplanned";
     public static final String ISVACATION_DATE = "date";
     public static final String ISVACATION_EMPLOYEE_ID = "employeeId";
 
@@ -83,6 +84,21 @@ public class CalendarController extends AbstractController {
                         field(
                                 IS_VACATION_FIELD,
                                 vacationService.isDayVacation(employeeService.find(employeeId), date) ? trueNode() : falseNode())
+                )
+        );
+    }
+
+    @RequestMapping(value = CALENDAR_ISVACATIONWITHOUTPLANNED_URL, headers = "Accept=application/json")
+    @ResponseBody
+    public String isVacationWithoutPlanned(
+            @RequestParam(ISVACATION_DATE) Date date,
+            @RequestParam(ISVACATION_EMPLOYEE_ID) Integer employeeId
+    ) {
+        return JsonUtil.format(
+                object(
+                        field(
+                                IS_VACATION_FIELD,
+                                vacationService.isDayVacationWithoutPlanned(employeeService.find(employeeId), date) ? trueNode() : falseNode())
                 )
         );
     }

@@ -167,6 +167,16 @@ public class VacationDAO {
         return true;
     }
 
+    public Boolean isDayVacationWithoutPlanned(Employee employee, Date date){
+        Query query = entityManager.createQuery(
+                "SELECT i FROM Vacation AS i WHERE i.employee = :employee AND :date BETWEEN i.beginDate AND i.endDate AND i.status.id = :statusId AND i.type.id <> :typePlanned"
+        ).setParameter("employee", employee).setParameter("date", date).setParameter("statusId", APPROVED.getId()).setParameter("typePlanned",VacationTypesEnum.PLANNED.getId());
+        if (query.getResultList().isEmpty()) {
+            return false;
+        }
+        return true;
+    }
+
     public List<Integer> getAllNotApprovedVacationsIds() {
         return entityManager.createQuery("select v.id from Vacation as v where v.status.id in :notApprovedStatuses")
                 .setParameter("notApprovedStatuses", VacationStatusEnum.getNotApprovedStatuses()).getResultList();

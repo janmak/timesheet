@@ -49,7 +49,7 @@
 
     var root = getRootEventListener();
     var month = correctLength(new Date().getMonth() + 1);
-
+    var standByElement;
     dojo.declare("Calendar", com.aplana.dijit.ext.Calendar, {
         getEmployeeId:function () {
             return dojo.byId("employeeId").value;
@@ -132,6 +132,9 @@
 
         // инициализация данных по выходным и отчетам для текущей даты
         initCurrentDateInfo('${timeSheetForm.employeeId}', dijit.byId('calDate').value,'/calendar/dates');
+        //крутилка создается при после загрузки страницы,
+        //т.к. если она создается в месте использования - ghb show не отображается картинка
+        standByElement = new dojox.widget.Standby({target: dojo.query("body")[0], zIndex:1000});
     });
 
     function refreshPlans(date, employeeId) {

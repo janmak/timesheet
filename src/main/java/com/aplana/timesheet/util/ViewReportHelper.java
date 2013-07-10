@@ -263,7 +263,7 @@ public class ViewReportHelper {
         mycal.setTime(nextDay);
         Integer nextMonth = mycal.get(java.util.Calendar.MONTH) + 1;
         if (inVacationDates.size() > 0) {
-            if (inVacationDates.get(nextDay) != null && inVacationDates.get(nextDay) == TYPICAL_DAY_MARK) {
+            if (inVacationDates.get(nextDay) != null && (inVacationDates.get(nextDay) == TYPICAL_DAY_MARK || inVacationDates.get(nextDay) == PREVIOUS_DAY_MARK)) {
                 return nextDay;
             } else {
                 return getNextWorkDay(nextDay, employeeId, nextMonth != month ? null : inVacationDates);

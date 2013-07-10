@@ -18,6 +18,9 @@ import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.*;
 
+import static com.aplana.timesheet.enums.VacationStatusEnum.APPROVED;
+import static com.aplana.timesheet.enums.VacationTypesEnum.PLANNED;
+
 @Repository
 public class TimeSheetDAO {
 
@@ -214,13 +217,21 @@ public class TimeSheetDAO {
                 " INNER JOIN division d ON d.id=emp1.division" +
                 " INNER JOIN region r ON r.id=emp1.region" +
                 " INNER JOIN calendar calnext ON calnext.caldate>tscal.maxcaldate" +
-                " LEFT OUTER JOIN holiday h ON h.calDate=calnext.calDate and (h.region=r.id or h.region is null)" +
-                " WHERE d.id=:division and (h.id is null)" +
-                "and not EXISTS (select i.employee_id,cal.caldate from calendar cal\n" +
-                "RIGHT JOIN illness i on cal.caldate between i.begin_date and i.end_date where \n" +
-                "calnext.caldate = cal.caldate and emp1.id= i.employee_id)" +
+                " WHERE d.id=:division " +
+                " AND NOT EXISTS (" +
+                "       SELECT i.employee_id,cal.caldate from calendar cal " +
+                "       RIGHT JOIN illness i on cal.caldate between i.begin_date and i.end_date where " +
+                "       calnext.caldate = cal.caldate and emp1.id= i.employee_id) AND " +
+                " NOT EXISTS (" +
+                "       SELECT v.employee_id,calv.caldate from calendar calv " +
+                "       RIGHT JOIN vacation v on calv.caldate between v.begin_date and v.end_date " +
+                "       WHERE calv.caldate = calnext.caldate AND v.employee_id = emp1.id AND v.status_id = :statusId AND v.type_id <> :typePlanned) " +
+                " AND " +
+                " NOT EXISTS (" +
+                "       SELECT h.caldate from holiday h " +
+                "       WHERE h.calDate=calnext.calDate and (h.region=r.id or h.region is null) )" +
                 " GROUP BY 1" +
-                " ORDER BY 1").setParameter("division", division);
+                " ORDER BY 1").setParameter("division", division).setParameter("statusId", APPROVED.getId()).setParameter("typePlanned", PLANNED.getId());
 
         final List resultList = query.getResultList();
         final Map<Integer, Date> resultMap = new HashMap<Integer, Date>(resultList.size());

@@ -400,7 +400,7 @@ public class TimeSheetFormValidator extends AbstractValidator {
                 employee
         );
 
-        boolean isVacation = vacationService.isDayVacation(
+        boolean isVacation = vacationService.isDayVacationWithoutPlanned(
                 employee,
                 DateTimeUtil.stringToDate(tsForm.getCalDate(), AbstractController.DATE_FORMAT)
         );

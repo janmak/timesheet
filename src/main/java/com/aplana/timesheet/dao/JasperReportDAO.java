@@ -696,7 +696,7 @@ public class JasperReportDAO {
                         "CASE" +
                         "   WHEN (holidays.id is not null) " +
                         "       THEN 1 " +
-                        "   ELSE 0" +
+                        "   ELSE 0 " +
                         "END as col_13, " +
                         "CASE " +
                         "    WHEN (epbillable.billable is not null) THEN epbillable.billable " +
