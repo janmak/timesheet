@@ -77,7 +77,7 @@ public class VacationCreateSender extends AbstractVacationSender<Vacation> {
             ApprovalResultModel arm = new ApprovalResultModel();
             arm.setRole(managerRoleNameService.getManagerRoleName(va));
             arm.setName(va.getManager().getName());
-            arm.setResult(va.getResult() == null ? "Еще не рассмотрел(а)" : (va.getResult() ? "Согласовано" : "Не согласовано"));
+            arm.setResult(va.getResult() == null ? "На согласовании" : (va.getResult() ? "Согласовано" : "Не согласовано"));
             approvalList.add(arm);
         }
 
