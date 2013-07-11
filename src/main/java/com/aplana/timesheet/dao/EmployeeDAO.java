@@ -459,4 +459,10 @@ public class EmployeeDAO {
         }
         return query.getResultList();
     }
+
+    public Employee findByLdapSID(String ldapSid) {
+        return (Employee) Iterables.getFirst(entityManager.createQuery(
+                "FROM Employee emp WHERE objectSid = :ldapSid"
+        ).setParameter("ldapSid", ldapSid).getResultList(), null);
+    }
 }

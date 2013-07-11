@@ -64,6 +64,13 @@ public class UpdateController {
         return "updateLDAP";
     }
 
+    @RequestMapping(value = "/update/siddisabledusersfromldap")
+    public String updateSidDeletedUsersFromLdap(Model model) {
+        this.employeeLdapService.updateSidDisableddUsersFromLdap();
+        model.addAttribute("trace", this.employeeLdapService.getTrace().replaceAll("\n", "<br/>"));
+        return "updateLDAP";
+    }
+
     @RequestMapping(value = "/update/checkreport")
     public String checkReportUpdate(Model model) {
         this.reportCheckService.storeReportCheck();

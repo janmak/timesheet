@@ -1,9 +1,6 @@
 package com.aplana.timesheet.controller;
 
-import com.aplana.timesheet.dao.entity.DictionaryItem;
-import com.aplana.timesheet.dao.entity.Division;
-import com.aplana.timesheet.dao.entity.ProjectRole;
-import com.aplana.timesheet.dao.entity.TimeSheet;
+import com.aplana.timesheet.dao.entity.*;
 import com.aplana.timesheet.enums.DictionaryEnum;
 import com.aplana.timesheet.form.TimeSheetForm;
 import com.aplana.timesheet.form.validator.TimeSheetFormValidator;
@@ -77,13 +74,17 @@ public class TimeSheetController {
         TimeSheetForm tsForm = new TimeSheetForm();
 
         TimeSheetUser securityUser = securityService.getSecurityPrincipal();
-
-        if ( id !=null) {
-            tsForm.setDivisionId(employeeService.find(id).getDivision().getId());
+        Employee employee = employeeService.find(id);
+        if (employee != null) {
+            tsForm.setDivisionId(employee.getDivision().getId());
             tsForm.setEmployeeId(id);
-        } else if ( securityUser != null) {
-            tsForm.setDivisionId( securityUser.getEmployee().getDivision().getId() );
-            tsForm.setEmployeeId( securityUser.getEmployee().getId() );
+        } else if (securityUser != null) {
+            if (id != null) {
+                String format = String.format("Can't find user by ID = %s. Was set current application user.",id);
+                logger.error(format);
+            }
+            tsForm.setDivisionId(securityUser.getEmployee().getDivision().getId());
+            tsForm.setEmployeeId(securityUser.getEmployee().getId());
         }
 
         if (date != null) {

@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -36,15 +37,28 @@ public class ProjectParticipantService {
         return projectParticipantDAO.isProjectManager(employee, project);
     }
 
-    public void deactivateEmployeesRights(List<Employee> employees)  {
+    /**
+     * Определяет есть ли активные Project Participant у сотрудника
+     */
+    @Transactional(readOnly = true)
+    public Boolean hasActiveParticipantEmployee(Employee employee) {
+        List<ProjectParticipant> empProjectParticipants = projectParticipantDAO.findByEmployee(employee);
+        for (ProjectParticipant participant : empProjectParticipants) {
+            if (participant.isActive())
+                return true;
+        }
+        return false;
+    }
+
+    public void deactivateEmployeesRights(List<Employee> employees) {
         for (Employee employee : employees) {
-            List<ProjectParticipant> empProjectParticipants = projectParticipantDAO.findByEmployee(employee);
-            if (empProjectParticipants != null) {
-                for (ProjectParticipant participant : empProjectParticipants) {
-                    participant.setActive(false);
-                    projectParticipantDAO.save(participant);
+                List<ProjectParticipant> empProjectParticipants = projectParticipantDAO.findByEmployee(employee);
+                if (empProjectParticipants != null) {
+                    for (ProjectParticipant participant : empProjectParticipants) {
+                        participant.setActive(false);
+                        projectParticipantDAO.save(participant);
+                    }
                 }
-            }
         }
     }
 }

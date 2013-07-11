@@ -336,6 +336,13 @@ public class EmployeeService {
         return employeeDAO.findByLdapCN(LdapCN);
     }
 
+    /**
+     * Ищет сотрудника по SID
+     */
+    public Employee findByLdapSID(String LdapCN) {
+        return employeeDAO.findByLdapSID(LdapCN);
+    }
+
     public List<Employee> getEmployeeByRegionAndManagerAndDivision(List<Integer> regions, Integer divisionId, Integer manager) {
       return employeeDAO.getEmployeeByRegionAndManagerAndDivision(regions,divisionId, manager);
     }

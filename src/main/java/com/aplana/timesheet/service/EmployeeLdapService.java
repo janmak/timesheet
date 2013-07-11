@@ -41,6 +41,45 @@ public class EmployeeLdapService extends AbstractServiceWithTransactionManagemen
     private ProjectRolePermissionsDAO projectRolePermissionsDAO;
 
 
+    public void updateSidDisableddUsersFromLdap() {
+        trace.append("Synchronization sid of disabled user with ldap started.\n\n");
+        List<EmployeeLdap> disabledEmployeesLdap = ldapDao.getDisabledEmployyes();
+        TransactionStatus transactionStatus = null;
+
+        try {
+            transactionStatus = getNewTransaction();
+            for (EmployeeLdap employeeLdap : disabledEmployeesLdap) {
+                Employee empInDb = employeeService.findByLdapSID(employeeLdap.getObjectSid());
+                if (empInDb == null) {
+                    empInDb = employeeService.findByLdapCN(employeeLdap.getLdapCn());
+                }
+                if (empInDb == null) {
+                    empInDb = employeeService.findByEmail(employeeLdap.getEmail());
+                }
+                if (empInDb != null) {
+                    if (StringUtils.isEmpty(empInDb.getObjectSid())) {
+                        empInDb.setObjectSid(employeeLdap.getObjectSid());
+                        employeeService.save(empInDb);
+                        trace.append(String.format("User %s is synchronized with ldap.\n", empInDb.getName()));
+                    }
+
+                } else {
+                    logger.error(" User {} user isn't found in db", employeeLdap.getDisplayName() + " | " + employeeLdap.getLdapCn());
+                }
+            }
+            if (transactionStatus != null) {
+                commit(transactionStatus);
+            }
+            trace.append("\n Synchronization sid of disabled user with ldap finished.\n\n");
+        } catch (Exception e) {
+            logger.error(" Exception in updateSidDisableddUsersFromLdap : {}", e.getMessage());
+            if (transactionStatus != null) {
+                rollback(transactionStatus);
+            }
+        }
+    }
+
+
     private enum EmployeeType {
         EMPLOYEE, DIVISION_MANAGER, NEW_EMPLOYEE
     }
@@ -137,7 +176,7 @@ public class EmployeeLdapService extends AbstractServiceWithTransactionManagemen
     private void syncDisabledEmployees(LdapDAO ldapDao) {
         logger.info("Start synchronize disabled employees.");
         trace.append("Start synchronize disabled employees.\n\n");
-
+        Date curDate = new Date();
         final TransactionStatus transactionStatus = getNewTransaction();
         try {
             //берем удаленных сотрудников из LDAP
@@ -149,21 +188,40 @@ public class EmployeeLdapService extends AbstractServiceWithTransactionManagemen
 
             //список сотрудников которые будут синхронизироваться
             List<Employee> empsToSync = new ArrayList<Employee>();
+            List<Employee> empsParticipantToSync = new ArrayList<Employee>();
 
             for (Employee empDb : employeesDb) {
-                //если в базе сотрудник помечен как НЕ уволенный(нет даты увольнения)
-                //archived больше не используется
-                if (empDb.getEndDate() == null) {
-                    for (EmployeeLdap empLdap : disabledEmployeesLdap) {
-                        if (empDb.getEmail().equals(empLdap.getEmail())) {
+                for (EmployeeLdap empLdap : disabledEmployeesLdap) {
+                    if (empLdap.getObjectSid().equals(empDb.getObjectSid()) ||
+                            empDb.getLdap().equals(empLdap.getLdapCn()) ||
+                            empDb.getEmail().equals(empLdap.getEmail())) {
+                        //если в базе сотрудник помечен как НЕ уволенный(нет даты увольнения)
+                        //archived больше не используется
+                        if (empDb.getEndDate() == null) {
                             logger.debug("Employee {} disabled in ldap, but active in db.", empLdap.getDisplayName());
                             logger.debug("And was marked like archived.");
-
                             //проставляем дату увольнения
                             //дата проставляется текущей датой синхронизации
                             //тк в LDAP нет точной даты увольнения
                             empDb.setEndDate(new Timestamp((new Date()).getTime()));
                             empsToSync.add(empDb);
+                            //добавляем в список для деактивации прав
+                            if (!empDb.getEndDate().after(curDate)) {
+                                empsParticipantToSync.add(empDb);
+                            }
+                        }
+                        //иначе если есть дата увольнения - проверяем наличие активных "участий"
+                        else {
+                            //если дата увольнения меньше текущей
+                            if (!empDb.getEndDate().after(curDate)) {
+                                // и у сотрудника имеются активные "участия"
+                                if (projectParticipantService.hasActiveParticipantEmployee(empDb)) {
+                                    logger.debug("Employee {} disabled in ldap and db.", empLdap.getDisplayName());
+                                    logger.debug("And his project participants were active.");
+                                    //добавляем в список для деактивации
+                                    empsParticipantToSync.add(empDb);
+                                }
+                            }
                         }
                     }
                 }
@@ -172,9 +230,15 @@ public class EmployeeLdapService extends AbstractServiceWithTransactionManagemen
             //синхронизирует сотрудников, если есть что синхронизировать
             if (!empsToSync.isEmpty()) {
                 trace.append(employeeService.setEmployees(empsToSync));
-                projectParticipantService.deactivateEmployeesRights(empsToSync);
             } else {
                 logger.info("Nothing to sync.");
+            }
+
+            //деактивируем "участия" сотрудников
+            if (!empsParticipantToSync.isEmpty()) {
+                syncParticipantDisabledEmployee(empsParticipantToSync);
+            } else {
+                logger.info("Nothing to sync for employee participant.");
             }
 
             if (transactionStatus != null) {
@@ -183,6 +247,7 @@ public class EmployeeLdapService extends AbstractServiceWithTransactionManagemen
 
         } catch (Exception e) {
             if (transactionStatus != null) {
+                logger.error("Exception in syncDisabledEmployees : {}", e.getMessage());
                 rollback(transactionStatus);
             }
         }
@@ -344,6 +409,7 @@ public class EmployeeLdapService extends AbstractServiceWithTransactionManagemen
         employee.setName(employeeLdap.getDisplayName());
         employee.setEmail(StringUtils.trim(employeeLdap.getEmail()));
         employee.setLdap(employeeLdap.getLdapCn());
+        employee.setObjectSid(employeeLdap.getObjectSid());
 
         // Роли из БД по умолчанию ставятся только для новых сотрудников
         if ((employee.getJob() != null) && (employeeType.equals(EmployeeType.NEW_EMPLOYEE))) {
@@ -364,7 +430,10 @@ public class EmployeeLdapService extends AbstractServiceWithTransactionManagemen
 
             case EMPLOYEE:
             case DIVISION_MANAGER:
-                Employee empInDb = employeeService.findByLdapCN(employeeLdap.getLdapCn());
+                Employee empInDb = employeeService.findByLdapSID(employeeLdap.getObjectSid());
+                if (empInDb == null) {
+                    empInDb = employeeService.findByLdapCN(employeeLdap.getLdapCn());
+                }
                 if (empInDb == null) {
                     empInDb = employeeService.findByEmail(employeeLdap.getEmail());
                 }
@@ -469,5 +538,9 @@ public class EmployeeLdapService extends AbstractServiceWithTransactionManagemen
 
     public String getTrace() {
         return this.trace.toString();
+    }
+
+    private void syncParticipantDisabledEmployee(List<Employee> disabledEmployees) {
+        projectParticipantService.deactivateEmployeesRights(disabledEmployees);
     }
 }
