@@ -45,10 +45,13 @@ function getVacationsNeedsApprovalCountString(){
         url: getContextPath() + "/vacations/count",
         timeout:10000,
         load:function (data) {
-            if (data) {
-                dojo.byId("vacationCount").innerHTML = data;
-            } else {
-                dojo.byId("vacationCount").innerHTML = "";
+            var component = dojo.byId("vacationCount");
+            if (component) {
+                if (data) {
+                    dojo.byId("vacationCount").innerHTML = data;
+                } else {
+                    dojo.byId("vacationCount").innerHTML = "";
+                }
             }
         }
     });
