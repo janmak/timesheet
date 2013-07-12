@@ -4,9 +4,13 @@
 
 <%@page contentType="text/html" pageEncoding="UTF-8" %>
 
-<%
-
-%>
+<script type="text/javascript">
+    dojo.addOnLoad(function () {
+        <sec:authorize access="isAuthenticated()">
+        getVacationsNeedsApprovalCountString()
+        </sec:authorize>
+    });
+</script>
 
 <a href="<c:url value='/'/>"><img id="logo" src="<%=request.getContextPath()%>/resources/img/logo.png"
                                   alt="Aplana Software"/></a>

@@ -32,11 +32,6 @@
 <body class="tundra">
 
 <c:if test="${NoPageFormat == null}">
-    <script type="text/javascript">
-        dojo.addOnLoad(function () {
-            getVacationsNeedsApprovalCountString();
-        });
-    </script>
     <div id="header">
         <%@ include file="../includes/header.jsp" %>
     </div>

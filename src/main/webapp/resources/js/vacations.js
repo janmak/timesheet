@@ -50,7 +50,6 @@ function getVacationsNeedsApprovalCountString(){
             } else {
                 dojo.byId("vacationCount").innerHTML = "";
             }
-        },
+        }
     });
-
 }
