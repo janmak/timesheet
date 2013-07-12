@@ -248,6 +248,10 @@ public class SendMailService{
         new VacationApprovalErrorThresholdSender(this, propertyProvider).sendMessage("");
     }
 
+    public void loginFailureErrorThresholdMailing(){
+        new LoginFailureErrorThresholdSender(this, propertyProvider).sendMessage("");
+    }
+
     public void performVacationAcceptanceMailing(VacationApproval vacationApproval){
         new VacationApprovalAcceptanceSender(this, propertyProvider).sendMessage(vacationApproval);
     }

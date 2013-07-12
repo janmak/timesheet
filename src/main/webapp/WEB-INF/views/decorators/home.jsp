@@ -15,7 +15,6 @@
         <%@ include file="../includes/style.jsp" %>
         <%@ include file="../includes/js.jsp" %>
     </c:if>
-    <script type="text/javascript" src="/resources/js/vacations.js"></script>
     <c:choose>
         <c:when test="${NoPageFormat == null}">
             <title><decorator:title default="TimeSheet"/></title>
