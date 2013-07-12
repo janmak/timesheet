@@ -6,7 +6,6 @@ import com.aplana.timesheet.dao.entity.Vacation;
 import com.aplana.timesheet.dao.entity.VacationApproval;
 import com.aplana.timesheet.exception.service.VacationApprovalServiceException;
 import com.aplana.timesheet.util.DateTimeUtil;
-import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,8 +39,13 @@ public class VacationApprovalAutoProcessService extends AbstractVacationApproval
                     Vacation vacation = vacationService.findVacation(vacationId);
                     checkVacationIsApproved(vacation);
 
-                    commit(internalTransactionStatus);
+                    if (internalTransactionStatus != null) {
+                        commit(internalTransactionStatus);
+                    }
                 } catch (Exception ex) {
+                    if (internalTransactionStatus != null) {
+                        rollback(internalTransactionStatus);
+                    }
                     logger.error("Error occured ", ex);
                 }
             }
