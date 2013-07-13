@@ -455,7 +455,19 @@ function createPlanForPeriod() {
     window.location = getContextPath() + "<%= CreatePlanForPeriodContoller.CREATE_PLAN_FOR_PERIOD_URL %>";
 }
 
+function getRegionsSelected() {
+    var regionsNode = dojo.byId("<%= REGIONS %>");
+    var regionsSelected = [];
+    for (var i = 0; i < regionsNode.length; i++) {
+        if (regionsNode.options[i].selected) {regionsSelected.push(regionsNode.options[i].value); }
+    }
+    return regionsSelected;
+}
+
 function updateManagerList(id) {
+    if (id==null) {
+        id = dojo.byId("<%= DIVISION_ID %>").value;
+    }
     var managersNode = dojo.byId("<%= MANAGER %>");
     var emptyOption = managersNode.options[0];
     var manager = managersNode.value;
@@ -465,6 +477,16 @@ function updateManagerList(id) {
     managersNode.add(emptyOption);
     managersNode.selectedIndex = 0;
 
+    var regionsNode = dojo.byId("<%= REGIONS %>");
+
+    var isAllOption = dojo.some(regionsNode.options, function (option, idx) {
+        if (option.value == <%= ALL_VALUE %> && option.selected) {
+            return true;
+        }
+        return false;
+    });
+    var selectedRegions;
+    if (!isAllOption) {selectedRegions = getRegionsSelected();}
     var managerMapJson = '${managerMapJson}';
     var count = 0;
     if (managerMapJson.length > 0) {
@@ -472,14 +494,36 @@ function updateManagerList(id) {
         dojo.filter(managerMap,function (m) {
             return (m.division == id);
         }).forEach(function (managerData) {
-                    var option = document.createElement("option");
-                    option.text = managerData.name;
-                    option.value = managerData.id;
+                    if (isAllOption) {
+                        var option = document.createElement("option");
+                        option.text = managerData.name;
+                        option.value = managerData.id;
 
-                    if (managerData.number == manager) {
-                        option.selected = "selected";
+                        if (managerData.number == manager) {
+                            option.selected = "selected";
+                        }
+                        managersNode.add(option);
+                    } else {
+                        var add = false;
+                        managerData.regionWhereMan.forEach(function(redData) {
+                            for (var i = 0; i < selectedRegions.length; i++) {
+                                if (selectedRegions[i] == redData.id) {
+                                    add = true;
+
+                                }
+                            }
+                        });
+                        if (add) {
+                            var option = document.createElement("option");
+                            option.text = managerData.name;
+                            option.value = managerData.id;
+
+                            if (managerData.number == manager) {
+                                option.selected = "selected";
+                            }
+                            managersNode.add(option);
+                        }
                     }
-                    managersNode.add(option);
                 });
     }
     if (managersNode.options.length == 1 && emptyOption.value == managersNode.options[0].value){
@@ -555,7 +599,7 @@ function log(text){
                                 <form:select path="<%= MANAGER %>" class="without_dojo"
                                              onmouseover="showTooltip(this);"
                                              onmouseout="tooltip.hide();" multiple="false">
-                                    <form:option label="" value="0"/>
+                                    <form:option label="Все сотрудники" value="0"/>
                                     <form:options items="${managerList}" itemLabel="name" itemValue="id"/>
                                 </form:select>
                             </td>
@@ -615,7 +659,7 @@ function log(text){
                             <td>
                                 <form:select path="<%= REGIONS %>" onmouseover="showTooltip(this)" size="5"
                                              onmouseout="tooltip.hide()" multiple="true"
-                                             onchange="updateMultipleForSelect(this)">
+                                             onchange="updateMultipleForSelect(this); updateManagerList(null)">
                                     <form:option value="<%= ALL_VALUE %>" label="Все регионы"/>
                                     <form:options items="${regionList}" itemLabel="name" itemValue="id"/>
                                 </form:select>

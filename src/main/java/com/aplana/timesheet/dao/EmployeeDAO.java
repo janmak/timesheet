@@ -465,4 +465,14 @@ public class EmployeeDAO {
                 "FROM Employee emp WHERE objectSid = :ldapSid"
         ).setParameter("ldapSid", ldapSid).getResultList(), null);
     }
+
+    /**
+     * Возвращает id регионов где имеются сотрудники у данного менеджера
+     * @param id
+     * @return
+     */
+    public List<Integer> getRegionsWhereManager(Integer id) {
+        Query query = entityManager.createQuery("select emp.region.id from Employee emp where emp.endDate=null and emp.manager.id = :id group by emp.region").setParameter("id", id);
+        return query.getResultList();
+    }
 }

@@ -15,9 +15,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.annotation.Nullable;
 import javax.servlet.http.Cookie;
@@ -28,7 +25,6 @@ import static argo.jdom.JsonNodeBuilders.aStringBuilder;
 import static argo.jdom.JsonNodeBuilders.anArrayBuilder;
 import static argo.jdom.JsonNodeBuilders.anObjectBuilder;
 import static argo.jdom.JsonNodeFactories.*;
-import static argo.jdom.JsonNodeFactories.falseNode;
 import static com.aplana.timesheet.constants.RoleConstants.ROLE_ADMIN;
 
 @Service
@@ -286,11 +282,17 @@ public class EmployeeService {
                         withField("value", string(StringUtils.EMPTY))
         );
         for (Employee manager : managers) {
+            final JsonArrayNodeBuilder regionBuilder = anArrayBuilder();
+            for (Integer region : employeeDAO.getRegionsWhereManager(manager.getId())){
+                regionBuilder.withElement(
+                        anObjectBuilder().withField("id",aStringBuilder(region.toString())));
+            }
             builder.withElement(
                     anObjectBuilder().
                             withField("id", JsonUtil.aStringBuilder(manager.getId())).
                             withField("name", aStringBuilder(manager.getName())).
-                            withField("division",aStringBuilder(manager.getDivision().getId().toString()))
+                            withField("division",aStringBuilder(manager.getDivision().getId().toString())).
+                            withField("regionWhereMan",regionBuilder)
             );
         }
         return JsonUtil.format(builder);
