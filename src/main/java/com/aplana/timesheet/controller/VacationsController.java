@@ -22,6 +22,7 @@ import org.springframework.web.servlet.ModelAndView;
 import padeg.lib.Padeg;
 
 import javax.servlet.http.HttpSession;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.Calendar;
 
@@ -133,8 +134,8 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
 
         final int vacationsSize = vacations.size();
 
-        final List<Integer> calDays = new ArrayList<Integer>(vacationsSize);
-        final List<Integer> workDays = new ArrayList<Integer>(vacationsSize);
+        final Map<Vacation,Integer> calDays = new HashMap<Vacation, Integer>(vacationsSize);
+        final Map<Vacation,Integer> workDays = new HashMap<Vacation, Integer>(vacationsSize);
 
         modelAndView.addObject("getOrPost", 1);
         modelAndView.addObject("regionId", vacationsForm.getRegions());
@@ -184,7 +185,7 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
             Map<DictionaryItem,List<Vacation>> typedVacationMap = vacationService.splitVacationByTypes(vacations);
             //Проходим по существующим типам отпусков
             for(DictionaryItem item:typedVacationMap.keySet()){
-                Map<String, Integer> map = getSummaryAndCalcDays(regionListForCalc, typedVacationMap.get(item), new ArrayList<Integer>(vacationsSize), new ArrayList<Integer>(vacationsSize), i);
+                Map<String, Integer> map = getSummaryAndCalcDays(regionListForCalc, typedVacationMap.get(item), new HashMap<Vacation, Integer>(vacationsSize), new HashMap<Vacation, Integer>(vacationsSize), i);
                 summaryApproved += map.get("summaryApproved");
                 summaryRejected += map.get("summaryRejected");
                 calAndWorkDaysList.add(new VacationInYear(item.getValue(),i, map.get("summaryCalDays"), map.get("summaryWorkDays")));
@@ -268,8 +269,8 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
     }
 
     private Map<String, Integer> getSummaryAndCalcDays(List<Region> regions, List<Vacation> vacations,
-                                                       List<Integer> calDays,
-                                                       List<Integer> workDays, int year
+                                                       Map<Vacation,Integer> calDays,
+                                                       Map<Vacation,Integer> workDays, int year
     ) {
 
         int summaryApproved = 0;
@@ -304,7 +305,8 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
                             maxDate = endDate;
                         }
 
-                        calDays.add(getDiffInDays(beginDate, endDate));
+                        Integer diffInDays = getDiffInDays(beginDate, endDate);
+                        calDays.put(vacation, diffInDays);
                     }
 
                     final List<Holiday> holidaysForRegion =
@@ -323,10 +325,9 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
                         final Vacation vacation = differRegionVacations.get(i);
                         final int holidaysCount = vacationService.getHolidaysCount(holidaysForRegion, vacation.getBeginDate(), vacation.getEndDate());
 
-                        final int calDaysCount = calDays.get(i);
+                        final int calDaysCount = calDays.get(vacation);
                         final int workDaysCount = calDaysCount - holidaysCount;
-
-                        workDays.add(workDaysCount);
+                        workDays.put(vacation,workDaysCount);
 
                         final VacationStatusEnum vacationStatus =
                                 EnumsUtils.getEnumById(vacation.getStatus().getId(), VacationStatusEnum.class);
@@ -421,8 +422,8 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
         final List<Vacation> vacations = vacationService.findVacationsNeedsApproval(employee.getId());
         final int vacationsSize = vacations.size();
 
-        final List<Integer> calDays = new ArrayList<Integer>(vacationsSize);
-        final List<Integer> workDays = new ArrayList<Integer>(vacationsSize);
+        final Map<Vacation,Integer> calDays = new HashMap<Vacation, Integer>(vacationsSize);
+        final Map<Vacation,Integer> workDays = new HashMap<Vacation, Integer>(vacationsSize);
 
         modelAndView.addObject("vacationsList", revertList(vacations));
         modelAndView.addObject("calDays", calDays);

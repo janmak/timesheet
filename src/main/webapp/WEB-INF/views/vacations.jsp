@@ -379,7 +379,7 @@ function sortSelect(select) {
 <br/>
 <a target="_blank" href="<c:url value='/vacations_needs_approval'/>"><fmt:message key="link.vacation.approval"/></a>
 <br/>
-<a><fmt:message key="title.approval.waiting">
+<a style="color: blue"><fmt:message key="title.approval.waiting">
     <c:choose>
         <c:when test="${vacationNeedsApprovalCount!=1}">
             <fmt:message key="title.waiting.parts" var="waitingPart"/>
@@ -392,7 +392,7 @@ function sortSelect(select) {
     <fmt:param value="${vacationNeedsApprovalCount}"/>
     <fmt:param value="${approvalPart}"/>
 </fmt:message></a>
-
+<br/>
 <form:form method="post" commandName="vacationsForm" name="mainForm">
     <form:hidden path="<%= VACATION_ID%>"/>
     <form:hidden path="<%= APPROVAL_ID%>"/>
@@ -497,14 +497,14 @@ function sortSelect(select) {
             <img src="<c:url value="/resources/img/add.gif"/>" title="Создать" onclick="createVacation();"/>
         </th>
         <th width="160">Статус</th>
-        <th width="200">Тип отпуска</th>
+        <th width="210">Тип отпуска</th>
+        <th width= "250">Сотрудник</th>
         <th width="150">Дата создания</th>
         <th width="80">Дата с</th>
         <th width="80">Дата по</th>
         <th width="110">Кол-во календарных дней</th>
         <th width="120">Кол-во рабочих дней</th>
         <th width="270">Комментарий</th>
-        <th width="270">Сотрудник</th>
         <th width="200">Центр</th>
         <th width="120">Регион</th>
     </tr>
@@ -534,21 +534,22 @@ function sortSelect(select) {
                         </div>
                     </sec:authorize>
                 </td>
+                <td id="statusTd" class="centered">
                 <c:choose>
                 <c:when test="${vacation.status.id == vacationApproved}">
-                <td id="statusTd" class="centered" style="background: #afffc3">
+                <span  style="color: #00b114">
                     </c:when>
                     <c:when test="${vacation.status.id == vacationRejected}">
-                <td id="statusTd" class="centered" style="background: #ffc0c0">
+                <span style="color: #d90002">
                     </c:when>
                     <c:when test="${vacation.status.id == vacationAprovementWiyhLm || vacation.status.id == vacationAprovementWiyhPm || vacation.status.id == vacationAprovedByPm}">
-                <td id="statusTd" class="centered" style="background: #75aaff">
+                <span style="color: blue">
                     </c:when>
                     <c:otherwise>
-                <td id="statusTd" class="centered">
+                <span class="centered">
                     </c:otherwise>
                 </c:choose>
-                        ${vacation.status.value}
+                        ${vacation.status.value}   </span>
                     <c:if test="${fn:length(vacation.vacationApprovals) > 0}">
                         <div data-dojo-type="dijit/TitlePane" data-dojo-props="title: 'Согласующие', open: false"
                              style="margin: 3px; padding: 0;">
@@ -606,11 +607,12 @@ function sortSelect(select) {
 
                 </td>
                 <td class="centered">${vacation.type.value}</td>
+                <td class="centered">${vacation.employee.name}</td>
                 <td class="date"><fmt:formatDate value="${vacation.creationDate}" pattern="dd.MM.yyyy HH:mm"/></td>
                 <td class="date"><fmt:formatDate value="${vacation.beginDate}" pattern="dd.MM.yyyy"/></td>
                 <td class="date"><fmt:formatDate value="${vacation.endDate}" pattern="dd.MM.yyyy"/></td>
-                <td class="centered">${calDays[lp.index]}</td>
-                <td class="centered">${workDays[lp.index]}</td>
+                <td class="centered">${calDays[vacation]}</td>
+                <td class="centered">${workDays[vacation]}</td>
                 <td class="centered">
                         ${vacation.comment}
                     <c:if test="${vacation.author.id ne vacation.employee.id}">
@@ -618,7 +620,6 @@ function sortSelect(select) {
                         Заявка создана сотрудником ${vacation.author.name}
                     </c:if>
                 </td>
-                <td class="centered">${vacation.employee.name}</td>
                 <td class="centered">${vacation.employee.division.name}</td>
                 <td class="centered">${vacation.employee.region.name}</td>
             </tr>

@@ -216,6 +216,9 @@
         function cancel() {
             window.location = "<%= request.getContextPath() %>/vacations";
         }
+        function openCreateVacationRules() {
+            window.open("<%=rules%>");
+        }
     </script>
     <style type="text/css">
 
@@ -251,7 +254,7 @@
 
 <div style="height: 40px">
     <br/>
-    <fmt:message key="vacation.rules.begin"/> <a href="<%=rules%>"><fmt:message key="vacation.rules.link"/></a>
+    <fmt:message key="vacation.rules.begin"/> <a href="" onclick="openCreateVacationRules();"><fmt:message key="vacation.rules.link"/></a>
     <br/>
 </div>
 <div id="errorField"></div>
