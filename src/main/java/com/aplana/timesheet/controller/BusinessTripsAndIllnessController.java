@@ -139,10 +139,12 @@ public class BusinessTripsAndIllnessController extends AbstractController{
         Date dateFrom = tsForm.getDateFrom();
         Date dateTo = tsForm.getDateTo();
         if (dateFrom == null || dateTo == null) {
-            dateFrom = new Date();
-            tsForm.setDateFrom(dateFrom);
-            dateTo = DateUtils.addMonths(dateFrom, 1);
+            dateTo = new Date();
             tsForm.setDateTo(dateTo);
+            Integer month = calendarService.getMonthFromDate(dateTo);
+            Integer year = calendarService.getYearFromDate(dateTo);
+            dateFrom = calendarService.getMinDateMonth(year,month);
+            tsForm.setDateFrom(dateFrom);
         }
         return getBusinessTripsOrIllnessReport(divisionId, regions, employeeId, manager, dateFrom, dateTo, printtype);
     }
@@ -216,7 +218,7 @@ public class BusinessTripsAndIllnessController extends AbstractController{
             oneEmployee = sickEmployee.get(0);
         }
         if (manager == null) {
-            manager = 0;
+            manager = -1;
         }
         return fillResponseModel(divisionId,regions , dateFrom, dateTo, printtype, oneEmployee, divisionList,reports, manager, allFlag);
     }

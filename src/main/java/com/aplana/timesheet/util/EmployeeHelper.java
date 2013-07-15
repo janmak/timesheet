@@ -79,7 +79,9 @@ public class EmployeeHelper {
                     JsonObjectNodeBuilder objectNodeBuilder = anObjectBuilder().
                             withField(ID, aStringBuilder(employee.getId())).
                             withField(VALUE, JsonNodeBuilders.aStringBuilder(getValue(employee))).
-                            withField(MANAGER_ID, aStringBuilder(employee.getManager() == null ? null : employee.getManager().getId()));
+                            //добавил два поля из за того что на форме "командировки/болезни" все заточено под другую структуру данных
+                            withField(MANAGER_ID, aStringBuilder(employee.getManager() == null ? null : employee.getManager().getId())).
+                            withField(REGION_ID, aStringBuilder(employee.getRegion().getId()));
                     if (addDetails) {
 
                         Date defaultDate = lastWorkdays.get(employee.getId());
