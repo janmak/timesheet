@@ -267,7 +267,7 @@ public class TSPropertyProvider {
         return getProperties().getProperty("path.library.padeg",StringUtils.EMPTY);
     }
 
-    public static final int LOGIN_THRESHOLD = 3;
+    public static final int LOGIN_THRESHOLD = 10;
     public Integer getLoginErrorThreshold() {
             return readIntProperty("application.login.threshold", LOGIN_THRESHOLD);
 
