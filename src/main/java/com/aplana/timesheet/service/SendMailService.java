@@ -140,6 +140,14 @@ public class SendMailService{
     }
 
     /**
+     * Возвращает email сотрудника
+     */
+    public String getEmployeeDivision(Integer empId) {
+        Division division = employeeService.find(empId).getDivision();
+        return empId == null ? null : division == null ? null : division.getDepartmentName();
+    }
+
+    /**
      * Возвращает строку с адресами менеджеров проектов/пресейлов
      * @param tsForm
      */
