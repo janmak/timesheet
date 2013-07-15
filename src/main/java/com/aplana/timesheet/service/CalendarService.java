@@ -241,4 +241,9 @@ public class CalendarService {
         calendar.setTime(date);
         return calendar.get(java.util.Calendar.MONTH)+1;
     }
+
+
+    public int getCountWorkDayPriorDate(Region region, Integer year, Integer month, @NotNull Date toDate) {
+        return calendarDAO.getCountWorkDayPriorDate(region, year, month, toDate);
+    }
 }
