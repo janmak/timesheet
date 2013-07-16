@@ -178,20 +178,21 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
         int summaryApproved = 0;
         int summaryRejected = 0;
 
-        for (int i  = firstYear; i <= lastYear; i++){
-            //Заполняются calDays, workDays
-            getSummaryAndCalcDays(regionListForCalc, vacations, calDays, workDays, i);//TODO возможно упростить, сделать вместо двух вызовов один
-            //Получаем списки, привязанные к типам отпусков
-            Map<DictionaryItem,List<Vacation>> typedVacationMap = vacationService.splitVacationByTypes(vacations);
-            //Проходим по существующим типам отпусков
-            for(DictionaryItem item:typedVacationMap.keySet()){
+
+        //Получаем списки, привязанные к типам отпусков
+        Map<DictionaryItem,List<Vacation>> typedVacationMap = vacationService.splitVacationByTypes(vacations);
+        //Проходим по существующим типам отпусков
+        for(DictionaryItem item:typedVacationMap.keySet()){
+            for (int i  = firstYear; i <= lastYear; i++){
+                //Заполняются calDays, workDays
+                getSummaryAndCalcDays(regionListForCalc, vacations, calDays, workDays, i);//TODO возможно упростить, сделать вместо двух вызовов один
                 Map<String, Integer> map = getSummaryAndCalcDays(regionListForCalc, typedVacationMap.get(item), new HashMap<Vacation, Integer>(vacationsSize), new HashMap<Vacation, Integer>(vacationsSize), i);
                 summaryApproved += map.get("summaryApproved");
                 summaryRejected += map.get("summaryRejected");
                 calAndWorkDaysList.add(new VacationInYear(item.getValue(),i, map.get("summaryCalDays"), map.get("summaryWorkDays")));
             }
         }
-
+        modelAndView.addObject("years", lastYear-firstYear+1);
         modelAndView.addObject("summaryApproved", summaryApproved);
         modelAndView.addObject("summaryRejected", summaryRejected);
         modelAndView.addObject("curEmployee", securityService.getSecurityPrincipal().getEmployee());

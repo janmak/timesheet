@@ -56,3 +56,7 @@ table.without_borders td {
 .dijitTitlePaneContentInner {
     padding: 0 !important;
 }
+
+.trDelimeter {
+    border-top: 2px solid #AAAAAA;
+}
