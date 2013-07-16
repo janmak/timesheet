@@ -9,17 +9,17 @@ import java.util.Set;
 @Entity
 @Table(name = "division", uniqueConstraints = @UniqueConstraint(columnNames = { "ldap_name", "name" }))
 public class Division implements Identifiable, Comparable<Division> {
-	@Id
-	@Column(nullable = false)
-	private Integer id;
+    @Id
+    @Column(nullable = false)
+    private Integer id;
 
-	@Column(nullable = false)
-	private String name;
+    @Column(nullable = false)
+    private String name;
 
-	@Column(name = "ldap_name", nullable = false)
-	private String ldapName;
+    @Column(name = "ldap_name", nullable = false)
+    private String ldapName;
 
-	@Column(columnDefinition = "bool not null default true")
+    @Column(columnDefinition = "bool not null default true")
     private boolean active;
 
     @Column(columnDefinition = "bool not null default true")
