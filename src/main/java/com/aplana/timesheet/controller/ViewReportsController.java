@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import padeg.lib.Padeg;
@@ -92,6 +93,23 @@ public class ViewReportsController extends AbstractControllerForEmployeeWithYear
                         employee,
                         year,
                         month
+                ) * TimeSheetConstants.WORK_DAY_DURATION * employee.getJobRate())
+        );
+        Date toDate = new Date();
+        Integer curYear = calendarService.getYearFromDate(toDate);
+        Integer curMonth = calendarService.getMonthFromDate(toDate);
+
+        if ((year != curYear) && (month != curMonth)) {
+           toDate = calendarService.getMaxDateMonth(year,month);
+        }
+
+        mav.addObject(
+                "durationPlanToCurrDate",(toDate.after(new Date())) ? 0 :
+                (calendarService.getCountWorkDayPriorDate(
+                        employee.getRegion(),
+                        year,
+                        month,
+                        toDate
                 ) * TimeSheetConstants.WORK_DAY_DURATION * employee.getJobRate())
         );
 

@@ -13,6 +13,8 @@
     <link rel="stylesheet" type="text/css" href="<%= request.getContextPath()%>/resources/css/businesstripsandillness.css">
     <script type="text/javascript">
 
+
+
 //        типы отчетов
         var illnessReportType = 6;
         var businessTripReportType = 7;
@@ -27,6 +29,13 @@
                 dojo.byId("manager").value = ${managerId};
             </sec:authorize>
             initRegionsList();
+            if (dojo.byId("regions").value != -1) {
+                sortEmployee();
+                selectedAllRegion = false;
+            } else {
+                sortEmployeeFull();
+                selectedAllRegion = true;
+            }
         });
 
         dojo.declare("DateTextBox", dijit.form.DateTextBox, {
@@ -39,6 +48,8 @@
 
         var employeeList = ${employeeListJson};
         var forAll = ${forAll};
+        var selectedAllRegion = null;
+        var empId = ${employeeId};
 
         //устанавливается значение по умолчанию "Все регионы"
         function initRegionsList(){
@@ -47,19 +58,21 @@
             if (regions.length == 1) {
                 if (regions[0] == <%= ALL_VALUE %>) {
                     regionsSelect[0].selected = true;
+                    selectedAllRegion = true;
+                } else {
+                    selectedAllRegion = false;
                 }
             }
 
         }
 
         function showBusinessTripsAndIllnessReport() {
-            var empId = ${employeeId};
             var divisionId = ${divisionId};
             var regions = dojo.byId("regions").value;
             var manager = dojo.byId("manager").value;
 
             <sec:authorize access="hasAnyRole('VIEW_ILLNESS_BUSINESS_TRIP', 'CHANGE_ILLNESS_BUSINESS_TRIP')">
-                var empId = dojo.byId("employeeId").value;
+                empId = dojo.byId("employeeId").value;
                 var divisionId = dojo.byId("divisionId").value;
             </sec:authorize>
 
@@ -109,8 +122,10 @@
             var empId = dojo.byId("employeeId").value;
 
             if (empId != null && empId != 0) {
+                <sec:authorize access="hasRole('CHANGE_ILLNESS_BUSINESS_TRIP')">
                 businesstripsandillness.action = "<%=request.getContextPath()%>/businesstripsandillnessadd/" + empId;
                 businesstripsandillness.submit();
+                </sec:authorize>
             } else {
                 alert("Необходимо выбрать сотрудника!\n");
             }
@@ -132,6 +147,7 @@
 
                 alert("Удаление не произошло:\n\n" + error);
             }
+
 
             function resetParent() {
                 dojo.removeClass(parentElement, "activity-indicator");
@@ -190,14 +206,19 @@
 
         function updateManagerList(id) {
             var managersNode = dojo.byId("manager");
-            var emptyOption = managersNode.options[0];
             var manager = managersNode.value;
 
+            var managerOption = dojo.doc.createElement("option");
+            dojo.attr(managerOption, {
+                value:-1
+            });
+            managerOption.title = "Все руководители";
+            managerOption.innerHTML = "Все руководители";
+
             managersNode.options.length = 0;
-            managersNode.add(emptyOption);
+            managersNode.add(managerOption);
 
             var managerMapJson = '${managerMapJson}';
-            var count = 0;
             if (managerMapJson.length > 0) {
                 var managerMap = dojo.fromJson(managerMapJson);
                 dojo.filter(managerMap,function (m) {
@@ -233,8 +254,12 @@
             if (isAllOption) {
                 select.removeAttribute("multiple");
                 select.selectedIndex = allOptionIndex;
+                selectedAllRegion = true;
+                sortEmployeeFull();
             } else {
                 select.setAttribute("multiple", "multiple");
+                selectedAllRegion = false;
+                sortEmployee();
             }
         }
 
@@ -248,41 +273,171 @@
             return arrIndexes;
         };
 
-        function managerChange(manager) {
+      function sortEmployeeFull() {
+          var manager = dojo.byId("manager").value;
+          var employeeSelect = dojo.byId("employeeId");
             var employeeSelect = dojo.byId("employeeId");
             var divisionSelectValue = dojo.byId("divisionId").value;
-            var selectedEmployee = employeeSelect.value;
+            var employeeOption = null;
             employeeSelect.options.length = 0;
-            var allOption = document.createElement("option");
-            allOption.text ="Все сотрудники";
-            allOption.value = <%= ALL_VALUE %>;
-            employeeSelect.add(allOption);
-            employeeSelect.options[0].selected= "selected";
-            var employeeMapJson = '${employeeListJson}';
-            var count = 0;
-            if (employeeMapJson.length > 0) {
-                var employeeMap = dojo.fromJson(employeeMapJson);
-                var filteredEmpMap = dojo.filter(employeeMap,function (m) {
+            if (employeeList.length > 0) {
+                var filteredEmpMap = dojo.filter(employeeList,function (m) {
                     return (m.divId == divisionSelectValue);
                 }).forEach(function (divEmps) {
                             divEmps.divEmps.forEach(function (empData) {
                                 if (empData.manId == manager || manager == 0) {
-                                    var option = document.createElement("option");
-                                    option.text = empData.value;
-                                    option.value = empData.id;
-                                    if (empData.number == selectedEmployee) {
-                                        option.selected = "selected";
-                                    }
-                                    employeeSelect.add(option);
+                                    addEmployeeToList(empData, employeeOption, employeeSelect,null, divisionSelectValue);
+                                } else if (manager == -1) {
+                                    employeeOption = dojo.doc.createElement("option");
+                                    dojo.attr(employeeOption, {
+                                        value:empData.id
+                                    });
+                                    employeeOption.title = empData.value;
+                                    employeeOption.innerHTML = empData.value;
+                                    employeeSelect.appendChild(employeeOption);
                                 }
                             })
                         });
             }
+         sortSelect(employeeSelect);
+         if (selectCurrentEmployee(employeeSelect)) {
+         dojo.byId("employeeId").value = empId;
+         } else {
+         dojo.byId("employeeId").value = -1;
+         }
+      }
+
+        function managerChange(obj) {
+            var managerId = null;
+
+            if (obj.target == null) {
+                managerId = obj.value;
+            }
+            else {
+                managerId = obj.target.value;
+            }
+            if (selectedAllRegion) {
+                sortEmployeeFull();
+
+            } else {
+                sortEmployee();
+            }
         }
+
+
+        function sortEmployee() {
+            var employeeSelect = dojo.byId("employeeId");
+            var divisionId = dojo.byId("divisionId").value;
+            var employeeOption = null;
+            var select = dojo.byId("regions");
+            var managerId = dojo.byId("manager").value;
+            var selectedRegions = [];
+            for (var i = 0; i < select.options.length; i++) {
+                var option = select.options[i];
+
+                if (option.selected) selectedRegions.push(option.value);
+            }
+            employeeSelect.options.length = 0;
+            for (var i = 0; i < employeeList.length; i++) {
+                if (divisionId == employeeList[i].divId) {
+                    for (var l = 0; l < employeeList[i].divEmps.length; l++) {
+                        if (employeeList[i].divEmps[l].id != 0) {
+                            if (managerId != 0 && ((employeeList[i].divEmps[l].manId == managerId) || (managerId == 0))) {
+                                addEmployeeToList(employeeList[i].divEmps[l], employeeOption, employeeSelect, selectedRegions,divisionId);
+                            } else if (managerId == -1 && (dojo.indexOf(selectedRegions, employeeList[i].divEmps[l].regId) != -1)) {
+                                employeeOption = dojo.doc.createElement("option");
+                                dojo.attr(employeeOption, {
+                                    value:employeeList[i].divEmps[l].id
+                                });
+                                employeeOption.title = employeeList[i].divEmps[l].value;
+                                employeeOption.innerHTML = employeeList[i].divEmps[l].value;
+                                employeeSelect.appendChild(employeeOption);
+                            }
+                        }
+                    }
+                }
+            }
+            sortSelect(employeeSelect);
+            if (selectCurrentEmployee(employeeSelect)) {
+                dojo.byId("employeeId").value = empId;
+            } else {
+                dojo.byId("employeeId").value = -1;
+            }
+        }
+
+        function addEmployeeToList(employee, employeeOption, employeeSelect, selectedRegions ,divisionSV) {
+            var addEmployee = true;
+
+            // Если есть список выбранных регионов - перед добавлением в список проверим, что данный сотрудник в этом регионе
+            if (selectedRegions) {
+                addEmployee = (dojo.indexOf(selectedRegions, employee.regId) != -1);
+            }
+
+            if (addEmployee || selectedRegions == null) {
+                employeeOption = dojo.doc.createElement("option");
+                dojo.attr(employeeOption, {
+                    value:employee.id
+                });
+                employeeOption.title = employee.value;
+                employeeOption.innerHTML = employee.value;
+                employeeSelect.appendChild(employeeOption);
+            }
+
+            var filteredEmpMap3 =  dojo.map(employeeList,function (item) {
+                if (item.divId==divisionSV) {
+                    dojo.map(item.divEmps,function (itemm) {
+                        if (itemm.manId == employee.id) {
+                            addEmployeeToList(itemm, employeeOption, employeeSelect,selectedRegions, divisionSV);
+                        }
+                    });
+                }
+            })
+        }
+
+        /* Сортирует по алфавиту содержимое выпадающих списков. */
+        function sortSelect(select) {
+            var tmpArray = [];
+            for (var i = 0; i < select.options.length; i++) {
+                tmpArray.push(select.options[i]);
+            }
+            tmpArray.sort(function (a, b) {
+                return (a.text < b.text) ? -1 : 1;
+            });
+            select.options.length = 0;
+            insertAllInclusiveOption(select);
+            for (var i = 0; i < tmpArray.length; i++) {
+                select.options[i + 1] = tmpArray[i];
+            }
+        }
+
+        /* Добавляет в указанный select пустой option. */
+        function insertAllInclusiveOption(select) {
+            var option = dojo.doc.createElement("option");
+            dojo.attr(option, {
+                value:"-1"
+            });
+            option.innerHTML = "Все сотрудники";
+            select.appendChild(option);
+        }
+
+
+        function selectCurrentEmployee(employeeSelect) {
+            for (var i = 0; i < employeeSelect.options.length; i++) {
+                if (employeeSelect[i].value == empId) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
         function divisionChanged(division) {
             updateManagerList(division);
             dojo.byId("manager").onchange();
         }
+
+    function log(text){
+        console.log(text);
+    }
     </script>
 </head>
 <body>
@@ -322,9 +477,9 @@
                 </td>
                 <td>
                     <form:select path="manager" class="without_dojo"
-                                 onchange="managerChange(this.value)" onmouseover="showTooltip(this);"
-                                 onmouseout="tooltip.hide();" multiple="false">
-                        <form:option label="Все руководители" value="0"/>
+                                 onchange="managerChange(this)" onmouseover="showTooltip(this);"
+                                 onmouseout="tooltip.hide();" multiple="false" cssStyle="margin-left: 0px">
+                        <%--<form:option label="Все руководители" value="0"/>--%>
                         <form:options items="${managerList}" itemLabel="name" itemValue="id"/>
                     </form:select>
                 </td>
@@ -345,7 +500,7 @@
         <tr>
             <td colspan="4">
 
-                <div class="horizontalBlock" style="width: 151px; margin-top: 5px;">
+                <div class="horizontalBlock" style="width: 151px; margin-top: 5px; margin-left: -1px;">
                     <span class="lowspace">Начало периода:</span>
                 </div>
                 <div class="horizontalBlock">
@@ -358,7 +513,7 @@
         </tr>
         <tr>
             <td colspan="4">
-                <div class="horizontalBlock" style="width: 151px; margin-top: 5px;">
+                <div class="horizontalBlock" style="width: 151px; margin-top: 5px; margin-left: -1px;">
                     <span class="lowspace">Окончание периода:</span>
                 </div>
                 <div class="horizontalBlock">
@@ -374,7 +529,7 @@
                 <div class="horizontalBlock" style="width: 50px;  margin-top: 5px;">
                     <span class="lowspace">Тип:</span>
                 </div>
-                <div class="floatleft">
+                <div class="horizontalBlock" style="margin-left: 100px">
                     <form:select path="reportType" id="reportType" onMouseOver="tooltip.show(getTitle(this));"
                                  onMouseOut="tooltip.hide();" multiple="false" cssClass="date_picker">
                         <form:options items="${businesstripsandillness.reportTypes}" itemLabel="name" itemValue="id"
@@ -394,6 +549,7 @@
 
     <%------------------------------TABLE-----------------------------------%>
 
+    <c:if test="${not empty reportsMap}">
         <table id="reporttable">
             <thead>
                 <tr>
@@ -429,7 +585,7 @@
                     <th width="200">Комментарий</th>
                 </tr>
             </thead>
-            <c:if test="${not empty reportsMap}">
+
             <c:forEach var="employeeReport" items="${reportsMap}">
                 <c:set var="reports" value="${employeeReport.value}"/>
                 <c:choose>
@@ -498,7 +654,7 @@
                                     <td></td>
                                 </sec:authorize>
                                 <td class="textcenter">${employeeReport.key.name}</td>
-                                <td colspan="8"><b>В выбранном месяце сотрудник на больничном не был!</b></td>
+                                <td colspan="8"><b>Нет данных о больничных сотрудника за выбранный период.</b></td>
                                 </tbody>
                             </c:when>
                             <c:when test="${reportFormed == 7}">
@@ -509,94 +665,91 @@
                                     <td></td>
                                 </sec:authorize>
                                 <td class="textcenter">${employeeReport.key.name}</td>
-                                <td colspan="8"><b>В выбранном месяце сотрудник в командировках не был!</b></td>
+                                <td colspan="8"><b>Нет данных о командировках сотрудника за выбранный период.</b></td>
                                 </tbody>
                             </c:when>
                         </c:choose>
                     </c:when>
                 </c:choose>
             </c:forEach>
-            </c:if>
-            <c:if test="${empty reportsMap}">
-                <tbody>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td colspan="9">
-                    <b>Не найдено данных по заданным параметрам,<br> вы можете создать
-                        <c:choose>
-                            <c:when test="${reportFormed == 6}">
-                                больничный
-                            </c:when>
-                            <c:when test="${reportFormed == 7}">
-                                командировку
-                            </c:when>
-                        </c:choose>
-                        пройдя по <a href="#" onclick="createBusinessTripOrIllness();"> ссылке.</a>
-                    </b>
-                </td>
-                </tbody>
-            </c:if>
-            </table>
             <c:choose>
                 <c:when test="${forAll!=true}">
                     <c:choose>
                         <c:when test="${reportFormed == 6}">
-                            <table id="illnessresult">
-                                <thead>
-                                <tr><td colspan="2" class="bold">Итоги за месяц:</td></tr>
+                                <tr><td colspan="5" class="bold">Итоги за месяц:</td></tr>
                                 <c:choose>
                                     <c:when test="${fn:length(reports.periodicalsList) > 0}">
                                         <tr>
-                                            <td class="resultrow">Общее кол-во календарных дней болезни за месяц:</td>
-                                            <td class="resultrow" id="mounthCalendarDaysOnIllness">${reports.mounthCalendarDays}</td>
+                                            <td colspan="4" class="resultrow">Общее кол-во календарных дней болезни:</td>
+                                            <td colspan="1" class="resultrow" id="mounthCalendarDaysOnIllness">${reports.mounthCalendarDays}</td>
                                         </tr>
                                         <tr>
-                                            <td class="resultrow">Общее кол-во рабочих дней болезни за месяц:</td>
-                                            <td class="resultrow" id="mounthWorkDaysOnIllness">${reports.mounthWorkDays}</td>
+                                            <td colspan="4" class="resultrow">Общее кол-во рабочих дней болезни:</td>
+                                            <td colspan="1" class="resultrow" id="mounthWorkDaysOnIllness">${reports.mounthWorkDays}</td>
                                         </tr>
                                         <tr>
-                                            <td class="resultrow">Общее кол-во рабочих дней болезни за месяц, когда сотрудник работал:</td>
-                                            <td class="resultrow" id="mounthWorkDaysOnIllnessWorked"><fmt:formatNumber value="${reports.mounthWorkDaysOnIllnessWorked}" pattern="#.#"/></td>
+                                            <td colspan="4" class="resultrow">Общее кол-во рабочих дней болезни, когда сотрудник работал:</td>
+                                            <td colspan="1" class="resultrow" id="mounthWorkDaysOnIllnessWorked"><fmt:formatNumber value="${reports.mounthWorkDaysOnIllnessWorked}" pattern="#.#"/></td>
                                         </tr>
                                     </c:when>
                                     <c:otherwise>
-                                        <span class="bold"><tr><td colspan="2" class="bold">В выбранном месяце сотрудник не болел!</td></tr></span>
+                                        <span class="bold"><tr><td colspan="6" class="bold">Нет данных о больничных сотрудника за выбранный период.</td></tr></span>
                                     </c:otherwise>
                                 </c:choose>
-                                <tr><td colspan="2" class="bold">Итоги за год:</td></tr>
+                                <tr><td colspan="5" class="bold">Итоги за год:</td></tr>
                                 <tr>
-                                    <td class="resultrow">Общее кол-во рабочих дней болезни за год:</td>
-                                    <td class="resultrow" id="yearWorkDaysOnIllness">${reports.yearWorkDaysOnIllness}</td>
+                                    <td colspan="4" class="resultrow">Общее кол-во рабочих дней болезни:</td>
+                                    <td colspan="1" class="resultrow" id="yearWorkDaysOnIllness">${reports.yearWorkDaysOnIllness}</td>
                                 </tr>
                                 <tr>
-                                    <td class="resultrow">Общее кол-во рабочих дней болезни за год , когда сотрудник работал:</td>
-                                    <td class="resultrow" id="yearWorkDaysOnIllnessWorked"><fmt:formatNumber value="${reports.yearWorkDaysOnIllnessWorked}" pattern="#.#"/></td>
+                                    <td colspan="4" class="resultrow">Общее кол-во рабочих дней болезни, когда сотрудник работал:</td>
+                                    <td colspan="1" class="resultrow" id="yearWorkDaysOnIllnessWorked"><fmt:formatNumber value="${reports.yearWorkDaysOnIllnessWorked}" pattern="#.#"/></td>
                                 </tr>
-                                </thead>
-                            </table>
                         </c:when>
 
                         <c:when test="${reportFormed == 7}">
-                            <c:if test="${fn:length(reports.periodicalsList) > 0}">
-                                <table id="businesstripresult">
-                                    <thead>
-                                        <tr><td colspan="2" class="bold">Итоги за месяц:</td></tr>
-                                        <tr>
-                                            <td class="resultrow">Общее кол-во календарных дней в командировке за месяц:</td>
-                                            <td class="resultrow" id="mounthCalendarDaysInBusinessTrip">${reports.mounthCalendarDays}</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="resultrow">Общее кол-во рабочих дней в командировке за месяц:</td>
-                                            <td class="resultrow" id="mounthWorkDaysOnBusinessTrip">${reports.mounthWorkDays}</td>
-                                        </tr>
-                                    </thead>
-                                </table>
-                            </c:if>
+                            <c:choose>
+                                <c:when test="${fn:length(reports.periodicalsList) > 0}">
+                                            <tr><td colspan="5" class="bold">Итоги за месяц:</td></tr>
+                                            <tr>
+                                                <td colspan="4" class="resultrow">Общее кол-во календарных дней в командировке:</td>
+                                                <td colspan="1" class="resultrow" id="mounthCalendarDaysInBusinessTrip">${reports.mounthCalendarDays}</td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="4" class="resultrow">Общее кол-во рабочих дней в командировке:</td>
+                                                <td colspan="1" class="resultrow" id="mounthWorkDaysOnBusinessTrip">${reports.mounthWorkDays}</td>
+                                            </tr>
+                                </c:when>
+                                <c:otherwise>
+                                    <span class="bold"><tr><td colspan="5" class="bold">Нет данных о командировках сотрудника за выбранный период.</td></tr></span>
+                                </c:otherwise>
+                            </c:choose>
                         </c:when>
                     </c:choose>
                 </c:when>
             </c:choose>
+        </table>
+    </c:if>
+    <c:if test="${empty reportsMap}">
+        <div style="margin-left: 10px">
+            <sec:authorize access="hasRole('CHANGE_ILLNESS_BUSINESS_TRIP')">
+                <b>Не найдено данных по заданным параметрам, вы можете создать
+                    <c:choose>
+                        <c:when test="${reportFormed == 6}">
+                            больничный
+                        </c:when>
+                        <c:when test="${reportFormed == 7}">
+                            командировку
+                        </c:when>
+                    </c:choose>
+                    пройдя по <a href="#" onclick="createBusinessTripOrIllness();"> ссылке.</a>
+                </b>
+            </sec:authorize>
+            <sec:authorize access="not hasRole('CHANGE_ILLNESS_BUSINESS_TRIP')">
+                <b>Не найдено данных по заданным параметрам.</b>
+            </sec:authorize>
+        </div>
+    </c:if>
     </form:form>
 </body>
 </html>

@@ -3,6 +3,7 @@ package com.aplana.timesheet.dao;
 import com.aplana.timesheet.dao.entity.Calendar;
 import com.aplana.timesheet.dao.entity.Holiday;
 import com.aplana.timesheet.dao.entity.Region;
+import com.aplana.timesheet.exception.service.CalendarServiceException;
 import com.aplana.timesheet.util.DateTimeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -253,8 +254,13 @@ public class CalendarDAO {
                         " from Calendar c" +
                         " where YEAR(c.calDate) = :year and MONTH(c.calDate) = :month"
         ).setParameter("year", year).setParameter("month", month);
-
-        return (Date) query.getSingleResult();
+        Date result;
+        try {
+            result = (Date) query.getSingleResult();
+        } catch (Exception e) {
+            result = null;
+        }
+        return result;
     }
 
     public Date tryGetMinDateMonth(Integer year, Integer month) {
@@ -263,7 +269,25 @@ public class CalendarDAO {
                         " from Calendar c" +
                         " where YEAR(c.calDate) = :year and MONTH(c.calDate) = :month"
         ).setParameter("year", year).setParameter("month", month);
+        Date result;
+        try {
+            result = (Date) query.getSingleResult();
+        } catch (Exception e) {
+            result = null;
+        }
+        return result;
+    }
 
-        return (Date) query.getSingleResult();
+    public int getCountWorkDayPriorDate(Region region, Integer year, Integer month, @NotNull Date toDate) {
+        final Query query = entityManager.createQuery(
+                "select count(c) - count(h)" +
+                        " from Calendar c" +
+                        " left outer join c.holidays h" +
+                        " where YEAR(c.calDate) = :year and MONTH(c.calDate) = :month" +
+                        " and (h.region is null or h.region = :region) and c.calDate <= :toDate"
+        ).setParameter("region", region).setParameter("year", year).
+                setParameter("month", month).setParameter("toDate", toDate);
+
+        return ((Long) query.getSingleResult()).intValue();
     }
 }

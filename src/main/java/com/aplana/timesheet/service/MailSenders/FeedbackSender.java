@@ -51,24 +51,29 @@ public class FeedbackSender extends MailSender<FeedbackForm> {
 
         String employeeName = sendMailService.getEmployeeFIO(params.getEmployeeId());
         String employeeEmail = sendMailService.getEmployeeEmail(params.getEmployeeId());
+        String employeeDivision = sendMailService.getEmployeeDivision(params.getEmployeeId());
 
         mail.setToEmails(Arrays.asList(propertyProvider.getMailProblemsAndProposalsCoaddress(params.getFeedbackType())));
         mail.setCcEmails(Arrays.asList(employeeEmail));
         mail.setSubject(propertyProvider.getFeedbackMarker());
         mail.setFilePahts(Arrays.asList(params.getFile1Path(), params.getFile2Path()));
         mail.setPreconstructedMessageBody(
-                getMessageBody(employeeName, employeeEmail, params.getFeedbackDescription(), params.getFeedbackTypeName()) );
+                getMessageBody(employeeName, employeeEmail, params.getFeedbackDescription(), params.getFeedbackTypeName(), employeeDivision) );
 
         return Arrays.asList(mail);
     }
 
-    private String getMessageBody(String name, String email, String description, String feedbackTypeName) {
+    private String getMessageBody(String name, String email, String description, String feedbackTypeName, String employeeDivision) {
         final StringBuilder bodyTxt = new StringBuilder();
 
         bodyTxt.append(description);
 
         if (StringUtils.isNotBlank(name)) {
             bodyTxt.append("\n\nПришло от: ").append(name);
+        }
+
+        if (StringUtils.isNotBlank(employeeDivision)) {
+            bodyTxt.append(" (").append(employeeDivision).append(")");
         }
 
         if (StringUtils.isNotBlank(email)) {

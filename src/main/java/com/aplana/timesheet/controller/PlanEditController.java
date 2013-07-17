@@ -32,6 +32,7 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.sql.Timestamp;
 import java.util.*;
 import java.util.Calendar;
 
@@ -89,6 +90,7 @@ public class PlanEditController {
 
     public static final String PLAN_SAVE_URL = "/planSave";
     public static final String PLAN_EDIT_URL = "/planEdit";
+    public static final String EXPORT_TABLE_EXCEL = "/exportTableExcel";
     private static final String COOKIE_DIVISION_ID = "cookie_division_id";
 
     private static final String COOKIE_REGIONS = "cookie_regions";
@@ -217,6 +219,9 @@ public class PlanEditController {
     private VacationService vacationService;
 
     @Autowired
+    private PlanEditExcelReportService planEditExcelReportService;
+
+    @Autowired
     private IllnessService illnessService;
 
     @RequestMapping(PLAN_EDIT_URL)
@@ -326,6 +331,29 @@ public class PlanEditController {
         }
 
         return modelAndView;
+    }
+
+    @RequestMapping(value = EXPORT_TABLE_EXCEL+"/{year}/{month}", method = RequestMethod.POST)
+    public ModelAndView exportTableExcel(
+            @ModelAttribute("year") Integer year,
+            @ModelAttribute("month") Integer month,
+            @ModelAttribute(PlanEditForm.FORM) PlanEditForm form,
+            BindingResult bindingResult, HttpServletRequest request,
+            HttpServletResponse response
+    ) {
+
+        final Date date = DateTimeUtil.createDate(year, month);
+
+        String dataAsJson = getDataAsJson(form, date);
+        List<Project> projectList = getProjects(form, date);
+
+        com.aplana.timesheet.dao.entity.Calendar calDate = calendarService.find(new Timestamp(date.getTime()));
+
+        String reportName = "Планирование занятости за "+calDate.getMonthTxt()+" "+year.toString()+" года";
+
+        planEditExcelReportService.createAndExportReport(reportName,dataAsJson, projectList, response, request);
+
+        return null;
     }
 
     private void saveCookie(PlanEditForm form, HttpServletResponse response) {

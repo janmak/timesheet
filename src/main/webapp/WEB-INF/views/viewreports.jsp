@@ -274,6 +274,10 @@
                     <td id="durationall">${durationFact}</td>
                 </tr>
                 <tr>
+                    <td colspan="2">Всего к текущему времени(план):</td>
+                    <td id="durationPlanToCurrDate">${durationPlanToCurrDate}</td>
+                </tr>
+                <tr>
                     <td colspan="2">Всего(план):</td>
                     <td id="durationplan">${durationPlan}</td>
                 </tr>

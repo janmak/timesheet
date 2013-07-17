@@ -455,6 +455,16 @@ function createPlanForPeriod() {
     window.location = getContextPath() + "<%= CreatePlanForPeriodContoller.CREATE_PLAN_FOR_PERIOD_URL %>";
 }
 
+function exportTableInExcel() {
+    var year = dojo.byId("year").value;
+    var month = dojo.byId("month").value;
+    var form = dojo.byId("<%= FORM %>");
+    form.action = (getContextPath() + "<%= EXPORT_TABLE_EXCEL %>/"+year+"/"+month);
+    form.submit();
+
+    form.action = getContextPath() + "<%= PLAN_EDIT_URL %>";
+}
+
 function getRegionsSelected() {
     var regionsNode = dojo.byId("<%= REGIONS %>");
     var regionsSelected = [];
@@ -599,7 +609,7 @@ function log(text){
                                 <form:select path="<%= MANAGER %>" class="without_dojo"
                                              onmouseover="showTooltip(this);"
                                              onmouseout="tooltip.hide();" multiple="false">
-                                    <form:option label="Все сотрудники" value="0"/>
+                                    <form:option label="Все руководители" value="0"/>
                                     <form:options items="${managerList}" itemLabel="name" itemValue="id"/>
                                 </form:select>
                             </td>
@@ -696,6 +706,9 @@ function log(text){
         </c:if>
         <button style="margin-left: 20px;" onclick="createPlanForPeriod()" type="button">
             Запланировать на период
+        </button>
+        <button style="margin-left: 20px;" onclick="exportTableInExcel()" type="button">
+            Сохранить в Excel
         </button>
     </sec:authorize>
 </form:form>

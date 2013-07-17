@@ -200,23 +200,50 @@ public class CalendarService {
         return (getHolidaysCountForRegion(date, date, (employee == null) ? null : employee.getRegion()) > 0);
     }
 
+    /**
+     * Возвращает максимальную дату месяца
+     * @param year
+     * @param month
+     * @return
+     */
     public Date getMaxDateMonth(Integer year, Integer month) {
         return calendarDAO.tryGetMaxDateMonth(year,month);
     }
 
+    /**
+     * Возвращает минимальную дату месяца
+     * @param year
+     * @param month
+     * @return
+     */
     public Date getMinDateMonth(Integer year, Integer month) {
         return calendarDAO.tryGetMinDateMonth(year,month);
     }
 
+    /**
+     * Возвращает год из даты
+     * @param date
+     * @return
+     */
     public Integer getYearFromDate(Date date) {
         java.util.Calendar calendar = java.util.Calendar.getInstance(java.util.TimeZone.getDefault(), java.util.Locale.getDefault());
         calendar.setTime(date);
         return calendar.get(java.util.Calendar.YEAR);
     }
 
+    /**
+     * Возвращает мясяц из даты
+     * @param date
+     * @return
+     */
     public Integer getMonthFromDate(Date date) {
         java.util.Calendar calendar = java.util.Calendar.getInstance(java.util.TimeZone.getDefault(), java.util.Locale.getDefault());
         calendar.setTime(date);
         return calendar.get(java.util.Calendar.MONTH)+1;
+    }
+
+
+    public int getCountWorkDayPriorDate(Region region, Integer year, Integer month, @NotNull Date toDate) {
+        return calendarDAO.getCountWorkDayPriorDate(region, year, month, toDate);
     }
 }
