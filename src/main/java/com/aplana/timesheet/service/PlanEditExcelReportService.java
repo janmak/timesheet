@@ -224,8 +224,9 @@ public class PlanEditExcelReportService {
         String cellValue;
         try {
             cellValue = jsonRow.getString(fieldName);
+            cellValue = cellValue.replace(',','.');
         } catch (JSONException e) {
-            cellValue = "0";
+            cellValue = "0.0";
         }
         cell.setCellValue(cellValue);
     }
