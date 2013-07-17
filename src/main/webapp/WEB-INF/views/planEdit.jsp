@@ -461,6 +461,8 @@ function exportTableInExcel() {
     var form = dojo.byId("<%= FORM %>");
     form.action = (getContextPath() + "<%= EXPORT_TABLE_EXCEL %>/"+year+"/"+month);
     form.submit();
+
+    form.action = getContextPath() + "<%= PLAN_EDIT_URL %>";
 }
 
 function getRegionsSelected() {

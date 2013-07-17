@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.aplana.timesheet.dao.entity.Project;
+import org.apache.poi.hssf.usermodel.HSSFPalette;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
@@ -145,7 +146,10 @@ public class PlanEditExcelReportService {
             rootObject = new JSONObject(jsonData);
             JSONArray rows = rootObject.getJSONArray("rows");
 
-            CellStyle oddStyle = getTypicalCellStyle(workBook, IndexedColors.LIGHT_CORNFLOWER_BLUE.getIndex());
+            HSSFPalette palette = workBook.getCustomPalette();
+            palette.setColorAtIndex(new Byte((byte) 41), new Byte((byte) 216), new Byte((byte) 216), new Byte((byte) 216));
+
+            CellStyle oddStyle = getTypicalCellStyle(workBook, palette.getColor(41).getIndex());
             CellStyle evenStyle = getTypicalCellStyle(workBook, IndexedColors.WHITE.getIndex());
             CellStyle style = null;
             for (int i = 0; i < rows.length(); i++) {
@@ -230,25 +234,25 @@ public class PlanEditExcelReportService {
         Cell cell = rows.get(0).createCell(numberCell);
         cell.setCellStyle(style);
         cell.setCellValue(name);
-        cell = rows.get(0).createCell(numberCell+1);
+        cell = rows.get(0).createCell(numberCell + 1);
         cell.setCellStyle(style);
 
 
         cell = rows.get(1).createCell(numberCell);
         cell.setCellStyle(style);
-        cell = rows.get(1).createCell(numberCell+1);
+        cell = rows.get(1).createCell(numberCell + 1);
         cell.setCellStyle(style);
 
         cell = rows.get(2).createCell(numberCell);
         cell.setCellStyle(style);
-        cell = rows.get(2).createCell(numberCell+1);
+        cell = rows.get(2).createCell(numberCell + 1);
         cell.setCellStyle(style);
 
         Cell cellPlan = rows.get(3).createCell(numberCell);
         cellPlan.setCellValue(PLAN);
         cellPlan.setCellStyle(style);
 
-        Cell cellFact = rows.get(3).createCell(numberCell+1);
+        Cell cellFact = rows.get(3).createCell(numberCell + 1);
         cellFact.setCellValue(FACT);
         cellFact.setCellStyle(style);
 
