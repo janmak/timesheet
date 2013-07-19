@@ -572,12 +572,14 @@ function typeActivityChange(obj) {
         }
     }
 
+    /*
+    kss 19.07.2013 - для пресейлов автоматически блокировалось поле выбора "Задача".
     if (select.value == "13") {
         dojo.attr("cqId_id_" + rowIndex, {
             disabled:"disabled",
             value:"0"
         });
-    }
+    }*/
     if ((select.value == "12") || (select.value == "13") || (select.value == "14") || (select.value == "42")) {
         dojo.removeAttr("workplace_id_" + rowIndex, "disabled");
         dojo.removeAttr("activity_category_id_" + rowIndex, "disabled");
