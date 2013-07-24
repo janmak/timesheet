@@ -272,4 +272,10 @@ public class TSPropertyProvider {
             return readIntProperty("application.login.threshold", LOGIN_THRESHOLD);
 
     }
+
+    /* Количество дней отпуска при показе информ сообщения "Отпуск необходимо оформлять с понедельника по воскресенье" */
+    public static final int VACANTION_FRIDAY_INFORM_DAYS = 5;
+    public Integer getVacantionFridayInformDays() {
+        return readIntProperty("vacations.vacation.friday.warning.threshold", VACANTION_FRIDAY_INFORM_DAYS);
+    }
 }

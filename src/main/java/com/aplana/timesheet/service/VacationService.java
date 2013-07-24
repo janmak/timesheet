@@ -12,6 +12,7 @@ import com.aplana.timesheet.exception.service.DeleteVacationException;
 import com.aplana.timesheet.exception.service.NotDataForYearInCalendarException;
 import com.aplana.timesheet.exception.service.VacationApprovalServiceException;
 import com.aplana.timesheet.form.CreateVacationForm;
+import com.aplana.timesheet.properties.TSPropertyProvider;
 import com.aplana.timesheet.service.vacationapproveprocess.VacationApprovalProcessService;
 import com.aplana.timesheet.util.DateTimeUtil;
 import com.aplana.timesheet.util.EnumsUtils;
@@ -293,6 +294,15 @@ public class VacationService extends AbstractServiceWithTransactionManagement {
             }
             builder.withField("vacationWorkDayCount", aStringBuilder(vacationWorkCount.toString()));
             builder.withField("vacationDayCount", aStringBuilder((vacationDayCount<=0)?"0":vacationDayCount.toString()));
+            /* проверка на необходимость вывода информ сообщения о попадании на пятницу */
+            if (vacationDayCount > TSPropertyProvider.VACANTION_FRIDAY_INFORM_DAYS) {
+                Calendar calendar = new GregorianCalendar();
+                calendar.setTime(endDateT);
+
+                if (calendar.get(Calendar.DAY_OF_WEEK) == Calendar.FRIDAY)
+                    builder.withField("vacationFridayInform", aStringBuilder("true"));
+            }
+
             String outString = JsonUtil.format(builder);
             return outString;
         } catch (Exception th) {
