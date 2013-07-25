@@ -63,6 +63,17 @@ public class LdapDAO {
         }
     }
 
+    public EmployeeLdap getEmployeeBySID(String sid) {
+        try {
+            EqualsFilter filter = new EqualsFilter(SID, sid);
+            logger.debug("LDAP Query {}", filter.encode());
+            return (EmployeeLdap) Iterables.getFirst(ldapTemplate.search("", filter.encode(), new EmployeeAttributeMapper()), null);
+        } catch (NameNotFoundException e) {
+            logger.debug("Not found: " + sid);
+            return null;
+        }
+    }
+
     public List<EmployeeLdap> getEmployeesByDepartmentNameFromDb(String department) {
         logger.debug("DeparmentName – {}", department);
         String[] split = department.split(",");
@@ -98,7 +109,7 @@ public class LdapDAO {
 		logger.debug("LDAP Query {}", andFilter.encode());
 		return ldapTemplate.search(dn, andFilter.encode(), new EmployeeAttributeMapper());
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	public List<EmployeeLdap> getDivisionLeader(String divisionLeaderName, String division) {
 		logger.info("Getting Division Leaders from LDAP.");
@@ -138,7 +149,7 @@ public class LdapDAO {
             employee.setObjectSid   (LdapUtils.convertBinarySidToString((byte[]) attributes.get(SID).get()));
             employee.setDepartment  ( getAttributeByName( attributes, "department" ) );
             employee.setDisplayName ( getAttributeByName( attributes, "displayName" ));
-            employee.setEmail(getAttributeByName(attributes, "mail"));
+            employee.setEmail       ( getAttributeByName( attributes, "mail"));
 		    employee.setManager     ( getAttributeByName( attributes, "manager" ) );
             employee.setTitle       ( getAttributeByName( attributes, "title" ) );
             employee.setWhenCreated ( getAttributeByName( attributes, "whenCreated" ) );
