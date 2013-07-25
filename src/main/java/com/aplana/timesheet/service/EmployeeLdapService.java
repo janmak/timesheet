@@ -79,6 +79,52 @@ public class EmployeeLdapService extends AbstractServiceWithTransactionManagemen
         }
     }
 
+    public void updateSidAllUsersFromLdap() {
+        trace.append("Synchronization sid of all users with ldap started.\n\n");
+
+        /* список всех пользователей из БД */
+        List<Employee> empInDBList = employeeService.getAllEmployees();
+
+        TransactionStatus transactionStatus = null;
+
+        try {
+            transactionStatus = getNewTransaction();
+
+            for (Employee empInDB : empInDBList) {
+                EmployeeLdap empInLdap = null;
+                /* ищем по SID */
+                if (!StringUtils.isEmpty(empInDB.getObjectSid())) {
+                    empInLdap = ldapDao.getEmployeeBySID(empInDB.getObjectSid());
+                }
+                /* по SID не нашли, пытаемся дальше */
+                if (empInLdap == null) {
+                    /* ищем по Common Name */
+                    empInLdap = ldapDao.getEmployeeByLdapName(empInDB.getLdap());
+                    /* ищем по адресу почты */
+                    if (empInLdap == null) {
+                        empInLdap = ldapDao.getEmployeeByEmail(empInDB.getEmail());
+                    }
+                    /* что то нашли, сохраняем SID*/
+                    if ( empInLdap != null && !StringUtils.isEmpty(empInLdap.getObjectSid()) ) {
+                            empInDB.setObjectSid(empInLdap.getObjectSid());
+                            employeeService.save(empInDB);
+                            trace.append(String.format("User %s is synchronized with ldap.\n", empInDB.getName()));
+                    } else {
+                        logger.error(" User {} user isn't found in db", empInDB.getName() + " | " + empInDB.getLdap());
+                    }
+                }
+            }
+            if (transactionStatus != null) {
+                commit(transactionStatus);
+            }
+            trace.append("\n Synchronization sid of all users with ldap finished.\n\n");
+        } catch (Exception e) {
+            logger.error(" Exception in updateSidAllUsersFromLdap : {}", e.getMessage());
+            if (transactionStatus != null) {
+                rollback(transactionStatus);
+            }
+        }
+    }
 
     private enum EmployeeType {
         EMPLOYEE, DIVISION_MANAGER, NEW_EMPLOYEE
