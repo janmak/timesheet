@@ -244,12 +244,13 @@ public class ProjectService {
      * получаем список проектов, с руководителями которых сотрудник будет согласовывать отпуск
      */
     public List<Project> getProjectsForVacation (Vacation vacation) {
+        /* список проектов на период отпуска */
         List<Project> employeeProjects = getEmployeeProjectPlanByDates(vacation.getBeginDate(), vacation.getEndDate(), vacation.getEmployee());
-        if (employeeProjects.isEmpty()) {
-            Integer beforeVacationDays = propertyProvider.getBeforeVacationDays();
-            Date periodBeginDate = DateUtils.addDays(vacation.getCreationDate(), 0 - beforeVacationDays);
-            employeeProjects = getEmployeeProjectsFromTimeSheetByDates(periodBeginDate, vacation.getCreationDate(), vacation.getEmployee());
-        }
+        /* список проектов в который учавствовал работник за последние Х дней*/
+        Integer beforeVacationDays = propertyProvider.getBeforeVacationDays();
+        Date periodBeginDate = DateUtils.addDays(vacation.getCreationDate(), 0 - beforeVacationDays);
+        /* складываем оба списка */
+        employeeProjects.addAll(getEmployeeProjectsFromTimeSheetByDates(periodBeginDate, vacation.getCreationDate(), vacation.getEmployee()));
 
         return employeeProjects;
     }
