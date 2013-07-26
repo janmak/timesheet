@@ -2,12 +2,21 @@
 <%@page contentType="text/html" pageEncoding="UTF-8" %>
 
 <%@ page import="static com.aplana.timesheet.form.VacationsForm.*" %>
+<%@ page import="com.aplana.timesheet.enums.VacationStatusEnum" %>
 
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
+
+
+<c:set var="vacationApproved" value="<%=VacationStatusEnum.APPROVED.getId()%>"/>
+<c:set var="vacationRejected" value="<%=VacationStatusEnum.REJECTED.getId()%>"/>
+<c:set var="vacationAprovementWiyhLm" value="<%=VacationStatusEnum.APPROVEMENT_WITH_LM.getId()%>"/>
+<c:set var="vacationAprovementWiyhPm" value="<%=VacationStatusEnum.APPROVEMENT_WITH_PM.getId()%>"/>
+<c:set var="vacationAprovedByPm" value="<%=VacationStatusEnum.APPROVED_BY_PM.getId()%>"/>
+
 
 <html>
 <head>
@@ -49,13 +58,13 @@
         </th>
         <th width="160">Статус</th>
         <th width="220">Тип отпуска</th>
+        <th width="270">Сотрудник</th>
         <th width="120">Дата создания</th>
         <th width="120">Дата с</th>
         <th width="120">Дата по</th>
         <th width="130">Кол-во календарных дней</th>
         <th width="130">Кол-во рабочих дней</th>
         <th width="270">Комментарий</th>
-        <th width="270">Сотрудник</th>
     </tr>
     </thead>
     <tbody>
@@ -84,7 +93,21 @@
                 </sec:authorize>
             </td>
             <td class="centered">
-                ${vacation.status.value}
+                <c:choose>
+                <c:when test="${vacation.status.id == vacationApproved}">
+                <span  style="color: #00b114">
+                    </c:when>
+                    <c:when test="${vacation.status.id == vacationRejected}">
+                <span style="color: #d90002">
+                    </c:when>
+                    <c:when test="${vacation.status.id == vacationAprovementWiyhLm || vacation.status.id == vacationAprovementWiyhPm || vacation.status.id == vacationAprovedByPm}">
+                <span style="color: blue">
+                    </c:when>
+                    <c:otherwise>
+                <span class="centered">
+                    </c:otherwise>
+                </c:choose>
+                        ${vacation.status.value}   </span>
                 <c:if test="${fn:length(vacation.vacationApprovals) > 0}">
                 <div data-dojo-type="dijit/TitlePane" data-dojo-props="title: 'Согласующие', open: true"
                      style="margin: 3px; padding: 0;">
@@ -121,6 +144,7 @@
                 </c:if>
             </td>
             <td class="centered">${vacation.type.value}</td>
+            <td class="centered">${vacation.employee.name}</td>
             <td class="date"><fmt:formatDate value="${vacation.creationDate}" pattern="dd.MM.yyyy"/></td>
             <td class="date"><fmt:formatDate value="${vacation.beginDate}" pattern="dd.MM.yyyy"/></td>
             <td class="date"><fmt:formatDate value="${vacation.endDate}" pattern="dd.MM.yyyy"/></td>
@@ -133,7 +157,6 @@
                     Заявка создана сотрудником ${vacation.author.name}
                 </c:if>
             </td>
-            <td class="centered">${vacation.employee.name}</td>
         </tr>
     </c:forEach>
     </tbody>
