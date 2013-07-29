@@ -75,6 +75,7 @@ public class TimeSheetFormValidator extends AbstractValidator {
         validateDivision(tsForm, errors);
         validateEmployee(selectedEmployeeId, errors);
         validateSelectedDate(tsForm, selectedEmployeeId, errors);
+        validateEffort(tsForm, errors);
 
         // Для табличной части (по строчно).
         List<TimeSheetTableRowForm> tsTablePart = filterTable(tsForm);// удалим пустые строки
@@ -210,13 +211,11 @@ public class TimeSheetFormValidator extends AbstractValidator {
     private void valdateCategoryOfActivity(TimeSheetTableRowForm formRow, ProjectRolesEnum emplJob, int notNullRowNumber, Errors errors) {
         Integer actCatId = formRow.getActivityCategoryId();
         Integer projectId = formRow.getProjectId();
-
-        if (isNotChoosed(projectId)) {
-            return;
-        }
+        Integer typeActCatId = formRow.getActivityTypeId();
 
         // Не указана категория активности
-        if (isNotChoosed(actCatId) && (emplJob != HEAD)) {
+        if ( (isNotChoosed(actCatId) && (emplJob != HEAD))
+           ||(isNotChoosed(projectId) && typeActCatId == TypesOfActivityEnum.NON_PROJECT.getId()) ) {
             errors.rejectValue("timeSheetTablePart[" + notNullRowNumber + "].activityCategoryId",
                     "error.tsform.activity.category.required", getErrorMessageArgs(notNullRowNumber),
                     "Необходимо указать категорию активности в строке " + (notNullRowNumber + 1) + ".");
@@ -315,6 +314,20 @@ public class TimeSheetFormValidator extends AbstractValidator {
             errors.rejectValue("employeeId",
                     "error.tsform.employee.invalid",
                     "Неверные данные сотрудника.");
+        }
+    }
+
+    private void validateEffort(TimeSheetForm tsForm, Errors errors) {
+        // Оценка объёма работ не выбрана
+        if (isNotChoosed(tsForm.getEffortInNextDay())) {
+            errors.rejectValue("effortInNextDay",
+                    "error.tsform.effort.required",
+                    "Не поставлена оценка моего объема работ на следующий рабочий день");
+            // Неверная оценка
+        } else if (!isEffortValid(tsForm.getEffortInNextDay())) {
+            errors.rejectValue("effortInNextDay",
+                    "error.tsform.effort.invalid",
+                    "Неверные данные в поле 'Моя оценка моего объема работ на следующий рабочий день'");
         }
     }
 
@@ -494,6 +507,10 @@ public class TimeSheetFormValidator extends AbstractValidator {
 
     private boolean isEmployeeValid(Integer employee) {
         return employeeService.find(employee) != null;
+    }
+
+    private boolean isEffortValid(Integer effort) {
+        return dictionaryItemService.find(effort, DictionaryEnum.EFFORT_IN_NEXTDAY.getId()) != null;
     }
 
     private boolean isActCatValid(Integer actCat, ProjectRolesEnum emplJob) {

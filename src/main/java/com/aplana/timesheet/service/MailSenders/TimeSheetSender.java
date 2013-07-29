@@ -41,6 +41,7 @@ public class TimeSheetSender extends MailSender<TimeSheetForm> {
     public static final String OVERTIME_COMMENT = "overtimeComment";
     public static final String OVERTIME_CAUSE_ID = "overtimeCauseId";
     public static final String TYPE_OF_COMPENSATION = "typeOfCompensation";
+    public static final String EFFORT_IN_NEXTDAY = "effortInNextDay";
     private String employeeEmail;
 
     public TimeSheetSender(SendMailService sendMailService, TSPropertyProvider propertyProvider) {
@@ -169,6 +170,7 @@ public class TimeSheetSender extends MailSender<TimeSheetForm> {
         Integer overtimeCauseId = sendMailService.getOverUnderTimeDictId(tsForm.getOvertimeCause());
         putIfIsNotBlank(FIRST, result, OVERTIME_CAUSE_ID, overtimeCauseId != null ? overtimeCauseId.toString() : null);
         putIfIsNotBlank(FIRST, result, TYPE_OF_COMPENSATION, sendMailService.getTypeOfCompensation(tsForm));
+        putIfIsNotBlank(FIRST, result, EFFORT_IN_NEXTDAY, sendMailService.getEffort(tsForm));
 
         return result;
     }

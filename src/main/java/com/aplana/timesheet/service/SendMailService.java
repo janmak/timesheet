@@ -359,6 +359,12 @@ public class SendMailService{
         return (item == null ? StringUtils.EMPTY : item.getValue());
     }
 
+    public String getEffort(TimeSheetForm tsForm) {
+        final DictionaryItem item = dictionaryItemService.find(tsForm.getEffortInNextDay());
+
+        return (item == null ? StringUtils.EMPTY : item.getValue());
+    }
+
     public ProjectTaskService getProjectTaskService() {
         return projectTaskService;
     }
