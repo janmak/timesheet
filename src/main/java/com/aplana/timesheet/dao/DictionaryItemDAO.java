@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import java.util.List;
@@ -39,4 +40,19 @@ public class DictionaryItemDAO {
 	public DictionaryItem find(Integer id) {
         return id != null ? entityManager.find(DictionaryItem.class, id) : null;
 	}
+
+    public DictionaryItem find(Integer id, Integer dictionaryId) {
+        if (id == null || dictionaryId == null) return null;
+
+        Query query = entityManager.createQuery(
+                "from DictionaryItem as di where di.dictionary = :dictionary and di.id = :id"
+        ).setParameter("dictionary", dictionaryDAO.find(dictionaryId)
+        ).setParameter("id", id);
+
+        try {
+            return  (DictionaryItem) query.getSingleResult();
+        } catch (NoResultException e) {
+            return null;
+        }
+    }
 }

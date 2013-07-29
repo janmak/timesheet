@@ -94,6 +94,8 @@ public class TimeSheetController {
         } else {
             mav.addObject("selectedCalDateJson", "''");
         }
+
+        mav.addObject("effortList", timeSheetService.getEffortList());
         mav.addObject("timeSheetForm", tsForm); // command object
         mav.addObject("selectedProjectRolesJson", "[{row:'0', role:''}]");
         mav.addObject("selectedProjectTasksJson", "[{row:'0', task:''}]");
@@ -146,6 +148,7 @@ public class TimeSheetController {
                     timeSheetService.getSelectedActCategoriesJson(tsForm)
             );
             mavWithErrors.addObject("selectedCalDateJson", timeSheetService.getSelectedCalDateJson(tsForm));
+            mavWithErrors.addObject("effortList", timeSheetService.getEffortList());
             mavWithErrors.addAllObjects(getListsToMAV());
 
             return mavWithErrors;
