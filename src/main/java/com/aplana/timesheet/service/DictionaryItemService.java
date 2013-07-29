@@ -63,6 +63,11 @@ public class DictionaryItemService {
     }
 
     @Transactional(readOnly = true)
+    public DictionaryItem find(Integer id, Integer dictionaryId) {
+        return dictionaryItemDAO.find(id, dictionaryId);
+    }
+
+    @Transactional(readOnly = true)
     public List<DictionaryItem> getWorkplaces() {
         return dictionaryItemDAO.getItemsByDictionaryIdAndOrderById(DictionaryEnum.WORKPLACE.getId());
     }
@@ -87,7 +92,7 @@ public class DictionaryItemService {
 
     @Transactional(readOnly = true)
     public List<DictionaryItem> getItemsByDictionaryId(int dictId) {
-        return dictionaryItemDAO.getItemsByDictionaryId(dictId);
+        return dictionaryItemDAO.getItemsByDictionaryIdAndOrderById(dictId);
     }
 
     public String getDictionaryItemsInJson(List<DictionaryItem> items) {

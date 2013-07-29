@@ -1,4 +1,5 @@
 <p>Сотрудник: <b>$timeSheet.getEmployee().getName()</b></p>
+#set ($effort = $timeSheet.getEffortInNextDay())
 #set ($tsDetails = $timeSheet.getTimeSheetDetails())
 #set ($isProblems = $false)
 #set ($projectName = $"")
@@ -136,6 +137,10 @@
             #foreach ($planString in $planStrings)
                 <span>$planString</span><br>
             #end
+        #end
+        #if ($effort != $null && $effort.equals($"") != $true)
+            <li><h2><b>Моя оценка моего объема работ на следующий рабочий день:</b></h2></li>
+            $effort.getValue()
         #end
     </ul>
     #else

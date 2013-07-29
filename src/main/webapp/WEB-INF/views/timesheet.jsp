@@ -542,6 +542,12 @@
             <br/>
         </div>
     </div>
+    <div id="effort_box" >
+        <span class="label">Моя оценка моего объема работ на следующий рабочий день:</span>
+        <form:select path="effortInNextDay" id="effortInNextDay" class="without_dojo" onmouseover="tooltip.show(getTitle(this));" onmouseout="tooltip.hide();">
+            <form:options items="${effortList}" itemLabel="value" itemValue="id"/>
+        </form:select>
+    </div>
     <div>
         <table>
             <tr>

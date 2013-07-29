@@ -75,6 +75,7 @@ public class TimeSheetFormValidator extends AbstractValidator {
         validateDivision(tsForm, errors);
         validateEmployee(selectedEmployeeId, errors);
         validateSelectedDate(tsForm, selectedEmployeeId, errors);
+        validateEffort(tsForm, errors);
 
         // Для табличной части (по строчно).
         List<TimeSheetTableRowForm> tsTablePart = filterTable(tsForm);// удалим пустые строки
@@ -316,6 +317,20 @@ public class TimeSheetFormValidator extends AbstractValidator {
         }
     }
 
+    private void validateEffort(TimeSheetForm tsForm, Errors errors) {
+        // Оценка объёма работ не выбрана
+        if (isNotChoosed(tsForm.getEffortInNextDay())) {
+            errors.rejectValue("effortInNextDay",
+                    "error.tsform.effort.required",
+                    "Не поставлена оценка моего объема работ на следующий рабочий день");
+            // Неверная оценка
+        } else if (!isEffortValid(tsForm.getEffortInNextDay())) {
+            errors.rejectValue("effortInNextDay",
+                    "error.tsform.effort.invalid",
+                    "Неверные данные в поле 'Моя оценка моего объема работ на следующий рабочий день'");
+        }
+    }
+
     private void validateSelectedDate(TimeSheetForm tsForm, Integer selectedEmployeeId, Errors errors) {
         String selectedDate = tsForm.getCalDate();
         // Дата не выбрана.
@@ -492,6 +507,10 @@ public class TimeSheetFormValidator extends AbstractValidator {
 
     private boolean isEmployeeValid(Integer employee) {
         return employeeService.find(employee) != null;
+    }
+
+    private boolean isEffortValid(Integer effort) {
+        return dictionaryItemService.find(effort, DictionaryEnum.EFFORT_IN_NEXTDAY.getId()) != null;
     }
 
     private boolean isActCatValid(Integer actCat, ProjectRolesEnum emplJob) {
