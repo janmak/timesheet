@@ -3,7 +3,6 @@ package com.aplana.timesheet.service.MailSenders;
 import com.aplana.timesheet.form.AdminMessageForm;
 import com.aplana.timesheet.properties.TSPropertyProvider;
 import com.aplana.timesheet.service.SendMailService;
-import org.apache.commons.lang3.StringEscapeUtils;
 
 import javax.mail.Multipart;
 import javax.mail.internet.MimeBodyPart;
@@ -44,6 +43,8 @@ public class LoginProblemSender extends MailSender<AdminMessageForm> {
         Mail mail = new TimeSheetMail();
 
         StringBuilder bodyTxt = new StringBuilder();
+
+        mail.setToEmails(Arrays.asList(propertyProvider.getMailProblemsAndProposalsCoaddress(5)));
 
         bodyTxt.append("Логин: ").append(params.getName()).append("\n");
         bodyTxt.append("Указаный адрес: ").append(params.getEmail()).append("\n");
