@@ -274,6 +274,28 @@ public class DateTimeUtil {
     }
 
     /**
+     * Возвращает номер месяца в переданной дате
+     * @param date
+     * @return
+     */
+    public static Integer getMonth(Date date){
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        return calendar.get(Calendar.MONTH);
+    }
+
+    /**
+     * Возвращает год в переданной дате
+     * @param date
+     * @return
+     */
+    public static Integer getYear(Date date){
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        return calendar.get(Calendar.YEAR);
+    }
+
+    /**
      * Cравнивает даты, true если первая дата позже
      *
      * @param firstDate

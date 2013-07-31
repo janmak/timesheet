@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -19,7 +20,7 @@ public class ProjectParticipantService {
 
 	@Autowired
 	ProjectParticipantDAO projectParticipantDAO;
-	
+
 	/**
 	 * Возвращает объект класса ProjectParticipant по указанному идентификатору
 	 */
@@ -47,4 +48,20 @@ public class ProjectParticipantService {
             }
         }
     }
+
+    @Transactional(readOnly = true)
+    public List<Integer> findProjectsIdByEmployee(Employee employee) {
+        List<Integer> result = new ArrayList<Integer>();
+        List<ProjectParticipant> projectParticipantList = projectParticipantDAO.findByEmployee(employee);
+        for (ProjectParticipant pp : projectParticipantList){
+            result.add(pp.getProject().getId());
+        }
+        return result;
+    }
+
+    @Transactional(readOnly = true)
+    public Boolean isProjectParticipant(Project project, Employee employee){
+        return projectParticipantDAO.isProjectParticipant(project, employee);
+    }
+
 }

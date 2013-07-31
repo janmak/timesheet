@@ -7,6 +7,7 @@ import com.aplana.timesheet.dao.entity.Division;
 import com.aplana.timesheet.dao.entity.Employee;
 import com.aplana.timesheet.dao.entity.Region;
 import com.aplana.timesheet.service.EmployeeService;
+import com.aplana.timesheet.service.ProjectParticipantService;
 import com.aplana.timesheet.service.RegionService;
 import com.aplana.timesheet.service.TimeSheetService;
 import org.apache.commons.lang.StringUtils;
@@ -35,6 +36,8 @@ public class EmployeeHelper {
     private static final String DIVISION_ID = "divId";
     private static final String REGION_ID = "regId";
     private static final String MANAGER_ID = "manId";
+    private static final String PROJECTS = "projects";
+    private static final String PROJECT_ID = "projectId";
     private static final String JOB_ID = "jobId";
     private static final String DIVISION_EMPLOYEES = "divEmps";
     private static final String DATE_BY_DEFAULT = "dateByDefault";
@@ -50,6 +53,9 @@ public class EmployeeHelper {
 
     @Autowired
     private RegionService regionService;
+
+    @Autowired
+    private ProjectParticipantService projectParticipantService;
 
     @Transactional(readOnly = true)
     public String getEmployeeListJson(List<Division> divisions, Boolean filterFired) {
@@ -106,13 +112,27 @@ public class EmployeeHelper {
         return JsonUtil.format(builder.build());
     }
 
-    @Transactional(readOnly = true)
-    public String getEmployeeListWithRegAndManJson(List<Division> divisions, Boolean filterFired){
-        return getEmployeeListWithRegAndManJson(divisions, filterFired, false);
+    public String getEmployeeListJson(List<Employee> employees){
+        final JsonArrayNodeBuilder builder = anArrayBuilder();
+
+        for (Employee employee : employees) {
+            JsonObjectNodeBuilder objectNodeBuilder = anObjectBuilder().
+                    withField(ID, aStringBuilder(employee.getId())).
+                    withField(VALUE, JsonNodeBuilders.aStringBuilder(getValue(employee)));
+            builder.withElement(objectNodeBuilder);
+        }
+        return JsonUtil.format(builder.build());
     }
 
+    // todo похоже надо удалить (Зиянгиров)
     @Transactional(readOnly = true)
-    public String getEmployeeListWithRegAndManJson(List<Division> divisions, Boolean filterFired, Boolean addDetails){
+    public String getEmployeeListWithRegionManagerProjectJSON(List<Division> divisions){
+        return getEmployeeListWithRegAndManJson(divisions, false, false, true);
+    }
+
+    // todo похоже надо удалить (Зиянгиров)
+    @Transactional(readOnly = true)
+    public String getEmployeeListWithRegAndManJson(List<Division> divisions, Boolean filterFired, Boolean addDetails, Boolean addProjectDetails){
         final JsonArrayNodeBuilder builder = anArrayBuilder();
         for (Division division : divisions) {
             final List<Employee> employees = employeeService.getEmployees(division, filterFired);
@@ -146,6 +166,14 @@ public class EmployeeHelper {
                                                     dateToString(defaultDate, DATE_FORMAT))).
                                             withField(FIRST_WORK_DATE, JsonNodeBuilders.aStringBuilder(
                                                     dateToString(employee.getStartDate(), DATE_FORMAT)));
+                                }
+                                if (addProjectDetails){
+                                    JsonObjectNodeBuilder projectListBuilder = anObjectBuilder();
+                                    List<Integer> projectList = projectParticipantService.findProjectsIdByEmployee(employee);
+                                    for (Integer projectId : projectList){
+                                        projectListBuilder.withField(PROJECT_ID, JsonNodeBuilders.aStringBuilder(projectId.toString()));
+                                    }
+                                    objectNodeBuilder.withField(PROJECTS, projectListBuilder);
                                 }
                                 employeesBuilder.withElement(objectNodeBuilder);
                             }

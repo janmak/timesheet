@@ -114,6 +114,15 @@ public class VacationService extends AbstractServiceWithTransactionManagement {
         return vacationDAO.findVacations(employeeId, beginDate, endDate, typeId);
     }
 
+    public List<Vacation> findVacations(List<Employee> employees, Date beginDate, Date endDate, DictionaryItem typeId){
+        List<Vacation> vacations = new ArrayList<Vacation>();
+        for (Employee employee : employees){
+            List<Vacation> empVacation = findVacations(employee.getId(), beginDate, endDate, typeId);
+            vacations.addAll(empVacation);
+        }
+        return vacations;
+    }
+
     public List<Vacation> findVacationsByTypes(Integer year, Integer month, Integer employeeId,  List<DictionaryItem> types) {
         return vacationDAO.findVacationsByTypes(year,  month,  employeeId, types);
     }

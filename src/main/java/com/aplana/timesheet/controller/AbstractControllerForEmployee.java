@@ -4,6 +4,7 @@ import com.aplana.timesheet.dao.entity.Division;
 import com.aplana.timesheet.dao.entity.Employee;
 import com.aplana.timesheet.service.DivisionService;
 import com.aplana.timesheet.service.EmployeeService;
+import com.aplana.timesheet.service.ProjectService;
 import com.aplana.timesheet.service.SecurityService;
 import com.aplana.timesheet.util.EmployeeHelper;
 import org.slf4j.Logger;
@@ -24,6 +25,9 @@ public abstract class AbstractControllerForEmployee extends AbstractController{
     protected static final String EMPLOYEE = "employee";
 
     @Autowired
+    private ProjectService projectService;
+
+    @Autowired
     protected EmployeeService employeeService;
 
     @Autowired
@@ -35,19 +39,21 @@ public abstract class AbstractControllerForEmployee extends AbstractController{
     @Autowired
     protected SecurityService securityService;
 
+    protected List<Division> divisionList;
+
     protected ModelAndView createModelAndViewForEmployee(String viewName, Integer employeeId, Integer divisionId) {
         final ModelAndView modelAndView = new ModelAndView(viewName);
 
         Employee employee = employeeService.find(employeeId);
 
-        List<Division> divisionList = divisionService.getDivisions();
+        divisionList = divisionService.getDivisions();
 
         modelAndView.addObject("divisionId", divisionId);
         modelAndView.addObject("employeeId", employeeId);
         modelAndView.addObject(EMPLOYEE, employee);
         modelAndView.addObject("divisionList", divisionList);
+        modelAndView.addObject("fullProjectListJsonWithDivisionId", projectService.getProjectListJson(divisionList));  // todo Только активные проекты?
         modelAndView.addObject("employeeListJson", employeeHelper.getEmployeeListJson(divisionList, employeeService.isShowAll(request)));
-        modelAndView.addObject("employeeListWithRegAndManJson", employeeHelper.getEmployeeListWithRegAndManJson(divisionList, false));
         modelAndView.addObject("managerListJson", employeeHelper.getManagerListJson());
 
         return modelAndView;

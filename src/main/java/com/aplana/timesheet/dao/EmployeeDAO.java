@@ -1,10 +1,10 @@
 package com.aplana.timesheet.dao;
 
-import com.aplana.timesheet.dao.entity.Division;
-import com.aplana.timesheet.dao.entity.Employee;
-import com.aplana.timesheet.dao.entity.Project;
-import com.aplana.timesheet.dao.entity.Vacation;
+import com.aplana.timesheet.dao.entity.*;
+import com.aplana.timesheet.util.DateTimeUtil;
 import com.google.common.collect.Iterables;
+import org.apache.commons.lang.time.DateUtils;
+import org.apache.poi.ss.usermodel.DateUtil;
 import org.hibernate.Hibernate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,8 +12,7 @@ import org.springframework.stereotype.Repository;
 
 import javax.persistence.*;
 import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Repository
 public class EmployeeDAO {
@@ -380,6 +379,78 @@ public class EmployeeDAO {
                 .setParameter("divisionId", divisionId)
                 .setParameter("managerId", managerId)
                 .setParameter("regionId", regionId);
+        return query.getResultList();
+    }
+
+    /**
+     * множенственный выбор по подразделениям, руководителям подразделений, проектам и регионам
+     * если параметр передан как null - то поиск по всем
+     */
+    public List<Employee> getEmployees(List<Division> divisions, List<Employee> managers, List<Region> regions,
+                                       List<Project> projects, Date beginDate, Date endDate,
+                                       boolean lookPreviousTwoWeekTimesheet){
+
+        Integer beginDateMonth = 1;
+        Integer beginDateYear = 1900;
+        Integer endDateMonth = 1;
+        Integer endDateYear = 2100;
+        Date twoWeekEarlyDate = DateUtils.addDays(beginDate, -14); // получаем дату на 2 недели назад
+        if (lookPreviousTwoWeekTimesheet){
+            if (beginDate != null){
+                beginDateMonth = DateTimeUtil.getMonth(beginDate) + 1; // в БД нумерация с 1
+                beginDateYear = DateTimeUtil.getYear(beginDate);
+            }
+            if (endDate != null){
+                endDateMonth = DateTimeUtil.getMonth(endDate) + 1; // в БД нумерация с 1
+                endDateYear = DateTimeUtil.getYear(endDate);
+            }
+        }
+
+        StringBuilder queryString = new StringBuilder("FROM Employee e ");
+        queryString.append(" WHERE e.endDate is null ");
+
+        Map<String, Object> parameters = new HashMap<String, Object>();
+        boolean hasCondition = false;
+
+        if (divisions != null){ // если не все подразделения, а несколько
+            queryString.append("AND (e.division IN :divisions)");
+            parameters.put("divisions", divisions);
+            hasCondition = true;
+        }
+        if (managers != null){ // TODO что делать если нет начальника? (Зиянгиров) - OR manager is null
+            if (hasCondition) queryString.append(" AND "); hasCondition = true;
+            queryString.append("(e.manager IN :managers OR e.manager2 IN :managers)");
+            parameters.put("managers", managers);
+        }
+        if (regions != null){
+            if (hasCondition) queryString.append(" AND "); hasCondition = true;
+            queryString.append("(e.region IN :regions)");
+            parameters.put("regions", regions);
+        }
+        if (projects != null){
+            if (hasCondition) queryString.append(" AND ");
+            queryString.append("((e.id IN (SELECT epp.employee FROM EmployeeProjectPlan epp WHERE " +
+                    "(epp.project IN :projects) AND " +
+                    "(epp.month <= :endDateMonth AND epp.month >= :beginDateMonth AND" +
+                    " epp.year <= :endDateYear AND epp.year >= :beginDateYear)))");
+            if (lookPreviousTwoWeekTimesheet){
+                queryString.append(" OR (e.id IN (SELECT ts.employee FROM TimeSheet ts WHERE ts.id IN " +
+                        "(SELECT tsd.timeSheet FROM TimeSheetDetail tsd WHERE tsd.project IN :projects) AND " +
+                        "ts.calDate.calDate between :twoWeekEarlyDate AND :beginDate))");
+                parameters.put("twoWeekEarlyDate", twoWeekEarlyDate);
+                parameters.put("beginDate", beginDate);
+            }
+            queryString.append(")");
+            parameters.put("projects", projects);
+            parameters.put("endDateMonth", endDateMonth);
+            parameters.put("endDateYear", endDateYear);
+            parameters.put("beginDateMonth", beginDateMonth);
+            parameters.put("beginDateYear", beginDateYear);
+        }
+        Query query = entityManager.createQuery(queryString.toString());
+        for (Map.Entry entry : parameters.entrySet()){
+            query.setParameter(entry.getKey().toString(), entry.getValue());
+        }
         return query.getResultList();
     }
 
