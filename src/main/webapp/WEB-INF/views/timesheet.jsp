@@ -430,6 +430,7 @@
                 <th style="min-width: 130px">Задача</th>
                 <th style="min-width: 30px">ч.</th>
                 <th style="min-width: 240px">Комментарии</th>
+                <th style="min-width: 30px">JIRA</th>
                 <th style="min-width: 200px">Проблемы</th>
             </tr>
 
@@ -528,6 +529,7 @@
                 <td></td>
                 <td></td>
                 <td id="total_duration" class="text_right_align">0</td>
+                <td></td>
                 <td></td>
                 <td></td>
             </tr>
