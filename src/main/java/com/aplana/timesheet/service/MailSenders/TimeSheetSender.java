@@ -1,10 +1,7 @@
 package com.aplana.timesheet.service.MailSenders;
 
 import com.aplana.timesheet.dao.entity.ProjectTask;
-import com.aplana.timesheet.enums.CategoriesOfActivityEnum;
-import com.aplana.timesheet.enums.DictionaryEnum;
-import com.aplana.timesheet.enums.TypesOfActivityEnum;
-import com.aplana.timesheet.enums.WorkPlacesEnum;
+import com.aplana.timesheet.enums.*;
 import com.aplana.timesheet.form.TimeSheetForm;
 import com.aplana.timesheet.form.TimeSheetTableRowForm;
 import com.aplana.timesheet.properties.TSPropertyProvider;
@@ -85,11 +82,26 @@ public class TimeSheetSender extends MailSender<TimeSheetForm> {
         logger.info("Performing timesheet mailing.");
         Mail mail = new TimeSheetMail();
 
+        /* правила для установки важности письма */
+        mail.setPriority(calcPriority(params));
+
         mail.setToEmails(getToEmails(params));
         mail.setSubject(getSubject(params));
         mail.setParamsForGenerateBody(getBody(params));
 
         return Arrays.asList(mail);
+    }
+
+    private MailPriorityEnum calcPriority(TimeSheetForm params) {
+        /* «Моя оценка моего объема работ на следующий рабочий день» = У меня будет мало работы или Я буду перегружен(а) */
+        if ( params.getEffortInNextDay() == EffortInNextDayEnum.OVERLOADED.getId() || params.getEffortInNextDay() == EffortInNextDayEnum.UNDERLOADED.getId() ) {
+            return MailPriorityEnum.HIGH;
+        }
+        /* указана хоть одна переработка */
+        if (params.getOvertimeCause() != null)
+            return MailPriorityEnum.HIGH;
+
+        return MailPriorityEnum.NORMAL;
     }
 
     private String getSubject(TimeSheetForm params) {

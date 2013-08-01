@@ -2,6 +2,7 @@ package com.aplana.timesheet.service.MailSenders;
 
 import com.aplana.timesheet.dao.entity.Division;
 import com.aplana.timesheet.dao.entity.Employee;
+import com.aplana.timesheet.enums.MailPriorityEnum;
 import com.google.common.collect.Sets;
 import com.google.common.collect.Table;
 import org.springframework.web.multipart.MultipartFile;
@@ -41,6 +42,9 @@ public abstract class Mail {
     private String date;
 
     private Table<Integer, String, String> paramsForGenerateBody;
+
+    /* важность письма 1 = high, 3 = normal, 5 = low */
+    private MailPriorityEnum priority = MailPriorityEnum.NORMAL;
 
     public abstract String getFromEmail();
 
@@ -123,4 +127,11 @@ public abstract class Mail {
         return paramsForGenerateBody;
     }
 
+    public MailPriorityEnum getPriority() {
+        return priority;
+    }
+
+    public void setPriority(MailPriorityEnum priority) {
+        this.priority = priority;
+    }
 }
