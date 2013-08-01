@@ -321,6 +321,12 @@ public class EmployeeDAO {
         return query.getResultList();
     }
 
+    public List<Employee> getAllEmployees() {
+        final Query query = entityManager.createQuery("from Employee e order by e.name");
+
+        return query.getResultList();
+    }
+
     public Employee tryGetEmployeeFromBusinessTrip(Integer reportId) {
         try {
             return (Employee) entityManager.createQuery("select bt.employee from BusinessTrip as bt " +
