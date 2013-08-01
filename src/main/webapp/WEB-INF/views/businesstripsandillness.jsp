@@ -83,7 +83,7 @@
 
             var regionsValid = getSelectedIndexes(dojo.byId("regions")).length > 0;
 
-            datesValid = dateFrom != null && dateTo != null && (dateFrom <= dateFrom);
+            datesValid = (dateFrom != null && dateFrom != undefined && dateFrom != "")&& (dateTo != null && dateTo != undefined && dateTo != "") && (dateFrom <= dateFrom);
 
             if (datesValid && divisionId != null && divisionId != 0 && empId != null && empId != 0 && regionsValid) {
                 businesstripsandillness.action = "<%=request.getContextPath()%>/businesstripsandillness/"
@@ -91,11 +91,11 @@
                 businesstripsandillness.submit();
             } else {
                 var error = "";
-               if (dateFrom == null) {
-                    error += ("Необходимо выбрать дату начало периода!!\n");
+               if (dateFrom == null || dateFrom == undefined || dateFrom == "") {
+                    error += ("Необходимо выбрать дату начало периода!\n");
                 }
 
-                 if (dateTo == null) {
+                 if (dateTo == null || dateTo == undefined || dateTo == "") {
                     error += ("Необходимо выбрать дату окончания периода!\n");
                 }
 
