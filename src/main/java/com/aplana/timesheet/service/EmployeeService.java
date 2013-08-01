@@ -208,7 +208,25 @@ public class EmployeeService {
     }
 
     public List<Employee> getDivisionEmployeesByManager(Integer divisionId, Date date, List<Integer> regionIds, List<Integer> projectRoleIds,Integer managerId) {
-        return employeeDAO.getDivisionEmployeesByManager(divisionId, date, regionIds, projectRoleIds, managerId);
+        List<Employee> divisionEmployeesByManager = employeeDAO.getDivisionEmployeesByManager(divisionId, date, regionIds, projectRoleIds, managerId);
+        List<Employee> divisionEmployeesTemp = new ArrayList<Employee>();
+        for (Employee employee:divisionEmployeesByManager) {
+            List<Employee> employeesByManager = getDivisionEmployeesByManager(divisionId, date, regionIds, projectRoleIds, employee.getId());
+            for (Employee employeeTemp : employeesByManager) {
+                if (!(divisionEmployeesTemp.contains(employeeTemp)) && !(divisionEmployeesByManager.contains(employeeTemp))) {
+                    divisionEmployeesTemp.add(employeeTemp);
+                }
+            }
+        }
+        divisionEmployeesByManager.addAll(divisionEmployeesTemp);
+
+        Collections.sort(divisionEmployeesByManager, new Comparator<Employee>() {
+            @Override
+            public int compare(Employee o1, Employee o2) {
+                return o1.getName().compareTo(o2.getName());
+            }
+        });
+        return divisionEmployeesByManager;
     }
 
     public List<Employee> getEmployees() {
