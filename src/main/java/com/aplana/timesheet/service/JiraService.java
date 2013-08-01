@@ -98,8 +98,8 @@ public class JiraService {
                     .append(user)
                     .append(sdate)
                     .append(")");
-/* пример строки запроса*/
-// project in (APLANATS) and (status changed by Nlebedev on 2013-07-31
+/*  пример строки запроса*/
+//  project in (APLANATS) and (status changed by Nlebedev on 2013-07-31
 //                            or assignee changed from Nlebedev on 2013-07-31
 //                            or assignee changed to Nlebedev on 2013-07-31
 //                            or reporter changed from Nlebedev on 2013-07-31
@@ -113,11 +113,12 @@ public class JiraService {
     /* возвращаем строку с key и summary по каждой задаче */
     public String getDayIssues(Integer employeeId, String reportDate, Integer projectId) {
         StringBuilder stringBuilder = new StringBuilder();
-        Date date = null;
+        /* берём по умолчанию текущую дату */
+        Date date = new Date();
         try {
             date = new SimpleDateFormat(DateTimeUtil.DATE_PATTERN).parse(reportDate);
         } catch (ParseException e) {
-            e.printStackTrace();
+            logger.error("Сообщение об ошибке", e);
         }
         if (employeeId != null) {
             Employee user = emloyeeDAO.find(employeeId);
