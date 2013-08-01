@@ -12,14 +12,20 @@ dojo.addOnLoad(function () {
 });
 
 function showGraphic() {
-    var g = new Gantt(dojo.byId("graphic_div"));
+    var g = new Gantt(dojo.byId("graphic_div"), holidayList);
 
     for (var i = 0; i < vacationListJSON.length; i++){
-        var vacation = new ProjectEmployees(vacationListJSON[i].project_name, vacationListJSON[i].employeeList);
-        g.AddProjectEmployeeList(vacation);
+        var vacation = new RegionEmployees(vacationListJSON[i].region_name, vacationListJSON[i].employeeList);
+        g.AddRegionEmployeeList(vacation);
     }
 
     g.Draw();
+}
+
+function showVacations() {
+    dojo.byId(VACATION_ID).setAttribute("disabled", "disabled");
+    vacationsForm.action = contextPath + "/vacations";
+    vacationsForm.submit();
 }
 
 function divisionChangeVac(division) {
@@ -28,21 +34,7 @@ function divisionChangeVac(division) {
         divisionId = division;
     }
     fillProjectListByDivChange(divisionId);
-
     sortManager();
-    fillEmployeeSelect();
-}
-
-function managerChange(obj) {
-    var managerId = null;
-
-    if (obj.target == null) {
-        managerId = obj.value;
-    }
-    else {
-        managerId = obj.target.value;
-    }
-
     fillEmployeeSelect();
 }
 
@@ -79,7 +71,6 @@ function getVacationsNeedsApprovalCountString(){
             }
         }
     });
-
 }
 
 function updateMultipleForSelect(select) {
@@ -97,10 +88,8 @@ function updateMultipleForSelect(select) {
     if (isAllOption) {
         select.removeAttribute("multiple");
         select.selectedIndex = allOptionIndex;
-        selectedAllRegion = true;
     } else {
         select.setAttribute("multiple", "multiple");
-        selectedAllRegion = false;
     }
     fillEmployeeSelect();
 }
@@ -198,12 +187,6 @@ function deleteApprover(apr_id) {
     }
 }
 
-function showVacations() {
-    dojo.byId(VACATION_ID).setAttribute("disabled", "disabled");
-    vacationsForm.action = contextPath + "/vacations";
-    vacationsForm.submit();
-}
-
 /* Заполняет список доступных проектов/пресейлов */
 function fillProjectListByDivChange(division) {
 
@@ -242,47 +225,3 @@ function validateAndAddNewOption(hasAny, divisionId, select){
         dojo.attr(select, {disabled:"disabled"});
     }
 }
-
-// управление вкладками
-function layer(a){
-    var l=getElementsByClass('layer',null,'div');
-    for(var i=0; i < l.length; i++)
-        l[i].style.display = (i==a ? 'block' : 'none');
-    l=getElementsByClass('layer',null,'span');
-    for(var i=0; i < l.length; i++){
-        l[i].className = (i==a ? 'layer act' : 'layer');
-    }
-
-    var tableGraphicWidth = dojo.byId("tableGraphic").offsetWidth;
-    var graphicDivWidth = dojo.byId("graphic_div").offsetWidth;
-    if (tableGraphicWidth > graphicDivWidth){
-        dojo.style(dojo.byId("graphic_div"), "width", tableGraphicWidth + 10 + 'px');
-        dojo.style(dojo.byId("graphicDivLayer"), "width", tableGraphicWidth + 10 + 'px');
-    }
-}
-/* универсальная функция получения всех DOM объектов заданного класса */
-function getElementsByClass(searchClass, node, tag){
-    var classElements=new Array();
-    if ( node == null ){
-        node=document;
-    }else if(typeof(node)!="object"){
-        node = document.getElementById(node);
-    }
-    if( !node ){
-        return;
-    }
-    if ( tag == null ){
-        tag='*';
-    }
-    var els=node.getElementsByTagName(tag);
-    var elsLen = els.length;
-    var pattern = new RegExp(searchClass+".*");
-    for (i = 0, j = 0; i < elsLen; i++) {
-        if ( pattern.test(els[i].className) ) {
-            classElements[j]=els[i];
-            j++;
-        }
-    }
-    return classElements;
-}
-// end управление вкладками

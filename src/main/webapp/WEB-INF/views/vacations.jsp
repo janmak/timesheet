@@ -33,10 +33,10 @@
 
     var regionsIdList = ${regionsIdList};
     var managerList = ${managerListJson};
-    var selectedAllRegion = null;
     var selectedEmployee = ${employeeId};
     var vacationListJSON =  ${vacationListByProjectJSON};
     var fullProjectList = ${fullProjectListJsonWithDivisionId};
+    var holidayList = ${holidayList};
 
     var PROJECT_ID = "<%= PROJECT_ID%>";
     var CAL_FROM_DATE = "<%= CAL_FROM_DATE %>";
@@ -48,6 +48,8 @@
     var MANAGER_ID = "<%= MANAGER_ID %>";
     var REGIONS = "<%= REGIONS %>";
     var APPROVAL_ID = "<%= APPROVAL_ID %>";
+    var SELECTED_TAB = "<%= SELECTED_TAB %>";
+
 
     var VACATION_WITH_PAY = "62";    // отпуск с сохранением содержания
     var VACATION_WITHOUT_PAY = "63"; // отпуск без сохранения содержания
@@ -69,7 +71,13 @@
           managerSelect.value = '${managerId}';
         </c:if>
 
-        selectedAllRegion = dojo.byId(REGIONS).options[0].selected;
+        // регистрируем событие на переключение между вкладками
+        var tabContainer = dojo.dijit.registry.byId("tabContainer");
+        tabContainer.watch("selectedChildWidget", function(name, oval, nval){
+            var selectedTabInput = dojo.byId(SELECTED_TAB);
+            selectedTabInput.value = nval.id;
+        });
+
         fillEmployeeSelect();
         dojo.byId(EMPLOYEE_ID).value = ${employeeId};
         dojo.byId(VACATION_ID).setAttribute("disabled", "disabled");
@@ -130,7 +138,7 @@
                 <span class="label">Руководитель:</span>
             </td>
             <td>
-                <form:select path="<%= MANAGER_ID %>" id="<%= MANAGER_ID %>" onChange="managerChange(this)"
+                <form:select path="<%= MANAGER_ID %>" id="<%= MANAGER_ID %>" onChange="fillEmployeeSelect()"
                              class="without_dojo"
                              onmouseover="tooltip.show(getTitle(this));" onmouseout="tooltip.hide();">
                     <form:options items="${managerList}" itemLabel="name" itemValue="id"/>
@@ -210,14 +218,15 @@
     </button>
 
     <br/><br/>
-
+    <form:input path="<%= SELECTED_TAB %>" id="<%= SELECTED_TAB %>" type="hidden"/>
     <form:errors path="*" cssClass="errors_box" delimiter="<br/><br/>"/>
 </form:form>
 <br/>
 
 
-<div data-dojo-type="dijit/layout/TabContainer" style="width: 100%;" doLayout="false">
-    <div data-dojo-type="dijit/layout/ContentPane" title="Таблица" data-dojo-props="selected:true">
+<div data-dojo-type="dijit/layout/TabContainer" style="width: 100%;" doLayout="false" id="tabContainer">
+    <div data-dojo-type="dijit/layout/ContentPane" id="firstTab" title="Таблица"
+                    <c:if test="${selectedTab == 'firstTab'}">data-dojo-props="selected:true"</c:if>>
         <table id="vacations">
             <thead>
             <tr>
@@ -384,7 +393,8 @@
             </c:choose>
         </table>
     </div>
-    <div data-dojo-type="dijit/layout/ContentPane" title="График">
+    <div data-dojo-type="dijit/layout/ContentPane" id="secondTab" title="График"
+                <c:if test="${selectedTab == 'secondTab'}">data-dojo-props="selected:true"</c:if>>
         <div style="position:relative;" class="Gantt" id="graphic_div"> </div>
     </div>
 </div>

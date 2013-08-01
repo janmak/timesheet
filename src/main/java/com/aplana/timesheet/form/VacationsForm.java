@@ -19,6 +19,7 @@ public class VacationsForm extends AbstractFormForEmployee {
     public static final String CAL_FROM_DATE = "calFromDate";
     public static final String CAL_TO_DATE = "calToDate";
     public static final String APPROVAL_ID = "approvalId";
+    public static final String SELECTED_TAB = "selectedTab";
 
     private Integer year;
     private Integer vacationId;
@@ -31,6 +32,7 @@ public class VacationsForm extends AbstractFormForEmployee {
     private Integer regionId;
     private Integer approvalId;
     private Integer projectId;
+    private String selectedTab; // нужно для отображения вкладок
 
     public Integer getYear() {
         return year;
@@ -119,4 +121,13 @@ public class VacationsForm extends AbstractFormForEmployee {
     public void setProjectId(Integer projectId) {
         this.projectId = projectId;
     }
+
+    public String getSelectedTab() {
+        return selectedTab;
+    }
+
+    public void setSelectedTab(String selectedTab) {
+        this.selectedTab = selectedTab;
+    }
 }
+

@@ -19,10 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import padeg.lib.Padeg;
 
@@ -47,10 +44,6 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
     private static final String DATE_FORMAT = "yyyy-MM-dd";
 
     @Autowired
-    private ProjectService projectService;
-    @Autowired
-    private ProjectParticipantService projectParticipantService;
-    @Autowired
     private VacationsFormValidator vacationsFormValidator;
     @Autowired
     private VacationService vacationService;
@@ -61,9 +54,9 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
     @Autowired
     private EmployeeService employeeService;
     @Autowired
-    private DivisionService divisionService;
-    @Autowired
     private VacationApprovalService vacationApprovalService;
+    @Autowired
+    private CalendarService calendarService;
     @Autowired
     MessageSource messageSource;
     @Autowired
@@ -93,6 +86,7 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
         vacationsForm.setRegions(new ArrayList<Integer>());
         // APLANATS-867
         vacationsForm.getRegions().add(VacationsForm.ALL_VALUE);
+        vacationsForm.setSelectedTab("selectOne");
         return showVacations(vacationsForm, null);
     }
 
@@ -169,9 +163,10 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
         modelAndView.addObject("calFromDate", dateFrom);
         modelAndView.addObject("calToDate", dateTo);
         modelAndView.addObject("vacationsList", revertList(vacations));
-        modelAndView.addObject("vacationListByProjectJSON", getVacationListByProjectJSON(divisionId, projectId, vacations));
+        modelAndView.addObject("vacationListByProjectJSON", getVacationListByRegionJSON(vacations));
         modelAndView.addObject("calDays", calDays);
         modelAndView.addObject("workDays", workDays);
+        modelAndView.addObject("holidayList", getHolidayListJSON(dateFrom, dateTo));
         modelAndView.addObject("vacationTypes",
                 dictionaryItemService.getItemsByDictionaryId(DictionaryEnum.VACATION_TYPE.getId()));
         TimeSheetUser timeSheetUser = securityService.getSecurityPrincipal();
@@ -224,6 +219,7 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
 
         modelAndView.addObject("calDaysCount", calAndWorkDaysList);
         modelAndView.addObject(VacationsForm.MANAGER_ID, vacationsForm.getManagerId());
+        modelAndView.addObject("selectedTab", vacationsForm.getSelectedTab());
 
         return modelAndView;
     }
@@ -278,7 +274,6 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
                     calendar.setTime(currentYearBeginDate);
                     calendar.add(Calendar.DAY_OF_MONTH, -1);
                     calendar.set(Calendar.YEAR, year);
-                    final Date currentYearEndDate = calendar.getTime();
 
                     for (int i = 0; i < vacationsSize; i++) {
                         final Vacation vacation = differRegionVacations.get(i);
@@ -361,101 +356,68 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
         return list;
     }
 
-    private String getVacationListByProjectJSON(Integer division, Integer projectId, List<Vacation> vacationList ) {
-        List<Project> projects = new ArrayList<Project>();
-        // если выбран один проект, то только его добавляем в список, иначе все проекты
-        if (projectId != null && projectId != 0){
-            projects.add(projectService.find(projectId));
-        }else{
-            projects.addAll(divisionService.find(division).getProjects());
-        }
+    private String getVacationListByRegionJSON(List<Vacation> vacationList ) {
+        List<Region> regionList = regionService.getRegions();
         List<Employee> employeeList = new ArrayList<Employee>();
-        List<Employee> employeeListWithoutProjectsParticipants = new ArrayList<Employee>();
         for (Vacation vacation : vacationList) {
             Employee employee = vacation.getEmployee();
-            if ( ! (employeeList.contains(employee) || employeeListWithoutProjectsParticipants.contains(employee)) ){
-                // проверим участвует ли сотрудник в каком-либо выбранном проекте, если нет - то добавим в отдельный список
-                if (isEmployeeProjectListParticipant(projects, employee)){
-                    employeeList.add(employee);
-                }else{
-                    employeeListWithoutProjectsParticipants.add(employee);
-                }
+            if ( ! (employeeList.contains(employee)) ){
+                employeeList.add(employee);
             }
         }
         final JsonArrayNodeBuilder result = anArrayBuilder();
         // для каждого проекта смотрим сотрудников у которых есть отпуск
-        for (Project project : projects){
+        for (Region region : regionList){
             JsonArrayNodeBuilder employeeNode = anArrayBuilder();
             boolean hasEmployees = false;
             for (Employee employee : employeeList){
-                if (projectParticipantService.isProjectParticipant(project, employee)){
+                if (employee.getRegion().getId().equals(region.getId())){
                     JsonArrayNodeBuilder vacationNode = createVacationsNode(employee, vacationList);
-                    if (vacationNode != null){
-                        hasEmployees = true;
-                        employeeNode.withElement(anObjectBuilder().
-                                withField("employee", aStringBuilder(employee.getName())).
-                                withField("vacations", vacationNode)
-                        );
-                    }
+                    hasEmployees = true;
+                    employeeNode.withElement(anObjectBuilder().
+                            withField("employee", aStringBuilder(employee.getName())).
+                            withField("vacations", vacationNode));
                 }
             }
             if (hasEmployees){
                 result.withElement(
                         anObjectBuilder().
-                                withField("project_id", aStringBuilder(project.getId().toString())).
-                                withField("project_name", aStringBuilder(project.getName())).
+                                withField("region_id", aStringBuilder(region.getId().toString())).
+                                withField("region_name", aStringBuilder(region.getName())).
                                 withField("employeeList", employeeNode)
                 );
             }
         }
-        // добавляем внепроектных участников
-        JsonArrayNodeBuilder employeeNode = anArrayBuilder();
-        for (Employee employee : employeeListWithoutProjectsParticipants){
-            JsonArrayNodeBuilder vacationNode = createVacationsNode(employee, vacationList);
-            if (vacationNode != null){
-                employeeNode.withElement(anObjectBuilder().
-                        withField("employee", aStringBuilder(employee.getName())).
-                        withField("vacations", vacationNode)
-                );
-            }
-        }
-        result.withElement(
-                anObjectBuilder().
-                        withField("project_id", aStringBuilder("-1")).
-                        withField("project_name", aStringBuilder("Вне проекта")).
-                        withField("employeeList", employeeNode)
-        );
         return JsonUtil.format(result);
-    }
-
-    // проверяет участвует ли сотрудник хоть в одном проекте
-    private boolean isEmployeeProjectListParticipant(List<Project> projects, Employee employee){
-        for (Project project : projects){
-            if ( projectParticipantService.isProjectParticipant(project, employee) )
-                return true;
-        }
-        return false;
     }
 
     private JsonArrayNodeBuilder createVacationsNode(Employee employee, List<Vacation> vacationList){
         JsonArrayNodeBuilder vacationNode = anArrayBuilder();
-        boolean hasVacations = false;
         for (Vacation vacation : vacationList){
             if (vacation.getEmployee().equals(employee)){
-                hasVacations = true;
                 vacationNode.withElement(anObjectBuilder().
                         withField("beginDate", aStringBuilder(dateToString(vacation.getBeginDate(), VIEW_DATE_PATTERN))).
                         withField("endDate", aStringBuilder(dateToString(vacation.getEndDate(), VIEW_DATE_PATTERN))).
                         withField("status", aStringBuilder(vacation.getStatus().getValue())).
-                        withField("type", aStringBuilder(vacation.getType().getId().toString())));
+                        withField("type", aStringBuilder(vacation.getType().getId().toString())).
+                        withField("typeName", aStringBuilder(vacation.getType().getValue())));
+
             }
         }
-        if (hasVacations){
-            return vacationNode;
-        }else{
-            return null;
-        }
+        return vacationNode;
     }
+
+    private String getHolidayListJSON(Date beginDate, Date endDate){
+        final JsonArrayNodeBuilder result = anArrayBuilder();
+        List<Holiday> holidays = calendarService.getHolidaysForRegion(beginDate, endDate, null);
+        for (Holiday holiday : holidays){
+            result.withElement(aStringBuilder(
+                                            dateToString(
+                                                holiday.getCalDate().getCalDate(), VIEW_DATE_PATTERN)));
+        }
+        return JsonUtil.format(result);
+    }
+
 
     @RequestMapping(value = "/vacations_needs_approval")
     public ModelAndView showVacationsNeedsApproval(
