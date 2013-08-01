@@ -272,4 +272,24 @@ public class TSPropertyProvider {
             return readIntProperty("application.login.threshold", LOGIN_THRESHOLD);
 
     }
+
+    /* Количество дней отпуска при показе информ сообщения "Отпуск необходимо оформлять с понедельника по воскресенье" */
+    public static final int VACANTION_FRIDAY_INFORM_DAYS = 5;
+    public Integer getVacantionFridayInformDays() {
+        return readIntProperty("vacations.vacation.friday.warning.threshold", VACANTION_FRIDAY_INFORM_DAYS);
+    }
+
+    /* Пользователь в JIRA для получения информации */
+    public String getJiraUsername() {
+        return getProperties().getProperty("jira.username");
+    }
+
+    public String getJiraPassword() {
+        return getProperties().getProperty("jira.password");
+    }
+
+    public String getJiraServerUrl() {
+        return getProperties().getProperty("jira.server.url");
+    }
+
 }

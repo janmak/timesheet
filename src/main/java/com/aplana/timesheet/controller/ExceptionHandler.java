@@ -71,7 +71,7 @@ public class ExceptionHandler implements HandlerExceptionResolver {
                 Iterator iterator = parameterMap.entrySet().iterator();
                 while (iterator.hasNext()) {
                     Map.Entry mapEntry = (Map.Entry) iterator.next();
-                    sbtemp.append(mapEntry.getKey() + " : " + mapEntry.getValue() + "<br>");
+                    sbtemp.append(mapEntry.getKey() + " : " + Arrays.toString((String[])mapEntry.getValue()) + "<br>");
                 }
 
                 if (sbtemp.length()>0) {

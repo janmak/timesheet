@@ -430,6 +430,7 @@
                 <th style="min-width: 130px">Задача</th>
                 <th style="min-width: 30px">ч.</th>
                 <th style="min-width: 240px">Комментарии</th>
+                <th style="min-width: 30px">JIRA</th>
                 <th style="min-width: 200px">Проблемы</th>
             </tr>
 
@@ -530,6 +531,7 @@
                 <td id="total_duration" class="text_right_align">0</td>
                 <td></td>
                 <td></td>
+                <td></td>
             </tr>
         </table>
     </div>
@@ -541,6 +543,12 @@
             <form:textarea wrap="soft" path="plan" id="plan" rows="7" cols="92"/>
             <br/>
         </div>
+    </div>
+    <div id="effort_box" >
+        <span class="label">Моя оценка моего объема работ на следующий рабочий день:</span>
+        <form:select path="effortInNextDay" id="effortInNextDay" class="without_dojo" onmouseover="tooltip.show(getTitle(this));" onmouseout="tooltip.hide();">
+            <form:options items="${effortList}" itemLabel="value" itemValue="id"/>
+        </form:select>
     </div>
     <div>
         <table>

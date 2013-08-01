@@ -73,9 +73,10 @@
                 <li><a href="admin/update/ldap"><fmt:message key="link.updateldap"/></a></li>
                 <li><a href="admin/update/checkreport"><fmt:message key="link.checkemails"/></a></li>
                 <li><a href="admin/update/oqsync"><fmt:message key="link.oqsync"/></a></li>
-                <li><a href="admin/update/properties" id="updateProperties"><fmt:message
-                        key="link.update.properties"/></a></li>
+                <li><a href="admin/update/properties" id="updateProperties"><fmt:message key="link.update.properties"/></a></li>
                 <li><a href="admin/update/siddisabledusersfromldap"><fmt:message key="link.disabledsidsync"/></a></li>
+                <li><a href="admin/update/sidallusersfromldap"><fmt:message key="link.allsidsync"/></a></li>
+                <li><a href="admin/update/jiranameallusersfromldap"><fmt:message key="link.alljiranamesync"/></a></li>
                 <%--<li><a href="admin/update/objectSid"><fmt:message key="link.update.object.sid"/></a></li>--%>
                 <%--<li><a href="admin/update/assignmentleaders"><fmt:message key="link.assignmentleaders"/></a></li>--%>
 

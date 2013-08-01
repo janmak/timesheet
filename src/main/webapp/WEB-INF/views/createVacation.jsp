@@ -199,6 +199,9 @@
                                 exitToWorkElement.innerHTML = "Количество рабочих дней в отпуске :" + data.vacationWorkDayCount +
                                         "<br>Количество дней в отпуске :" + data.vacationDayCount +
                                         "<br>Дата выхода на работу: " + data.exitDate;
+                                if (data.vacationFridayInform) {
+                                    exitToWorkElement.innerHTML += "<br><b><i>Отпуск необходимо оформлять с понедельника по воскресенье</i></b>";
+                                }
                             }
                         } else {
                             exitToWorkElement.innerHTML = "Не удалось получить дату выхода из отпуска!";

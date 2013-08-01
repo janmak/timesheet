@@ -336,6 +336,12 @@ public class EmployeeDAO {
         return query.getResultList();
     }
 
+    public List<Employee> getAllEmployees() {
+        final Query query = entityManager.createQuery("from Employee e order by e.name");
+
+        return query.getResultList();
+    }
+
     public Employee tryGetEmployeeFromBusinessTrip(Integer reportId) {
         try {
             return (Employee) entityManager.createQuery("select bt.employee from BusinessTrip as bt " +
@@ -463,7 +469,7 @@ public class EmployeeDAO {
 
     public List<Employee> getEmployeeByRegionAndManagerAndDivision(List<Integer> regions, Integer divisionId, Integer manager) {
         String qlString = "select emp from Employee as emp where emp.endDate is null";
-        if (manager != null && manager != 0 ) {
+        if (manager != null && manager >= 0 ) {
             qlString += " and  emp.manager.id = :managerId ";
         }
         if (regions != null && regions.size() > 0 && !regions.get(0).equals(-1)) {
@@ -473,7 +479,7 @@ public class EmployeeDAO {
             qlString += " and emp.division.id = :divisionId ";
         }
         Query query = entityManager.createQuery(qlString);
-        if ( manager != null && manager != 0) {
+        if ( manager != null && manager >= 0) {
             query.setParameter("managerId", manager);
         }
         if (regions != null && regions.size() > 0 && !regions.get(0).equals(-1)) {

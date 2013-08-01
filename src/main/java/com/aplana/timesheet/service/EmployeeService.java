@@ -233,6 +233,10 @@ public class EmployeeService {
         return employeeDAO.getEmployees();
     }
 
+    public List<Employee> getAllEmployees() {
+        return employeeDAO.getAllEmployees();
+    }
+
     public Employee getEmployeeFromBusinessTrip(Integer reportId) {
         return employeeDAO.tryGetEmployeeFromBusinessTrip(reportId);
     }

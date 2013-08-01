@@ -8,6 +8,7 @@ import com.aplana.timesheet.dao.TimeSheetDAO;
 import com.aplana.timesheet.dao.TimeSheetDetailDAO;
 import com.aplana.timesheet.dao.entity.*;
 import com.aplana.timesheet.dao.entity.Calendar;
+import com.aplana.timesheet.enums.DictionaryEnum;
 import com.aplana.timesheet.form.TimeSheetForm;
 import com.aplana.timesheet.form.TimeSheetTableRowForm;
 import com.aplana.timesheet.form.entity.DayTimeSheet;
@@ -84,6 +85,7 @@ public class TimeSheetService {
         timeSheet.setEmployee(employeeService.find(tsForm.getEmployeeId()));
         timeSheet.setCalDate(calendarService.find(tsForm.getCalDate()));
         timeSheet.setPlan(tsForm.getPlan());
+        timeSheet.setEffortInNextDay(dictionaryItemService.find(tsForm.getEffortInNextDay()));
 
         List<TimeSheetTableRowForm> tsTablePart = tsForm.getTimeSheetTablePart();
         Set<TimeSheetDetail> timeSheetDetails = new LinkedHashSet<TimeSheetDetail>();
@@ -457,5 +459,9 @@ public class TimeSheetService {
         }
 
         return JsonUtil.format(builder);
+    }
+
+    public List<DictionaryItem> getEffortList() {
+        return dictionaryItemService.getItemsByDictionaryId(DictionaryEnum.EFFORT_IN_NEXTDAY.getId());
     }
 }
