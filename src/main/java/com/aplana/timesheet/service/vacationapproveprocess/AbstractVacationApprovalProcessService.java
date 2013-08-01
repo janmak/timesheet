@@ -136,6 +136,20 @@ public abstract class AbstractVacationApprovalProcessService extends AbstractSer
     }
 
     /**
+     * устанавливаем у отпуска статус "согласован" и рассылаем об этом уведомления
+     */
+    protected Boolean setFinalStatusForVacationAndSendVacationApprovedMessages(Vacation vacation) {
+
+        vacation.setStatus(dictionaryItemService.find(VacationStatusEnum.APPROVED.getId()));
+
+        vacationService.store(vacation);
+
+        sendVacationApprovedMessages(vacation);  //делаем рассылку о том, что отпуск согласован
+
+        return true;
+    }
+
+    /**
      * проверяет, согласован ли отпуск с руководителями проектов, которые получали уведомления
      * о согласовании переданного отпуска
      */
