@@ -126,6 +126,54 @@ public class EmployeeLdapService extends AbstractServiceWithTransactionManagemen
         }
     }
 
+    public void updateJiraNameAllUsersFromLdap() {
+        trace.append("Synchronization JIRA username of all users with ldap started.\n\n");
+
+        /* список всех пользователей из БД */
+        List<Employee> empInDBList = employeeService.getAllEmployees();
+
+        TransactionStatus transactionStatus = null;
+
+        try {
+            transactionStatus = getNewTransaction();
+
+            for (Employee empInDB : empInDBList) {
+                EmployeeLdap empInLdap = null;
+                /* ищем по SID */
+                if (!StringUtils.isEmpty(empInDB.getObjectSid())) {
+                    empInLdap = ldapDao.getEmployeeBySID(empInDB.getObjectSid());
+                }
+                /* по SID не нашли, пытаемся дальше */
+                if (empInLdap == null) {
+                    /* ищем по Common Name */
+                    empInLdap = ldapDao.getEmployeeByLdapName(empInDB.getLdap());
+                    /* ищем по адресу почты */
+                    if (empInLdap == null) {
+                        empInLdap = ldapDao.getEmployeeByEmail(empInDB.getEmail());
+                    }
+                }
+                /* что то нашли, сохраняем */
+                if ( empInLdap != null ) {
+                    empInDB.setJiraName(empInLdap.getMailNickname());
+                    employeeService.save(empInDB);
+                    trace.append(String.format("User %s is synchronized with ldap.\n", empInDB.getName()));
+                } else {
+                    logger.error(" User {} user isn't found in db", empInDB.getName() + " | " + empInDB.getLdap());
+                }
+
+            }
+            if (transactionStatus != null) {
+                commit(transactionStatus);
+            }
+            trace.append("\n Synchronization JIRA name of all users with ldap finished.\n\n");
+        } catch (Exception e) {
+            logger.error(" Exception in updateJiraNameAllUsersFromLdap : {}", e.getMessage());
+            if (transactionStatus != null) {
+                rollback(transactionStatus);
+            }
+        }
+    }
+
     private enum EmployeeType {
         EMPLOYEE, DIVISION_MANAGER, NEW_EMPLOYEE
     }
@@ -456,6 +504,7 @@ public class EmployeeLdapService extends AbstractServiceWithTransactionManagemen
         employee.setEmail(StringUtils.trim(employeeLdap.getEmail()));
         employee.setLdap(employeeLdap.getLdapCn());
         employee.setObjectSid(employeeLdap.getObjectSid());
+        employee.setJiraName(employeeLdap.getMailNickname());
 
         // Роли из БД по умолчанию ставятся только для новых сотрудников
         if ((employee.getJob() != null) && (employeeType.equals(EmployeeType.NEW_EMPLOYEE))) {

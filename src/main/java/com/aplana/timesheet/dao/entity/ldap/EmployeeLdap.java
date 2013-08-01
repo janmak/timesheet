@@ -10,6 +10,7 @@ public class EmployeeLdap {
 	private String city;
 	private String ldapCn;
     private String objectSid;
+    private String mailNickname;
 
     public String getDepartment() {
         return department;
@@ -83,7 +84,15 @@ public class EmployeeLdap {
 		this.ldapCn = ldapCn;
 	}
 
-	@Override
+    public String getMailNickname() {
+        return mailNickname;
+    }
+
+    public void setMailNickname(String mailNickname) {
+        this.mailNickname = mailNickname;
+    }
+
+    @Override
 	public String toString() {
 		return new StringBuilder()
 				.append(" department=").append(department)

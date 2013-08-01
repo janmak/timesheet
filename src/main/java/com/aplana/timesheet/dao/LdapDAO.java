@@ -5,8 +5,12 @@ import com.google.common.collect.Iterables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ldap.NameNotFoundException;
-import org.springframework.ldap.core.*;
-import org.springframework.ldap.filter.*;
+import org.springframework.ldap.core.AttributesMapper;
+import org.springframework.ldap.core.DistinguishedName;
+import org.springframework.ldap.core.LdapTemplate;
+import org.springframework.ldap.filter.AndFilter;
+import org.springframework.ldap.filter.EqualsFilter;
+import org.springframework.ldap.filter.LikeFilter;
 import org.springframework.ldap.support.LdapUtils;
 
 import javax.naming.NamingEnumeration;
@@ -154,6 +158,7 @@ public class LdapDAO {
             employee.setTitle       ( getAttributeByName( attributes, "title" ) );
             employee.setWhenCreated ( getAttributeByName( attributes, "whenCreated" ) );
             employee.setCity        ( getAttributeByName( attributes, "l" ) );
+            employee.setMailNickname( getAttributeByName( attributes, "mailNickname" ) );
 
             Attribute ldapCn = attributes.get("distinguishedname");
 			if(ldapCn != null)
