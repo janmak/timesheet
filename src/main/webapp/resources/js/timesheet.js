@@ -190,8 +190,30 @@ function addNewRow() {
         style: "width: 100%"
     });
     descriptionCell.appendChild(descriptionTextarea);
+
+    //ячейка с кнопкой(картинкой) запроса из JIRA
+    var jiraCell = newTsRow.insertCell(10);
+    dojo.addClass(jiraCell, "text_center_align");
+    var jiraImg = dojo.doc.createElement("img");
+    dojo.addClass(jiraImg, "pointer");
+    dojo.attr(jiraImg, {
+        id:"jira_button_" + newRowIndex,
+        src:"resources/img/logo-jira.png",
+        alt:"Запрос из JIRA",
+        title:"Запрос из JIRA",
+        //без px так как IE не понимает
+        height:"15",
+        width:"15"
+    });
+
+    //неведома ошибка исправляется для IE добавлением onclick именно через функцию
+    jiraImg.onclick = function () {
+        getJiraInfo(newRowIndex);
+    };
+    jiraCell.appendChild(jiraImg);
+
     // Ячейка с проблемами
-    var problemCell = newTsRow.insertCell(10);
+    var problemCell = newTsRow.insertCell(11);
     dojo.addClass(problemCell, "top_align");
     var problemTextarea = dojo.doc.createElement("textarea");
     dojo.attr(problemTextarea, {
@@ -686,6 +708,8 @@ function projectChange(obj) {
         }
     }
     sortSelectOptions(taskSelect);
+    /* чистим коментарии */
+    dojo.byId("description_id_" + rowIndex).value = "";
 }
 
 /* Выставляет должность сотрудника (проектная роль по умолчанию) */
@@ -907,7 +931,6 @@ function resetRowState(rowIndex, resetActType) {
     dojo.attr("description_id_" + rowIndex, {
         disabled:"disabled"
     });
-
 
     if (rowIndex == GetFirstIdDescription()) {
         dojo.attr("add_in_comments", {
@@ -1488,4 +1511,29 @@ var tooltip = function () {
 
 function getRootEventListener() {
     return window.addEventListener || window.attachEvent ? window : document.addEventListener ? document : null;
+}
+
+function getJiraInfo(rowIndex) {
+    var employeeId = dojo.byId("employeeId").value;
+    var projectId = dojo.byId("project_id_" + rowIndex).value;
+    var reportDate = dijit.byId('calDate').get('value').format("yyyy-mm-dd");
+
+    if (employeeId != 0 && projectId != 0 && reportDate != 0) {
+        dojo.xhrGet({
+            url: getContextPath() + "/timesheet/jiraIssues",
+            handleAs:"text",
+            timeout:10000,
+            content:{employeeId:employeeId, date:reportDate, projectId:projectId},
+            load:function (data) {
+                if (data.length != 0)
+                    dojo.byId("description_id_" + rowIndex).value = data;
+                else
+                    dojo.byId("description_id_" + rowIndex).value = "Активности по задачам не найдено";
+                textareaAutoGrow(dojo.byId("description_id_" + rowIndex));
+            },
+            error:function (err) {
+                dojo.byId("description_id_" + rowIndex).value = "Ошибка при поиске активности в JIRA";
+            }
+        });
+    }
 }

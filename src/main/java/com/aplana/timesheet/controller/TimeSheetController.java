@@ -62,6 +62,8 @@ public class TimeSheetController {
     private TSPropertyProvider propertyProvider;
     @Autowired
     private OvertimeCauseService overtimeCauseService;
+    @Autowired
+    private JiraService jiraService;
 
     @RequestMapping(value = "/timesheet", method = RequestMethod.GET)
     public ModelAndView showMainForm(@RequestParam(value = "date",required = false) String date,
@@ -273,6 +275,11 @@ public class TimeSheetController {
         return timeSheetService.getListOfActDescriptoin();
     }
 
+    @RequestMapping(value = "/timesheet/jiraIssues", headers = "Accept=application/octet-stream;Charset=UTF-8")
+    @ResponseBody
+    public String getJiraIssuesStr(@RequestParam("employeeId") Integer employeeId, @RequestParam("date") String date, @RequestParam("projectId") Integer projectId) {
+        return jiraService.getDayIssues(employeeId, date, projectId);
+    }
 
     @RequestMapping(value = "/employee/isDivisionLeader", headers = "Accept=application/json")
     @ResponseBody

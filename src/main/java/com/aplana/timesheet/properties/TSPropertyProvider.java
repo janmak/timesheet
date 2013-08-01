@@ -278,4 +278,18 @@ public class TSPropertyProvider {
     public Integer getVacantionFridayInformDays() {
         return readIntProperty("vacations.vacation.friday.warning.threshold", VACANTION_FRIDAY_INFORM_DAYS);
     }
+
+    /* Пользователь в JIRA для получения информации */
+    public String getJiraUsername() {
+        return getProperties().getProperty("jira.username");
+    }
+
+    public String getJiraPassword() {
+        return getProperties().getProperty("jira.password");
+    }
+
+    public String getJiraServerUrl() {
+        return getProperties().getProperty("jira.server.url");
+    }
+
 }
