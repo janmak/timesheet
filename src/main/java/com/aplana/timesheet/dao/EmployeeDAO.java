@@ -139,7 +139,22 @@ public class EmployeeDAO {
 
         return query.getResultList();
     }
-    
+
+    /**
+     * Возвращает список всех работников у которых начала запланированного отпуска находится между <b>begin</b> и <b>end</b>
+     * @param begin
+     * @param end
+     * @return List<Employee>
+     */
+    public List<Employee> getEmployeeWithPlannedVacation (Date begin, Date end) {
+        Query query = this.entityManager.createQuery(
+                "select emp from Employee as emp where emp.id in " +
+                        "(select v.employee.id from Vacation as v where v.beginDate > :begin and v.beginDate < :end)"
+        ).setParameter("begin", begin)
+         .setParameter("end", end);
+
+        return query.getResultList();
+    }
     /**
      * Возвращает список менеджеров для конкретного работника
      * @param employeeId
@@ -357,6 +372,17 @@ public class EmployeeDAO {
         return slavesCount > 0;
     }
 
+    /**
+     * Получаем младших менеджеров проекта (тимлиды, ведущие аналитики)
+     */
+    public List<Employee> getProjectManagers(Project project) {
+        Query query = entityManager.createQuery("select pp.employee from ProjectParticipant as pp " +
+                "where pp.project = :project and pp.active=:active")
+                .setParameter("project", project)
+                .setParameter("active", true);
+
+        return query.getResultList();
+    }
     /**
      * Получаем младших менеджеров проекта (тимлиды, ведущие аналитики), которые еще не ответили на письмо о согласовании отпуска
      */

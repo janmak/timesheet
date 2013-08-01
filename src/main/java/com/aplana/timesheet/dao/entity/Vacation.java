@@ -12,7 +12,7 @@ import java.util.Set;
  */
 @Entity
 @Table(name = "vacation")
-public class Vacation {
+public class Vacation implements Comparable{
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "vacation_seq")
@@ -151,4 +151,25 @@ public class Vacation {
         sb.append('}');
         return sb.toString();
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null) return false;
+
+        Vacation vacation = (Vacation) obj;
+
+        final Integer vacationId = vacation.getId();
+
+        return (getId() != null ? getId().equals(vacationId) : vacationId == null);
+    }
+
+    @Override
+    public int compareTo(Object obj) {
+        if (this == obj) return 0;
+        if (obj == null) return -1;
+        Vacation vacation = (Vacation) obj;
+        return this.getBeginDate().compareTo(vacation.getBeginDate());
+    }
+
 }

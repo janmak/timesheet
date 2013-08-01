@@ -268,6 +268,10 @@ public class SendMailService{
         new VacationCreateSender(this,propertyProvider,vacationApprovalService,managerRoleNameService).sendMessage(vacation);
     }
 
+    public void plannedVacationInfoMailing(Map<Employee, Set<Vacation>> managerEmployeesVacation) {
+        new PlannedVacationInfoSender(this, propertyProvider).sendMessage(managerEmployeesVacation);
+    }
+
     public String initMessageBodyForReport(TimeSheet timeSheet) {
         Map<String, Object> model1 = new HashMap<String, Object>();
         Iterator<TimeSheetDetail> iteratorTSD = timeSheet.getTimeSheetDetails().iterator();
