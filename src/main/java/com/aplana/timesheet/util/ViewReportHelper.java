@@ -2,8 +2,10 @@ package com.aplana.timesheet.util;
 
 import argo.jdom.JsonObjectNodeBuilder;
 import com.aplana.timesheet.dao.HolidayDAO;
-import com.aplana.timesheet.dao.entity.*;
 import com.aplana.timesheet.dao.entity.Calendar;
+import com.aplana.timesheet.dao.entity.DictionaryItem;
+import com.aplana.timesheet.dao.entity.Employee;
+import com.aplana.timesheet.dao.entity.Vacation;
 import com.aplana.timesheet.enums.DictionaryEnum;
 import com.aplana.timesheet.enums.VacationStatusEnum;
 import com.aplana.timesheet.enums.VacationTypesEnum;
@@ -16,11 +18,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.Temporal;
-import java.sql.Timestamp;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static argo.jdom.JsonNodeBuilders.aStringBuilder;
 import static argo.jdom.JsonNodeBuilders.anObjectBuilder;
@@ -76,36 +78,15 @@ public class ViewReportHelper {
         return JsonUtil.format(builder.build());
     }
 
-    @Transactional
-    public String getDateVacationListJson(Integer year, Integer month, Integer employeeId) {
-        final JsonObjectNodeBuilder builder = anObjectBuilder();
-        final List<Vacation> vacations = vacationService.findVacations(year, month, employeeId);
-        Map<Date, Integer> vacationDates = new HashMap<Date, Integer>();
-        Date currentDate = new Date((new java.util.Date()).getTime());
-
-        addMonthDays(year, month, employeeId, vacationDates, currentDate);
-
-        checkVacationDay(year, month, vacations, vacationDates, VACATION_MARK);
-
-        for (Map.Entry date : vacationDates.entrySet()) {
-            final String sdate = new SimpleDateFormat(DateTimeUtil.DATE_PATTERN).format(date.getKey());
-            builder.withField(sdate, aStringBuilder(date.getValue().toString()));
-        }
-
-        String format = JsonUtil.format(builder.build());
-        logger.debug(format);
-        return format;
-    }
-
     /**
      * В мапу добавляются все дни месяца с учетом прошедших дней, выходных и праздников
      * @param year
      * @param month
      * @param employeeId
      * @param vacationDates
-     * @param currentDate
      */
-    private void addMonthDays(Integer year, Integer month, Integer employeeId, Map<Date, Integer> vacationDates, Date currentDate) {
+    private void addMonthDays(Integer year, Integer month, Integer employeeId, Map<Date, Integer> vacationDates) {
+        Date currentDate = new Date();
         Employee emp = employeeService.find(employeeId);
         List<Calendar> monthDays = calendarService.getDateList(year, month);
 
@@ -180,9 +161,8 @@ public class ViewReportHelper {
      */
     private Map<Date, Integer> getVacationWithPlannedMap(Integer year, Integer month, Integer employeeId, Boolean needForCalcCount) {
         Map<Date, Integer> vacationDates = new HashMap<Date, Integer>();
-        Date currentDate = new Date((new Date()).getTime());
 
-        addMonthDays(year, month, employeeId, vacationDates, currentDate);
+        addMonthDays(year, month, employeeId, vacationDates);
 
         List<DictionaryItem> typesVac = dictionaryItemService.getItemsByDictionaryId(DictionaryEnum.VACATION_TYPE.getId());
         DictionaryItem planned = dictionaryItemService.find(VacationTypesEnum.PLANNED.getId());
