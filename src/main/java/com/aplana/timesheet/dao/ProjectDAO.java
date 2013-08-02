@@ -15,8 +15,6 @@ import javax.persistence.criteria.*;
 import java.util.*;
 import java.util.Calendar;
 
-import static com.aplana.timesheet.enums.TypesOfActivityEnum.PRESALE;
-
 @Repository
 @SuppressWarnings("unchecked")
 public class ProjectDAO {
@@ -102,9 +100,9 @@ public class ProjectDAO {
      * @param project
      * @return
      */
-    public List<ProjectParticipant> getParticipants(Project project) {
+    public List<ProjectManager> getManagers(Project project) {
         Query query = entityManager.createQuery(
-                "from ProjectParticipant as pp where pp.active=:active and pp.project=:project"
+                "from ProjectManager as pm where pm.active=:active and pm.project=:project"
         ).setParameter( "active", true ).setParameter( "project", project );
 
         return query.getResultList();
@@ -116,9 +114,9 @@ public class ProjectDAO {
      * @param project, employee
      * @return
      */
-    public List<ProjectParticipant> getEmployeeProjectRoles(Project project, Employee employee) {
+    public List<ProjectManager> getEmployeeProjectRoles(Project project, Employee employee) {
         Query query = entityManager.createQuery(
-                "from ProjectParticipant as pp where pp.active=:active and pp.project=:project and pp.employee=:employee"
+                "from ProjectManager as pm where pm.active=:active and pm.project=:project and pm.employee=:employee"
         ).setParameter( "active", true ).setParameter("project", project).setParameter( "employee", employee );
 
         return query.getResultList();

@@ -39,7 +39,7 @@ public class TimeSheetController {
     @Autowired
     private ProjectService projectService;
     @Autowired
-    ProjectParticipantService projectParticipantService;
+    ProjectManagerService projectManagerService;
     @Autowired
     private ProjectTaskService projectTaskService;
     @Autowired

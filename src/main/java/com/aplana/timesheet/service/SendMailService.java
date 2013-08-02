@@ -41,15 +41,15 @@ public class SendMailService{
                     return actType == TypesOfActivityEnum.PROJECT || actType == TypesOfActivityEnum.PRESALE;
                 }
             });
-    private final Function<ProjectParticipant, String> GET_EMAIL_FROM_PARTICIPANT
-            = new Function<ProjectParticipant, String>() {
+    private final Function<ProjectManager, String> GET_EMAIL_FROM_MANAGER
+            = new Function<ProjectManager, String>() {
         @Nullable @Override
-        public String apply(@Nullable ProjectParticipant projectParticipant) {
-            return projectParticipant.getEmployee().getEmail();
+        public String apply(@Nullable ProjectManager projectManager) {
+            return projectManager.getEmployee().getEmail();
         }
     };
 
-    private Function<ProjectActivityInfo,String> GET_EMAILS_OF_INTERESTED_PARTICIPANTS_FROM_PROJECT_FOR_CURRENT_ROLE
+    private Function<ProjectActivityInfo,String> GET_EMAILS_OF_INTERESTED_MANAGERS_FROM_PROJECT_FOR_CURRENT_ROLE
             = new Function<ProjectActivityInfo, String>() {
         @Nullable @Override
         public String apply(@Nullable ProjectActivityInfo input) {
@@ -60,23 +60,23 @@ public class SendMailService{
             return Joiner.on(",").join(
                 Iterables.transform(
                     Iterables.filter(
-                        projectService.getParticipants(projectService.find(input.getProjectId())),
-                            new Predicate<ProjectParticipant>() {
+                        projectService.getManagers(projectService.find(input.getProjectId())),
+                            new Predicate<ProjectManager>() {
                                 @Override
-                                public boolean apply(@Nullable ProjectParticipant participant) {
-                                    if(participant == null || participant.getProjectRole()==null){
+                                public boolean apply(@Nullable ProjectManager manager) {
+                                    if(manager == null || manager.getProjectRole()==null){
                                         return false;
                                     }
-                                    if (participant.getEmployee().getId().equals(project.getManager().getId())){
+                                    if (manager.getEmployee().getId().equals(project.getManager().getId())){
                                         return true;
                                     }
-                                    if(EnumsUtils.tryFindById(participant.getProjectRole().getId(),ProjectRolesEnum.class)==ProjectRolesEnum.HEAD){
+                                    if(EnumsUtils.tryFindById(manager.getProjectRole().getId(),ProjectRolesEnum.class)==ProjectRolesEnum.HEAD){
                                         return true;
                                     }
-                                    return (participant.getProjectRole().getId().equals(roleInCurrentProject.getId()));
+                                    return (manager.getProjectRole().getId().equals(roleInCurrentProject.getId()));
 
                                 } }),
-                    GET_EMAIL_FROM_PARTICIPANT
+                        GET_EMAIL_FROM_MANAGER
                 )
         ); } };
 
@@ -97,7 +97,7 @@ public class SendMailService{
     @Autowired
     private VacationApprovalService vacationApprovalService;
     @Autowired
-    private ProjectParticipantService projectParticipantService;
+    private ProjectManagerService projectManagerService;
     @Autowired
     private EmployeeAssistantService employeeAssistantService;
     @Autowired
@@ -177,9 +177,9 @@ public class SendMailService{
      *
      * @return emails - строка с emailАМИ
      */
-    public String getProjectParticipantsEmails(TimeSheetForm tsForm) {
+    public String getProjectManagersEmails(TimeSheetForm tsForm) {
         if (tsForm.getTimeSheetTablePart() == null) return ""; // Нет строк в отчете - нет и участников
-        return getProjectParticipantsEmails(transformTimeSheetTableRowForm(tsForm.getTimeSheetTablePart()));
+        return getProjectManagersEmails(transformTimeSheetTableRowForm(tsForm.getTimeSheetTablePart()));
     }
 
 
@@ -188,15 +188,15 @@ public class SendMailService{
      * @param ts
      * @return string строка содержащая email's которым относится данный timesheet
      */
-    public String getProjectParticipantsEmails(TimeSheet ts) {
-        return getProjectParticipantsEmails(transformTimeSheetDetail(ts.getTimeSheetDetails()));
+    public String getProjectManagersEmails(TimeSheet ts) {
+        return getProjectManagersEmails(transformTimeSheetDetail(ts.getTimeSheetDetails()));
     }
 
-    private String getProjectParticipantsEmails(Iterable<ProjectActivityInfo> details) {
+    private String getProjectManagersEmails(Iterable<ProjectActivityInfo> details) {
         return StringUtils.join(
                 Lists.newArrayList(Iterables.transform(
                         Iterables.filter(details, LEAVE_PRESALE_AND_PROJECTS_ONLY),
-                        GET_EMAILS_OF_INTERESTED_PARTICIPANTS_FROM_PROJECT_FOR_CURRENT_ROLE))
+                        GET_EMAILS_OF_INTERESTED_MANAGERS_FROM_PROJECT_FOR_CURRENT_ROLE))
                 , ",");
     }
 

@@ -355,12 +355,15 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
                                 summaryCalDays += days;
                                 summaryWorkDays += days - vacationService.getHolidaysCount(holidaysForRegion, currentYearBeginDate, beginDate);
                             }
-
-                            summaryApproved++;
+                            /* посчитаем количество одобрений/отклонений */
+                            if ( vacationStatusInThisYear(vacation, year) )
+                                summaryApproved++;
                         }
 
                         if (vacationStatus == VacationStatusEnum.REJECTED) {
-                            summaryRejected++;
+                            /* посчитаем количество одобрений/отклонений */
+                            if ( vacationStatusInThisYear(vacation, year) )
+                                summaryRejected++;
                         }
                     }
                 }
@@ -375,6 +378,13 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
         map.put("summaryWorkDays", summaryWorkDays);
 
         return map;
+    }
+
+    /* определяет по дате началу отпуска принадлежность году */
+    private Boolean vacationStatusInThisYear(Vacation vacation, int year) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(vacation.getBeginDate());
+        return cal.get(Calendar.YEAR) == year;
     }
 
     private int getDiffInDays(Date beginDate, Date endDate) {
