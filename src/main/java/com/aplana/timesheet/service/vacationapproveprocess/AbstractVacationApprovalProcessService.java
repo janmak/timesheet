@@ -43,7 +43,7 @@ public abstract class AbstractVacationApprovalProcessService extends AbstractSer
     @Autowired
     private VacationApprovalResultService vacationApprovalResultService;
     @Autowired
-    protected ProjectParticipantService projectParticipantService;
+    protected ProjectManagerService projectManagerService;
     @Autowired
     protected VacationApprovalService vacationApprovalService;
     @Autowired
@@ -309,13 +309,13 @@ public abstract class AbstractVacationApprovalProcessService extends AbstractSer
             final List<Project> projects = projectService.getProjectsForVacation(vacation);
             final Employee employee = vacation.getEmployee();
 
-            boolean isProjectParticipantInAllProjects = true;
+            boolean isProjectManagerInAllProjects = true;
 
             for (Project project : projects) {
-                isProjectParticipantInAllProjects &= (employee.equals(project.getManager()));
+                isProjectManagerInAllProjects &= (employee.equals(project.getManager()));
             }
 
-            if (isProjectParticipantInAllProjects) {
+            if (isProjectManagerInAllProjects) {
                 // если нет проектов ни в планах, ни в списаниях - сразу утверждаем у линейного
                 setApprovementWithLineManagerStatusAndSendMessages(vacation);
             } else {

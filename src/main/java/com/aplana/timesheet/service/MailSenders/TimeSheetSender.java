@@ -130,7 +130,7 @@ public class TimeSheetSender extends MailSender<TimeSheetForm> {
         toEmails.add(sendMailService.getEmployeesManagersEmails(employeeId));
         toEmails.add(sendMailService.getEmployeesAdditionalManagerEmail(employeeId));
         toEmails.add(sendMailService.getProjectsManagersEmails(params));
-        toEmails.add(sendMailService.getProjectParticipantsEmails(params));
+        toEmails.add(sendMailService.getProjectManagersEmails(params));
 
         return toEmails;
     }

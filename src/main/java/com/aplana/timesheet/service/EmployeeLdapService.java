@@ -29,7 +29,7 @@ public class EmployeeLdapService extends AbstractServiceWithTransactionManagemen
     @Autowired
     private ProjectRoleService projectRoleService;
     @Autowired
-    private ProjectParticipantService projectParticipantService;
+    private ProjectManagerService projectManagerService;
 
     @Autowired
     private RegionService regionService;
@@ -282,7 +282,7 @@ public class EmployeeLdapService extends AbstractServiceWithTransactionManagemen
 
             //список сотрудников которые будут синхронизироваться
             List<Employee> empsToSync = new ArrayList<Employee>();
-            List<Employee> empsParticipantToSync = new ArrayList<Employee>();
+            List<Employee> empsManagerToSync = new ArrayList<Employee>();
 
             for (Employee empDb : employeesDb) {
                 for (EmployeeLdap empLdap : disabledEmployeesLdap) {
@@ -301,7 +301,7 @@ public class EmployeeLdapService extends AbstractServiceWithTransactionManagemen
                             empsToSync.add(empDb);
                             //добавляем в список для деактивации прав
                             if (!empDb.getEndDate().after(curDate)) {
-                                empsParticipantToSync.add(empDb);
+                                empsManagerToSync.add(empDb);
                             }
                         }
                         //иначе если есть дата увольнения - проверяем наличие активных "участий"
@@ -309,11 +309,11 @@ public class EmployeeLdapService extends AbstractServiceWithTransactionManagemen
                             //если дата увольнения меньше текущей
                             if (!empDb.getEndDate().after(curDate)) {
                                 // и у сотрудника имеются активные "участия"
-                                if (projectParticipantService.hasActiveParticipantEmployee(empDb)) {
+                                if (projectManagerService.hasActiveManagerEmployee(empDb)) {
                                     logger.debug("Employee {} disabled in ldap and db.", empLdap.getDisplayName());
-                                    logger.debug("And his project participants were active.");
+                                    logger.debug("And his project managers were active.");
                                     //добавляем в список для деактивации
-                                    empsParticipantToSync.add(empDb);
+                                    empsManagerToSync.add(empDb);
                                 }
                             }
                         }
@@ -329,10 +329,10 @@ public class EmployeeLdapService extends AbstractServiceWithTransactionManagemen
             }
 
             //деактивируем "участия" сотрудников
-            if (!empsParticipantToSync.isEmpty()) {
-                syncParticipantDisabledEmployee(empsParticipantToSync);
+            if (!empsManagerToSync.isEmpty()) {
+                syncManagerDisabledEmployee(empsManagerToSync);
             } else {
-                logger.info("Nothing to sync for employee participant.");
+                logger.info("Nothing to sync for employee manager.");
             }
 
             if (transactionStatus != null) {
@@ -635,7 +635,7 @@ public class EmployeeLdapService extends AbstractServiceWithTransactionManagemen
         return this.trace.toString();
     }
 
-    private void syncParticipantDisabledEmployee(List<Employee> disabledEmployees) {
-        projectParticipantService.deactivateEmployeesRights(disabledEmployees);
+    private void syncManagerDisabledEmployee(List<Employee> disabledEmployees) {
+        projectManagerService.deactivateEmployeesRights(disabledEmployees);
     }
 }

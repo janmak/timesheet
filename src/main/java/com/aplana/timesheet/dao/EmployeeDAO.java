@@ -376,8 +376,8 @@ public class EmployeeDAO {
      * Получаем младших менеджеров проекта (тимлиды, ведущие аналитики)
      */
     public List<Employee> getProjectManagers(Project project) {
-        Query query = entityManager.createQuery("select pp.employee from ProjectParticipant as pp " +
-                "where pp.project = :project and pp.active=:active")
+        Query query = entityManager.createQuery("select pm.employee from ProjectManager as pm " +
+                "where pm.project = :project and pm.active=:active")
                 .setParameter("project", project)
                 .setParameter("active", true);
 
@@ -387,9 +387,9 @@ public class EmployeeDAO {
      * Получаем младших менеджеров проекта (тимлиды, ведущие аналитики), которые еще не ответили на письмо о согласовании отпуска
      */
     public List<Employee> getProjectManagersThatDoesntApproveVacation(Project project, Vacation vacation) {
-        Query query = entityManager.createQuery("select pp.employee from ProjectParticipant as pp " +
-                "where pp.project = :project and pp.active=:active and " +
-                "pp.projectRole.id = :roleId and pp.employee not in " +
+        Query query = entityManager.createQuery("select pm.employee from ProjectManager as pm " +
+                "where pm.project = :project and pm.active=:active and " +
+                "pm.projectRole.id = :roleId and pm.employee not in " +
                 "(select va.manager from VacationApproval as va where va.vacation = :vacation and va.result is not null)")
                 .setParameter("project", project)
                 .setParameter("active", true)
