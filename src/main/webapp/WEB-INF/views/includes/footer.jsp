@@ -12,9 +12,9 @@
     <script type="text/javascript">
         var ua = navigator.userAgent.toLowerCase();
         if (ua.indexOf("gecko") == -1 && ua.indexOf("chrome")) {
-            document.write("<fmt:message key="recomendation.browser.using.text"/>" + "</br>");
+            document.write("<fmt:message key="recomendation.browser.using.text"/>" + "<br>");
         }
     </script>
-    <%= version %> </br>
+    <%= version %> <br>
     <a href=<%= help %>><fmt:message key="help.text"/></a>
 </p>

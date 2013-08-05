@@ -41,7 +41,7 @@
                         #else
                             Неизвестно
                         #end
-                        </br>
+                        <br>
                     </b>
                     <b> $dictionaryItemService.find($actTypeId).getValue() </b>
                     #if (($actTypeId == 12) || ($actTypeId == 13) || ($actTypeId == 42))

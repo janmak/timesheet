@@ -693,7 +693,7 @@
                                         </tr>
                                     </c:when>
                                     <c:otherwise>
-                                        <span class="bold"><tr><td colspan="6" class="bold">Нет данных о больничных сотрудника за выбранный период.</td></tr></span>
+                                        <tr><td colspan="6" class="bold">Нет данных о больничных сотрудника за выбранный период.</td></tr>
                                     </c:otherwise>
                                 </c:choose>
                                 <tr><td colspan="5" class="bold">Итоги за год:</td></tr>
