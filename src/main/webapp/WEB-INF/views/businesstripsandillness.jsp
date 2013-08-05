@@ -671,7 +671,7 @@
                 <c:when test="${forAll!=true}">
                     <c:choose>
                         <c:when test="${reportFormed == 6}">
-                                <tr><td colspan="5" class="bold">Итоги за месяц:</td></tr>
+                                <tr><td colspan="5" class="bold">Итоги за период:</td></tr>
                                 <c:choose>
                                     <c:when test="${fn:length(reports.periodicalsList) > 0}">
                                         <tr>
@@ -705,7 +705,7 @@
                         <c:when test="${reportFormed == 7}">
                             <c:choose>
                                 <c:when test="${fn:length(reports.periodicalsList) > 0}">
-                                            <tr><td colspan="5" class="bold">Итоги за месяц:</td></tr>
+                                            <tr><td colspan="5" class="bold">Итоги за период:</td></tr>
                                             <tr>
                                                 <td colspan="4" class="resultrow">Общее кол-во календарных дней в командировке:</td>
                                                 <td colspan="1" class="resultrow" id="mounthCalendarDaysInBusinessTrip">${reports.mounthCalendarDays}</td>
