@@ -7,7 +7,7 @@ import com.google.common.collect.Iterables;
 import java.util.Arrays;
 
 public enum EffortInNextDayEnum implements TSEnum {
-    NORMAL      (125, "Всё хорошо"),
+    NORMAL      (125, "Все нормально"),
     UNDERLOADED (126, "У меня будет мало работы"),
     OVERLOADED  (127, "Я буду перегружен(а)");
 
