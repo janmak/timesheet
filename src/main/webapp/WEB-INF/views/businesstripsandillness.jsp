@@ -21,13 +21,13 @@
 
         dojo.ready(function () {
             window.focus();
-            <sec:authorize access="hasAnyRole('VIEW_ILLNESS_BUSINESS_TRIP', 'CHANGE_ILLNESS_BUSINESS_TRIP')">
-                dojo.byId("divisionId").value = ${divisionId};
-                divisionChanged(dojo.byId("divisionId").value);
-                updateManagerList(dojo.byId('divisionId').value);
-                dojo.byId("employeeId").value = ${employeeId};
-                dojo.byId("manager").value = ${managerId};
-            </sec:authorize>
+
+            dojo.byId("divisionId").value = ${divisionId};
+            divisionChanged(dojo.byId("divisionId").value);
+            updateManagerList(dojo.byId('divisionId').value);
+            dojo.byId("employeeId").value = ${employeeId};
+            dojo.byId("manager").value = ${managerId};
+
             initRegionsList();
             if (dojo.byId("regions").value != -1) {
                 sortEmployee();
@@ -71,10 +71,8 @@
             var regions = dojo.byId("regions").value;
             var manager = dojo.byId("manager").value;
 
-            <sec:authorize access="hasAnyRole('VIEW_ILLNESS_BUSINESS_TRIP', 'CHANGE_ILLNESS_BUSINESS_TRIP')">
-                empId = dojo.byId("employeeId").value;
-                var divisionId = dojo.byId("divisionId").value;
-            </sec:authorize>
+            empId = dojo.byId("employeeId").value;
+            var divisionId = dojo.byId("divisionId").value;
 
             var dateFrom = dojo.byId("dateFrom").value;
             var dateTo = dojo.byId("dateTo").value
@@ -445,58 +443,55 @@
     <br>
     <form:form method="post" commandName="businesstripsandillness" name="mainForm">
     <table class="no_border" style="margin-bottom: 20px;">
-        <sec:authorize access="hasAnyRole('VIEW_ILLNESS_BUSINESS_TRIP', 'CHANGE_ILLNESS_BUSINESS_TRIP')">
-            <tr>
-                <td>
-                    <div class="horizontalBlock labelDiv">
-                    <span class="lowspace labelBold">Подразделение:</span>
-                    </div>
-                </td>
-                <td>
-                    <form:select path="divisionId" id="divisionId" cssClass="date_picker"
-                                 onchange="divisionChanged(this.value);updateManagerList(this.value)" class="without_dojo"
-                                 onmouseover="tooltip.show(getTitle(this));" onmouseout="tooltip.hide();">
-                        <form:options items="${divisionList}" itemLabel="name" itemValue="id"/>
-                    </form:select>
-                </td>
-                <td rowspan="5" style="padding: 9px;vertical-align: top;">
-                    <span class="lowspace">Регионы:</span>
-                </td>
-                <td rowspan="5" style="padding: 5px;vertical-align: top;">
-                    <form:select path="regions" onmouseover="showTooltip(this)" size="6"
-                                 onmouseout="tooltip.hide()" multiple="true"
-                                 onchange="updateMultipleForSelect(this)">
-                        <form:option value="<%= ALL_VALUE %>" label="Все регионы"/>
-                        <form:options items="${regionList}" itemLabel="name" itemValue="id"/>
-                    </form:select>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <span class="lowspace">Руководитель:</span>
-                </td>
-                <td>
-                    <form:select path="manager" class="without_dojo"
-                                 onchange="managerChange(this)" onmouseover="showTooltip(this);"
-                                 onmouseout="tooltip.hide();" multiple="false" cssStyle="margin-left: 0px">
-                        <%--<form:option label="Все руководители" value="0"/>--%>
-                        <form:options items="${managerList}" itemLabel="name" itemValue="id"/>
-                    </form:select>
-                </td>
-
-            </tr>
-            <tr>
-                <td>
-                    <span class="lowspace ">Сотрудник:</span>
-                </td>
-                <td>
-                    <form:select path="employeeId" id="employeeId" class="without_dojo" cssClass="date_picker"
-                                 onmouseover="tooltip.show(getTitle(this));"
-                                 onmouseout="tooltip.hide();">
-                    </form:select>
-                </td>
-            </tr>
-        </sec:authorize>
+        <tr>
+            <td>
+                <div class="horizontalBlock labelDiv">
+                <span class="lowspace labelBold">Подразделение:</span>
+                </div>
+            </td>
+            <td>
+                <form:select path="divisionId" id="divisionId" cssClass="date_picker"
+                             onchange="divisionChanged(this.value);updateManagerList(this.value)" class="without_dojo"
+                             onmouseover="tooltip.show(getTitle(this));" onmouseout="tooltip.hide();">
+                    <form:options items="${divisionList}" itemLabel="name" itemValue="id"/>
+                </form:select>
+            </td>
+            <td rowspan="5" style="padding: 9px;vertical-align: top;">
+                <span class="lowspace">Регионы:</span>
+            </td>
+            <td rowspan="5" style="padding: 5px;vertical-align: top;">
+                <form:select path="regions" onmouseover="showTooltip(this)" size="6"
+                             onmouseout="tooltip.hide()" multiple="true"
+                             onchange="updateMultipleForSelect(this)">
+                    <form:option value="<%= ALL_VALUE %>" label="Все регионы"/>
+                    <form:options items="${regionList}" itemLabel="name" itemValue="id"/>
+                </form:select>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span class="lowspace">Руководитель:</span>
+            </td>
+            <td>
+                <form:select path="manager" class="without_dojo"
+                             onchange="managerChange(this)" onmouseover="showTooltip(this);"
+                             onmouseout="tooltip.hide();" multiple="false" cssStyle="margin-left: 0px">
+                    <%--<form:option label="Все руководители" value="0"/>--%>
+                    <form:options items="${managerList}" itemLabel="name" itemValue="id"/>
+                </form:select>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span class="lowspace ">Сотрудник:</span>
+            </td>
+            <td>
+                <form:select path="employeeId" id="employeeId" class="without_dojo" cssClass="date_picker"
+                             onmouseover="tooltip.show(getTitle(this));"
+                             onmouseout="tooltip.hide();">
+                </form:select>
+            </td>
+        </tr>
         <tr>
             <td colspan="4">
 

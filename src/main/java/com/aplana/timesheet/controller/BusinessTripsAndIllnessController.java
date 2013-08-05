@@ -209,10 +209,6 @@ public class BusinessTripsAndIllnessController extends AbstractController{
         if (sickEmployee != null && sickEmployee.size() !=0) {
 
             for (Employee employee : sickEmployee) {
-                PermissionsEnum recipientPermission = getRecipientPermission(employee);
-                if (recipientPermission == null) { //сотрудник запрашивает отчет другого сотрудника (не свой), но нет прав на просмотр чужих отчетов
-                    continue;
-                }
                 reports.put(employee, getReport(printtype, employee, dateFrom, dateTo));
             }
             oneEmployee = sickEmployee.get(0);
