@@ -118,7 +118,8 @@ function fillProjectListByDivision(division) {
     }
     sortSelectOptions(projectSelect);
     validateAndAddNewOption(hasAny, divisionId, projectSelect);
-    if(divisionId==0)projectSelect.value=0;
+    /* выбираем по умолчанию пункт "Все" */
+    projectSelect.value=0;
 }
 
 function validateAndAddNewOption(hasAny, divisionId, select){
