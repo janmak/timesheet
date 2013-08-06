@@ -214,23 +214,22 @@
             managerOption.innerHTML = "Все руководители";
 
             managersNode.options.length = 0;
-            managersNode.add(managerOption);
+            managersNode.appendChild(managerOption);
 
             var managerMapJson = '${managerMapJson}';
             if (managerMapJson.length > 0) {
                 var managerMap = dojo.fromJson(managerMapJson);
-                dojo.filter(managerMap,function (m) {
+                dojo.forEach(dojo.filter(managerMap,function (m) {
                     return (m.division == id);
-                }).forEach(function (managerData) {
-                            var option = document.createElement("option");
-                            option.text = managerData.name;
-                            option.value = managerData.id;
-
-//                            if (managerData.number == manager) {
-//                                option.selected = "selected";
-//                            }
-                            managersNode.add(option);
-                        });
+                }), function (managerData) {
+                    var option = document.createElement("option");
+                    dojo.attr(option, {
+                        value:managerData.id
+                    });
+                    option.title = managerData.name;
+                    option.innerHTML = managerData.name;
+                    managersNode.appendChild(option);
+                });
             }
             if (managersNode.options.length == 1 && emptyOption.value == managersNode.options[0].value){
                 dojo.byId("manager").disabled = 'disabled';
@@ -269,40 +268,39 @@
                 if (multiselect.options[i].selected) arrIndexes.push(i);
             }
             return arrIndexes;
-        };
+        }
 
       function sortEmployeeFull() {
           var manager = dojo.byId("manager").value;
           var employeeSelect = dojo.byId("employeeId");
-            var employeeSelect = dojo.byId("employeeId");
-            var divisionSelectValue = dojo.byId("divisionId").value;
-            var employeeOption = null;
-            employeeSelect.options.length = 0;
-            if (employeeList.length > 0) {
-                var filteredEmpMap = dojo.filter(employeeList,function (m) {
-                    return (m.divId == divisionSelectValue);
-                }).forEach(function (divEmps) {
-                            divEmps.divEmps.forEach(function (empData) {
-                                if (empData.manId == manager || manager == 0) {
-                                    addEmployeeToList(empData, employeeOption, employeeSelect,null, divisionSelectValue);
-                                } else if (manager == -1) {
-                                    employeeOption = dojo.doc.createElement("option");
-                                    dojo.attr(employeeOption, {
-                                        value:empData.id
-                                    });
-                                    employeeOption.title = empData.value;
-                                    employeeOption.innerHTML = empData.value;
-                                    employeeSelect.appendChild(employeeOption);
-                                }
-                            })
-                        });
-            }
-         sortSelect(employeeSelect);
-         if (selectCurrentEmployee(employeeSelect)) {
-         dojo.byId("employeeId").value = empId;
-         } else {
-         dojo.byId("employeeId").value = -1;
-         }
+          var divisionSelectValue = dojo.byId("divisionId").value;
+          var employeeOption = null;
+          employeeSelect.options.length = 0;
+          if (employeeList.length > 0) {
+              dojo.forEach(dojo.filter(employeeList,function (m) {
+                  return (m.divId == divisionSelectValue);
+              }), function (divEmps) {
+                  dojo.forEach(divEmps.divEmps, function (empData) {
+                      if (empData.manId == manager || manager == 0) {
+                          addEmployeeToList(empData, employeeOption, employeeSelect,null, divisionSelectValue);
+                      } else if (manager == -1) {
+                          employeeOption = dojo.doc.createElement("option");
+                          dojo.attr(employeeOption, {
+                              value:empData.id
+                          });
+                          employeeOption.title = empData.value;
+                          employeeOption.innerHTML = empData.value;
+                          employeeSelect.appendChild(employeeOption);
+                      }
+                  })
+              });
+          }
+          sortSelect(employeeSelect);
+          if (selectCurrentEmployee(employeeSelect)) {
+              dojo.byId("employeeId").value = empId;
+          } else {
+              dojo.byId("employeeId").value = -1;
+          }
       }
 
         function managerChange(obj) {
