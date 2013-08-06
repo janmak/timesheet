@@ -443,13 +443,11 @@
     <table class="no_border" style="margin-bottom: 20px;">
         <tr>
             <td>
-                <div class="horizontalBlock labelDiv">
-                <span class="lowspace labelBold">Подразделение:</span>
-                </div>
+                <span class="lowspace">Подразделение:</span>
             </td>
             <td>
-                <form:select path="divisionId" id="divisionId" cssClass="date_picker"
-                             onchange="divisionChanged(this.value);updateManagerList(this.value)" class="without_dojo"
+                <form:select class="without_dojo" path="divisionId" id="divisionId"
+                             onchange="divisionChanged(this.value);updateManagerList(this.value)"
                              onmouseover="tooltip.show(getTitle(this));" onmouseout="tooltip.hide();">
                     <form:options items="${divisionList}" itemLabel="name" itemValue="id"/>
                 </form:select>
@@ -471,7 +469,7 @@
                 <span class="lowspace">Руководитель:</span>
             </td>
             <td>
-                <form:select path="manager" class="without_dojo"
+                <form:select class="without_dojo" path="manager"
                              onchange="managerChange(this)" onmouseover="showTooltip(this);"
                              onmouseout="tooltip.hide();" multiple="false" cssStyle="margin-left: 0px">
                     <%--<form:option label="Все руководители" value="0"/>--%>
@@ -484,31 +482,29 @@
                 <span class="lowspace ">Сотрудник:</span>
             </td>
             <td>
-                <form:select path="employeeId" id="employeeId" class="without_dojo" cssClass="date_picker"
+                <form:select class="without_dojo" path="employeeId" id="employeeId"
                              onmouseover="tooltip.show(getTitle(this));"
                              onmouseout="tooltip.hide();">
                 </form:select>
             </td>
         </tr>
         <tr>
-            <td colspan="4">
-
-                <div class="horizontalBlock" style="width: 151px; margin-top: 5px; margin-left: -1px;">
-                    <span class="lowspace">Начало периода:</span>
-                </div>
+            <td>
+                <span class="lowspace">Начало периода:</span>
+            </td>
+            <td colspan="3">
                 <div class="horizontalBlock">
                     <form:input path="dateFrom" id="dateFrom" class="date_picker"
                                 data-dojo-type="DateTextBox" required="true"
                                 onMouseOver="tooltip.show(getTitle(this));" onMouseOut="tooltip.hide();"/>
-
                 </div>
             </td>
         </tr>
         <tr>
-            <td colspan="4">
-                <div class="horizontalBlock" style="width: 151px; margin-top: 5px; margin-left: -1px;">
-                    <span class="lowspace">Окончание периода:</span>
-                </div>
+            <td>
+                <span class="lowspace">Окончание периода:</span>
+            </td>
+            <td colspan="3">
                 <div class="horizontalBlock">
                     <form:input path="dateTo" id="dateTo" class="date_picker"
                                 data-dojo-type="DateTextBox" required="true"
@@ -518,19 +514,18 @@
             </td>
         </tr>
         <tr>
-            <td colspan="2">
-                <div class="horizontalBlock" style="width: 50px;  margin-top: 5px;">
-                    <span class="lowspace">Тип:</span>
-                </div>
-                <div class="horizontalBlock" style="margin-left: 100px">
-                    <form:select path="reportType" id="reportType" onMouseOver="tooltip.show(getTitle(this));"
-                                 onMouseOut="tooltip.hide();" multiple="false" cssClass="date_picker">
-                        <form:options items="${businesstripsandillness.reportTypes}" itemLabel="name" itemValue="id"
-                                      required="true"/>
-                    </form:select>
-                </div>
+            <td>
+                <span class="lowspace">Тип:</span>
             </td>
-            <td colspan="3">
+            <td>
+                <form:select class="without_dojo" path="reportType" id="reportType"
+                             onMouseOver="tooltip.show(getTitle(this));" onMouseOut="tooltip.hide();"
+                             multiple="false">
+                    <form:options items="${businesstripsandillness.reportTypes}" itemLabel="name" itemValue="id"
+                                  required="true"/>
+                </form:select>
+            </td>
+            <td colspan="2">
                 <div class="floatleft lowspace">
                     <button id="show" class="butt block " onclick="showBusinessTripsAndIllnessReport()">
                         Показать
@@ -686,7 +681,7 @@
                                         </tr>
                                     </c:when>
                                     <c:otherwise>
-                                        <tr><td colspan="6" class="bold">Нет данных о больничных сотрудника за выбранный период.</td></tr>
+                                        <tr><td colspan="5" class="bold">Нет данных о больничных сотрудника за выбранный период.</td></tr>
                                     </c:otherwise>
                                 </c:choose>
                                 <tr><td colspan="5" class="bold">Итоги за год:</td></tr>
