@@ -25,7 +25,7 @@ public class TimeSheetSender extends MailSender<TimeSheetForm> {
     public static final String ACT_TYPE = "actType";
     public static final String PROJECT_NAME = "projectName";
     public static final String CATEGORY_OF_ACTIVITY = "categoryOfActivity";
-    public static final String CQ_ID = "cqId";
+    public static final String TASK_NAME = "taskName";
     public static final String DURATION = "duration";
     public static final String DESCRIPTION_STRINGS = "descriptionStrings";
     public static final String PROBLEM_STRINGS = "problemStrings";
@@ -167,8 +167,8 @@ public class TimeSheetSender extends MailSender<TimeSheetForm> {
                     result.put(i, CATEGORY_OF_ACTIVITY, CategoriesOfActivityEnum.getById(actCatId).getName());
                 }
 
-                ProjectTask projectTask = sendMailService.getProjectTaskService().find(tsRow.getCqId());
-                putIfIsNotBlank(i, result, CQ_ID, projectTask != null ? projectTask.getCqId() : null);
+                ProjectTask projectTask = sendMailService.getProjectTaskService().find(tsRow.getTaskName());
+                putIfIsNotBlank(i, result, TASK_NAME, projectTask != null ? projectTask.getTaskName() : null);
                 putIfIsNotBlank(i, result, DURATION, tsRow.getDuration());
                 putIfIsNotBlank(i, result, DESCRIPTION_STRINGS, tsRow.getDescription());
                 putIfIsNotBlank(i, result, PROBLEM_STRINGS, tsRow.getProblem());

@@ -13,7 +13,7 @@
         #foreach($tsDetail in $tsDetails)
             #set ($workplaceId = $"")
             #set ($actTypeId = $"")
-            #set ($cqId = $"")
+            #set ($taskName = $"")
             #set ($duration = $"")
             #set ($description = $"")
             #set ($actCatId = $"")
@@ -21,7 +21,7 @@
             #set ($problem = $"")
             #set ($workplaceId = $tsDetail.getWorkplace().getId())
             #set ($actTypeId = $tsDetail.getActType().getId())
-            #set ($cqId = $tsDetail.getProjectTask().getCqId())
+            #set ($taskName = $tsDetail.getProjectTask().getTaskName())
             #set ($duration = $tsDetail.getDuration())
             #set ($description = $tsDetail.getDescription())
             #set ($actCatId = $tsDetail.getActCat().getId())
@@ -50,8 +50,8 @@
                     #if ($actCatId != $null && $actCatId > 0)
                         <b> - $dictionaryItemService.find($actCatId).getValue() </b>
                     #end
-                    #if ($cqId != $null && $cqId.equals($"") != $true)
-                        <b> - $cqId </b>
+                    #if ($taskName != $null && $taskName.equals($"") != $true)
+                        <b> - $taskName </b>
                     #end
                     #if ($duration != $null && $duration.equals($"") != $true)
                         <b> ( $duration ч.)</b>

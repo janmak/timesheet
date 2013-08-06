@@ -157,16 +157,26 @@ function addNewRow() {
         style:"font-style: italic"
     });
     actCatCell.appendChild(labelDescription);
+
     // Ячейка с проектными задачами
     var projectTasksCell = newTsRow.insertCell(7);
     dojo.addClass(projectTasksCell, "top_align");
     var projectTasksSelect = dojo.doc.createElement("select");
     dojo.attr(projectTasksSelect, {
-        id:"cqId_id_" + newRowIndex,
-        name:"timeSheetTablePart[" + newRowIndex + "].cqId"
+        id:"taskName_id_" + newRowIndex,
+        name:"timeSheetTablePart[" + newRowIndex + "].taskName",
+        onchange:"setTaskDescription(" + newRowIndex + ")"
     });
     insertEmptyOption(projectTasksSelect);
+    var taskLabelDescription = dojo.doc.createElement("label");
+    dojo.attr(taskLabelDescription, {
+        id:"task_description_" + newRowIndex,
+        style:"font-style: italic"
+    });
+
     projectTasksCell.appendChild(projectTasksSelect);
+    projectTasksCell.appendChild(taskLabelDescription);
+
     // Ячейка с часами
     var durationCell = newTsRow.insertCell(8);
     dojo.addClass(durationCell, "top_align");
@@ -271,6 +281,26 @@ function setActDescription(rowIndex){
             label.innerHTML = listOfActDescription[i].description;
             finded = true;
             break;
+        }
+    }
+    if (!finded) {
+        label.innerHTML = "";
+    }
+}
+
+function setTaskDescription(rowIndex){
+    var label = dojo.byId("task_description_" + rowIndex);
+    if (label == null) { return; }
+    var task = (dojo.byId("taskName_id_"+rowIndex)).value;
+    var finded = false;
+    for (var i = 0; i < projectTaskList.length; i++) {
+        for (var j = 0; j < projectTaskList[i].projTasks.length; j++) {
+            if (projectTaskList[i].projTasks[j].id == task)
+            {
+                label.innerHTML = projectTaskList[i].projTasks[j].desc;
+                finded = true;
+                break;
+            }
         }
     }
     if (!finded) {
@@ -554,7 +584,7 @@ function typeActivityChange(obj) {
             disabled:"disabled",
             value:"0"
         });
-        dojo.attr("cqId_id_" + rowIndex, {
+        dojo.attr("taskName_id_" + rowIndex, {
             disabled:"disabled",
             value:"0"
         });
@@ -598,7 +628,7 @@ function typeActivityChange(obj) {
     /*
     kss 19.07.2013 - для пресейлов автоматически блокировалось поле выбора "Задача".
     if (select.value == "13") {
-        dojo.attr("cqId_id_" + rowIndex, {
+        dojo.attr("taskName_id_" + rowIndex, {
             disabled:"disabled",
             value:"0"
         });
@@ -617,6 +647,7 @@ function typeActivityChange(obj) {
         fillAvailableActivityCategoryList(rowIndex);
     }
     setActDescription(rowIndex);
+    setTaskDescription(rowIndex);
 }
 
 /* Заполняет список доступных проектов/пресейлов */
@@ -686,7 +717,7 @@ function projectChange(obj) {
     var selectId = dojo.attr(select, "id");
     var projectId = select.value;
     var rowIndex = selectId.substring(selectId.lastIndexOf("_") + 1, selectId.length);
-    var taskSelect = dojo.byId("cqId_id_" + rowIndex);
+    var taskSelect = dojo.byId("taskName_id_" + rowIndex);
     var taskOption = null;
     taskSelect.options.length = 0;
     dojo.attr(taskSelect, {
@@ -711,6 +742,7 @@ function projectChange(obj) {
     sortSelectOptions(taskSelect);
     /* чистим коментарии */
     dojo.byId("description_id_" + rowIndex).value = "";
+    dojo.byId("task_description_" + rowIndex).innerHTML = "";
 }
 
 /* Выставляет должность сотрудника (проектная роль по умолчанию) */
@@ -839,7 +871,7 @@ function reloadRowsState() {
         }
         setActDescription(i);
 
-        var taskSelect = dojo.byId("cqId_id_" + i);
+        var taskSelect = dojo.byId("taskName_id_" + i);
         if (dojo.attr(taskSelect, "disabled") != "disabled") {
             for (var j = 0; j < selectedProjectTasks.length; j++) {
                 if (selectedProjectTasks[j].row == i) {
@@ -847,6 +879,7 @@ function reloadRowsState() {
                 }
             }
         }
+        setTaskDescription(i);
 
         if (dojo.byId("delete_button_" + i) === null || dojo.byId("delete_button_" + i) === undefined) {
             var deleteCell = rows[i].cells[0];
@@ -924,7 +957,7 @@ function resetRowState(rowIndex, resetActType) {
     var labelDescription = dojo.byId("act_description_" + rowIndex);
     labelDescription.innerHtml = "";
     setActDescription(rowIndex);
-    dojo.attr("cqId_id_" + rowIndex, {
+    dojo.attr("taskName_id_" + rowIndex, {
         disabled:"disabled",
         value:"0"
     });

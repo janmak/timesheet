@@ -14,8 +14,8 @@
                     #if ($paramsForGenerateBody.get($key, "categoryOfActivity") != $null)
                         <b> - $paramsForGenerateBody.get($key, "categoryOfActivity") </b>
                     #end
-                    #if ($paramsForGenerateBody.get($key, "cqId")!=$null)
-                        <b> - $paramsForGenerateBody.get($key, "cqId") </b>
+                    #if ($paramsForGenerateBody.get($key, "taskName")!=$null)
+                        <b> - $paramsForGenerateBody.get($key, "taskName") </b>
                     #end
                     #if ($paramsForGenerateBody.get($key, "duration")!=$null)
                         <b> ( $paramsForGenerateBody.get($key, "duration") ч.)</b>
