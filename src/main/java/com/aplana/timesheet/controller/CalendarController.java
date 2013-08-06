@@ -110,7 +110,6 @@ public class CalendarController extends AbstractController {
             @RequestParam("queryMonth") Integer queryMonth,
             @RequestParam("employeeId") Integer employeeId
     ) {
-      //  return viewReportHelper.getDateVacationListJson(queryYear, queryMonth, employeeId);// отмечаем в календаре только обычные отпуска
         return viewReportHelper.getDateVacationWithPlannedListJson(queryYear, queryMonth, employeeId); // отмечаем в календаре обычные и плановые отпуска
     }
 

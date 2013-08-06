@@ -287,7 +287,6 @@
                              onmouseout="tooltip.hide();"
                              onchange="dateInfoHolder = []"
                         >
-                    <form:options items="${employeeList}" itemLabel="name" itemValue="id"/>
                 </form:select>
             </td>
         </tr>

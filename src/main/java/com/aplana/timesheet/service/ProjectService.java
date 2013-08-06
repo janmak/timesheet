@@ -137,12 +137,23 @@ public class ProjectService {
     }
 
     /**
-     * Возвращает JSON списка проектов, связанного с подразделениями
+     * Возвращает JSON списка проектов, связанного с подразделениями (все - активные и не активные)
      *
      * @param divisions
      * @return
      */
     public String getProjectListJson(List<Division> divisions) {
+        return getProjectListJson(divisions, null);
+    }
+
+    /**
+     * Возвращает JSON списка проектов, связанного с подразделениями
+     *
+     * @param divisions
+     * @param active true - активны, false - неактивные, null - без разницы
+     * @return
+     */
+    public String getProjectListJson(List<Division> divisions, Boolean active) {
         final JsonArrayNodeBuilder builder = anArrayBuilder();
 
         for (Division division : divisions) {
@@ -159,7 +170,9 @@ public class ProjectService {
                 logger.debug("For division {} available {} projects.", division.getId(), projects.size());
 
                 for (Project project : projects) {
-                    projectsBuilder.withElement(getProjectBuilder(project));
+                    if (active == null || active.equals(project.isActive())){
+                        projectsBuilder.withElement(getProjectBuilder(project));
+                    }
                 }
             }
 
