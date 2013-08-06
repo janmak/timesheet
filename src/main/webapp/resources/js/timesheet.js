@@ -647,6 +647,7 @@ function typeActivityChange(obj) {
         fillAvailableActivityCategoryList(rowIndex);
     }
     setActDescription(rowIndex);
+    setTaskDescription(rowIndex);
 }
 
 /* Заполняет список доступных проектов/пресейлов */
@@ -741,6 +742,7 @@ function projectChange(obj) {
     sortSelectOptions(taskSelect);
     /* чистим коментарии */
     dojo.byId("description_id_" + rowIndex).value = "";
+    dojo.byId("task_description_" + rowIndex).innerHTML = "";
 }
 
 /* Выставляет должность сотрудника (проектная роль по умолчанию) */
@@ -877,6 +879,7 @@ function reloadRowsState() {
                 }
             }
         }
+        setTaskDescription(i);
 
         if (dojo.byId("delete_button_" + i) === null || dojo.byId("delete_button_" + i) === undefined) {
             var deleteCell = rows[i].cells[0];
