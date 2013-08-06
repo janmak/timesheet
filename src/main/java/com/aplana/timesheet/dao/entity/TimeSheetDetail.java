@@ -1,6 +1,5 @@
 package com.aplana.timesheet.dao.entity;
 
-import org.apache.commons.lang3.StringEscapeUtils;
 import org.hibernate.annotations.ForeignKey;
 
 import javax.persistence.*;
@@ -48,11 +47,11 @@ public class TimeSheetDetail {
     @JoinColumn(name = "task_id")
     private ProjectTask projectTask;
 
-	@Column(name = "cq_id")
+	@Column(name = "name")
     /**
      * @deprecated
      */
-	private String cqId;
+	private String taskName;
 
 	@Column(columnDefinition = "text null")
 	private String description;
@@ -106,8 +105,8 @@ public class TimeSheetDetail {
     /**
      * @deprecated
      */
-	public String getCqId() {
-		return cqId;
+	public String getTaskName() {
+		return taskName;
 	}
 
 	public String getDescription() {
@@ -137,8 +136,8 @@ public class TimeSheetDetail {
     /**
      * @deprecated
      */
-	public void setCqId(String cqId) {
-		this.cqId = cqId;
+	public void setTaskName(String taskName) {
+		this.taskName = taskName;
 	}
 
 	public void setDescription(String description) {
@@ -185,7 +184,7 @@ public class TimeSheetDetail {
 			.append(" actType [").append(actType).append("]")
 			.append(" actCat [").append(actCat).append("]")
 			.append(" project [").append(project).append("]")
-			.append(" cqId=").append(cqId)
+			.append(" taskName=").append(taskName)
 			.append(" description=").append(description)
 			.append(" duration=").append(duration)
 			.append(" problem=").append(problem)

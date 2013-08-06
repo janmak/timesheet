@@ -269,19 +269,19 @@ public class TimeSheetFormValidator extends AbstractValidator {
 
     private void validateProjectTask(TimeSheetTableRowForm formRow, int notNullRowNumber, Errors errors) {
         Integer projectId = formRow.getProjectId();
-        Integer cqId = formRow.getCqId();
+        Integer taskName = formRow.getTaskName();
         if (projectId != null) {
             Project project = projectService.find(projectId);
             // Необходимо указать проектную задачу
             if (project != null && project.isCqRequired()) {
-                if (cqId == null || cqId.equals(0)) {
-                    errors.rejectValue("timeSheetTablePart[" + notNullRowNumber + "].cqId",
-                            "error.tsform.cqid.required", getErrorMessageArgs(notNullRowNumber),
+                if (taskName == null || taskName.equals(0)) {
+                    errors.rejectValue("timeSheetTablePart[" + notNullRowNumber + "].taskName",
+                            "error.tsform.taskName.required", getErrorMessageArgs(notNullRowNumber),
                             "Необходимо выбрать проектную задачу в строке " + (notNullRowNumber + 1) + ".");
                     // Неверная проектная задача
-                } else if (!isProjectTaskValid(projectId, cqId)) {
-                    errors.rejectValue("timeSheetTablePart[" + notNullRowNumber + "].cqId",
-                            "error.tsform.cqid.invalid", getErrorMessageArgs(notNullRowNumber),
+                } else if (!isProjectTaskValid(projectId, taskName)) {
+                    errors.rejectValue("timeSheetTablePart[" + notNullRowNumber + "].taskName",
+                            "error.tsform.taskName.invalid", getErrorMessageArgs(notNullRowNumber),
                             "Неверная проектная задача в строке " + (notNullRowNumber + 1) + ".");
                 }
             }

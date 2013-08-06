@@ -45,7 +45,7 @@ public class TimeSheetSenderTest {
             result.put(i, TimeSheetSender.ACT_TYPE, "Плевание в молоток-" + i);
             result.put(i, TimeSheetSender.PROJECT_NAME, "Прнимание горизонтального положения на печи-" + i);
             result.put(i, TimeSheetSender.CATEGORY_OF_ACTIVITY, "Тунеядство_" + i);
-            result.put(i, TimeSheetSender.CQ_ID, "Не знаю, что это вообще такое-" + i);
+            result.put(i, TimeSheetSender.TASK_NAME, "Не знаю, что это вообще такое-" + i);
             result.put(i, TimeSheetSender.DURATION, Integer.toString(i));
             result.put(i, TimeSheetSender.DESCRIPTION_STRINGS, "Очень долго-предолго сидел на печи.\nЗадница уже затекла, а я все лежал.\nСложное это дело, должен я вам сказать.\nОчень!");
             result.put(i, TimeSheetSender.PROBLEM_STRINGS, "Вы думаете, что в лежании на печи нет никаких проблем?\nВы сильно ошибаетесь!\nПоговорим в следующий раз!\nРаботать надо, т.е… лежать.");
