@@ -169,7 +169,9 @@ public class Vacation implements Comparable{
         if (this == obj) return 0;
         if (obj == null) return -1;
         Vacation vacation = (Vacation) obj;
-        return this.getBeginDate().compareTo(vacation.getBeginDate());
+        if(this.id == vacation.getId()) return 0;
+        int result = this.getBeginDate().compareTo(vacation.getBeginDate());
+        return (result==0)?1:result;
     }
 
 }

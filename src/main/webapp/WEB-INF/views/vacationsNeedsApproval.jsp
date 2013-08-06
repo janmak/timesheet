@@ -148,8 +148,8 @@
             <td class="date"><fmt:formatDate value="${vacation.creationDate}" pattern="dd.MM.yyyy"/></td>
             <td class="date"><fmt:formatDate value="${vacation.beginDate}" pattern="dd.MM.yyyy"/></td>
             <td class="date"><fmt:formatDate value="${vacation.endDate}" pattern="dd.MM.yyyy"/></td>
-            <td class="centered">${calDays[lp.index]}</td>
-            <td class="centered">${workDays[lp.index]}</td>
+            <td class="centered">${calDays[vacation]}</td>
+            <td class="centered">${workDays[vacation]}</td>
             <td class="centered">
                 ${vacation.comment}
                 <c:if test="${vacation.author.id ne vacation.employee.id}">

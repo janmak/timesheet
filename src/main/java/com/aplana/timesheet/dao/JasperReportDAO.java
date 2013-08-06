@@ -127,7 +127,9 @@ public class JasperReportDAO {
 
         for ( Iterator<String> namesIterator = projNamesList.iterator(); namesIterator.hasNext(); ) {
             String nextName = namesIterator.next();
-
+            /* пропускаем null (скорее всего это непроектная деятельность) */
+            if (nextName == null)
+                continue;
             projNames.append( nextName );
             if ( namesIterator.hasNext() )
                 projNames.append( ", " );
@@ -326,7 +328,7 @@ public class JasperReportDAO {
                                 "empl.name as col_0, " +
                                 "division.name as col_1, " +
                                 "project.name as col_2, " +
-                                "project_task.cq_id as col_3, " +
+                                "project_task.name as col_3, " +
                                 "sum(timesheet_details.duration) as col_4, " +
                                 "CASE" +
                                 "   WHEN (holidays.id is not null) " +
@@ -384,7 +386,7 @@ public class JasperReportDAO {
                                 "region.name, " +
                                 "project_role.name, " +
                                 "project.name, " +
-                                "project_task.cq_id, " +
+                                "project_task.name, " +
                                 "project_state.value, " +
                                 "epbillable.billable, " +
                                 "vacation_type.value, " +
@@ -396,7 +398,7 @@ public class JasperReportDAO {
                                 "empl.name, " +
                                 "project_state.value, " +
                                 "project.name, " +
-                                "project_task.cq_id, " +
+                                "project_task.name, " +
                                 "day_type ";
 
     private List getResultList( Report02 report ) {
@@ -461,7 +463,7 @@ public class JasperReportDAO {
                     "empl.name as col_0, " +
                     "division.name as col_1, " +
                     "project.name as col_2, " +
-                    "project_task.cq_id as col_3, " +
+                    "project_task.name as col_3, " +
                     "calendar.caldate as col_4, " +
                     "sum(timesheet_details.duration) as col_5, " +
                     "CASE" +
@@ -531,7 +533,7 @@ public class JasperReportDAO {
                     "empl.name, " +
                     "division.name, " +
                     "project.name, " +
-                    "project_task.cq_id, " +
+                    "project_task.name, " +
                     "calendar.caldate, " +
                     "holidays.id, " +
                     "vacations.id, " +
@@ -545,7 +547,7 @@ public class JasperReportDAO {
                     "empl.billable, " +
                     "project_role.name, " +
                     "project_state.value " +
-            "ORDER BY empl.name, project.name, project_task.cq_id, calendar.caldate ";
+            "ORDER BY empl.name, project.name, project_task.name, calendar.caldate ";
 
     private List getResultList( Report03 report ) {
         boolean hasProject = report.getProjectId() != null && report.getProjectId() != 0;
@@ -686,7 +688,7 @@ public class JasperReportDAO {
                         "project.name as col_3, " +
                         "act_cat.value as col_4, " +
                         "job.name as col_5, " +
-                        "COALESCE(project_task.cq_id, '') as col_6, " +
+                        "COALESCE(project_task.name, '') as col_6, " +
                         "timesheet_details.duration as col_7, " +
                         "timesheet_details.description as col_8, " +
                         "timesheet_details.problem as col_9, " +

@@ -86,8 +86,8 @@ public class ProjectService {
 	 * @return
 	 */
     @Transactional(readOnly = true)
-    public List<ProjectParticipant> getParticipants(Project project) {
-		return projectDAO.getParticipants(project);
+    public List<ProjectManager> getManagers(Project project) {
+		return projectDAO.getManagers(project);
 	}
 	
 	/**
@@ -97,7 +97,7 @@ public class ProjectService {
 	 *@return List<ProjectRole> список проектных ролей
 	 */
     @Transactional(readOnly = true)
-    public List<ProjectParticipant> getEmployeeProjectRoles(Project project, Employee employee){
+    public List<ProjectManager> getEmployeeProjectRoles(Project project, Employee employee){
 		return projectDAO.getEmployeeProjectRoles(project, employee);
 	}
 

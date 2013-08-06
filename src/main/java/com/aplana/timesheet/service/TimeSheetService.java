@@ -117,7 +117,7 @@ public class TimeSheetService {
                 String durationStr = formRow.getDuration();
                 if (projectId != null) {
                     timeSheetDetail.setProject(projectService.find(projectId));
-                    timeSheetDetail.setProjectTask(projectTaskService.find(projectId, formRow.getCqId()));
+                    timeSheetDetail.setProjectTask(projectTaskService.find(projectId, formRow.getTaskName()));
                 }
                 // Сохраняем часы только для тех полей, которые не disabled
                 if (durationStr != null) {
@@ -394,11 +394,11 @@ public class TimeSheetService {
 
         if (tablePart != null) {
             for (int i = 0; i < tablePart.size(); i++) {
-                if (tablePart.get(i).getCqId() != null) {
+                if (tablePart.get(i).getTaskName() != null) {
                     builder.withElement(
                             anObjectBuilder().
                                     withField(ROW, JsonUtil.aStringBuilder(i)).
-                                    withField(TASK, aStringBuilder(tablePart.get(i).getCqId().toString()))
+                                    withField(TASK, aStringBuilder(tablePart.get(i).getTaskName().toString()))
                     );
                 }
             }
@@ -419,7 +419,7 @@ public class TimeSheetService {
 
         if (tablePart != null) {
             for (int i = 0; i < tablePart.size(); i++) {
-                if (tablePart.get(i).getCqId() != null) {
+                if (tablePart.get(i).getTaskName() != null) {
                     builder.withElement(
                             anObjectBuilder().
                                     withField(ROW, JsonUtil.aStringBuilder(i)).

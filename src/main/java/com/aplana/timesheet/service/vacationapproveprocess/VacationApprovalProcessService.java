@@ -82,9 +82,9 @@ public class VacationApprovalProcessService extends AbstractVacationApprovalProc
     public void sendBackDateVacationApproved (Vacation vacation) {
         Map<String, Employee> managers = new HashMap<String, Employee>();
         List<Project> projects = projectService.getProjectsForVacation(vacation);
-        Map<Employee, List<Project>> juniorManagerProjectParticipants =
+        Map<Employee, List<Project>> juniorManagerProjectManagers =
                 (employeeService.getJuniorProjectManagersAndProjects(projects, vacation));
-        for (Employee manager : juniorManagerProjectParticipants.keySet()) {
+        for (Employee manager : juniorManagerProjectManagers.keySet()) {
             managers.put(manager.getEmail(), manager);
         }
         for (Project project : projects) {

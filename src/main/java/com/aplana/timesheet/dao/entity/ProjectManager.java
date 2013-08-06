@@ -5,8 +5,8 @@ import org.hibernate.annotations.ForeignKey;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "project_participant", uniqueConstraints = @UniqueConstraint(columnNames = {"employee", "project_role", "project"}))
-public class ProjectParticipant {
+@Table(name = "project_managers", uniqueConstraints = @UniqueConstraint(columnNames = {"employee", "project_role", "project"}))
+public class ProjectManager {
 	@Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "proj_part_seq")
     @SequenceGenerator(name = "proj_part_seq", sequenceName = "proj_part_seq", allocationSize = 10)
