@@ -127,7 +127,9 @@ public class JasperReportDAO {
 
         for ( Iterator<String> namesIterator = projNamesList.iterator(); namesIterator.hasNext(); ) {
             String nextName = namesIterator.next();
-
+            /* пропускаем null (скорее всего это непроектная деятельность) */
+            if (nextName == null)
+                continue;
             projNames.append( nextName );
             if ( namesIterator.hasNext() )
                 projNames.append( ", " );

@@ -234,4 +234,19 @@ public class DayTimeSheet implements Comparable<DayTimeSheet> {
     public Boolean getVacationDay(){
         return vacationDAO.isDayVacationWithoutPlanned(emp, new Date(calDate.getTime()));
     }
+
+    @Transactional(readOnly = true)
+    public Boolean getTrouble() {
+        if (this.timeSheet != null)
+            return timeSheetDAO.timeSheetTrouble(this.timeSheet.getId());
+        else
+            return null;
+    }
+
+    public String getEffort() {
+        if (this.timeSheet != null)
+            return this.timeSheet.getEffortInNextDay().getValue();
+        else
+            return null;
+    }
 }

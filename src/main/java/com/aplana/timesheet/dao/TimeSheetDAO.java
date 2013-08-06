@@ -254,4 +254,13 @@ public class TimeSheetDAO {
 
         return query.getResultList();
     }
+
+    public Boolean timeSheetTrouble(Integer id) {
+        final Query query = entityManager.createQuery(
+                "from TimeSheet ts inner join ts.timeSheetDetails tsd where ts.id = :id and tsd.problem <> ''"
+        ).setParameter("id", id);
+        return query.getResultList().size() != 0;
+    }
+
+
 }

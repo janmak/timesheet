@@ -1,4 +1,5 @@
 <%@ page import="java.io.File" %>
+<%@ page import="com.aplana.timesheet.enums.EffortInNextDayEnum" %>
 <%@page contentType="text/html" pageEncoding="UTF-8" %>
 
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form" %>
@@ -124,6 +125,7 @@
         </style>
     </head>
     <body>
+        <c:set var="defEffort" value="<%=EffortInNextDayEnum.NORMAL.getName()%>"/>
 
         <h1><fmt:message key="viewreports"/></h1>
         <br/>
@@ -175,6 +177,7 @@
                     <th width="150">Статус</th>
                     <th width="150">Часы</th>
                     <th width="150">Отсутствие</th>
+                    <th width="160">Проблемы</th>
                 </tr>
             </thead>
             <tbody>
@@ -185,22 +188,12 @@
                             <td class="date"><fmt:formatDate value="${report.calDate}" pattern="dd.MM.yyyy"/></td>
                             <td>Выходной</td>
                             <td></td>
-                            <td>
-                                <c:if test="${report.illnessDay}">Болезнь</c:if>
-                                <c:if test="${report.vacationDay}">Отпуск</c:if>
-                            </td>
-                        </tr>
                     </c:if>
                     <c:if test="${report.statusNotStart}">
                         <tr class="statusNotStart">
                             <td class="date"><fmt:formatDate value="${report.calDate}" pattern="dd.MM.yyyy"/></td>
                             <td>Ещё не принят на работу</td>
                             <td></td>
-                            <td>
-                                <c:if test="${report.illnessDay}">Болезнь</c:if>
-                                <c:if test="${report.vacationDay}">Отпуск</c:if>
-                            </td>
-                        </tr>
                     </c:if>
                     <c:if test="${report.statusNormalDay}">
                         <tr class="statusNormalDay toplan">
@@ -215,11 +208,6 @@
                                     </sec:authorize>
                             </td>
                             <td class="duration">${report.duration}</td>
-                            <td>
-                                <c:if test="${report.illnessDay}">Болезнь</c:if>
-                                <c:if test="${report.vacationDay}">Отпуск</c:if>
-                            </td>
-                        </tr>
                     </c:if>
                     <c:if test="${report.statusWorkOnHoliday}">
                         <tr class="statusWorkOnHoliday">
@@ -231,11 +219,6 @@
                                     </sec:authorize>
                             </td>
                             <td class="duration">${report.duration}</td>
-                            <td>
-                                <c:if test="${report.illnessDay}">Болезнь</c:if>
-                                <c:if test="${report.vacationDay}">Отпуск</c:if>
-                            </td>
-                        </tr>
                     </c:if>
                     <c:if test="${report.statusNoReport}">
                         <tr class="statusNoReport toplan">
@@ -249,23 +232,29 @@
                                     <td></td>
                                 </c:otherwise>
                             </c:choose>
-                            <td>
-                                <c:if test="${report.illnessDay}">Болезнь</c:if>
-                                <c:if test="${report.vacationDay}">Отпуск</c:if>
-                            </td>
-                        </tr>
                     </c:if>
                     <c:if test="${report.statusNotCome}">
                         <tr class="statusNotCome">
                             <td class="date"><fmt:formatDate value="${report.calDate}" pattern="dd.MM.yyyy"/></td>
                             <td></td>
                             <td></td>
-                            <td>
-                                <c:if test="${report.illnessDay}">Болезнь</c:if>
-                                <c:if test="${report.vacationDay}">Отпуск</c:if>
-                            </td>
-                        </tr>
                     </c:if>
+
+                        <td>
+                            <c:if test="${report.illnessDay}">Болезнь</c:if>
+                            <c:if test="${report.vacationDay}">Отпуск</c:if>
+                        </td>
+
+                        <td>
+                            <c:if test="${report.trouble}">Проблема</c:if>
+                            <c:if test="${report.effort != defEffort}">
+                                <c:if test="${report.trouble}">; </c:if>
+                                ${report.effort}
+                            </c:if>
+                        </td>
+
+                    </tr>
+
                 </c:forEach>
             </tbody>
             <thead>

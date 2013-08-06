@@ -21,13 +21,13 @@
 
         dojo.ready(function () {
             window.focus();
-            <sec:authorize access="hasAnyRole('VIEW_ILLNESS_BUSINESS_TRIP', 'CHANGE_ILLNESS_BUSINESS_TRIP')">
-                dojo.byId("divisionId").value = ${divisionId};
-                divisionChanged(dojo.byId("divisionId").value);
-                updateManagerList(dojo.byId('divisionId').value);
-                dojo.byId("employeeId").value = ${employeeId};
-                dojo.byId("manager").value = ${managerId};
-            </sec:authorize>
+
+            dojo.byId("divisionId").value = ${divisionId};
+            divisionChanged(dojo.byId("divisionId").value);
+            updateManagerList(dojo.byId('divisionId').value);
+            dojo.byId("employeeId").value = ${employeeId};
+            dojo.byId("manager").value = ${managerId};
+
             initRegionsList();
             if (dojo.byId("regions").value != -1) {
                 sortEmployee();
@@ -71,10 +71,8 @@
             var regions = dojo.byId("regions").value;
             var manager = dojo.byId("manager").value;
 
-            <sec:authorize access="hasAnyRole('VIEW_ILLNESS_BUSINESS_TRIP', 'CHANGE_ILLNESS_BUSINESS_TRIP')">
-                empId = dojo.byId("employeeId").value;
-                var divisionId = dojo.byId("divisionId").value;
-            </sec:authorize>
+            empId = dojo.byId("employeeId").value;
+            var divisionId = dojo.byId("divisionId").value;
 
             var dateFrom = dojo.byId("dateFrom").value;
             var dateTo = dojo.byId("dateTo").value
@@ -216,23 +214,22 @@
             managerOption.innerHTML = "Все руководители";
 
             managersNode.options.length = 0;
-            managersNode.add(managerOption);
+            managersNode.appendChild(managerOption);
 
             var managerMapJson = '${managerMapJson}';
             if (managerMapJson.length > 0) {
                 var managerMap = dojo.fromJson(managerMapJson);
-                dojo.filter(managerMap,function (m) {
+                dojo.forEach(dojo.filter(managerMap,function (m) {
                     return (m.division == id);
-                }).forEach(function (managerData) {
-                            var option = document.createElement("option");
-                            option.text = managerData.name;
-                            option.value = managerData.id;
-
-//                            if (managerData.number == manager) {
-//                                option.selected = "selected";
-//                            }
-                            managersNode.add(option);
-                        });
+                }), function (managerData) {
+                    var option = document.createElement("option");
+                    dojo.attr(option, {
+                        value:managerData.id
+                    });
+                    option.title = managerData.name;
+                    option.innerHTML = managerData.name;
+                    managersNode.appendChild(option);
+                });
             }
             if (managersNode.options.length == 1 && emptyOption.value == managersNode.options[0].value){
                 dojo.byId("manager").disabled = 'disabled';
@@ -271,40 +268,39 @@
                 if (multiselect.options[i].selected) arrIndexes.push(i);
             }
             return arrIndexes;
-        };
+        }
 
       function sortEmployeeFull() {
           var manager = dojo.byId("manager").value;
           var employeeSelect = dojo.byId("employeeId");
-            var employeeSelect = dojo.byId("employeeId");
-            var divisionSelectValue = dojo.byId("divisionId").value;
-            var employeeOption = null;
-            employeeSelect.options.length = 0;
-            if (employeeList.length > 0) {
-                var filteredEmpMap = dojo.filter(employeeList,function (m) {
-                    return (m.divId == divisionSelectValue);
-                }).forEach(function (divEmps) {
-                            divEmps.divEmps.forEach(function (empData) {
-                                if (empData.manId == manager || manager == 0) {
-                                    addEmployeeToList(empData, employeeOption, employeeSelect,null, divisionSelectValue);
-                                } else if (manager == -1) {
-                                    employeeOption = dojo.doc.createElement("option");
-                                    dojo.attr(employeeOption, {
-                                        value:empData.id
-                                    });
-                                    employeeOption.title = empData.value;
-                                    employeeOption.innerHTML = empData.value;
-                                    employeeSelect.appendChild(employeeOption);
-                                }
-                            })
-                        });
-            }
-         sortSelect(employeeSelect);
-         if (selectCurrentEmployee(employeeSelect)) {
-         dojo.byId("employeeId").value = empId;
-         } else {
-         dojo.byId("employeeId").value = -1;
-         }
+          var divisionSelectValue = dojo.byId("divisionId").value;
+          var employeeOption = null;
+          employeeSelect.options.length = 0;
+          if (employeeList.length > 0) {
+              dojo.forEach(dojo.filter(employeeList,function (m) {
+                  return (m.divId == divisionSelectValue);
+              }), function (divEmps) {
+                  dojo.forEach(divEmps.divEmps, function (empData) {
+                      if (empData.manId == manager || manager == 0) {
+                          addEmployeeToList(empData, employeeOption, employeeSelect,null, divisionSelectValue);
+                      } else if (manager == -1) {
+                          employeeOption = dojo.doc.createElement("option");
+                          dojo.attr(employeeOption, {
+                              value:empData.id
+                          });
+                          employeeOption.title = empData.value;
+                          employeeOption.innerHTML = empData.value;
+                          employeeSelect.appendChild(employeeOption);
+                      }
+                  })
+              });
+          }
+          sortSelect(employeeSelect);
+          if (selectCurrentEmployee(employeeSelect)) {
+              dojo.byId("employeeId").value = empId;
+          } else {
+              dojo.byId("employeeId").value = -1;
+          }
       }
 
         function managerChange(obj) {
@@ -445,58 +441,55 @@
     <br>
     <form:form method="post" commandName="businesstripsandillness" name="mainForm">
     <table class="no_border" style="margin-bottom: 20px;">
-        <sec:authorize access="hasAnyRole('VIEW_ILLNESS_BUSINESS_TRIP', 'CHANGE_ILLNESS_BUSINESS_TRIP')">
-            <tr>
-                <td>
-                    <div class="horizontalBlock labelDiv">
-                    <span class="lowspace labelBold">Подразделение:</span>
-                    </div>
-                </td>
-                <td>
-                    <form:select path="divisionId" id="divisionId" cssClass="date_picker"
-                                 onchange="divisionChanged(this.value);updateManagerList(this.value)" class="without_dojo"
-                                 onmouseover="tooltip.show(getTitle(this));" onmouseout="tooltip.hide();">
-                        <form:options items="${divisionList}" itemLabel="name" itemValue="id"/>
-                    </form:select>
-                </td>
-                <td rowspan="5" style="padding: 9px;vertical-align: top;">
-                    <span class="lowspace">Регионы:</span>
-                </td>
-                <td rowspan="5" style="padding: 5px;vertical-align: top;">
-                    <form:select path="regions" onmouseover="showTooltip(this)" size="6"
-                                 onmouseout="tooltip.hide()" multiple="true"
-                                 onchange="updateMultipleForSelect(this)">
-                        <form:option value="<%= ALL_VALUE %>" label="Все регионы"/>
-                        <form:options items="${regionList}" itemLabel="name" itemValue="id"/>
-                    </form:select>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <span class="lowspace">Руководитель:</span>
-                </td>
-                <td>
-                    <form:select path="manager" class="without_dojo"
-                                 onchange="managerChange(this)" onmouseover="showTooltip(this);"
-                                 onmouseout="tooltip.hide();" multiple="false" cssStyle="margin-left: 0px">
-                        <%--<form:option label="Все руководители" value="0"/>--%>
-                        <form:options items="${managerList}" itemLabel="name" itemValue="id"/>
-                    </form:select>
-                </td>
-
-            </tr>
-            <tr>
-                <td>
-                    <span class="lowspace ">Сотрудник:</span>
-                </td>
-                <td>
-                    <form:select path="employeeId" id="employeeId" class="without_dojo" cssClass="date_picker"
-                                 onmouseover="tooltip.show(getTitle(this));"
-                                 onmouseout="tooltip.hide();">
-                    </form:select>
-                </td>
-            </tr>
-        </sec:authorize>
+        <tr>
+            <td>
+                <div class="horizontalBlock labelDiv">
+                <span class="lowspace labelBold">Подразделение:</span>
+                </div>
+            </td>
+            <td>
+                <form:select path="divisionId" id="divisionId" cssClass="date_picker"
+                             onchange="divisionChanged(this.value);updateManagerList(this.value)" class="without_dojo"
+                             onmouseover="tooltip.show(getTitle(this));" onmouseout="tooltip.hide();">
+                    <form:options items="${divisionList}" itemLabel="name" itemValue="id"/>
+                </form:select>
+            </td>
+            <td rowspan="5" style="padding: 9px;vertical-align: top;">
+                <span class="lowspace">Регионы:</span>
+            </td>
+            <td rowspan="5" style="padding: 5px;vertical-align: top;">
+                <form:select path="regions" onmouseover="showTooltip(this)" size="6"
+                             onmouseout="tooltip.hide()" multiple="true"
+                             onchange="updateMultipleForSelect(this)">
+                    <form:option value="<%= ALL_VALUE %>" label="Все регионы"/>
+                    <form:options items="${regionList}" itemLabel="name" itemValue="id"/>
+                </form:select>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span class="lowspace">Руководитель:</span>
+            </td>
+            <td>
+                <form:select path="manager" class="without_dojo"
+                             onchange="managerChange(this)" onmouseover="showTooltip(this);"
+                             onmouseout="tooltip.hide();" multiple="false" cssStyle="margin-left: 0px">
+                    <%--<form:option label="Все руководители" value="0"/>--%>
+                    <form:options items="${managerList}" itemLabel="name" itemValue="id"/>
+                </form:select>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span class="lowspace ">Сотрудник:</span>
+            </td>
+            <td>
+                <form:select path="employeeId" id="employeeId" class="without_dojo" cssClass="date_picker"
+                             onmouseover="tooltip.show(getTitle(this));"
+                             onmouseout="tooltip.hide();">
+                </form:select>
+            </td>
+        </tr>
         <tr>
             <td colspan="4">
 
@@ -676,7 +669,7 @@
                 <c:when test="${forAll!=true}">
                     <c:choose>
                         <c:when test="${reportFormed == 6}">
-                                <tr><td colspan="5" class="bold">Итоги за месяц:</td></tr>
+                                <tr><td colspan="5" class="bold">Итоги за период:</td></tr>
                                 <c:choose>
                                     <c:when test="${fn:length(reports.periodicalsList) > 0}">
                                         <tr>
@@ -693,7 +686,7 @@
                                         </tr>
                                     </c:when>
                                     <c:otherwise>
-                                        <span class="bold"><tr><td colspan="6" class="bold">Нет данных о больничных сотрудника за выбранный период.</td></tr></span>
+                                        <tr><td colspan="6" class="bold">Нет данных о больничных сотрудника за выбранный период.</td></tr>
                                     </c:otherwise>
                                 </c:choose>
                                 <tr><td colspan="5" class="bold">Итоги за год:</td></tr>
@@ -710,7 +703,7 @@
                         <c:when test="${reportFormed == 7}">
                             <c:choose>
                                 <c:when test="${fn:length(reports.periodicalsList) > 0}">
-                                            <tr><td colspan="5" class="bold">Итоги за месяц:</td></tr>
+                                            <tr><td colspan="5" class="bold">Итоги за период:</td></tr>
                                             <tr>
                                                 <td colspan="4" class="resultrow">Общее кол-во календарных дней в командировке:</td>
                                                 <td colspan="1" class="resultrow" id="mounthCalendarDaysInBusinessTrip">${reports.mounthCalendarDays}</td>
