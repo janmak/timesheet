@@ -103,7 +103,7 @@
         <appender-ref ref="access" />
     </logger>
 
-	<root level="debug">
+	<root level="info">
 		<appender-ref ref="console" />
 	</root>
 
