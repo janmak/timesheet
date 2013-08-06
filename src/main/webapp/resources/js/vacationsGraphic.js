@@ -19,13 +19,15 @@ function EmployeeVacations(employeeName, employeeVacations){
 
         var from = new Date();
         var to = new Date();
-        var dvArr = employeeVacations[i].beginDate.split('.');
-        from.setFullYear(parseInt(dvArr[2], 10), parseInt(dvArr[1], 10) - 1, parseInt(dvArr[0], 10));
-        dvArr = employeeVacations[i].endDate.split('.');
-        to.setFullYear(parseInt(dvArr[2], 10), parseInt(dvArr[1], 10) - 1, parseInt(dvArr[0], 10));
+        try{
+            var dvArr = employeeVacations[i].beginDate.split('.');
+            from.setFullYear(dvArr[2], dvArr[1] - 1, dvArr[0]);
+            dvArr = employeeVacations[i].endDate.split('.');
+            to.setFullYear(dvArr[2], dvArr[1] - 1, dvArr[0]);
 
-        employeeVacations[i].beginDate = from;
-        employeeVacations[i].endDate = to;
+            employeeVacations[i].beginDate = from;
+            employeeVacations[i].endDate = to;
+        }catch(exception){   }
 
         vacations.push(employeeVacations[i]);
     }
@@ -34,9 +36,10 @@ function EmployeeVacations(employeeName, employeeVacations){
     this.getVacations = function(){ return vacations};
 }
 
-function Gantt(gDiv, holidayList)
+function Gantt(gDiv, holidayList, type)
 {
     var GanttDiv = gDiv;
+    var viewType = type;
 
     var holidays = new Array();
     var date = new Date();
@@ -47,13 +50,10 @@ function Gantt(gDiv, holidayList)
     }
 
     var regionEmployeeList = new Array();
-    this.AddRegionEmployeeList = function(value)
-    {
+    this.AddRegionEmployeeList = function(value){
         regionEmployeeList.push(value);
-
     }
-    this.Draw = function()
-    {
+    this.Draw = function(){
         var offSet = 0;
         var dateDiff = 0;
         var gStr = "";
@@ -63,16 +63,20 @@ function Gantt(gDiv, holidayList)
         }
 
         var vacations = createFullVacationsList(regionEmployeeList);
-        var maxDate = findMaxDate(vacations);
-        var minDate = findMinDate(vacations);
-        var tableRowHeightKoef = 20;
+        var maxDate = findMaxDate(vacations, viewType);
+        var minDate = findMinDate(vacations, viewType);
+        var tableRowHeight = 20;
+        var tableColumnWidth = 15;
+        if (viewType == VIEW_GRAPHIC_BY_WEEK){
+            tableColumnWidth = 10;
+        }
         var tableRowCount = getTableRowCount(regionEmployeeList);
-        gStr = fillTableHeader(minDate, maxDate, holidays, tableRowCount, tableRowHeightKoef);
+        gStr = fillTableHeader(viewType, minDate, maxDate, holidays, tableRowCount, tableRowHeight, tableColumnWidth);
         var employeeCount = 0;
         for (var i in regionEmployeeList){
             var employeeList = sortEmployeeList(regionEmployeeList[i].getEmployees());
             var indent = parseInt(i) + parseInt(employeeCount);
-            gStr += "<div style='position:absolute; top:" + (tableRowHeightKoef * indent + 38) + "px; left:5px'><b>" + regionEmployeeList[i].getRegion() + "</b></div>";
+            gStr += "<div style='position:absolute; top:" + (tableRowHeight * indent + 38) + "px; left:5px'><b>" + regionEmployeeList[i].getRegion() + "</b></div>";
             employeeCount += employeeList.length;
             for (var j in employeeList){
                 var vacationList = sortVacationsByType(employeeList[j].getVacations());
@@ -82,9 +86,9 @@ function Gantt(gDiv, holidayList)
                     var tooltip = employeeList[j].getEmployee() + "\n" + vacationList[k].typeName + "\n" + vacationList[k].beginDate.toLocaleDateString() + " - " + vacationList[k].endDate.toLocaleDateString() + "\n" + vacationList[k].status ;
                         offSet = (Date.parse(vacationList[k].beginDate) - Date.parse(minDate)) / (24 * 60 * 60 * 1000);
                     dateDiff = (Date.parse(vacationList[k].endDate) - Date.parse(vacationList[k].beginDate)) / (24 * 60 * 60 * 1000) + 1;
-                    gStr += "<div style='position:absolute; top:" + (tableRowHeightKoef * indent + 37) + "px; left:" + (offSet * 27 + 202) + "px; width:" + (27 * dateDiff - 1 + 200) + "px'><div title='" + tooltip + "' class='GVacation' style='float:left;padding-left:3;" + "background-color:" + color + "; width:" + (27 * dateDiff - 1) + "px;'>" + "</div></div>"; //+ vacationList[k].status
+                    gStr += "<div style='position:absolute; top:" + (tableRowHeight * indent + 37) + "px; left:" + (offSet * tableColumnWidth + 202) + "px; width:" + (tableColumnWidth * dateDiff - 1) + "px'><div title='" + tooltip + "' class='GVacation' style='float:center;padding-left:3;" + "background-color:" + color + "; width:" + (tableColumnWidth * dateDiff - 1) + "px;'>" + "</div></div>"; //+ vacationList[k].status
                 }
-                gStr += "<div style='position:absolute; top:" + (tableRowHeightKoef * indent + 38) + "px; left:5px'>" +  employeeList[j].getEmployee() + "</div>";
+                gStr += "<div style='position:absolute; top:" + (tableRowHeight * indent + 38) + "px; left:5px'>" +  employeeList[j].getEmployee() + "</div>";
             }
         }
 
@@ -164,7 +168,7 @@ function getTableRowCount(regionEmployeeList){
     return result;
 }
 
-function findMaxDate(vacations){
+function findMaxDate(vacations, viewType){
     var maxDate = new Date();
     maxDate.setFullYear(vacations[0].endDate.getFullYear(),
                         vacations[0].endDate.getMonth(),
@@ -175,24 +179,19 @@ function findMaxDate(vacations){
             maxDate.setFullYear(vacations[i].endDate.getFullYear(), vacations[i].endDate.getMonth(), vacations[i].endDate.getDate());
         }
     }
-    //---- Fix maxDate value for better displaying-----
-    // Add at least 5 days
-    if(maxDate.getMonth() == 11){//December
-        if(maxDate.getDay() + 5 > getDaysInMonth(maxDate.getMonth() + 1, maxDate.getFullYear())){
-            maxDate.setFullYear(maxDate.getFullYear() + 1, 1, 5); //The fifth day of next month will be used
-        }else{
-            maxDate.setFullYear(maxDate.getFullYear(), maxDate.getMonth(), maxDate.getDate() + 5); //The fifth day of next month will be used
-        }
-    }else{
-        if(maxDate.getDay() + 5 > getDaysInMonth(maxDate.getMonth() + 1, maxDate.getFullYear())){
-            maxDate.setFullYear(maxDate.getFullYear(), maxDate.getMonth() + 1, 5); //The fifth day of next month will be used
-        }else{
-            maxDate.setFullYear(maxDate.getFullYear(), maxDate.getMonth(), maxDate.getDate() + 5); //The fifth day of next month will be used
+    //---- Добавим несколько дней к maxDate для лучшего отображения -----
+    var daysToAdd = 7;
+    maxDate.setDate(maxDate.getDate() + daysToAdd);
+
+    if (viewType == VIEW_GRAPHIC_BY_WEEK){
+        maxDate.setDate(maxDate.getDate() + daysToAdd);
+        while(maxDate.getDay() != 0){
+            maxDate.setDate(maxDate.getDate() + 1);
         }
     }
     return maxDate;
 }
-function findMinDate(vacations){
+function findMinDate(vacations, viewType){
     var minDate = new Date();
     minDate.setFullYear(vacations[0].beginDate.getFullYear(),
                         vacations[0].beginDate.getMonth(),
@@ -201,6 +200,12 @@ function findMinDate(vacations){
     for (var i in vacations){
         if(Date.parse(vacations[i].beginDate) < Date.parse(minDate)){
             minDate.setFullYear(vacations[i].beginDate.getFullYear(), vacations[i].beginDate.getMonth(), vacations[i].beginDate.getDate());
+        }
+    }
+    if (viewType == VIEW_GRAPHIC_BY_WEEK){
+        //minDate.setDate(minDate.getDate() - 14);
+        while (minDate.getDay() != 1){ // пока не понедельник
+            minDate.setDate(minDate.getDate() - 1);
         }
     }
     return minDate;
@@ -257,7 +262,32 @@ function getMonthByNumber(number){
     return (month);
 }
 
-function fillTableHeader(minDate, maxDate, holidays, tableRowCount, tableRowHeightKoef){
+function getWeek(date){
+    var tmp = new Date(date.getFullYear(),0,1);
+    return Math.ceil((((date - tmp) / 86400000) + tmp.getDay()+1)/7);
+}
+
+function addWeek(date){
+    var tmpDate = new Date(date);
+    tmpDate.setDate(tmpDate.getDate() + 7);
+    return tmpDate;
+}
+
+function makeMonthDivTitle(date){
+    var firstDay = new Date(date);
+    var lastDay  = new Date(date);
+    var month;
+    while (firstDay.getDay() != 1){ // пока не понедельник
+        firstDay.setDate(firstDay.getDate() - 1);
+    }
+    while (lastDay.getDay() != 0){ // пока не воскресенье
+        lastDay.setDate(lastDay.getDate() + 1);
+    }
+    return firstDay.getDate() + " " + getMonthByNumber(firstDay.getMonth() + 1) + " - " +
+        lastDay.getDate() + " " + getMonthByNumber(lastDay.getMonth() + 1);
+}
+
+function fillTableHeader(viewType, minDate, maxDate, holidays, tableRowCount, tableRowHeight, tableColumnWidth){
 
     var currentDate = new Date();
     currentDate.setFullYear(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate());
@@ -267,17 +297,17 @@ function fillTableHeader(minDate, maxDate, holidays, tableRowCount, tableRowHeig
     var gStr = "";
     var colSpan = 0;
     var counter = 0;
-    var tableRowHeight = tableRowCount * tableRowHeightKoef + 10;
+    var tableHeight = tableRowCount * tableRowHeight + 10;
 
     // разлинуем в разный цвет четные и нечетные строки
     var dateDiff = (Date.parse(maxDate) - Date.parse(minDate)) / (24 * 60 * 60 * 1000) + 1;
-    var width = (27 * dateDiff + 200);
+    var width = (tableColumnWidth * dateDiff + 200);
     var top = 38;
     for (var i = 0; i < tableRowCount; i++ ){
         if (i % 2 == 0){
             gStr += "<div style='position:absolute; top:" + top + "px; left:1px; width:" + width + "px; height: 16px; background-color:rgb(240,240,240);'></div>";
         }
-        top += tableRowHeightKoef;
+        top += tableRowHeight;
     }
 
     /*
@@ -286,7 +316,7 @@ function fillTableHeader(minDate, maxDate, holidays, tableRowCount, tableRowHeig
         поэтому была создана невидимая таблица с relative позиционированием, для того, чтобы расятнуть дивку вкладки
         шапка + высота нижней ячейки
     */
-    firstRowStr = "<table style='visibility: false;height:" + (tableRowHeight + 50) + "px;'>";
+    firstRowStr = "<table style='visibility: false;height:" + (tableHeight + 50) + "px;'>";
     firstRowStr += "<table id='tableGraphic' border=1 style='border-collapse:collapse;position: absolute; left:0px; top: 0px'><tr><td rowspan='2' width='200px' style='width:200px;'><div class='GVacationTitle' style='width:200px;'>Сотрудник</div></td>";
     firstRowStr = gStr + firstRowStr; // сперва поместим дивки, потом таблицу
 
@@ -294,47 +324,55 @@ function fillTableHeader(minDate, maxDate, holidays, tableRowCount, tableRowHeig
     thirdRow = "<tr><td>&nbsp;</td>";
     dTemp.setFullYear(minDate.getFullYear(), minDate.getMonth(), minDate.getDate());
 
-    while(Date.parse(dTemp) <= Date.parse(maxDate))
-    {
-        if(holidays.indexOf(dTemp.toLocaleDateString()) >= 0) //Weekend
-        {
-            gStr += "<td class='GWeekend'><div style='width:26px;'>" + dTemp.getDate() + "</div></td>";
-            if(Date.parse(dTemp) == Date.parse(currentDate))
-                thirdRow += "<td id='GC_" + (counter++) + "' class='GToDay' style='height:" + (tableRowHeight) + "px'>&nbsp;</td>";
-            else
-                thirdRow += "<td id='GC_" + (counter++) + "' class='GWeekend' style='height:" + (tableRowHeight) + "px'>&nbsp;</td>";
-        }
-        else
-        {
-            gStr += "<td class='GDay'><div style='width:26px;'>" + dTemp.getDate() + "</div></td>";
-            if(Date.parse(dTemp) == Date.parse(currentDate))
-                thirdRow += "<td id='GC_" + (counter++) + "' class='GToDay' style='height:" + (tableRowHeight) + "px'>&nbsp;</td>";
-            else
-                thirdRow += "<td id='GC_" + (counter++) + "' class='GDay'>&nbsp;</td>";
-        }
-        if(dTemp.getDate() < getDaysInMonth(dTemp.getMonth() + 1, dTemp.getFullYear()))
-        {
-            if(Date.parse(dTemp) == Date.parse(maxDate))
-            {
+    if (viewType == VIEW_GRAPHIC_BY_DAY){
+        while(Date.parse(dTemp) <= Date.parse(maxDate)){
+            var cssClass = "GDay";
+            if (Date.parse(dTemp) == Date.parse(currentDate)){
+                cssClass = "GToday";
+            }else if(holidays.indexOf(dTemp.toLocaleDateString()) >= 0){ //Weekend
+                cssClass = "GWeekend";
+            }
+            gStr += "<td class='" + cssClass + "'><div style='width:" + (tableColumnWidth - 1) + "px;'>" + dTemp.getDate() + "</div></td>";
+            thirdRow += "<td id='GC_" + (counter++) + "' class='" + cssClass + "' style='height:" + (tableHeight) + "px'>&nbsp;</td>";
+            if(dTemp.getDate() < getDaysInMonth(dTemp.getMonth() + 1, dTemp.getFullYear())){
+                colSpan++;
+            }else{
                 firstRowStr += "<td class='GMonth' align='center' colspan='" + (colSpan + 1) + "'>" + getMonthByNumber(dTemp.getMonth() + 1) + " " + dTemp.getFullYear() + "</td>";
+                colSpan = 0;
             }
             dTemp.setDate(dTemp.getDate() + 1);
+        }
+        firstRowStr += "<td class='GMonth' align='center' colspan='" + (colSpan + 1) + "'>" + getMonthByNumber(dTemp.getMonth() + 1) + " " + dTemp.getFullYear() + "</td>";
+    }else{ // BY_WEEK
+        while(Date.parse(dTemp) <= Date.parse(maxDate)){
+            gStr += "<td class='GDay' title='" + makeMonthDivTitle(dTemp) + "'><div style='width:" + ((tableColumnWidth - 1)*7 + 6) + "px;'>" + getWeek(dTemp) + "</div></td>";
+            thirdRow += "<td id='GC_" + (counter++) + "' class='GDay' style='height:" + (tableHeight) + "px'>&nbsp;</td>";
+            dTemp = addWeek(dTemp);
             colSpan++;
         }
-        else
-        {
-            firstRowStr += "<td class='GMonth' align='center' colspan='" + (colSpan + 1) + "'>" + getMonthByNumber(dTemp.getMonth() + 1) + " " + dTemp.getFullYear() + "</td>";
-            colSpan = 0;
-            if(dTemp.getMonth() == 11) //December
-            {
-                dTemp.setFullYear(dTemp.getFullYear() + 1, 0, 1);
+        firstRowStr += "<td class='GMonth' align='center' colspan='" + (colSpan + 1) + "'>&nbsp;</td>";
+
+        // месяцы поместим отдельной дивкой, т.к. параллели строк месяцев и недель не совпадают
+        colSpan = 0;
+        dTemp.setFullYear(minDate.getFullYear(), minDate.getMonth(), minDate.getDate());
+        var strMonthDiv = "<tr>";
+        var strMonthDivBegin = "<div style='position: absolute;left: 201px; top: 0px; height: 5px'><table border=1><tr>";
+        while(Date.parse(dTemp) <= Date.parse(maxDate)){
+            strMonthDiv += "<td class='GDay'><div style='width:" + (tableColumnWidth - 1) + "px;'></div></td>";
+            if(dTemp.getDate() < getDaysInMonth(dTemp.getMonth() + 1, dTemp.getFullYear())){
+                colSpan++;
+            }else{
+                strMonthDivBegin += "<td class='GMonth' align='center' colspan='" + (colSpan + 1) + "'>" + getMonthByNumber(dTemp.getMonth() + 1) + " " + dTemp.getFullYear() + "</td>";
+                colSpan = 0;
             }
-            else
-            {
-                dTemp.setFullYear(dTemp.getFullYear(), dTemp.getMonth() + 1, 1);
-            }
+            dTemp.setDate(dTemp.getDate() + 1);
         }
+        strMonthDivBegin += "<td title='" + makeMonthDivTitle(dTemp) + "' class='GMonth' align='center' colspan='" + (colSpan + 1) + "'>" + getMonthByNumber(dTemp.getMonth() + 1) + " " + dTemp.getFullYear() + "</td>";
+        strMonthDivBegin += "</tr>";
+        strMonthDiv += "</tr></table></div>";
+        firstRowStr = strMonthDivBegin + strMonthDiv + firstRowStr;
     }
+
 
     thirdRow += "</tr>";
     gStr += "</tr>" + thirdRow;
@@ -343,4 +381,3 @@ function fillTableHeader(minDate, maxDate, holidays, tableRowCount, tableRowHeig
 
     return gStr;
 }
-

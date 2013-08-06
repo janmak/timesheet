@@ -38,7 +38,7 @@
     var fullProjectList = ${fullProjectListJsonWithDivisionId};
     var holidayList = ${holidayList};
 
-    var PROJECT_ID = "<%= PROJECT_ID%>";
+    var PROJECT_ID = "<%= PROJECT_ID %>";
     var CAL_FROM_DATE = "<%= CAL_FROM_DATE %>";
     var CAL_TO_DATE = "<%= CAL_TO_DATE %>";
     var DIVISION_ID = "<%= DIVISION_ID %>";
@@ -48,13 +48,16 @@
     var MANAGER_ID = "<%= MANAGER_ID %>";
     var REGIONS = "<%= REGIONS %>";
     var APPROVAL_ID = "<%= APPROVAL_ID %>";
-    var SELECTED_TAB = "<%= SELECTED_TAB %>";
-
+    var VIEW_MODE = "<%= VIEW_MODE %>";
 
     var VACATION_WITH_PAY = "62";    // отпуск с сохранением содержания
     var VACATION_WITHOUT_PAY = "63"; // отпуск без сохранения содержания
     var VACATION_WITH_WORK = "64";   // отпуск с последующей отработкой
     var VACATION_PLANNED = "65";     // планируемый отпуск
+
+    var VIEW_TABLE = <%= VIEW_TABLE %>;
+    var VIEW_GRAPHIC_BY_DAY = <%= VIEW_GRAPHIC_BY_DAY %>;
+    var VIEW_GRAPHIC_BY_WEEK = <%= VIEW_GRAPHIC_BY_WEEK %>;
 
     var contextPath = "<%=request.getContextPath()%>";
 
@@ -74,9 +77,32 @@
         // регистрируем событие на переключение между вкладками
         var tabContainer = dojo.dijit.registry.byId("tabContainer");
         tabContainer.watch("selectedChildWidget", function(name, oval, nval){
-            var selectedTabInput = dojo.byId(SELECTED_TAB);
-            selectedTabInput.value = nval.id;
+            var selectedTabInput = dojo.byId(VIEW_MODE);
+            if (nval.id == "firstTab") { // вкладка на которую переключились
+                selectedTabInput.value = VIEW_TABLE;
+            }else{ // иначе если это график, то смотрим состояние переключателей
+                if (dojo.byId("byDay").checked){
+                    selectedTabInput.value = VIEW_GRAPHIC_BY_DAY;
+                }else{
+                    selectedTabInput.value = VIEW_GRAPHIC_BY_WEEK;
+                }
+            }
         });
+        // отобразим необходимую вкладку
+        var viewMode = dojo.byId(VIEW_MODE).value;
+        var tabContainer = dojo.dijit.registry.byId("tabContainer");
+        var tab = dojo.dijit.registry.byId("secondTab");
+        if (viewMode == VIEW_TABLE){
+            tab = dojo.dijit.registry.byId("firstTab");
+            dojo.byId("byDay").checked = true;
+        }else{
+            if (viewMode == VIEW_GRAPHIC_BY_DAY){
+                dojo.byId("byDay").checked = true;
+            }else{
+                dojo.byId("byWeek").checked = true;
+            }
+        }
+        tabContainer.selectChild(tab);
 
         fillEmployeeSelect();
         dojo.byId(EMPLOYEE_ID).value = ${employeeId};
@@ -87,10 +113,7 @@
             dojo.byId(PROJECT_ID).value = projectId;
         }
 
-        showGraphic();
-        dojo.attr(dojo.byId("vacations"), {
-            width: document.body.clientWidth - 20
-        });
+        showGraphic(viewMode);
     });
 
 </script>
@@ -218,15 +241,14 @@
     </button>
 
     <br/><br/>
-    <form:input path="<%= SELECTED_TAB %>" id="<%= SELECTED_TAB %>" type="hidden"/>
+    <form:input path="<%= VIEW_MODE %>" id="<%= VIEW_MODE %>" type="hidden"/>
     <form:errors path="*" cssClass="errors_box" delimiter="<br/><br/>"/>
 </form:form>
 <br/>
 
 
-<div data-dojo-type="dijit/layout/TabContainer" style="width: 100%;" doLayout="false" id="tabContainer">
-    <div data-dojo-type="dijit/layout/ContentPane" id="firstTab" title="Таблица"
-                    <c:if test="${selectedTab == 'firstTab'}">data-dojo-props="selected:true"</c:if>>
+<div data-dojo-type="dijit/layout/TabContainer" doLayout="false" id="tabContainer">
+    <div data-dojo-type="dijit/layout/ContentPane" id="firstTab" title="Таблица">
         <table id="vacations">
             <thead>
             <tr>
@@ -393,8 +415,17 @@
             </c:choose>
         </table>
     </div>
-    <div data-dojo-type="dijit/layout/ContentPane" id="secondTab" title="График"
-                <c:if test="${selectedTab == 'secondTab'}">data-dojo-props="selected:true"</c:if>>
+    <div data-dojo-type="dijit/layout/ContentPane" id="secondTab" title="График">
+        <div style="padding-left: 10px">
+
+            <br>
+            Отображение:<br>
+            <input type="radio" onclick="showGraphic(VIEW_GRAPHIC_BY_DAY)" name="radiobuttons" id="byDay"> &nbsp; По дням <br>
+            <input type="radio" onclick="showGraphic(VIEW_GRAPHIC_BY_WEEK)" name="radiobuttons" id="byWeek"> &nbsp; По неделям
+            <br><br>
+
+        </div>
+        <div id="emptyMessage"></div>
         <div style="position:relative;" class="Gantt" id="graphic_div"> </div>
     </div>
 </div>

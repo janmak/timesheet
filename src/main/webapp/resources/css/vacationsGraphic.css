@@ -17,13 +17,14 @@
 }
 
 .GToday {
-    background-color: #FDFDE0;
+    background-color: #add8e6;
+    text-align: center;
 }
 
 .GWeekend {
     font-family: tahoma, arial, verdana;
     font-size: 11px;
-    background-color: pink; /*#F5F5F5;*/
+    background-color: pink;
     text-align: center;
 }
 

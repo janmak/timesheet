@@ -11,8 +11,19 @@ dojo.addOnLoad(function () {
     updateMultipleForSelect(dojo.byId(REGIONS));
 });
 
-function showGraphic() {
-    var g = new Gantt(dojo.byId("graphic_div"), holidayList);
+function showGraphic(type) {
+
+    // запомним режим просмотра
+    var selectedTabInput = dojo.byId(VIEW_MODE);
+    selectedTabInput.value = type;
+
+    if (vacationListJSON.length == 0){ // если нет данных для отображения
+        dojo.byId("emptyMessage").innerHTML = "Нет данных для отображения";
+        return;
+    }
+    dojo.byId("emptyMessage").innerHTML = "";
+
+    var g = new Gantt(dojo.byId("graphic_div"), holidayList, type);
 
     for (var i = 0; i < vacationListJSON.length; i++){
         var vacation = new RegionEmployees(vacationListJSON[i].region_name, vacationListJSON[i].employeeList);
@@ -20,6 +31,15 @@ function showGraphic() {
     }
 
     g.Draw();
+
+    // растянем контейнер вкладок
+    var tableGraphicWidth = dojo.byId("tableGraphic").clientWidth * 1.1;
+    // если меньше ширины экрана - то трогать не будем
+    if (document.body.clientWidth < tableGraphicWidth) {
+        dojo.attr(dojo.byId("tabContainer"), {
+            style: "width: " + tableGraphicWidth + "px"
+        });
+    }
 }
 
 function showVacations() {
@@ -163,9 +183,6 @@ function createVacation() {
 }
 
 function deleteVacation(parentElement, vac_id) {
-    var empId = dojo.byId(EMPLOYEE_ID).value;
-    var divisionId = dojo.byId(DIVISION_ID).value;
-
     if (!confirm("Удалить заявку?")) {
         return;
     }

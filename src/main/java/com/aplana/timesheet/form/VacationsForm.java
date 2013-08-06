@@ -19,7 +19,12 @@ public class VacationsForm extends AbstractFormForEmployee {
     public static final String CAL_FROM_DATE = "calFromDate";
     public static final String CAL_TO_DATE = "calToDate";
     public static final String APPROVAL_ID = "approvalId";
-    public static final String SELECTED_TAB = "selectedTab";
+    public static final String VIEW_MODE = "viewMode";
+
+    // отображение данных
+    public static final int VIEW_TABLE = 1;
+    public static final int VIEW_GRAPHIC_BY_DAY = 2;
+    public static final int VIEW_GRAPHIC_BY_WEEK = 3;
 
     private Integer year;
     private Integer vacationId;
@@ -32,7 +37,7 @@ public class VacationsForm extends AbstractFormForEmployee {
     private Integer regionId;
     private Integer approvalId;
     private Integer projectId;
-    private String selectedTab; // нужно для отображения вкладок
+    private Integer viewMode; // нужно для отображения вкладок, переключателей
 
     public Integer getYear() {
         return year;
@@ -122,12 +127,12 @@ public class VacationsForm extends AbstractFormForEmployee {
         this.projectId = projectId;
     }
 
-    public String getSelectedTab() {
-        return selectedTab;
+    public Integer getViewMode() {
+        return viewMode;
     }
 
-    public void setSelectedTab(String selectedTab) {
-        this.selectedTab = selectedTab;
+    public void setViewMode(Integer viewMode) {
+        this.viewMode = viewMode;
     }
 }
 

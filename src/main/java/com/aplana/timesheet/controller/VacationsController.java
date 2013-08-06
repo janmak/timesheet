@@ -86,7 +86,7 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
         vacationsForm.setRegions(new ArrayList<Integer>());
         // APLANATS-867
         vacationsForm.getRegions().add(VacationsForm.ALL_VALUE);
-        vacationsForm.setSelectedTab("selectOne");
+        vacationsForm.setViewMode(VIEW_TABLE);
         return showVacations(vacationsForm, null);
     }
 
@@ -219,7 +219,6 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
 
         modelAndView.addObject("calDaysCount", calAndWorkDaysList);
         modelAndView.addObject(VacationsForm.MANAGER_ID, vacationsForm.getManagerId());
-        modelAndView.addObject("selectedTab", vacationsForm.getSelectedTab());
 
         return modelAndView;
     }
@@ -409,7 +408,11 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
 
     private String getHolidayListJSON(Date beginDate, Date endDate){
         final JsonArrayNodeBuilder result = anArrayBuilder();
-        List<Holiday> holidays = calendarService.getHolidaysForRegion(beginDate, endDate, null);
+        // т.к. отпуска могут начинаться ранее или позднее заданных дат, то на всякий случай прибавим к диапазону
+        // по месяцу с обоих концов
+        List<Holiday> holidays = calendarService.getHolidaysForRegion(DateUtils.addDays(beginDate, -30),
+                                                                      DateUtils.addDays(endDate, 30),
+                                                                      null);
         for (Holiday holiday : holidays){
             result.withElement(aStringBuilder(
                                             dateToString(
