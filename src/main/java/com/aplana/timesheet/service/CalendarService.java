@@ -192,7 +192,11 @@ public class CalendarService {
         return getWorkDaysCountForRegion(employee.getRegion(), year, month, employee.getStartDate(), employee.getEndDate());
     }
 
+    // если регион = нул - возвращает общий для всех
     public List<Holiday> getHolidaysForRegion(Date minDate, Date maxDate, Region region) {
+        if (region == null){
+            return calendarDAO.getHolidaysInInterval(minDate, maxDate);
+        }
         return calendarDAO.getHolidaysForRegion(minDate, maxDate, region);
     }
 

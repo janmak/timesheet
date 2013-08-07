@@ -1,7 +1,5 @@
 package com.aplana.timesheet.form;
 
-import com.aplana.timesheet.dao.entity.Region;
-
 import java.util.List;
 
 /**
@@ -10,16 +8,23 @@ import java.util.List;
  */
 public class VacationsForm extends AbstractFormForEmployee {
 
-    public static final int ALL_VALUE = -1;
+    public static final int ALL_VALUE = 0;
     public static final String REGIONS = "regions";
     public static final String MANAGER_ID = "managerId";
     public static final String EMPLOYEE_ID = "employeeId";
     public static final String DIVISION_ID = "divisionId";
+    public static final String PROJECT_ID = "projectId";
     public static final String VACATION_ID = "vacationId";
     public static final String VACATION_TYPE = "vacationType";
     public static final String CAL_FROM_DATE = "calFromDate";
     public static final String CAL_TO_DATE = "calToDate";
-    public static final String APPROVAL_ID = "approvalID";
+    public static final String APPROVAL_ID = "approvalId";
+    public static final String VIEW_MODE = "viewMode";
+
+    // отображение данных
+    public static final int VIEW_TABLE = 1;
+    public static final int VIEW_GRAPHIC_BY_DAY = 2;
+    public static final int VIEW_GRAPHIC_BY_WEEK = 3;
 
     private Integer year;
     private Integer vacationId;
@@ -30,7 +35,9 @@ public class VacationsForm extends AbstractFormForEmployee {
     private List<Integer> regions;
     private List<Integer> regionsIdList;
     private Integer regionId;
-    private Integer approvalID;
+    private Integer approvalId;
+    private Integer projectId;
+    private Integer viewMode; // нужно для отображения вкладок, переключателей
 
     public Integer getYear() {
         return year;
@@ -104,11 +111,28 @@ public class VacationsForm extends AbstractFormForEmployee {
         this.regionId = regionId;
     }
 
-    public Integer getApprovalID() {
-        return approvalID;
+    public Integer getApprovalId() {
+        return approvalId;
     }
 
-    public void setApprovalID(Integer approverID) {
-        this.approvalID = approverID;
+    public void setApprovalId(Integer approverID) {
+        this.approvalId = approverID;
+    }
+
+    public Integer getProjectId() {
+        return projectId;
+    }
+
+    public void setProjectId(Integer projectId) {
+        this.projectId = projectId;
+    }
+
+    public Integer getViewMode() {
+        return viewMode;
+    }
+
+    public void setViewMode(Integer viewMode) {
+        this.viewMode = viewMode;
     }
 }
+

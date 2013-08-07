@@ -5,7 +5,6 @@ import argo.jdom.JsonNodeBuilders;
 import argo.jdom.JsonObjectNodeBuilder;
 import com.aplana.timesheet.dao.entity.Division;
 import com.aplana.timesheet.dao.entity.Employee;
-import com.aplana.timesheet.dao.entity.Region;
 import com.aplana.timesheet.service.EmployeeService;
 import com.aplana.timesheet.service.RegionService;
 import com.aplana.timesheet.service.TimeSheetService;
@@ -35,6 +34,8 @@ public class EmployeeHelper {
     private static final String DIVISION_ID = "divId";
     private static final String REGION_ID = "regId";
     private static final String MANAGER_ID = "manId";
+    private static final String PROJECTS = "projects";
+    private static final String PROJECT_ID = "projectId";
     private static final String JOB_ID = "jobId";
     private static final String DIVISION_EMPLOYEES = "divEmps";
     private static final String DATE_BY_DEFAULT = "dateByDefault";
@@ -109,85 +110,16 @@ public class EmployeeHelper {
         return JsonUtil.format(builder.build());
     }
 
-    @Transactional(readOnly = true)
-    public String getEmployeeListWithRegAndManJson(List<Division> divisions, Boolean filterFired){
-        return getEmployeeListWithRegAndManJson(divisions, filterFired, false);
-    }
-
-    @Transactional(readOnly = true)
-    public String getEmployeeListWithRegAndManJson(List<Division> divisions, Boolean filterFired, Boolean addDetails){
+    // преобразует список сотрудников в JSON
+    public String makeEmployeeListInJSON(List<Employee> employees){
         final JsonArrayNodeBuilder builder = anArrayBuilder();
-        for (Division division : divisions) {
-            final List<Employee> employees = employeeService.getEmployees(division, filterFired);
-            final Map<Integer, Date> lastWorkdays = timeSheetService.getLastWorkdayWithoutTimesheetMap(division);
 
-            if (!employees.isEmpty()) {
-                for (Region region : regionService.getRegions()){
-                    List<Employee> managerList = getManagerList(employees);
-                    for (Employee manager : managerList){
-                        JsonObjectNodeBuilder nodeBuilder = anObjectBuilder();
-                        JsonArrayNodeBuilder employeesBuilder = anArrayBuilder();
-                        nodeBuilder.withField(DIVISION_ID, aStringBuilder(division.getId()));
-                        nodeBuilder.withField(REGION_ID, aStringBuilder(region.getId()));
-                        nodeBuilder.withField(MANAGER_ID, aStringBuilder(manager.getId()));
-                        for (Employee employee : employees) {
-                            if ((employee.getRegion().getId().equals(region.getId()))
-                                    &&(employee.getManager()!=null)
-                                    &&(employee.getManager().getId().equals(manager.getId()))){
-                                JsonObjectNodeBuilder objectNodeBuilder = anObjectBuilder().
-                                        withField(ID, aStringBuilder(employee.getId())).
-                                        withField(VALUE, JsonNodeBuilders.aStringBuilder(getValue(employee))).
-                                        withField(REGION_ID, aStringBuilder(employee.getRegion().getId()));
-                                if (addDetails) {
-
-                                    Date defaultDate = lastWorkdays.get(employee.getId());
-                                    if (defaultDate == null)
-                                        defaultDate = employee.getStartDate();
-
-                                    objectNodeBuilder.withField(JOB_ID, aStringBuilder(employee.getJob().getId())).
-                                            withField(DATE_BY_DEFAULT, JsonNodeBuilders.aStringBuilder(
-                                                    dateToString(defaultDate, DATE_FORMAT))).
-                                            withField(FIRST_WORK_DATE, JsonNodeBuilders.aStringBuilder(
-                                                    dateToString(employee.getStartDate(), DATE_FORMAT)));
-                                }
-                                employeesBuilder.withElement(objectNodeBuilder);
-                            }
-                        }
-                        builder.withElement(nodeBuilder.withField(DIVISION_EMPLOYEES, employeesBuilder));
-                    }
-
-                    /** Специальный случай, когда у работника нет начальника*/
-                    JsonObjectNodeBuilder nodeBuilder = anObjectBuilder();
-                    JsonArrayNodeBuilder employeesBuilder = anArrayBuilder();
-                    nodeBuilder.withField(DIVISION_ID, aStringBuilder(division.getId()));
-                    nodeBuilder.withField(REGION_ID, aStringBuilder(region.getId()));
-                    nodeBuilder.withField(MANAGER_ID, JsonNodeBuilders.aStringBuilder(DEFAULT_MANAGER));
-                    for (Employee employee : employees) {
-                        if ((employee.getRegion().getId().equals(region.getId()))
-                                && (employee.getManager() == null)){
-                            JsonObjectNodeBuilder objectNodeBuilder = anObjectBuilder().
-                                    withField(ID, aStringBuilder(employee.getId())).
-                                    withField(VALUE, JsonNodeBuilders.aStringBuilder(getValue(employee)));
-                            if (addDetails) {
-
-                                Date defaultDate = lastWorkdays.get(employee.getId());
-                                if (defaultDate == null)
-                                    defaultDate = employee.getStartDate();
-
-                                objectNodeBuilder.withField(JOB_ID, aStringBuilder(employee.getJob().getId())).
-                                        withField(DATE_BY_DEFAULT, JsonNodeBuilders.aStringBuilder(
-                                                dateToString(defaultDate, DATE_FORMAT))).
-                                        withField(FIRST_WORK_DATE, JsonNodeBuilders.aStringBuilder(
-                                                dateToString(employee.getStartDate(), DATE_FORMAT)));
-                            }
-                            employeesBuilder.withElement(objectNodeBuilder);
-                        }
-                    }
-                    builder.withElement(nodeBuilder.withField(DIVISION_EMPLOYEES, employeesBuilder));
-                }
-            }
+        for (Employee employee : employees) {
+            JsonObjectNodeBuilder objectNodeBuilder = anObjectBuilder().
+                    withField(ID, aStringBuilder(employee.getId())).
+                    withField(VALUE, JsonNodeBuilders.aStringBuilder(getValue(employee)));
+            builder.withElement(objectNodeBuilder);
         }
-
         return JsonUtil.format(builder.build());
     }
 

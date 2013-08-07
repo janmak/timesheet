@@ -515,42 +515,6 @@ function divisionChange(obj) {
 }
 
 /*
- * Срабатывает при смене значения в списке подразделений.
- * Управляет содержимым списка сотрудников в зависимости от выбранного
- * значения в списке подразделений.
- */
-function vacationCreate_divisionChange(obj) {
-    var divisionId = null;
-    var employeeSelect = dojo.byId("employeeId");
-    var employeeOption = null;
-
-    if (obj.target == null) {
-        divisionId = obj.value;
-    }
-    else {
-        divisionId = obj.target.value;
-    }
-    //Очищаем список сотрудников.
-    employeeSelect.options.length = 0;
-    for (var i = 0; i < employeeList.length; i++) {
-        if (divisionId == employeeList[i].divId) {
-            for (var j = 0; j < employeeList[i].divEmps.length; j++) {
-                if (employeeList[i].divEmps[j].id != 0) {
-                    employeeOption = dojo.doc.createElement("option");
-                    dojo.attr(employeeOption, {
-                        value:employeeList[i].divEmps[j].id
-                    });
-                    employeeOption.title = employeeList[i].divEmps[j].value;
-                    employeeOption.innerHTML = employeeList[i].divEmps[j].value;
-                    employeeSelect.appendChild(employeeOption);
-                }
-            }
-        }
-    }
-    sortSelectOptions(employeeSelect);
-}
-
-/*
  * Срабатывает при смене значения в списке "Тип активности".
  * Управляет доступностью компонентов соответсвующей строки
  * табличной части отчёта в соответствии с определённой логикой.

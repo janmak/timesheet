@@ -21,10 +21,8 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 
-import static argo.jdom.JsonNodeBuilders.aStringBuilder;
-import static argo.jdom.JsonNodeBuilders.anArrayBuilder;
-import static argo.jdom.JsonNodeBuilders.anObjectBuilder;
-import static argo.jdom.JsonNodeFactories.*;
+import static argo.jdom.JsonNodeBuilders.*;
+import static argo.jdom.JsonNodeFactories.string;
 import static com.aplana.timesheet.constants.RoleConstants.ROLE_ADMIN;
 
 @Service
@@ -38,13 +36,20 @@ public class EmployeeService {
     TimeSheetService timeSheetService;
     @Autowired
     private EmployeeDAO employeeDAO;
+    @Autowired
+    private RegionService regionService;
+    @Autowired
+    private DivisionService divisionService;
+    @Autowired
+    private ProjectService projectService;
+
 
     /**
-     * Возвращает сотрудника по идентификатору.
-     * @param id идентификатор сотрудника
-     * @return объект класса Employee либо null, если сотрудник
-     *         с указанным id не найден.
-     */
+    * Возвращает сотрудника по идентификатору.
+    * @param id идентификатор сотрудника
+    * @return объект класса Employee либо null, если сотрудник
+    *         с указанным id не найден.
+    */
     @Transactional(readOnly = true)
     public Employee find(Integer id) {
         return employeeDAO.find(id);
@@ -103,6 +108,62 @@ public class EmployeeService {
         } else {
             result = employeeDAO.getEmployees(division);
         }
+        return result;
+    }
+
+    /**
+     * Возвращает список сотрудников
+     * @param divisions Если null, то поиск осуществляется по всем подразделениям (если 1 исп. функцию createDivisionList)
+     * @param managers  Если null, то поиск осуществляется по всем руководителям (если 1 исп. createManagerList)
+     * @param regions   Если null, то поиск осуществляется по всем регионам (см. также createRegionsList)
+     * @param projects  Если null, то поиск осуществляется по всем проектам (если 1 исп. createProjectList)
+     * @param beginDate Интервал работы на проекте/проектах (если null - 01.01.1900)
+     * @param endDate   Интервал работы на проекте/проектах (если null - 01.01.2100)
+     * @param lookPreviousTwoWeekTimesheet - посмотреть были ли на проектах в последнии две недели списания занятости,
+     *                                     т.е. если за последние две недели (от beginDate) пользователь списывал занятость
+     *                                     по указанным проектам (projects), то значит он будет считаться как на этом проекте,
+     *                                     даже если в employee_project_plan записей нет
+     *
+     * @return список сотрудников
+     */
+    @Transactional(readOnly = true)
+    public List<Employee> getEmployees(List<Division> divisions, List<Employee> managers, List<Region> regions,
+                                       List<Project> projects, Date beginDate, Date endDate,
+                                       boolean lookPreviousTwoWeekTimesheet){
+        return employeeDAO.getEmployees(divisions, managers, regions, projects, beginDate, endDate, lookPreviousTwoWeekTimesheet);
+    }
+
+    // если первый 0 - вернет null => все регионы
+    public List<Region> createRegionsList(List<Integer> regions){
+        if (regions == null || regions.get(0) <= 0) return null;
+        List<Region> result = new ArrayList<Region>();
+        for (Integer regionId : regions){
+            result.add(regionService.find(regionId));
+        }
+        return result;
+    }
+
+    // если 0 - вернет null => все подразделения
+    public List<Division> createDivisionList(Integer division){
+        if (division == null || division <= 0) return null;
+        List<Division> result = new ArrayList<Division>();
+        result.add(divisionService.find(division));
+        return result;
+    }
+
+    // если 0 - вернет null => все руководители
+    public List<Employee> createManagerList(Integer manager){
+        if (manager == null || manager <= 0) return null;
+        List<Employee> result = new ArrayList<Employee>();
+        result.add(find(manager));
+        return result;
+    }
+
+    // если 0 - вернет null => все проекты
+    public List<Project> createProjectList(Integer project){
+        if (project == null || project <= 0) return null;
+        List<Project> result = new ArrayList<Project>();
+        result.add(projectService.find(project));
         return result;
     }
 

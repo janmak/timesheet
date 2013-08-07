@@ -1,5 +1,6 @@
 package com.aplana.timesheet.controller;
 
+import argo.jdom.JsonArrayNodeBuilder;
 import com.aplana.timesheet.constants.PadegConstants;
 import com.aplana.timesheet.dao.entity.*;
 import com.aplana.timesheet.enums.DictionaryEnum;
@@ -11,20 +12,30 @@ import com.aplana.timesheet.form.validator.VacationsFormValidator;
 import com.aplana.timesheet.service.*;
 import com.aplana.timesheet.util.DateTimeUtil;
 import com.aplana.timesheet.util.EnumsUtils;
+import com.aplana.timesheet.util.JsonUtil;
 import com.aplana.timesheet.util.TimeSheetUser;
 import org.apache.commons.lang.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 import padeg.lib.Padeg;
 
 import javax.servlet.http.HttpSession;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.Calendar;
+
+import static argo.jdom.JsonNodeBuilders.*;
+import static com.aplana.timesheet.form.VacationsForm.ALL_VALUE;
+import static com.aplana.timesheet.form.VacationsForm.VIEW_TABLE;
+import static com.aplana.timesheet.util.DateTimeUtil.VIEW_DATE_PATTERN;
+import static com.aplana.timesheet.util.DateTimeUtil.dateToString;
+
 
 /**
  * @author rshamsutdinov, aalikin
@@ -47,9 +58,9 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
     @Autowired
     private EmployeeService employeeService;
     @Autowired
-    private DivisionService divisionService;
-    @Autowired
     private VacationApprovalService vacationApprovalService;
+    @Autowired
+    private CalendarService calendarService;
     @Autowired
     MessageSource messageSource;
     @Autowired
@@ -79,6 +90,7 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
         vacationsForm.setRegions(new ArrayList<Integer>());
         // APLANATS-867
         vacationsForm.getRegions().add(VacationsForm.ALL_VALUE);
+        vacationsForm.setViewMode(VIEW_TABLE);
         return showVacations(vacationsForm, null);
     }
 
@@ -91,11 +103,13 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
         Integer employeeId = vacationsForm.getEmployeeId();
         Date dateFrom = DateTimeUtil.stringToDate(vacationsForm.getCalFromDate(), DATE_FORMAT);
         Date dateTo = DateTimeUtil.stringToDate(vacationsForm.getCalToDate(), DATE_FORMAT);
+        Integer projectId = vacationsForm.getProjectId();
+        Integer managerId = vacationsForm.getManagerId();
+        List<Integer> regions = vacationsForm.getRegions();
+        final Integer vacationId = vacationsForm.getVacationId();
+        final Integer approverId = vacationsForm.getApprovalId();
 
         vacationsFormValidator.validate(vacationsForm, result);
-
-        final Integer vacationId = vacationsForm.getVacationId();
-        final Integer approverId = vacationsForm.getApprovalID();
 
         if (vacationId != null) {
             try {
@@ -109,7 +123,7 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
         if (vacationId == null && approverId != null) {
             try {
                 vacationApprovalService.deleteVacationApprovalByIdAndCheckIsApproved(approverId);
-                vacationsForm.setApprovalID(null);
+                vacationsForm.setApprovalId(null);
             } catch (VacationApprovalServiceException e) {
                 result.rejectValue("approvalID", "error.vacations.deletevacation.failed", e.getLocalizedMessage());
             }
@@ -121,14 +135,22 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
 
         DictionaryItem vacationType = vacationsForm.getVacationType() != 0 ?
                 dictionaryItemService.find(vacationsForm.getVacationType()) : null;
-        final List<Vacation> vacations = (employeeId != null && employeeId != -1
-                ? vacationService.findVacations(employeeId, dateFrom, dateTo,vacationType)
-                : findAllVacations(divisionId,
-                vacationsForm.getManagerId(),
-                vacationsForm.getRegions(),
-                dateFrom,
-                dateTo,
-                vacationType));
+
+        final List<Vacation> vacations =
+                employeeId != null && employeeId != ALL_VALUE
+                ? vacationService.findVacations(employeeId, dateFrom, dateTo, vacationType)
+                : vacationService.findVacations(
+                        employeeService.getEmployees(employeeService.createDivisionList(divisionId),
+                                employeeService.createManagerList(managerId),
+                                employeeService.createRegionsList(regions),
+                                employeeService.createProjectList(projectId),
+                                dateFrom,
+                                dateTo,
+                                true
+                        ),
+                        dateFrom, dateTo, vacationType
+                )
+                ;
 
         final ModelAndView modelAndView = createModelAndViewForEmployee("vacations", employeeId, divisionId);
 
@@ -139,13 +161,16 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
 
         modelAndView.addObject("getOrPost", 1);
         modelAndView.addObject("regionId", vacationsForm.getRegions());
+        modelAndView.addObject("projectId", vacationsForm.getProjectId() == null ? 0 : vacationsForm.getProjectId());
         modelAndView.addObject("regionList", getRegionList());
         modelAndView.addObject("regionsIdList", getRegionIdList());
         modelAndView.addObject("calFromDate", dateFrom);
         modelAndView.addObject("calToDate", dateTo);
         modelAndView.addObject("vacationsList", revertList(vacations));
+        modelAndView.addObject("vacationListByProjectJSON", getVacationListByRegionJSON(vacations));
         modelAndView.addObject("calDays", calDays);
         modelAndView.addObject("workDays", workDays);
+        modelAndView.addObject("holidayList", getHolidayListJSON(dateFrom, dateTo));
         modelAndView.addObject("vacationTypes",
                 dictionaryItemService.getItemsByDictionaryId(DictionaryEnum.VACATION_TYPE.getId()));
         TimeSheetUser timeSheetUser = securityService.getSecurityPrincipal();
@@ -165,7 +190,7 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
         }
         modelAndView.addObject("approvalPart", approvalPart);
         List<Region> regionListForCalc = new ArrayList<Region>();
-        List<Integer> filledRegionsId = vacationsForm.getRegions().get(0).equals(-1)
+        List<Integer> filledRegionsId = vacationsForm.getRegions().get(0).equals(ALL_VALUE)
                 ? getRegionIdList()
                 : vacationsForm.getRegions();
         for (Integer i : filledRegionsId){
@@ -201,72 +226,6 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
         modelAndView.addObject(VacationsForm.MANAGER_ID, vacationsForm.getManagerId());
 
         return modelAndView;
-    }
-
-    private List<Vacation> findAllVacations(Integer divisionId, Integer managerId, List<Integer> regionsId,
-                                            Date beginDate, Date endDate, DictionaryItem typeId){
-        List<Vacation> vacations = new ArrayList<Vacation>();
-        if (regionsId.get(0) != -1){
-            for (Integer i : regionsId){
-                if (managerId != -1){ //Есть выбранные регионы и руководитель
-                    List<Integer> employeesId = findEmployeeByManager(divisionId, managerId, i);
-                    for (Integer e : employeesId){
-                        List<Vacation> empVacation = vacationService.findVacations(e, beginDate, endDate, typeId);
-                        for (Vacation vac : empVacation){
-                            vacations.add(vac);
-                        }
-                    }
-                }else{ //Есть выбранные регионы и не выбран руководитель
-                    List<Integer> employeesId = employeeService.getEmployeesIdByDivisionRegion(divisionId, i);
-                    for (Integer e : employeesId){
-                        List<Vacation> empVacation = vacationService.findVacations(e, beginDate, endDate, typeId);
-                        for (Vacation vac : empVacation){
-                            vacations.add(vac);
-                        }
-                    }
-                }
-            }
-        }else{
-            if (managerId != -1){ //Выбраны все регионы и руководитель
-                List<Integer> employeesId = findEmployeeByManager(divisionId, managerId, regionsId.get(0));
-                for (Integer e : employeesId){
-                    List<Vacation> empVacation = vacationService.findVacations(e, beginDate, endDate, typeId);
-                    for (Vacation vac : empVacation){
-                        vacations.add(vac);
-                    }
-                }
-            }else{ //Выбраны все регионы и не выбран руководитель
-                List<Employee> employees = employeeService.getEmployees(divisionService.find(divisionId), false);
-                for (Employee e : employees){
-                    List<Vacation> empVacation = vacationService.findVacations(e.getId(), beginDate, endDate, typeId);
-                    for (Vacation vac : empVacation){
-                        vacations.add(vac);
-                    }
-                }
-            }
-        }
-        return vacations;
-    }
-
-    private List<Integer> findEmployeeByManager(Integer divisionId, Integer managerId, Integer regionId){
-        List<Integer> returnList = new ArrayList<Integer>();
-        List<Integer> iteratorList = regionId.equals(-1)
-                ? employeeService.getEmployeesIdByDivisionManager(divisionId, managerId)
-                : employeeService.getEmployeesIdByDivisionManagerRegion(divisionId, managerId, regionId);
-        if (iteratorList.size() == 0){
-            return returnList;
-        }else{
-            for (Integer i : iteratorList){
-                returnList.add(i);
-                List<Integer>  iterator2List = findEmployeeByManager(divisionId, i, regionId);
-                if (iterator2List.size() != 0){
-                    for (Integer l : iterator2List){
-                        returnList.add(l);
-                    }
-                }
-            }
-            return returnList;
-        }
     }
 
     private Map<String, Integer> getSummaryAndCalcDays(List<Region> regions, List<Vacation> vacations,
@@ -320,7 +279,6 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
                     calendar.setTime(currentYearBeginDate);
                     calendar.add(Calendar.DAY_OF_MONTH, -1);
                     calendar.set(Calendar.YEAR, year);
-                    final Date currentYearEndDate = calendar.getTime();
 
                     for (int i = 0; i < vacationsSize; i++) {
                         final Vacation vacation = differRegionVacations.get(i);
@@ -412,6 +370,73 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
         return list;
     }
 
+    private String getVacationListByRegionJSON(List<Vacation> vacationList ) {
+        List<Region> regionList = regionService.getRegions();
+        List<Employee> employeeList = new ArrayList<Employee>();
+        for (Vacation vacation : vacationList) {
+            Employee employee = vacation.getEmployee();
+            if ( ! (employeeList.contains(employee)) ){
+                employeeList.add(employee);
+            }
+        }
+        final JsonArrayNodeBuilder result = anArrayBuilder();
+        // для каждого проекта смотрим сотрудников у которых есть отпуск
+        for (Region region : regionList){
+            JsonArrayNodeBuilder employeeNode = anArrayBuilder();
+            boolean hasEmployees = false;
+            for (Employee employee : employeeList){
+                if (employee.getRegion().getId().equals(region.getId())){
+                    JsonArrayNodeBuilder vacationNode = createVacationsNode(employee, vacationList);
+                    hasEmployees = true;
+                    employeeNode.withElement(anObjectBuilder().
+                            withField("employee", aStringBuilder(employee.getName())).
+                            withField("vacations", vacationNode));
+                }
+            }
+            if (hasEmployees){
+                result.withElement(
+                        anObjectBuilder().
+                                withField("region_id", aStringBuilder(region.getId().toString())).
+                                withField("region_name", aStringBuilder(region.getName())).
+                                withField("employeeList", employeeNode)
+                );
+            }
+        }
+        return JsonUtil.format(result);
+    }
+
+    private JsonArrayNodeBuilder createVacationsNode(Employee employee, List<Vacation> vacationList){
+        JsonArrayNodeBuilder vacationNode = anArrayBuilder();
+        for (Vacation vacation : vacationList){
+            if (vacation.getEmployee().equals(employee)){
+                vacationNode.withElement(anObjectBuilder().
+                        withField("beginDate", aStringBuilder(dateToString(vacation.getBeginDate(), VIEW_DATE_PATTERN))).
+                        withField("endDate", aStringBuilder(dateToString(vacation.getEndDate(), VIEW_DATE_PATTERN))).
+                        withField("status", aStringBuilder(vacation.getStatus().getValue())).
+                        withField("type", aStringBuilder(vacation.getType().getId().toString())).
+                        withField("typeName", aStringBuilder(vacation.getType().getValue())));
+
+            }
+        }
+        return vacationNode;
+    }
+
+    private String getHolidayListJSON(Date beginDate, Date endDate){
+        final JsonArrayNodeBuilder result = anArrayBuilder();
+        // т.к. отпуска могут начинаться ранее или позднее заданных дат, то на всякий случай прибавим к диапазону
+        // по месяцу с обоих концов
+        List<Holiday> holidays = calendarService.getHolidaysForRegion(DateUtils.addDays(beginDate, -30),
+                                                                      DateUtils.addDays(endDate, 30),
+                                                                      null);
+        for (Holiday holiday : holidays){
+            result.withElement(aStringBuilder(
+                                            dateToString(
+                                                holiday.getCalDate().getCalDate(), VIEW_DATE_PATTERN)));
+        }
+        return JsonUtil.format(result);
+    }
+
+
     @RequestMapping(value = "/vacations_needs_approval")
     public ModelAndView showVacationsNeedsApproval(
             @ModelAttribute(VACATION_FORM) VacationsForm vacationsForm,
@@ -459,4 +484,23 @@ public class VacationsController extends AbstractControllerForEmployeeWithYears 
         Integer vacationsNeedsApprovalCount = vacationService.findVacationsNeedsApprovalCount(employee.getId());
         return vacationsNeedsApprovalCount>0?"("+vacationsNeedsApprovalCount+")":"";
     }
+
+    /**
+     * Возвращает JSON список сотрудников по условиям заданным на форме
+     */
+    @RequestMapping(value = "/vacations/getEmployeeList", headers = "Accept=text/plain;Charset=UTF-8")
+    @ResponseBody
+    public String getVacationsCount(@ModelAttribute(VACATION_FORM) VacationsForm vacationsForm) {
+
+        List<Employee> employeeList = employeeService.getEmployees(employeeService.createDivisionList(vacationsForm.getDivisionId()),
+                employeeService.createManagerList(vacationsForm.getManagerId()),
+                employeeService.createRegionsList(vacationsForm.getRegions()),
+                employeeService.createProjectList(vacationsForm.getProjectId()),
+                DateTimeUtil.stringToDate(vacationsForm.getCalFromDate(), DATE_FORMAT),
+                DateTimeUtil.stringToDate(vacationsForm.getCalToDate(), DATE_FORMAT),
+                true
+        );
+        return employeeHelper.makeEmployeeListInJSON(employeeList);
+    }
+
 }
