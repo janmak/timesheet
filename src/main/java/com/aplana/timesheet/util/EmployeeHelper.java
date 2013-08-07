@@ -6,7 +6,6 @@ import argo.jdom.JsonObjectNodeBuilder;
 import com.aplana.timesheet.dao.entity.Division;
 import com.aplana.timesheet.dao.entity.Employee;
 import com.aplana.timesheet.service.EmployeeService;
-import com.aplana.timesheet.service.ProjectParticipantService;
 import com.aplana.timesheet.service.RegionService;
 import com.aplana.timesheet.service.TimeSheetService;
 import org.apache.commons.lang.StringUtils;
@@ -52,9 +51,6 @@ public class EmployeeHelper {
 
     @Autowired
     private RegionService regionService;
-
-    @Autowired
-    private ProjectParticipantService projectParticipantService;
 
     @Transactional(readOnly = true)
     public String getEmployeeListJson(List<Division> divisions, Boolean filterFired) {
