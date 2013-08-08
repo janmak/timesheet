@@ -215,7 +215,7 @@ public class TimeSheetFormValidator extends AbstractValidator {
 
         // Не указана категория активности
         if ( (isNotChoosed(actCatId) && (emplJob != HEAD))
-           ||(isNotChoosed(projectId) && typeActCatId == TypesOfActivityEnum.NON_PROJECT.getId()) ) {
+           ||(isNotChoosed(projectId) && typeActCatId != TypesOfActivityEnum.NON_PROJECT.getId()) ) {
             errors.rejectValue("timeSheetTablePart[" + notNullRowNumber + "].activityCategoryId",
                     "error.tsform.activity.category.required", getErrorMessageArgs(notNullRowNumber),
                     "Необходимо указать категорию активности в строке " + (notNullRowNumber + 1) + ".");
