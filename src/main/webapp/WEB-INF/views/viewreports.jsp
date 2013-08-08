@@ -272,5 +272,46 @@
                 </tr>
             </thead>
         </table>
+        <br>
+        <table id="viewreports">
+            <thead>
+            <tr>
+                <th width="80">Тип</th>
+                <th width="360">Проект/Пресейл</th>
+                <th width="80">План, ч</th>
+                <th width="80">План, %</th>
+                <th width="80">Факт, ч</th>
+                <th width="80">Факт, %</th>
+            </tr>
+            </thead>
+            <tbody>
+                <c:choose>
+                    <c:when test="${fn:length(reportsDetail) == 0}">
+                        <tr>
+                            <td colspan="6">Нет данных</td>
+                        </tr>
+                    </c:when>
+                    <c:otherwise>
+                        <c:forEach var="reportdetail" items="${reportsDetail}">
+                            <c:choose>
+                                <c:when test="${reportdetail.act_type.value == 'Итого'}">
+                                    <tr style="font-weight: bold;">
+                                </c:when>
+                                <c:otherwise>
+                                    <tr>
+                                </c:otherwise>
+                            </c:choose>
+                                <td>${reportdetail.act_type.value}</td>
+                                <td>${reportdetail.project.name}</td>
+                                <td class="duration">${reportdetail.planHours}</td>
+                                <td class="duration">${reportdetail.planPercent}%</td>
+                                <td class="duration">${reportdetail.factHours}</td>
+                                <td class="duration">${reportdetail.factPercent}%</td>
+                            </tr>
+                        </c:forEach>
+                    </c:otherwise>
+                </c:choose>
+            </tbody>
+        </table>
     </body>
 </html>
