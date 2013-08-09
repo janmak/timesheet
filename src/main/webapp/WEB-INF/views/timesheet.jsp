@@ -515,6 +515,9 @@
                                                              rows="4" style="width: 100%"
                                                              id="description_id_${row.index}"
                                                              onkeyup="somethingChanged();"/></td>
+                        <td class="text_center_align" id="jira_button_id_${row.index}">
+
+                        </td>
                         <td class="top_align"><form:textarea wrap="soft" path="timeSheetTablePart[${row.index}].problem"
                                                              rows="4" style="width: 100%" id="problem_id_${row.index}"
                                                              onkeyup="somethingChanged();"/></td>

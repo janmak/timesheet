@@ -70,7 +70,7 @@ function addNewRow() {
     //неведома ошибка исправляется для IE добавлением onclick именно через функцию
     img.onclick = function () {
         deleteRow(newRowIndex);
-    }
+    };
     deleteCell.appendChild(img);
 
     // Ячейка с номером строки
@@ -704,8 +704,6 @@ function projectChange(obj) {
         }
     }
     sortSelectOptions(taskSelect);
-    /* чистим коментарии */
-    dojo.byId("description_id_" + rowIndex).value = "";
     dojo.byId("task_description_" + rowIndex).innerHTML = "";
 }
 
@@ -866,9 +864,30 @@ function reloadRowsState() {
                 var id_num = parseInt(id.substring(id.lastIndexOf("_") + 1, id.length));
                 console.log(id_num);
                 deleteRow(id_num);
-
-            }
+            };
             deleteCell.appendChild(img);
+        }
+
+        //ячейка с кнопкой(картинкой) запроса из JIRA
+        if (dojo.byId("jira_button_" + i) === null || dojo.byId("jira_button_" + i) === undefined ){
+            var jiraCell = rows[i].cells[10];
+            var jiraImg = dojo.doc.createElement("img");
+            dojo.addClass(jiraImg, "pointer");
+            dojo.attr(jiraImg, {
+                id:"jira_button_" + i,
+                src:"resources/img/logo-jira.png",
+                alt:"Запрос из JIRA",
+                title:"Запрос из JIRA",
+                //без px так как IE не понимает
+                height:"15",
+                width:"15"
+            });
+
+            //неведома ошибка исправляется для IE добавлением onclick именно через функцию
+            jiraImg.onclick = function () {
+                getJiraInfo(newRowIndex);
+            };
+            jiraCell.appendChild(jiraImg);
         }
 
         sortSelectOptions(actCatSelect);
