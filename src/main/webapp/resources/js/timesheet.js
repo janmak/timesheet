@@ -390,12 +390,54 @@ function setDefaultDate(employeeId) {
 function getFirstWorkDate(){
     var employeeId = dojo.byId("employeeId").value;
     var employee = findEmployeeById(employeeId);
-    var firstWorkDateString =  employee.firstWorkDate;
-    if (firstWorkDateString != null) {
-        var date = firstWorkDateString.split('.');
-        var firstWorkDate = new Date(date[2], date[1]-1, date[0]);
+    return convertStringToDate(employee.firstWorkDate);
+}
+
+// возващает последний рабочий день сотрудника
+function getLastWorkDate(){
+    var employeeId = dojo.byId("employeeId").value;
+    var employee = findEmployeeById(employeeId);
+    return convertStringToDate(employee.lastWorkDate);
+}
+
+// ковертирует дату в тип дата из строки (разделитель ".")
+function convertStringToDate(stringDate){
+    if (stringDate != null && stringDate != "") {
+        var date = stringDate.split('.');
+        return new Date(date[2], date[1]-1, date[0]);
+    }else{
+        return null;
     }
-    return firstWorkDate;
+}
+
+function validateReportDate(value) {
+    if (value != null && dateNotBetweenMonth(value)) {
+        dojo.style("date_warning", {"display":"inline", "color":"red"});
+        if (invalidReportDate(value) > 0)
+            dojo.byId("date_warning").innerHTML = "Разница текущей и указанной дат больше 27 дней";
+        else
+            dojo.byId("date_warning").innerHTML = "Разница текущей и указанной дат больше 27 дней";
+    }
+    else {
+        dojo.style("date_warning", {"display":"none"});
+    }
+}
+
+function onCalDateChange(calDateObj){
+    calDateObj.constraints.min = getFirstWorkDate();
+    var lastWorkDate = getLastWorkDate();
+    if (lastWorkDate != null && lastWorkDate != ""){
+        calDateObj.constraints.max = lastWorkDate;
+    }else{
+        calDateObj.constraints.max = new Date(2100, 1, 1);
+    }
+    validateReportDate(calDateObj.value);
+    refreshPlans(calDateObj.value, dojo.byId('employeeId').value);
+}
+
+function onEmployeeChange(employeeObj){
+    setDefaultEmployeeJob(-1);
+    setDefaultDate(employeeObj.value)
 }
 
 /* Создает cookie с указанными параметрами */

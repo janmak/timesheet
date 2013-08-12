@@ -40,6 +40,7 @@ public class EmployeeHelper {
     private static final String DIVISION_EMPLOYEES = "divEmps";
     private static final String DATE_BY_DEFAULT = "dateByDefault";
     private static final String FIRST_WORK_DATE = "firstWorkDate";
+    private static final String LAST_WORK_DATE = "lastWorkDate";
     private static final String DEFAULT_MANAGER = "-1";
     private static final String DATE_FORMAT = "dd.MM.yyyy";
 
@@ -90,23 +91,28 @@ public class EmployeeHelper {
                             defaultDate = employee.getStartDate();
 
                         Date curDate = java.util.Calendar.getInstance().getTime();
-                            if (defaultDate.after(curDate)) {
-                                defaultDate = curDate;
-                            }
+                        if (defaultDate.after(curDate)){
+                            defaultDate = curDate;
+                        }
+
+                        if ((employee.getEndDate() != null && defaultDate.after(employee.getEndDate()))){
+                            defaultDate = employee.getEndDate();
+                        }
 
                         objectNodeBuilder.withField(JOB_ID, aStringBuilder(employee.getJob().getId())).
                                 withField(DATE_BY_DEFAULT, JsonNodeBuilders.aStringBuilder(
                                         dateToString(defaultDate, DATE_FORMAT))).
                                 withField(FIRST_WORK_DATE, JsonNodeBuilders.aStringBuilder(
-                                        dateToString(employee.getStartDate(), DATE_FORMAT)));
+                                        dateToString(employee.getStartDate(), DATE_FORMAT))).
+                                withField(LAST_WORK_DATE, JsonNodeBuilders.aStringBuilder(
+                                        employee.getEndDate() != null ? dateToString(employee.getEndDate(), DATE_FORMAT) : ""
+                                ));
                     }
                     employeesBuilder.withElement(objectNodeBuilder);
                 }
             }
-
             builder.withElement(nodeBuilder.withField(DIVISION_EMPLOYEES, employeesBuilder));
         }
-
         return JsonUtil.format(builder.build());
     }
 
