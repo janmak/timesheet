@@ -1419,7 +1419,6 @@ function openViewReportsWindow() {
         window.open('viewreports/' + divisionId + '/' + employeeId + '/' + date.getFullYear() + '/' + (date.getMonth() + 1), 'reports_window' + employeeId);
     }
 }
-;
 
 function openBusinessTripsAndIllnessWindow() {
     var employeeId = dojo.byId("employeeId").value;

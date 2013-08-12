@@ -50,17 +50,22 @@
 </style>
 
 <script type="text/javascript">
-var hasChanges = false;
-const VACATION_PLAN_COLUMN = 'vacation_plan';
 
+var VACATION_PLAN_COLUMN = 'vacation_plan';
+var hasChanges = false;
+var ALL_VALUE = <%= ALL_VALUE %>;
 
 dojo.addOnLoad(function () {
 
     updateManagerList(dojo.byId('divisionId').value);
     //TODO костыль, так как для данного поля куки не устанавливаются автоматически при загрузке
-    dojo.byId('manager').value = getCookieValue("cookie_manager");
+    var prev_manager = getCookieValue("cookie_manager");
+    if (prev_manager == "null" || prev_manager == undefined) {
+        prev_manager = ALL_VALUE;
+    }
+    dojo.byId('manager').value = prev_manager;
 
-    dojo.require(['dojox.grid.DataGrid'],
+    dojo.require("dojox.grid.DataGrid",
             function(DataGrid) {
                 var grid = new DataGrid({keepSelection: true}, div);
             }
@@ -76,7 +81,7 @@ dojo.addOnLoad(function () {
         prevValue = myStoreObject.items[inRowIndex][inCell.field][0];
     }
 
-            <%= GRID_JS_ID %>.onApplyCellEdit = function (inValue, inRowIndex, inFieldIndex) {
+    <%= GRID_JS_ID %>.onApplyCellEdit = function (inValue, inRowIndex, inFieldIndex) {
         var newValue = replacePeriodsWithDots(inValue);
 
         if (!isNumber(newValue)) {
@@ -89,7 +94,7 @@ dojo.addOnLoad(function () {
             hasChanges = true;
             cellHasBeenEdited(<%= GRID_JS_ID %>, inFieldIndex, inRowIndex);
         }
-    }
+    };
 
     setTimeout(function () {
         restoreHiddenStateFromCookie(<%= GRID_JS_ID %>);
@@ -303,35 +308,30 @@ if (dataJson.length > 0) {
 
 function updateMonthList(year) {
     var monthNode = dojo.byId("<%= MONTH %>");
-    var emptyOption = monthNode.options[0];
     var month = monthNode.value;
 
     monthNode.options.length = 0;
-
-    monthNode.add(emptyOption);
-    monthNode.selectedIndex = 0;
 
     var monthMapJson = '${monthMapJson}';
 
     if (monthMapJson.length > 0) {
         var monthMap = dojo.fromJson(monthMapJson);
-
-        dojo.filter(monthMap,function (monthData) {
+        dojo.forEach(dojo.filter(monthMap,function (monthData) {
             return (monthData.year == year);
-        }).forEach(function (monthData) {
-                    dojo.forEach(monthData.months, function (monthObj) {
-                        var option = document.createElement("option");
-
-                        option.text = monthObj.name;
-                        option.value = monthObj.number;
-
-                        if (monthObj.number == month) {
-                            option.selected = "selected";
-                        }
-
-                        monthNode.add(option);
-                    });
+        }), function (monthData) {
+            dojo.forEach(monthData.months, function (monthObj) {
+                var option = document.createElement("option");
+                dojo.attr(option, {
+                    value:monthObj.number
                 });
+                option.text = monthObj.name;
+                option.innerHTML = monthObj.name;
+                if (monthObj.number == month) {
+                    option.selected = "selected";
+                }
+                monthNode.appendChild(option);
+            });
+        });
     }
 }
 
@@ -380,10 +380,6 @@ function validate() {
             && (!dojo.byId("<%= SHOW_FACTS%>").checked )) {
         errors.push("Необходимо выбрать плановые или фактические показатели для отображения");
     }
-
-    <%--if (!dojo.byId("<%= MANAGERS %>").value) {--%>
-        <%--errors.push("Не выбран руководитель подразделения");--%>
-    <%--}--%>
 
     return !showErrors(errors);
 }
@@ -439,7 +435,7 @@ function save() {
             "<%= JSON_DATA_YEAR %>": ${planEditForm.year},
             "<%= JSON_DATA_MONTH %>": ${planEditForm.month},
             "<%= JSON_DATA_ITEMS %>":items
-        }
+        };
 
         hasChanges = false;
 
@@ -479,15 +475,20 @@ function updateManagerList(id) {
         id = dojo.byId("<%= DIVISION_ID %>").value;
     }
     var managersNode = dojo.byId("<%= MANAGER %>");
-    var emptyOption = managersNode.options[0];
-    var manager = managersNode.value;
-
-    managersNode.options.length = 0;
-
-    managersNode.add(emptyOption);
-    managersNode.selectedIndex = 0;
-
     var regionsNode = dojo.byId("<%= REGIONS %>");
+
+    var manager = managersNode.value;
+    /* создаём значение Все руководители */
+    var emptyOption = dojo.doc.createElement("option");
+    dojo.attr(emptyOption, {
+        value:-1
+    });
+    emptyOption.title = "Все руководители";
+    emptyOption.innerHTML = "Все руководители";
+    /* очищаем список */
+    managersNode.options.length = 0;
+    /* приклеиваем 'всех руководителей' */
+    managersNode.appendChild(emptyOption);
 
     var isAllOption = dojo.some(regionsNode.options, function (option, idx) {
         if (option.value == <%= ALL_VALUE %> && option.selected) {
@@ -501,40 +502,46 @@ function updateManagerList(id) {
     var count = 0;
     if (managerMapJson.length > 0) {
         var managerMap = dojo.fromJson(managerMapJson);
-        dojo.filter(managerMap,function (m) {
+        dojo.forEach(dojo.filter(managerMap,function (m) {
             return (m.division == id);
-        }).forEach(function (managerData) {
-                    if (isAllOption) {
-                        var option = document.createElement("option");
-                        option.text = managerData.name;
-                        option.value = managerData.id;
-
-                        if (managerData.number == manager) {
-                            option.selected = "selected";
-                        }
-                        managersNode.add(option);
-                    } else {
-                        var add = false;
-                        managerData.regionWhereMan.forEach(function(redData) {
+        }), function (managerData) {
+            if (isAllOption) {
+                var option = document.createElement("option");
+                dojo.attr(option, {
+                    value:managerData.id
+                });
+                option.text = managerData.name;
+                option.innerHTML = managerData.name;
+                if (managerData.number == manager) {
+                    option.selected = "selected";
+                }
+                managersNode.appendChild(option);
+            } else {
+                var add = false;
+                dojo.forEach(managerData.regionWhereMan,
+                        function(redData) {
                             for (var i = 0; i < selectedRegions.length; i++) {
                                 if (selectedRegions[i] == redData.id) {
                                     add = true;
-
                                 }
                             }
-                        });
-                        if (add) {
-                            var option = document.createElement("option");
-                            option.text = managerData.name;
-                            option.value = managerData.id;
-
-                            if (managerData.number == manager) {
-                                option.selected = "selected";
-                            }
-                            managersNode.add(option);
                         }
+                );
+
+                if (add) {
+                    var option = document.createElement("option");
+                    dojo.attr(option, {
+                        value:managerData.id
+                    });
+                    option.text = managerData.name;
+                    option.innerHTML = managerData.name;
+                    if (managerData.number == manager) {
+                        option.selected = "selected";
                     }
-                });
+                    managersNode.appendChild(option);
+                }
+            }
+        });
     }
     if (managersNode.options.length == 1 && emptyOption.value == managersNode.options[0].value){
         dojo.byId("<%= MANAGER %>").disabled = 'disabled';
@@ -586,7 +593,6 @@ function log(text){
                                              onmouseover="showTooltip(this);"
                                              onmouseout="tooltip.hide();"
                                              onchange="updateManagerList(this.value)">
-                                    <form:option label="" value="0"/>
                                     <form:options items="${divisionList}" itemLabel="name" itemValue="id"/>
                                 </form:select>
                             </td>
@@ -596,7 +602,6 @@ function log(text){
                             <td>
                                 <form:select path="<%= YEAR %>" class="without_dojo" onmouseover="showTooltip(this);"
                                              onmouseout="tooltip.hide();" onchange="updateMonthList(this.value)">
-                                    <form:option label="" value="0"/>
                                     <form:options items="${yearList}" itemLabel="year" itemValue="year"/>
                                 </form:select>
                             </td>
@@ -619,7 +624,6 @@ function log(text){
                             <td>
                                 <form:select path="<%= MONTH %>" class="without_dojo" onmouseover="showTooltip(this);"
                                              onmouseout="tooltip.hide();">
-                                    <form:option label="" value="0"/>
                                     <form:options items="${monthList}" itemLabel="monthTxt" itemValue="month"/>
                                 </form:select>
                             </td>

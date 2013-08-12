@@ -3,11 +3,11 @@
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 
 <%@page contentType="text/html" pageEncoding="UTF-8" %>
-<script type="text/javascript" src="/resources/js/vacations.js"></script>
+<script type="text/javascript" src="/resources/js/vacationsCountInHeader.js"></script>
 <script type="text/javascript">
     dojo.addOnLoad(function () {
         <sec:authorize access="isAuthenticated()">
-        getVacationsNeedsApprovalCountString()
+        getVacationsNeedsApprovalCountString();
         </sec:authorize>
     });
 </script>

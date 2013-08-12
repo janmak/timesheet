@@ -1,4 +1,3 @@
-<%@ page import="com.aplana.timesheet.controller.BusinessTripsAndIllnessController" %>
 <%@ page import="static com.aplana.timesheet.form.BusinessTripsAndIllnessForm.*" %>
 <%@page contentType="text/html" pageEncoding="UTF-8" %>
 
@@ -206,15 +205,15 @@
             var managersNode = dojo.byId("manager");
             var manager = managersNode.value;
 
-            var managerOption = dojo.doc.createElement("option");
-            dojo.attr(managerOption, {
+            var emptyOption = dojo.doc.createElement("option");
+            dojo.attr(emptyOption, {
                 value:-1
             });
-            managerOption.title = "Все руководители";
-            managerOption.innerHTML = "Все руководители";
+            emptyOption.title = "Все руководители";
+            emptyOption.innerHTML = "Все руководители";
 
             managersNode.options.length = 0;
-            managersNode.appendChild(managerOption);
+            managersNode.appendChild(emptyOption);
 
             var managerMapJson = '${managerMapJson}';
             if (managerMapJson.length > 0) {
