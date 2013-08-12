@@ -614,7 +614,7 @@ function log(text){
                                 <form:select path="<%= MANAGER %>" class="without_dojo"
                                              onmouseover="showTooltip(this);"
                                              onmouseout="tooltip.hide();" multiple="false">
-                                    <form:option label="Все руководители" value="0"/>
+                                    <form:option label="Все руководители" value="<%= ALL_VALUE %>"/>
                                     <form:options items="${managerList}" itemLabel="name" itemValue="id"/>
                                 </form:select>
                             </td>

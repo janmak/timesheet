@@ -455,7 +455,7 @@ public class PlanEditController {
         final List<Employee> employees;
         final Integer manager = form.getManager();
         LOGGER.debug("manager = {}",manager);
-        if (manager == null || manager == 0) {
+        if (manager == null || manager == -1) {
             employees = employeeService.getDivisionEmployees(
                     form.getDivisionId(),
                     date,
