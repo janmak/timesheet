@@ -15,6 +15,7 @@
         <%@ include file="../includes/style.jsp" %>
         <%@ include file="../includes/js.jsp" %>
     </c:if>
+
     <c:choose>
         <c:when test="${NoPageFormat == null}">
             <title><decorator:title default="TimeSheet"/></title>

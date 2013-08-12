@@ -22,106 +22,101 @@ import java.sql.Timestamp;
 import java.util.*;
 
 @Service
-public class CalendarService {
-    @Autowired
-    private CalendarDAO calendarDAO;
+public class CalendarService
+{	
+	@Autowired
+	private CalendarDAO calendarDAO;
 
-    /**
-     * Ищет в базе данных запись соответсвующую указанной дате в виде строки.
-     *
-     * @param String date Дата в виде строки.
-     * @return объект типа Calendar, либо null, если объект не найден.
-     */
+	/**
+	 * Ищет в базе данных запись соответсвующую указанной дате в виде строки.
+	 * @param String date Дата в виде строки.
+	 * @return объект типа Calendar, либо null, если объект не найден.
+	 */
     @Transactional(readOnly = true)
-    public Calendar find(String date) {
-        return calendarDAO.find(DateTimeUtil.stringToTimestamp(date, DateTimeUtil.DATE_PATTERN));
-    }
-
-    /**
-     * Ищет в базе данных запись соответсвующую указанной дате в миллисекундах.
-     *
-     * @param long date Дата в миллисекундах.
-     * @return объект типа Calendar, либо null, если объект не найден.
-     */
+	public Calendar find(String date)
+	{		
+		return calendarDAO.find(DateTimeUtil.stringToTimestamp(date, DateTimeUtil.DATE_PATTERN));
+	}
+	
+	/**
+	 * Ищет в базе данных запись соответсвующую указанной дате в миллисекундах.
+	 * @param long date Дата в миллисекундах.
+	 * @return объект типа Calendar, либо null, если объект не найден.
+	 */
     @Transactional(readOnly = true)
-    public Calendar find(long date) {
-        return calendarDAO.find(new Timestamp(date));
-    }
-
-    /**
-     * Ищет в базе данных запись соответсвующую указанной дате в Timestamp.
-     *
-     * @param Timestamp date Дата.
-     * @return объект типа Calendar, либо null, если объект не найден.
-     */
+	public Calendar find(long date)
+	{		
+		return calendarDAO.find(new Timestamp(date));
+	}
+	
+	/**
+	 * Ищет в базе данных запись соответсвующую указанной дате в Timestamp.
+	 * @param Timestamp date Дата.
+	 * @return объект типа Calendar, либо null, если объект не найден.
+	 */
     @Transactional(readOnly = true)
-    public Calendar find(Timestamp date) {
-        return calendarDAO.find(date);
-    }
-
-    /**
-     * Формирует список годов, которые есть в таблице списания занятости.
-     *
-     * @return список List Calendar.
-     */
+	public Calendar find(Timestamp date)
+	{		
+		return calendarDAO.find(date);
+	}
+	/**
+	 * Формирует список годов, которые есть в таблице списания занятости.	 
+	 * @return список List Calendar.
+	 */
     public List<Calendar> getYearsList() {
         Calendar minYear = calendarDAO.getMinDateList();
         int maxYear = calendarDAO.getMaxDateList().getYear();
 
         List<Calendar> yearList = new ArrayList<Calendar>();
-        yearList.add(minYear);
-        if (minYear.getYear() != maxYear) {
-            for (int i = minYear.getYear() + 1; i <= maxYear; i++) {
-                yearList.add(new Calendar(i, 1, calendarDAO.getMonthTxt(1)));
+        yearList.add( minYear );
+        if ( minYear.getYear() != maxYear ) {
+            for ( int i = minYear.getYear() + 1; i <= maxYear; i++ ) {
+                yearList.add( new Calendar( i, 1, calendarDAO.getMonthTxt( 1 ) ) );
             }
         }
         return yearList;
     }
 
     /**
-     * Формирует список месяцев, соответствующие годам, которые есть в системе.
-     *
-     * @return список List Calendar.
+	 * Формирует список месяцев, соответствующие годам, которые есть в системе.	 
+	 * @return список List Calendar.
      */
-    public List<Calendar> getMonthList(Integer year) {
+    public List<Calendar> getMonthList( Integer year ) {
         List<Calendar> monthList = new ArrayList<Calendar>();
-        List<Integer> tempList = calendarDAO.getMonth(year);
-        for (Integer aTempList : tempList) {
-            monthList.add(new Calendar(year, aTempList, calendarDAO.getMonthTxt(aTempList)));
+        List<Integer> tempList = calendarDAO.getMonth( year );
+        for ( Integer aTempList : tempList ) {
+            monthList.add( new Calendar( year, aTempList, calendarDAO.getMonthTxt( aTempList ) ) );
         }
         return monthList;
     }
 
     /**
-     * Формирует список дней для одного месяца.
-     *
-     * @param year
-     * @param month
-     * @return
-     */
+	 * Формирует список дней для одного месяца.
+	 * @param year
+	 * @param month
+	 * @return
+	 */
     @Transactional(readOnly = true)
-    public List<Calendar> getDateList(Integer year, Integer month) {
+    public List<Calendar> getDateList(Integer year, Integer month){
         return calendarDAO.getDateList(year, month);
-    }
-
-    /**
-     * Проверяет год на наличие в системе
-     * param year
-     * return true если год существует в системе
-     * return false если год не существует в системе
-     */
-    public boolean yearValid(Integer year) {
-        return calendarDAO.yearValid(year);
-    }
-
-    /**
-     * Проверяет месяц на наличие в системе
-     *
-     * @param year
-     * @param month
-     * @return
-     */
-    public boolean monthValid(Integer year, Integer month) {
+	}
+	
+	/**
+	 * Проверяет год на наличие в системе
+	 * param year
+	 * return true если год существует в системе
+	 * return false если год не существует в системе
+	 */
+	public boolean yearValid(Integer year){
+		return calendarDAO.yearValid(year);
+	}
+	/**
+	 * Проверяет месяц на наличие в системе
+	 * @param year
+	 * @param month
+	 * @return
+	 */
+    public boolean monthValid( Integer year, Integer month ) {
         return calendarDAO.monthValid(year, month);
     }
 
@@ -150,7 +145,7 @@ public class CalendarService {
         final DateNumbers endDateNumbers = new DateNumbers(endDate);
         HashMap<Integer, Set<Integer>> result = new HashMap<Integer, Set<Integer>>();
 
-        for (int year = startDateNumbers.getYear(); year <= endDateNumbers.getYear(); year++) {
+        for (int year = startDateNumbers.getYear(); year<= endDateNumbers.getYear(); year++) {
             Set<Integer> monthsInYear = Sets.newHashSet(calendarDAO.getMonth(year));
             if (monthsInYear.isEmpty()) {
                 throw new TSRuntimeException(new CalendarServiceException("Попытка получения месяцев из года, который еще не занесен в БД!"));
@@ -192,62 +187,11 @@ public class CalendarService {
         return getWorkDaysCountForRegion(employee.getRegion(), year, month, employee.getStartDate(), employee.getEndDate());
     }
 
-    // если регион = нул - возвращает общий для всех
     public List<Holiday> getHolidaysForRegion(Date minDate, Date maxDate, Region region) {
-        if (region == null){
-            return calendarDAO.getHolidaysInInterval(minDate, maxDate);
-        }
         return calendarDAO.getHolidaysForRegion(minDate, maxDate, region);
     }
 
     public boolean isHoliday(Date date, Employee employee) {
         return (getHolidaysCountForRegion(date, date, (employee == null) ? null : employee.getRegion()) > 0);
-    }
-
-    /**
-     * Возвращает максимальную дату месяца
-     * @param year
-     * @param month
-     * @return
-     */
-    public Date getMaxDateMonth(Integer year, Integer month) {
-        return calendarDAO.tryGetMaxDateMonth(year,month);
-    }
-
-    /**
-     * Возвращает минимальную дату месяца
-     * @param year
-     * @param month
-     * @return
-     */
-    public Date getMinDateMonth(Integer year, Integer month) {
-        return calendarDAO.tryGetMinDateMonth(year,month);
-    }
-
-    /**
-     * Возвращает год из даты
-     * @param date
-     * @return
-     */
-    public Integer getYearFromDate(Date date) {
-        java.util.Calendar calendar = java.util.Calendar.getInstance(java.util.TimeZone.getDefault(), java.util.Locale.getDefault());
-        calendar.setTime(date);
-        return calendar.get(java.util.Calendar.YEAR);
-    }
-
-    /**
-     * Возвращает мясяц из даты
-     * @param date
-     * @return
-     */
-    public Integer getMonthFromDate(Date date) {
-        java.util.Calendar calendar = java.util.Calendar.getInstance(java.util.TimeZone.getDefault(), java.util.Locale.getDefault());
-        calendar.setTime(date);
-        return calendar.get(java.util.Calendar.MONTH)+1;
-    }
-
-
-    public int getCountWorkDayPriorDate(Region region, Integer year, Integer month, @NotNull Date toDate) {
-        return calendarDAO.getCountWorkDayPriorDate(region, year, month, toDate);
     }
 }

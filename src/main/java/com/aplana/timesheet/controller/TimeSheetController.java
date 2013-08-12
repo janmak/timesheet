@@ -1,13 +1,15 @@
 package com.aplana.timesheet.controller;
 
-import com.aplana.timesheet.dao.entity.*;
+import com.aplana.timesheet.dao.entity.DictionaryItem;
+import com.aplana.timesheet.dao.entity.Division;
+import com.aplana.timesheet.dao.entity.ProjectRole;
+import com.aplana.timesheet.dao.entity.TimeSheet;
 import com.aplana.timesheet.enums.DictionaryEnum;
 import com.aplana.timesheet.form.TimeSheetForm;
 import com.aplana.timesheet.form.validator.TimeSheetFormValidator;
 import com.aplana.timesheet.properties.TSPropertyProvider;
 import com.aplana.timesheet.service.*;
 import com.aplana.timesheet.util.EmployeeHelper;
-import com.aplana.timesheet.util.JsonUtil;
 import com.aplana.timesheet.util.TimeSheetUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,8 +23,6 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static argo.jdom.JsonNodeFactories.*;
 
 @Controller
 public class TimeSheetController {
@@ -39,7 +39,7 @@ public class TimeSheetController {
     @Autowired
     private ProjectService projectService;
     @Autowired
-    ProjectManagerService projectManagerService;
+    ProjectParticipantService projectParticipantService;
     @Autowired
     private ProjectTaskService projectTaskService;
     @Autowired
@@ -62,8 +62,6 @@ public class TimeSheetController {
     private TSPropertyProvider propertyProvider;
     @Autowired
     private OvertimeCauseService overtimeCauseService;
-    @Autowired
-    private JiraService jiraService;
 
     @RequestMapping(value = "/timesheet", method = RequestMethod.GET)
     public ModelAndView showMainForm(@RequestParam(value = "date",required = false) String date,
@@ -76,17 +74,13 @@ public class TimeSheetController {
         TimeSheetForm tsForm = new TimeSheetForm();
 
         TimeSheetUser securityUser = securityService.getSecurityPrincipal();
-        Employee employee = employeeService.find(id);
-        if (employee != null) {
-            tsForm.setDivisionId(employee.getDivision().getId());
+
+        if ( id !=null) {
+            tsForm.setDivisionId(employeeService.find(id).getDivision().getId());
             tsForm.setEmployeeId(id);
-        } else if (securityUser != null) {
-            if (id != null) {
-                String format = String.format("Can't find user by ID = %s. Was set current application user.",id);
-                logger.error(format);
-            }
-            tsForm.setDivisionId(securityUser.getEmployee().getDivision().getId());
-            tsForm.setEmployeeId(securityUser.getEmployee().getId());
+        } else if ( securityUser != null) {
+            tsForm.setDivisionId( securityUser.getEmployee().getDivision().getId() );
+            tsForm.setEmployeeId( securityUser.getEmployee().getId() );
         }
 
         if (date != null) {
@@ -96,8 +90,6 @@ public class TimeSheetController {
         } else {
             mav.addObject("selectedCalDateJson", "''");
         }
-
-        mav.addObject("effortList", timeSheetService.getEffortList());
         mav.addObject("timeSheetForm", tsForm); // command object
         mav.addObject("selectedProjectRolesJson", "[{row:'0', role:''}]");
         mav.addObject("selectedProjectTasksJson", "[{row:'0', task:''}]");
@@ -150,7 +142,6 @@ public class TimeSheetController {
                     timeSheetService.getSelectedActCategoriesJson(tsForm)
             );
             mavWithErrors.addObject("selectedCalDateJson", timeSheetService.getSelectedCalDateJson(tsForm));
-            mavWithErrors.addObject("effortList", timeSheetService.getEffortList());
             mavWithErrors.addAllObjects(getListsToMAV());
 
             return mavWithErrors;
@@ -275,23 +266,4 @@ public class TimeSheetController {
         return timeSheetService.getListOfActDescriptoin();
     }
 
-    @RequestMapping(value = "/timesheet/jiraIssues", headers = "Accept=application/octet-stream;Charset=UTF-8")
-    @ResponseBody
-    public String getJiraIssuesStr(@RequestParam("employeeId") Integer employeeId, @RequestParam("date") String date, @RequestParam("projectId") Integer projectId) {
-        return jiraService.getDayIssues(employeeId, date, projectId);
-    }
-
-    @RequestMapping(value = "/employee/isDivisionLeader", headers = "Accept=application/json")
-    @ResponseBody
-    public String isDivisionLeader(
-            @RequestParam("employeeId") Integer employeeId
-    ) {
-        return JsonUtil.format(
-                object(
-                        field(
-                                "isDivisionLeader",
-                                employeeService.isEmployeeDivisionLeader(employeeId) ? trueNode() : falseNode())
-                )
-        );
-    }
 }

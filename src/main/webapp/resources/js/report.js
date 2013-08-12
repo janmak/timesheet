@@ -12,21 +12,8 @@ function allRegionsCheckBoxChange(checked){
     var regionIds = "regionIds";
     if (checked) {
         dojo.attr(regionIds, {disabled:"disabled"});
-        dojo.byId(regionIds).selectedIndex = -1;
     } else {
         dojo.removeAttr(regionIds, "disabled");
-    }
-}
-
-function allDatesCheckBoxChange(checked){
-    var begin = "beginDate";
-    var end = "endDate";
-    if (checked) {
-        dijit.byId(begin).set("readOnly", true);
-        dijit.byId(end).set("readOnly", true);
-    } else {
-        dijit.byId(begin).set("readOnly", false);
-        dijit.byId(end).set("readOnly", false);
     }
 }
 
@@ -77,11 +64,10 @@ function fillProjectListByDivision(division) {
     if (division == null) {
         division = dojo.byId("divisionId");
 
-        if (division.value == null)
-            division.value = 0;
+        if (division.value == 0)
+            division.value = defaultDivisionId;
     }
     var divisionId = division.value;
-    var showInactiveProjects = dojo.byId("showInactiveProjects").checked;
     var projectSelect = dojo.byId("projectId");
     dojo.removeAttr(projectSelect, "disabled");
     //Очищаем список проектов.
@@ -89,23 +75,21 @@ function fillProjectListByDivision(division) {
     var hasAny = false;
     if (divisionId == 0) {
         for (var i = 0; i < fullProjectList.length; i++) {
-            if (showInactiveProjects==true || projectListWithOwnerDivision[i].active=='true') {
-                projectOption = dojo.doc.createElement("option");
-                dojo.attr(projectOption, {
-                    value: fullProjectList[i].id
-                });
-                projectOption.title = fullProjectList[i].value;
-                projectOption.innerHTML = fullProjectList[i].value;
-                projectSelect.appendChild(projectOption);
-                hasAny = true;
-            }
+            projectOption = dojo.doc.createElement("option");
+            dojo.attr(projectOption, {
+                value: fullProjectList[i].id
+            });
+            projectOption.title = fullProjectList[i].value;
+            projectOption.innerHTML = fullProjectList[i].value;
+            projectSelect.appendChild(projectOption);
+            hasAny = true;
+
         }
     } else {
-        console.log(projectListWithOwnerDivision);
         dojo.removeAttr("projectId", "disabled");
         dojo.removeAttr("divisionId", "disabled");
         for (var i = 0; i < projectListWithOwnerDivision.length; i++) {
-            if (divisionId == projectListWithOwnerDivision[i].ownerDivisionId && (showInactiveProjects==true || projectListWithOwnerDivision[i].active=='true')) {
+            if (divisionId == projectListWithOwnerDivision[i].ownerDivisionId) {
                 projectOption = dojo.doc.createElement("option");
                 dojo.attr(projectOption, {
                     value: projectListWithOwnerDivision[i].id
@@ -119,8 +103,6 @@ function fillProjectListByDivision(division) {
     }
     sortSelectOptions(projectSelect);
     validateAndAddNewOption(hasAny, divisionId, projectSelect);
-    /* выбираем по умолчанию пункт "Все" */
-    projectSelect.value=0;
 }
 
 function validateAndAddNewOption(hasAny, divisionId, select){
@@ -135,7 +117,7 @@ function validateAndAddNewOption(hasAny, divisionId, select){
 function setDefaultValuesForReport2And3(){
     reportForm.emplDivisionId.value = 0;
     reportForm.employeeId.value = 0;
-    reportForm.projectId.value = 0;
     fillProjectListByDivision(reportForm.divisionId);
     fillEmployeeListByDivision(reportForm.emplDivisionId);
+    reportForm.projectId.value = 0;
 }

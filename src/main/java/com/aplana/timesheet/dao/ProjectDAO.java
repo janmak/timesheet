@@ -15,6 +15,8 @@ import javax.persistence.criteria.*;
 import java.util.*;
 import java.util.Calendar;
 
+import static com.aplana.timesheet.enums.TypesOfActivityEnum.PRESALE;
+
 @Repository
 @SuppressWarnings("unchecked")
 public class ProjectDAO {
@@ -100,9 +102,9 @@ public class ProjectDAO {
      * @param project
      * @return
      */
-    public List<ProjectManager> getManagers(Project project) {
+    public List<ProjectParticipant> getParticipants(Project project) {
         Query query = entityManager.createQuery(
-                "from ProjectManager as pm where pm.active=:active and pm.project=:project"
+                "from ProjectParticipant as pp where pp.active=:active and pp.project=:project"
         ).setParameter( "active", true ).setParameter( "project", project );
 
         return query.getResultList();
@@ -114,9 +116,9 @@ public class ProjectDAO {
      * @param project, employee
      * @return
      */
-    public List<ProjectManager> getEmployeeProjectRoles(Project project, Employee employee) {
+    public List<ProjectParticipant> getEmployeeProjectRoles(Project project, Employee employee) {
         Query query = entityManager.createQuery(
-                "from ProjectManager as pm where pm.active=:active and pm.project=:project and pm.employee=:employee"
+                "from ProjectParticipant as pp where pp.active=:active and pp.project=:project and pp.employee=:employee"
         ).setParameter( "active", true ).setParameter("project", project).setParameter( "employee", employee );
 
         return query.getResultList();
@@ -159,16 +161,6 @@ public class ProjectDAO {
         Query query = entityManager.createQuery("from Project p where p.startDate <= :endDate and p.endDate >= :startDate");
         query.setParameter("startDate", beginDate);
         query.setParameter("endDate", endDate);
-
-        return query.getResultList();
-    }
-
-    /**
-     * Возвращает абсолютно все проекты
-     * @return
-     */
-    public List<Project> getAllProjects() {
-        Query query = entityManager.createQuery("from Project p");
 
         return query.getResultList();
     }

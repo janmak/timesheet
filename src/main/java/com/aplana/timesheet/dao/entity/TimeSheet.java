@@ -34,11 +34,6 @@ public class TimeSheet {
     @Column(columnDefinition = "text null")
     private String plan;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "effort_id")
-    @ForeignKey(name = "FK_TIME_SHEET_EFFORT")
-    private DictionaryItem effortInNextDay;
-
     @OneToMany(mappedBy = "timeSheet", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @OrderBy("id asc")
     private Set<TimeSheetDetail> timeSheetDetails;
@@ -112,14 +107,6 @@ public class TimeSheet {
 
     public void setOvertimeCause(OvertimeCause overtimeCause) {
         this.overtimeCause = overtimeCause;
-    }
-
-    public DictionaryItem getEffortInNextDay() {
-        return effortInNextDay;
-    }
-
-    public void setEffortInNextDay(DictionaryItem effortInNextDay) {
-        this.effortInNextDay = effortInNextDay;
     }
 
     @Override

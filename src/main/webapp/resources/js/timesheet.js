@@ -11,7 +11,6 @@ function al() {
     alert("!!");
 }
 
-String.prototype.trim=function(){return this.replace(/^\s+|\s+$/g, '');};
 
 function fillWorkplaceSelect(workplaceSelect) {
     insertEmptyOption(workplaceSelect);
@@ -70,7 +69,7 @@ function addNewRow() {
     //неведома ошибка исправляется для IE добавлением onclick именно через функцию
     img.onclick = function () {
         deleteRow(newRowIndex);
-    };
+    }
     deleteCell.appendChild(img);
 
     // Ячейка с номером строки
@@ -157,26 +156,16 @@ function addNewRow() {
         style:"font-style: italic"
     });
     actCatCell.appendChild(labelDescription);
-
     // Ячейка с проектными задачами
     var projectTasksCell = newTsRow.insertCell(7);
     dojo.addClass(projectTasksCell, "top_align");
     var projectTasksSelect = dojo.doc.createElement("select");
     dojo.attr(projectTasksSelect, {
-        id:"taskName_id_" + newRowIndex,
-        name:"timeSheetTablePart[" + newRowIndex + "].taskName",
-        onchange:"setTaskDescription(" + newRowIndex + ")"
+        id:"cqId_id_" + newRowIndex,
+        name:"timeSheetTablePart[" + newRowIndex + "].cqId"
     });
     insertEmptyOption(projectTasksSelect);
-    var taskLabelDescription = dojo.doc.createElement("label");
-    dojo.attr(taskLabelDescription, {
-        id:"task_description_" + newRowIndex,
-        style:"font-style: italic"
-    });
-
     projectTasksCell.appendChild(projectTasksSelect);
-    projectTasksCell.appendChild(taskLabelDescription);
-
     // Ячейка с часами
     var durationCell = newTsRow.insertCell(8);
     dojo.addClass(durationCell, "top_align");
@@ -201,30 +190,8 @@ function addNewRow() {
         style: "width: 100%"
     });
     descriptionCell.appendChild(descriptionTextarea);
-
-    //ячейка с кнопкой(картинкой) запроса из JIRA
-    var jiraCell = newTsRow.insertCell(10);
-    dojo.addClass(jiraCell, "text_center_align");
-    var jiraImg = dojo.doc.createElement("img");
-    dojo.addClass(jiraImg, "pointer");
-    dojo.attr(jiraImg, {
-        id:"jira_button_" + newRowIndex,
-        src:"resources/img/logo-jira.png",
-        alt:"Запрос из JIRA",
-        title:"Запрос из JIRA",
-        //без px так как IE не понимает
-        height:"15",
-        width:"15"
-    });
-
-    //неведома ошибка исправляется для IE добавлением onclick именно через функцию
-    jiraImg.onclick = function () {
-        getJiraInfo(newRowIndex);
-    };
-    jiraCell.appendChild(jiraImg);
-
     // Ячейка с проблемами
-    var problemCell = newTsRow.insertCell(11);
+    var problemCell = newTsRow.insertCell(10);
     dojo.addClass(problemCell, "top_align");
     var problemTextarea = dojo.doc.createElement("textarea");
     dojo.attr(problemTextarea, {
@@ -267,7 +234,6 @@ function addNewRow() {
 
 function setActDescription(rowIndex){
     var label = dojo.byId("act_description_" + rowIndex);
-    var act_label = dojo.byId("activity_category_id_" + rowIndex);
     if (label == null) { return; }
     var actCat = (dojo.byId("activity_category_id_" + rowIndex)).value;
     var actType = (dojo.byId("activity_type_id_" + rowIndex)).value;
@@ -281,26 +247,6 @@ function setActDescription(rowIndex){
             label.innerHTML = listOfActDescription[i].description;
             finded = true;
             break;
-        }
-    }
-    if (!finded) {
-        label.innerHTML = "";
-    }
-}
-
-function setTaskDescription(rowIndex){
-    var label = dojo.byId("task_description_" + rowIndex);
-    if (label == null) { return; }
-    var task = (dojo.byId("taskName_id_"+rowIndex)).value;
-    var finded = false;
-    for (var i = 0; i < projectTaskList.length; i++) {
-        for (var j = 0; j < projectTaskList[i].projTasks.length; j++) {
-            if (projectTaskList[i].projTasks[j].id == task)
-            {
-                label.innerHTML = projectTaskList[i].projTasks[j].desc;
-                finded = true;
-                break;
-            }
         }
     }
     if (!finded) {
@@ -390,54 +336,12 @@ function setDefaultDate(employeeId) {
 function getFirstWorkDate(){
     var employeeId = dojo.byId("employeeId").value;
     var employee = findEmployeeById(employeeId);
-    return convertStringToDate(employee.firstWorkDate);
-}
-
-// возващает последний рабочий день сотрудника
-function getLastWorkDate(){
-    var employeeId = dojo.byId("employeeId").value;
-    var employee = findEmployeeById(employeeId);
-    return convertStringToDate(employee.lastWorkDate);
-}
-
-// ковертирует дату в тип дата из строки (разделитель ".")
-function convertStringToDate(stringDate){
-    if (stringDate != null && stringDate != "") {
-        var date = stringDate.split('.');
-        return new Date(date[2], date[1]-1, date[0]);
-    }else{
-        return null;
+    var firstWorkDateString =  employee.firstWorkDate;
+    if (firstWorkDateString != null) {
+        var date = firstWorkDateString.split('.');
+        var firstWorkDate = new Date(date[2], date[1]-1, date[0]);
     }
-}
-
-function validateReportDate(value) {
-    if (value != null && dateNotBetweenMonth(value)) {
-        dojo.style("date_warning", {"display":"inline", "color":"red"});
-        if (invalidReportDate(value) > 0)
-            dojo.byId("date_warning").innerHTML = "Разница текущей и указанной дат больше 27 дней";
-        else
-            dojo.byId("date_warning").innerHTML = "Разница текущей и указанной дат больше 27 дней";
-    }
-    else {
-        dojo.style("date_warning", {"display":"none"});
-    }
-}
-
-function onCalDateChange(calDateObj){
-    calDateObj.constraints.min = getFirstWorkDate();
-    var lastWorkDate = getLastWorkDate();
-    if (lastWorkDate != null && lastWorkDate != ""){
-        calDateObj.constraints.max = lastWorkDate;
-    }else{
-        calDateObj.constraints.max = new Date(2100, 1, 1);
-    }
-    validateReportDate(calDateObj.value);
-    refreshPlans(calDateObj.value, dojo.byId('employeeId').value);
-}
-
-function onEmployeeChange(employeeObj){
-    setDefaultEmployeeJob(-1);
-    setDefaultDate(employeeObj.value)
+    return firstWorkDate;
 }
 
 /* Создает cookie с указанными параметрами */
@@ -557,6 +461,42 @@ function divisionChange(obj) {
 }
 
 /*
+ * Срабатывает при смене значения в списке подразделений.
+ * Управляет содержимым списка сотрудников в зависимости от выбранного
+ * значения в списке подразделений.
+ */
+function vacationCreate_divisionChange(obj) {
+    var divisionId = null;
+    var employeeSelect = dojo.byId("employeeId");
+    var employeeOption = null;
+
+    if (obj.target == null) {
+        divisionId = obj.value;
+    }
+    else {
+        divisionId = obj.target.value;
+    }
+    //Очищаем список сотрудников.
+    employeeSelect.options.length = 0;
+    for (var i = 0; i < employeeList.length; i++) {
+        if (divisionId == employeeList[i].divId) {
+            for (var j = 0; j < employeeList[i].divEmps.length; j++) {
+                if (employeeList[i].divEmps[j].id != 0) {
+                    employeeOption = dojo.doc.createElement("option");
+                    dojo.attr(employeeOption, {
+                        value:employeeList[i].divEmps[j].id
+                    });
+                    employeeOption.title = employeeList[i].divEmps[j].value;
+                    employeeOption.innerHTML = employeeList[i].divEmps[j].value;
+                    employeeSelect.appendChild(employeeOption);
+                }
+            }
+        }
+    }
+    sortSelectOptions(employeeSelect);
+}
+
+/*
  * Срабатывает при смене значения в списке "Тип активности".
  * Управляет доступностью компонентов соответсвующей строки
  * табличной части отчёта в соответствии с определённой логикой.
@@ -590,7 +530,7 @@ function typeActivityChange(obj) {
             disabled:"disabled",
             value:"0"
         });
-        dojo.attr("taskName_id_" + rowIndex, {
+        dojo.attr("cqId_id_" + rowIndex, {
             disabled:"disabled",
             value:"0"
         });
@@ -631,14 +571,12 @@ function typeActivityChange(obj) {
         }
     }
 
-    /*
-    kss 19.07.2013 - для пресейлов автоматически блокировалось поле выбора "Задача".
     if (select.value == "13") {
-        dojo.attr("taskName_id_" + rowIndex, {
+        dojo.attr("cqId_id_" + rowIndex, {
             disabled:"disabled",
             value:"0"
         });
-    }*/
+    }
     if ((select.value == "12") || (select.value == "13") || (select.value == "14") || (select.value == "42")) {
         dojo.removeAttr("workplace_id_" + rowIndex, "disabled");
         dojo.removeAttr("activity_category_id_" + rowIndex, "disabled");
@@ -653,7 +591,6 @@ function typeActivityChange(obj) {
         fillAvailableActivityCategoryList(rowIndex);
     }
     setActDescription(rowIndex);
-    setTaskDescription(rowIndex);
 }
 
 /* Заполняет список доступных проектов/пресейлов */
@@ -666,7 +603,7 @@ function fillProjectList(rowIndex, projectState) {
                 projectSelect.options.length = 0;
                 insertEmptyOption(projectSelect);
                 for (var j = 0; j < projectList[i].divProjs.length; j++) {
-                    if ((projectList[i].divProjs[j].state == projectState) && (projectList[i].divProjs[j].active == 'true')) {
+                    if (projectList[i].divProjs[j].state == projectState) {
                         projectOption = dojo.doc.createElement("option");
                         dojo.attr(projectOption, {
                             value:projectList[i].divProjs[j].id
@@ -723,7 +660,7 @@ function projectChange(obj) {
     var selectId = dojo.attr(select, "id");
     var projectId = select.value;
     var rowIndex = selectId.substring(selectId.lastIndexOf("_") + 1, selectId.length);
-    var taskSelect = dojo.byId("taskName_id_" + rowIndex);
+    var taskSelect = dojo.byId("cqId_id_" + rowIndex);
     var taskOption = null;
     taskSelect.options.length = 0;
     dojo.attr(taskSelect, {
@@ -746,7 +683,6 @@ function projectChange(obj) {
         }
     }
     sortSelectOptions(taskSelect);
-    dojo.byId("task_description_" + rowIndex).innerHTML = "";
 }
 
 /* Выставляет должность сотрудника (проектная роль по умолчанию) */
@@ -802,14 +738,6 @@ function getTitle(processed) {
     else {
         select = processed.target;
     }
-    //костыль чтобы в категории активности отображалось описание
-    if(select.id.indexOf("activity_category_id_")+1){
-        var description = dojo.byId("act_description_" + select.id.substring(21)).innerHTML;
-        if(description && description.trim()!=""){
-            return  description;
-        }
-    }
-    //
     var index = select.selectedIndex;
     if (select.options != null) {
         if ((index > -1) && (select.options[index].text != "")) {
@@ -875,7 +803,7 @@ function reloadRowsState() {
         }
         setActDescription(i);
 
-        var taskSelect = dojo.byId("taskName_id_" + i);
+        var taskSelect = dojo.byId("cqId_id_" + i);
         if (dojo.attr(taskSelect, "disabled") != "disabled") {
             for (var j = 0; j < selectedProjectTasks.length; j++) {
                 if (selectedProjectTasks[j].row == i) {
@@ -883,7 +811,6 @@ function reloadRowsState() {
                 }
             }
         }
-        setTaskDescription(i);
 
         if (dojo.byId("delete_button_" + i) === null || dojo.byId("delete_button_" + i) === undefined) {
             var deleteCell = rows[i].cells[0];
@@ -906,30 +833,9 @@ function reloadRowsState() {
                 var id_num = parseInt(id.substring(id.lastIndexOf("_") + 1, id.length));
                 console.log(id_num);
                 deleteRow(id_num);
-            };
+
+            }
             deleteCell.appendChild(img);
-        }
-
-        //ячейка с кнопкой(картинкой) запроса из JIRA
-        if (dojo.byId("jira_button_" + i) === null || dojo.byId("jira_button_" + i) === undefined ){
-            var jiraCell = rows[i].cells[10];
-            var jiraImg = dojo.doc.createElement("img");
-            dojo.addClass(jiraImg, "pointer");
-            dojo.attr(jiraImg, {
-                id:"jira_button_" + i,
-                src:"resources/img/logo-jira.png",
-                alt:"Запрос из JIRA",
-                title:"Запрос из JIRA",
-                //без px так как IE не понимает
-                height:"15",
-                width:"15"
-            });
-
-            //неведома ошибка исправляется для IE добавлением onclick именно через функцию
-            jiraImg.onclick = function () {
-                getJiraInfo(newRowIndex);
-            };
-            jiraCell.appendChild(jiraImg);
         }
 
         sortSelectOptions(actCatSelect);
@@ -982,7 +888,7 @@ function resetRowState(rowIndex, resetActType) {
     var labelDescription = dojo.byId("act_description_" + rowIndex);
     labelDescription.innerHtml = "";
     setActDescription(rowIndex);
-    dojo.attr("taskName_id_" + rowIndex, {
+    dojo.attr("cqId_id_" + rowIndex, {
         disabled:"disabled",
         value:"0"
     });
@@ -990,6 +896,7 @@ function resetRowState(rowIndex, resetActType) {
     dojo.attr("description_id_" + rowIndex, {
         disabled:"disabled"
     });
+
 
     if (rowIndex == GetFirstIdDescription()) {
         dojo.attr("add_in_comments", {
@@ -1225,7 +1132,6 @@ function checkDurationThenSendForm(){
 
     var isHoliday = false;
     var isVacation = false;
-    var isDivisionLeader = false;
 
     dojo.xhrGet({
         url: getContextPath() + "/calendar/isholiday",
@@ -1252,7 +1158,7 @@ function checkDurationThenSendForm(){
     });
 
     dojo.xhrGet({
-        url: getContextPath() + "/calendar/isvacationwithoutplanned",
+        url: getContextPath() + "/calendar/isvacation",
         headers: {
             "If-Modified-Since":"Sat, 1 Jan 2000 00:00:00 GMT"
         },
@@ -1275,31 +1181,10 @@ function checkDurationThenSendForm(){
         }
     });
 
-    dojo.xhrGet({
-        url: getContextPath() + "/employee/isDivisionLeader",
-        headers: {
-            "If-Modified-Since":"Sat, 1 Jan 2000 00:00:00 GMT"
-        },
-        handleAs: "text",
-        timeout: 1000,
-        failOk: true,
-        content: { employeeId: dojo.byId('employeeId').value },
-        sync: true,
-
-        load: function(dataAsText, ioArgs) {
-            var data;
-            try {
-                data = dojo.fromJson(dataAsText);
-            } catch (e) {}
-
-            if (data) {
-                isDivisionLeader = data.isDivisionLeader
-            }
-        }
-    });
-
-    var check = (((totalDuration < (8 - undertimeThreshold)) && !isDivisionLeader)|| totalDuration > (8 + overtimeThreshold) ) || isHoliday || isVacation;
-    if ( check ) {
+    if (
+        (totalDuration < (8 - undertimeThreshold) || totalDuration > (8 + overtimeThreshold) )
+        || isHoliday || isVacation
+    ) {
         var comment = dijit.byId("overtimeCauseComment");
 
         /*comment.on("mouseover", function() {
@@ -1347,25 +1232,9 @@ function checkDurationThenSendForm(){
 
 
 function submitWithOvertimeCauseSet(){
-    var comment = dijit.byId("overtimeCauseComment").get("value");
-    var required = dijit.byId("overtimeCauseComment").get("required");
-
-    if (comment == "" && required == true) {
-        tooltip.show("Комментарий для причины 'Другое' является обязательным!");
-        return;
-    }
-
-    var overtimeCause = dijit.byId("overtimeCause").get("value");
-
-    if (overtimeCause == 0) {
-        tooltip.show("Необходимо указать причину!");
-        return;
-    }
-
     dojo.byId("overtimeCauseComment_hidden").value = dijit.byId("overtimeCauseComment").get('value');
-    dojo.byId("overtimeCause_hidden").value = overtimeCause;
+    dojo.byId("overtimeCause_hidden").value = dijit.byId("overtimeCause").get('value');
     dojo.byId("typeOfCompensation_hidden").value = dijit.byId("typeOfCompensation").get('value');
-
 
     dijit.byId('dialogOne').hide();
     submitform('send');
@@ -1461,6 +1330,7 @@ function openViewReportsWindow() {
         window.open('viewreports/' + divisionId + '/' + employeeId + '/' + date.getFullYear() + '/' + (date.getMonth() + 1), 'reports_window' + employeeId);
     }
 }
+;
 
 function openBusinessTripsAndIllnessWindow() {
     var employeeId = dojo.byId("employeeId").value;
@@ -1473,6 +1343,8 @@ function openBusinessTripsAndIllnessWindow() {
 Запускаем Standby widget на весь экран
  */
 function processing() {
+  var standByElement = new dojox.widget.Standby({target: dojo.query("body")[0], zIndex:1000});
+
   document.body.appendChild(standByElement.domNode);
   standByElement.startup();
   standByElement.show();
@@ -1569,29 +1441,4 @@ var tooltip = function () {
 
 function getRootEventListener() {
     return window.addEventListener || window.attachEvent ? window : document.addEventListener ? document : null;
-}
-
-function getJiraInfo(rowIndex) {
-    var employeeId = dojo.byId("employeeId").value;
-    var projectId = dojo.byId("project_id_" + rowIndex).value;
-    var reportDate = dijit.byId('calDate').get('value').format("yyyy-mm-dd");
-
-    if (employeeId != 0 && projectId != 0 && reportDate != 0) {
-        dojo.xhrGet({
-            url: getContextPath() + "/timesheet/jiraIssues",
-            handleAs:"text",
-            timeout:10000,
-            content:{employeeId:employeeId, date:reportDate, projectId:projectId},
-            load:function (data) {
-                if (data.length != 0)
-                    dojo.byId("description_id_" + rowIndex).value = data;
-                else
-                    dojo.byId("description_id_" + rowIndex).value = "Активности по задачам не найдено";
-                textareaAutoGrow(dojo.byId("description_id_" + rowIndex));
-            },
-            error:function (err) {
-                dojo.byId("description_id_" + rowIndex).value = "Ошибка при поиске активности в JIRA";
-            }
-        });
-    }
 }

@@ -27,7 +27,6 @@ import java.util.*;
 
 import static com.aplana.timesheet.enums.TypesOfActivityEnum.getProjectPresaleNonProjectActivityId;
 import static com.aplana.timesheet.enums.VacationStatusEnum.APPROVED;
-import static com.aplana.timesheet.enums.IllnessTypesEnum.ILLNESS;
 
 @Repository
 public class JasperReportDAO {
@@ -40,16 +39,15 @@ public class JasperReportDAO {
     static {
         //может быть это вынести в сам класс Reports? kss - нет, это мапинг полей datasource для отчета, его логично делать там же, где формируются данные.
         fieldsMap.put( Report01.class, new String[] { "id", "name", "caldate", "projnames", "overtime", "duration",
-                "holiday", "region", "projdetail", "durationdetail", "region_name", "project_role", "vacation", "illness",
-                "billable", "overtime_cause", "comment", "compensation", "vacation_type" } );
+                "holiday", "region", "projdetail", "durationdetail", "region_name", "vacation", "illness" } );
         fieldsMap.put( Report02.class, new String[] { "name", "empldivision", "project",
-                "taskname", "duration", "day_type", "region", "region_name", "project_role", "project_state", "billable", "vacation_type" } );
+                "taskname", "duration", "holiday", "region", "region_name" } );
         fieldsMap.put( Report03.class, new String[] { "name", "empldivision", "project", "taskname",
-                "caldate", "duration", "day_type", "region", "region_name", "project_role", "project_state", "billable", "vacation_type" } );
-        fieldsMap.put( Report04.class, new String[] { "date", "name", "region_name", "role" } );
+                "caldate", "duration", "holiday", "region", "region_name" } );
+        fieldsMap.put( Report04.class, new String[] { "date", "name", "region_name" } );
         fieldsMap.put( Report05.class, new String[] { "calDate", "name", "value", "pctName", "actType",
-                "role", "taskName", "duration", "description", "problem", "region_name", "workplace", "project_role", "day_type", "billable", "plan" } );
-        fieldsMap.put( Report06.class, new String[] { "duration", "project_role", "name", "act_cat", "region_name", "role", "act_type", "begin_date", "end_date"} );
+                "pctRole", "taskName", "duration", "description", "problem", "region_name" } );
+        fieldsMap.put( Report06.class, new String[] { "duration", "act_type", "name", "act_cat", "region_name" } );
     }
 
     private static final Logger logger = LoggerFactory.getLogger(JasperReportDAO.class);
@@ -58,12 +56,6 @@ public class JasperReportDAO {
     private static final String EMPLOYEE_CLAUSE = "empl.id=:emplId AND ";
     private static final String REGION_CLAUSE   = "empl.region.id in :regionIds AND ";
     private static final String PROJECT_CLAUSE  = "tsd.project.id=:projectId AND ";
-    private static final String DIVISION_SQL_CLAUSE = "division.id=:emplDivisionId AND ";
-    private static final String EMPLOYEE_SQL_CLAUSE = "empl.id=:emplId AND ";
-    private static final String REGION_SQL_CLAUSE   = "region.id in :regionIds AND ";
-    private static final String PROJECT_SQL_CLAUSE  = "project.id=:projectId AND ";
-    private static final String BILLABLE_CLAUSE = "(epbillable.billable = 'true' OR (epbillable.billable is null AND empl.billable = 'true')) AND ";
-    private static final String HIDE_INACTIVE_PROJECTS_CLAUSE = "AND project.active = 'true' ";
 
     private static final String WITHOUT_CLAUSE  = "";
 
@@ -127,9 +119,7 @@ public class JasperReportDAO {
 
         for ( Iterator<String> namesIterator = projNamesList.iterator(); namesIterator.hasNext(); ) {
             String nextName = namesIterator.next();
-            /* пропускаем null (скорее всего это непроектная деятельность) */
-            if (nextName == null)
-                continue;
+
             projNames.append( nextName );
             if ( namesIterator.hasNext() )
                 projNames.append( ", " );
@@ -142,19 +132,16 @@ public class JasperReportDAO {
         boolean withRegionClause   = report.hasRegions()                && !report.isAllRegions();
         boolean withDivisionClause = ! report.getDivisionOwnerId().equals(0);
         // Запрос достанет для сотрудников наименования проектов по датам
-        Query projQuery = entityManager.createNativeQuery(
-                "select empl.id, calendar.calDate, project.name " +
-                "from time_sheet_detail timesheet_details " +
-                    "       INNER JOIN time_sheet timesheet ON timesheet_details.time_sheet_id=timesheet.id " +
-                    "       INNER JOIN employee empl    ON timesheet.emp_id=empl.id " +
-                    "       INNER JOIN region region        ON empl.region=region.id " +
-                    "       INNER JOIN division division    ON empl.division=division.id " +
-                    "       LEFT OUTER JOIN calendar calendar  ON timesheet.caldate=calendar.caldate " +
-                    "       LEFT OUTER JOIN project project    ON timesheet_details.proj_id=project.id " +
+        Query projQuery = entityManager.createQuery(
+                "select empl.id, ts.calDate.calDate, td.project.name " +
+                "from TimeSheetDetail td " +
+                    "inner join td.timeSheet ts " +
+                    "inner join ts.employee empl " +
+                    "join empl.division d "+
                 "where " +
-                    (withDivisionClause ? DIVISION_SQL_CLAUSE : WITHOUT_CLAUSE) +
-                    (withRegionClause ? REGION_SQL_CLAUSE : WITHOUT_CLAUSE ) +
-                    "calendar.calDate between :beginDate and :endDate ");
+                    (withDivisionClause ? DIVISION_CLAUSE : WITHOUT_CLAUSE) +
+                    (withRegionClause ? REGION_CLAUSE : WITHOUT_CLAUSE ) +
+                    "ts.calDate.calDate between :beginDate and :endDate ");
 
         if (withRegionClause)
             projQuery.setParameter("regionIds", report.getRegionIds());
@@ -180,11 +167,11 @@ public class JasperReportDAO {
             workDaySeparator="holidays.calDate is null AND";
         }
 
-        // К сожалению HQL не может ворочить сложные запросы, пришлось писать native sql-запрос
+        // К сожалению HQL не может ворочить сложные запросы, прищлось писать native sql-запрос
         Query query = entityManager.createNativeQuery(
                 "SELECT " +
-                        "        empl.id AS col_0," +
-                        "        empl.name AS col_1," +
+                        "        employee.id AS col_0," +
+                        "        employee.name AS col_1," +
                         "        timesheet.caldate AS col_2," +
                         "        cast('' AS varchar(255)) AS col_3," +
                         "        sum(timesheet_details.duration)-8 AS col_4," +
@@ -209,17 +196,8 @@ public class JasperReportDAO {
                         "            ELSE cast(-1 as float4) " +
                         "        END AS col_9," +
                         "        region.name AS col_10," +
-                        "        project_role.name AS col_11," +
-                        "        vacations.id AS col_12," +
-                        "        illnesses.id AS col_13," +
-                        "        CASE " +
-                        "            WHEN (epbillable.billable is not null) THEN epbillable.billable" +
-                        "            ELSE empl.billable" +
-                        "        END AS billable, " +
-                        "        over_cause.value AS col_15, " +
-                        "        overtime.comment AS col_16, " +
-                        "        compensation.value AS col_17, " +
-                        "        vacation_type.value AS col_18, " +
+                        "        vacations.id AS col_11," +
+                        "        illnesses.id AS col_12," +
                         "        CASE" +
                         "           WHEN (holidays.id is not null) " +
                         "               THEN 1 " +
@@ -234,60 +212,48 @@ public class JasperReportDAO {
                         "                           ELSE 0" +
                         "                       END" +
                         "               END" +
-                        "        END AS day_type " +
+                        "        END AS day_type  " +
                         "FROM " +
                         "       time_sheet_detail timesheet_details " +
                         "       INNER JOIN time_sheet timesheet ON timesheet_details.time_sheet_id=timesheet.id " +
-                        "       INNER JOIN employee empl    ON timesheet.emp_id=empl.id " +
-                        "       INNER JOIN region region        ON empl.region=region.id " +
-                        "       INNER JOIN division division    ON empl.division=division.id " +
+                        "       INNER JOIN employee employee    ON timesheet.emp_id=employee.id " +
+                        "       INNER JOIN region region        ON employee.region=region.id " +
+                        "       INNER JOIN division division    ON employee.division=division.id " +
                         "       LEFT OUTER JOIN calendar calendar  ON timesheet.caldate=calendar.caldate " +
                         "       LEFT OUTER JOIN holiday holidays   ON calendar.caldate=holidays.caldate " +
                         "       LEFT OUTER JOIN project project    ON timesheet_details.proj_id=project.id " +
-                        "       LEFT OUTER JOIN employee_project_billable epbillable    ON project.id=epbillable.project_id and empl.id=epbillable.employee_id " +
-                        "       LEFT OUTER JOIN overtime_cause overtime    ON overtime.timesheet_id=timesheet.id " +
-                        "       LEFT OUTER JOIN dictionary_item over_cause    ON over_cause.id=overtime.overtime_cause_id " +
-                        "       LEFT OUTER JOIN dictionary_item compensation    ON compensation.id=overtime.compensation_id " +
                         "       LEFT OUTER JOIN project_role project_role ON timesheet_details.projectrole_id=project_role.id " +
                         "       LEFT OUTER JOIN vacation vacations ON " +
-                        "               empl.id=vacations.employee_id AND " +
+                        "               employee.id=vacations.employee_id AND " +
                         "               timesheet.caldate BETWEEN vacations.begin_date AND vacations.end_date " +
-                        "               AND vacations.status_id=:status " +
-                        "       LEFT OUTER JOIN dictionary_item vacation_type    ON vacation_type.id=vacations.type_id " +
+                        "               AND vacations.status_id=:status" +
                         "       LEFT OUTER JOIN illness illnesses ON " +
-                        "               empl.id=illnesses.employee_id AND " +
+                        "               employee.id=illnesses.employee_id AND " +
                         "               timesheet.caldate BETWEEN illnesses.begin_date AND illnesses.end_date " +
                         "WHERE " +
                                 (withDivisionClause ? "division.id = :emplDivisionId AND " : "") +
                                 (withRegionClause ? "region.id in :regionIds AND " : "") +
                                 workDaySeparator +
-                                (!report.getShowNonBillable()? BILLABLE_CLAUSE :WITHOUT_CLAUSE)+
                         "        timesheet_details.act_type in :actTypes AND " +
                         "        timesheet.caldate BETWEEN :beginDate AND :endDate AND " +
                         "        (holidays.region is null OR holidays.region=region.id) " +
                         "GROUP BY" +
-                        "        empl.id ," +
-                        "        empl.name ," +
+                        "        employee.id ," +
+                        "        employee.name ," +
                         "        timesheet.caldate ," +
                         "        holidays.id ," +
                         "        holidays.region ," +
                         "        col_8 ," +
                         "        region.name ," +
-                        "        project_role.name, " +
                         "        vacations.id ," +
-                        "        illnesses.id ," +
-                        "        epbillable.billable," +
-                        "        vacation_type.value, " +
-                        "        over_cause.value, " +
-                        "        overtime.comment, " +
-                        "        compensation.value " +
+                        "        illnesses.id " +
                         "HAVING" +
                         "        sum(timesheet_details.duration) > 8 " +
                         "        OR holidays.id is not null " +
                         "        OR vacations.id is not null " +
                         "        OR illnesses.id is not null " +
                         "ORDER BY" +
-                        "        empl.name," +
+                        "        employee.name," +
                         "        day_type," +
                         "        timesheet.caldate"
         );
@@ -322,293 +288,169 @@ public class JasperReportDAO {
         return resultList;
     }
 
-    @Language("SQL")
+    @Language("HQL")
     private static final String report02QueryString =
                         "SELECT " +
-                                "empl.name as col_0, " +
-                                "division.name as col_1, " +
-                                "project.name as col_2, " +
-                                "project_task.name as col_3, " +
-                                "sum(timesheet_details.duration) as col_4, " +
-                                "CASE" +
-                                "   WHEN (holidays.id is not null) " +
-                                "       THEN 1 " +
-                                "   ELSE " +
-                                "       CASE " +
-                                "           WHEN (vacations.id is not null) " +
-                                "               THEN 2 " +
-                                "           ELSE " +
-                                "               CASE " +
-                                "                   WHEN (illnesses.id is not null) " +
-                                "                       THEN 3 " +
-                                "                   ELSE 0 " +
-                                "               END " +
-                                "       END " +
-                                "END as day_type, " +
-                                "max(h_region.id) as col_6, " +
-                                "region.name as col_7, " +
-                                "project_role.name as col_8, " +
-                                "project_state.value as col_9, " +
-                                "CASE " +
-                                "    WHEN (epbillable.billable is not null) THEN epbillable.billable " +
-                                "    ELSE empl.billable " +
-                                "END as col_10, " +
-                                "vacation_type.value AS col_11 " +
-                        "FROM time_sheet_detail AS timesheet_details " +
-                                "INNER JOIN time_sheet timesheet ON timesheet_details.time_sheet_id=timesheet.id " +
-                                "INNER JOIN employee empl    ON timesheet.emp_id=empl.id " +
-                                "INNER JOIN calendar calendar  ON timesheet.caldate=calendar.caldate " +
-                                "INNER JOIN division division    ON empl.division=division.id " +
-                                "INNER JOIN project project    ON timesheet_details.proj_id=project.id " + "%s " +
-                                "INNER JOIN region region        ON empl.region=region.id " +
-                                "LEFT OUTER JOIN project_task project_task ON timesheet_details.task_id=project_task.id " +
-                                "LEFT OUTER JOIN project_role project_role ON timesheet_details.projectrole_id=project_role.id " +
-                                "LEFT OUTER JOIN holiday holidays   ON calendar.caldate=holidays.caldate " +
-                                "LEFT OUTER JOIN region h_region   ON holidays.region=h_region.id " +
-                                "LEFT OUTER JOIN employee_project_billable epbillable    ON project.id=epbillable.project_id and empl.id=epbillable.employee_id " +
-                                "LEFT OUTER JOIN dictionary_item project_state    ON project.state=project_state.id " +
-                                "LEFT OUTER JOIN vacation vacations ON " +
-                                "        empl.id=vacations.employee_id AND " +
-                                "        timesheet.caldate BETWEEN vacations.begin_date AND vacations.end_date " +
-                                "        AND vacations.status_id=:status " +
-                                "LEFT OUTER JOIN dictionary_item vacation_type    ON vacation_type.id=vacations.type_id " +
-                                "LEFT OUTER JOIN illness illnesses ON " +
-                                "        empl.id=illnesses.employee_id AND " +
-                                "        timesheet.caldate BETWEEN illnesses.begin_date AND illnesses.end_date " +
-                                "%s " +
+                                "empl.name, " +
+                                "d.name, " +
+                                "p.name, " +
+                                "pt.cqId, " +
+                                "sum(tsd.duration), " +
+                                "(case when h is null then 0 " +
+                                "else " +
+                                    "case when h.region.id is not null and h.region.id<>empl.region.id then 0 " +
+                                    "else 1 end end), " +
+                                "max(h.region.id), " +
+                                "r.name " +
+                        "FROM TimeSheetDetail tsd " +
+                            "join tsd.timeSheet ts " +
+                            "join ts.employee empl " +
+                            "join ts.calDate c " +
+                            "join empl.division d " +
+                            "join tsd.project p " +
+                            "join empl.region r " +
+                            "left outer join tsd.projectTask as pt " +
+                            "left outer join c.holidays h " +
+                            " %s " +
                         "WHERE " +
-                                "timesheet_details.duration > 0 AND " +
-                                " %s %s %s %s %s " +
-                                "calendar.calDate between :beginDate AND :endDate " +
-                        "GROUP BY " +
-                                "empl.name, " +
-                                "division.name, " +
-                                "region.name, " +
-                                "project_role.name, " +
-                                "project.name, " +
-                                "project_task.name, " +
-                                "project_state.value, " +
-                                "epbillable.billable, " +
-                                "vacation_type.value, " +
-                                "empl.billable, " +
-                                "holidays.id, " +
-                                "vacations.id," +
-                                "illnesses.id " +
-                        "ORDER BY " +
-                                "empl.name, " +
-                                "project_state.value, " +
-                                "project.name, " +
-                                "project_task.name, " +
-                                "day_type ";
+                            "tsd.duration > 0 AND " +
+                            " %s %s %s %s" +
+                            "c.calDate between :beginDate AND :endDate " +
+                        "GROUP BY empl.name, d.name, p.name, pt.cqId, 6, r.name " +
+                        "ORDER BY empl.name, p.name, pt.cqId ";
 
     private List getResultList( Report02 report ) {
         boolean hasProject = report.getProjectId() != null && report.getProjectId() != 0;
         boolean hasDiv = report.getDivisionOwnerId() != null && report.getDivisionOwnerId() != 0;
         boolean withRegionClause   = report.hasRegions()                && !report.isAllRegions();
         boolean withDivisionClause = report.getEmplDivisionId() != null && report.getEmplDivisionId() != 0;
-        boolean withEmployeeClause = report.getEmployeeId()     != null && report.getEmployeeId    () != 0;
+        boolean withEmployeeClasue = report.getEmployeeId()     != null && report.getEmployeeId    () != 0;
 
         Query query;
         if (hasProject) {
             // Выборка по конкретному проекту
-            query = entityManager.createNativeQuery( String.format( report02QueryString,
-                    !report.getShowInactiveProjects()? HIDE_INACTIVE_PROJECTS_CLAUSE :WITHOUT_CLAUSE,
+            query = entityManager.createQuery( String.format( report02QueryString,
                     "",
-                    PROJECT_SQL_CLAUSE,
-                    withEmployeeClause ? EMPLOYEE_SQL_CLAUSE : WITHOUT_CLAUSE,
-                    withDivisionClause ? DIVISION_SQL_CLAUSE : WITHOUT_CLAUSE,
-                    withRegionClause   ? REGION_SQL_CLAUSE   : WITHOUT_CLAUSE,
-                    !report.getShowNonBillable()? BILLABLE_CLAUSE :WITHOUT_CLAUSE
+                    PROJECT_CLAUSE,
+                    withEmployeeClasue ? EMPLOYEE_CLAUSE : WITHOUT_CLAUSE,
+                    withDivisionClause ? DIVISION_CLAUSE : WITHOUT_CLAUSE,
+                    withRegionClause   ? REGION_CLAUSE   : WITHOUT_CLAUSE
             )).setParameter("projectId", report.getProjectId());
         } else if ( hasDiv ) {
             // Выборка по всем проектам центра
-            query = entityManager.createNativeQuery( String.format( report02QueryString,
-                    !report.getShowInactiveProjects()? HIDE_INACTIVE_PROJECTS_CLAUSE :WITHOUT_CLAUSE,
-                    "LEFT OUTER JOIN division_project division_project ON division_project.project_id=project.id ",
-                    "division_project.division_id=:divisionId AND ",
-                    withEmployeeClause ? EMPLOYEE_SQL_CLAUSE : WITHOUT_CLAUSE,
-                    withDivisionClause ? DIVISION_SQL_CLAUSE : WITHOUT_CLAUSE,
-                    withRegionClause   ? REGION_SQL_CLAUSE   : WITHOUT_CLAUSE,
-                    !report.getShowNonBillable()? BILLABLE_CLAUSE :WITHOUT_CLAUSE
+            query = entityManager.createQuery( String.format( report02QueryString,
+                    "join p.divisions dp ",
+                    "dp.id=:divisionId AND ",
+                    withEmployeeClasue ? EMPLOYEE_CLAUSE : WITHOUT_CLAUSE,
+                    withDivisionClause ? DIVISION_CLAUSE : WITHOUT_CLAUSE,
+                    withRegionClause   ? REGION_CLAUSE   : WITHOUT_CLAUSE
             ) ).setParameter( "divisionId", report.getDivisionOwnerId() );
         } else {
             // Выборка по всем проектам всех центров
-            query = entityManager.createNativeQuery( String.format( report02QueryString,
-                    !report.getShowInactiveProjects()? HIDE_INACTIVE_PROJECTS_CLAUSE :WITHOUT_CLAUSE,
+            query = entityManager.createQuery( String.format( report02QueryString,
                     "",
                     "",
-                    withEmployeeClause ? EMPLOYEE_SQL_CLAUSE : WITHOUT_CLAUSE,
-                    withDivisionClause ? DIVISION_SQL_CLAUSE : WITHOUT_CLAUSE,
-                    withRegionClause   ? REGION_SQL_CLAUSE   : WITHOUT_CLAUSE,
-                    !report.getShowNonBillable()? BILLABLE_CLAUSE :WITHOUT_CLAUSE
+                    withEmployeeClasue ? EMPLOYEE_CLAUSE : WITHOUT_CLAUSE,
+                    withDivisionClause ? DIVISION_CLAUSE : WITHOUT_CLAUSE,
+                    withRegionClause   ? REGION_CLAUSE   : WITHOUT_CLAUSE
             ) );
         }
         if ( withRegionClause )
             query.setParameter("regionIds", report.getRegionIds());
-        if ( withEmployeeClause )
+        if ( withEmployeeClasue )
             query.setParameter("emplId", report.getEmployeeId());
         if ( withDivisionClause )
             query.setParameter("emplDivisionId", report.getEmplDivisionId());
 
         query.setParameter("beginDate", DateTimeUtil.stringToTimestamp( report.getBeginDate() ));
         query.setParameter("endDate", DateTimeUtil.stringToTimestamp(report.getEndDate()));
-        query.setParameter("status", APPROVED.getId());
 
         return query.getResultList();
     }
 
-    @Language("SQL")
+    @Language("HQL")
     private static final String report03QueryString =
-            "SELECT " +
-                    "empl.name as col_0, " +
-                    "division.name as col_1, " +
-                    "project.name as col_2, " +
-                    "project_task.name as col_3, " +
-                    "calendar.caldate as col_4, " +
-                    "sum(timesheet_details.duration) as col_5, " +
-                    "CASE" +
-                    "   WHEN (holidays.id is not null) " +
-                    "       THEN 1 " +
-                    "   ELSE " +
-                    "       CASE " +
-                    "           WHEN (vacations.id is not null) " +
-                    "               THEN 2 " +
-                    "           ELSE " +
-                    "               CASE " +
-                    "                   WHEN (trip.id is not null) " +
-                    "                       THEN 5 " +
-                    "                   ELSE " +
-                    "                       CASE " +
-                    "                           WHEN (illnesses.id is not null) " +
-                    "                               THEN  " +
-                    "                                   CASE " +
-                    "                                       WHEN (illnesses.reason_id=:reasonable_illness) " +
-                    "                                           THEN 3 " +
-                    "                                   ELSE 4 " +
-                    "                                   END " +
-                    "                           ELSE 0 " +
-                    "                       END " +
-                    "               END " +
-                    "       END " +
-                    "END as col_6, " +
-                    "h_region.id as col_7, " +
-                    "region.name as col_8, " +
-                    "project_role.name as col_9, " +
-                    "project_state.value as col_10, " +
-                    "CASE " +
-                    "    WHEN (epbillable.billable is not null) THEN epbillable.billable " +
-                    "    ELSE empl.billable " +
-                    "END as col_11, " +
-                    "vacation_type.value AS col_12 " +
-            "FROM time_sheet_detail AS timesheet_details " +
-                    "INNER JOIN time_sheet timesheet ON timesheet_details.time_sheet_id=timesheet.id " +
-                    "INNER JOIN employee empl    ON timesheet.emp_id=empl.id " +
-                    "INNER JOIN calendar calendar  ON timesheet.caldate=calendar.caldate " +
-                    "INNER JOIN division division    ON empl.division=division.id " +
-                    "INNER JOIN project project    ON timesheet_details.proj_id=project.id " + "%s " +
-                    "INNER JOIN region region        ON empl.region=region.id " +
-                    "LEFT OUTER JOIN project_task project_task ON timesheet_details.task_id=project_task.id " +
-                    "LEFT OUTER JOIN project_role project_role ON timesheet_details.projectrole_id=project_role.id " +
-                    "LEFT OUTER JOIN holiday holidays   ON calendar.caldate=holidays.caldate " +
-                    "LEFT OUTER JOIN region h_region   ON holidays.region=h_region.id " +
-                    "LEFT OUTER JOIN employee_project_billable epbillable    ON project.id=epbillable.project_id and empl.id=epbillable.employee_id " +
-                    "LEFT OUTER JOIN dictionary_item project_state    ON project.state=project_state.id " +
-                    "LEFT OUTER JOIN vacation vacations ON " +
-                    "        empl.id=vacations.employee_id AND " +
-                    "        timesheet.caldate BETWEEN vacations.begin_date AND vacations.end_date " +
-                    "        AND vacations.status_id=:status " +
-                    "LEFT OUTER JOIN dictionary_item vacation_type    ON vacation_type.id=vacations.type_id " +
-                    "LEFT OUTER JOIN illness illnesses ON " +
-                    "        empl.id=illnesses.employee_id AND " +
-                    "        timesheet.caldate BETWEEN illnesses.begin_date AND illnesses.end_date " +
-                    "LEFT OUTER JOIN business_trip trip ON " +
-                    "        empl.id=trip.employee_id AND " +
-                    "        timesheet.caldate BETWEEN trip.begin_date AND trip.end_date " +
-                    "%s " +
-            "WHERE " +
-                    "timesheet_details.duration > 0 AND " +
-                    " %s %s %s %s %s " +
-                    "calendar.caldate between :beginDate AND :endDate " +
-            "GROUP BY " +
-                    "empl.name, " +
-                    "division.name, " +
-                    "project.name, " +
-                    "project_task.name, " +
-                    "calendar.caldate, " +
-                    "holidays.id, " +
-                    "vacations.id, " +
-                    "illnesses.id, " +
-                    "trip.id, " +
-                    "h_region.id, " +
-                    "region.id, " +
-                    "region.name, " +
-                    "epbillable.billable, " +
-                    "vacation_type.value, " +
-                    "empl.billable, " +
-                    "project_role.name, " +
-                    "project_state.value " +
-            "ORDER BY empl.name, project.name, project_task.name, calendar.caldate ";
+                    "SELECT " +
+                            "empl.name, " +
+                            "d.name, " +
+                            "p.name, " +
+                            "pt.cqId, " +
+                            "c.calDate, " +
+                            "sum(tsd.duration), " +
+                            "(case when h is null then 0 " +
+                            "else " +
+                                "case when h.region.id is not null and h.region.id<>empl.region.id then 0 " +
+                                "else 1 end " +
+                            "end), " +
+                            "h.region.id, " +
+                            "r.name " +
+                    "FROM TimeSheetDetail tsd " +
+                        "join tsd.timeSheet ts " +
+                        "join ts.employee empl " +
+                        "join ts.calDate c " +
+                        "join empl.division d " +
+                        "join tsd.project p " +
+                        "join empl.region r " +
+                        "left outer  join tsd.projectTask as pt " +
+                        "left outer join c.holidays h " +
+                        "%s " +
+                    "WHERE " +
+                        "tsd.duration > 0 AND " +
+                        "%s %s %s %s " +
+                        "c.calDate between :beginDate AND :endDate " +
+                    "GROUP BY empl.name, d.name, p.name, pt.cqId, c.calDate, h.id, h.region.id, empl.region.id, r.name " +
+                    "ORDER BY empl.name, p.name, pt.cqId, c.calDate ";
 
     private List getResultList( Report03 report ) {
-        boolean hasProject = report.getProjectId() != null && report.getProjectId() != 0;
-        boolean hasDiv = report.getDivisionOwnerId() != null && report.getDivisionOwnerId() != 0;
         boolean withRegionClause   = report.hasRegions()                && !report.isAllRegions();
         boolean withDivisionClause = report.getEmplDivisionId() != null && report.getEmplDivisionId() != 0;
-        boolean withEmployeeClause = report.getEmployeeId()     != null && report.getEmployeeId    () != 0;
+        boolean withEmployeeClasue = report.getEmployeeId()     != null && report.getEmployeeId    () != 0;
 
         Query query;
 
-        if ( hasProject ) {
+        if ( report.getProjectId() != null && report.getProjectId() != 0 ) {
             // Выборка по конкретному проекту
-            query = entityManager.createNativeQuery(
+            query = entityManager.createQuery(
                     String.format( report03QueryString,
-                            !report.getShowInactiveProjects()? HIDE_INACTIVE_PROJECTS_CLAUSE :WITHOUT_CLAUSE,
                             "",
-                            PROJECT_SQL_CLAUSE,
-                            withEmployeeClause ? EMPLOYEE_SQL_CLAUSE : WITHOUT_CLAUSE,
-                            withDivisionClause ? DIVISION_SQL_CLAUSE : WITHOUT_CLAUSE,
-                            withRegionClause   ? REGION_SQL_CLAUSE   : WITHOUT_CLAUSE,
-                            !report.getShowNonBillable()? BILLABLE_CLAUSE :WITHOUT_CLAUSE
+                            PROJECT_CLAUSE,
+                            withEmployeeClasue ? EMPLOYEE_CLAUSE : WITHOUT_CLAUSE,
+                            withDivisionClause ? DIVISION_CLAUSE : WITHOUT_CLAUSE,
+                            withRegionClause   ? REGION_CLAUSE   : WITHOUT_CLAUSE
             ) );
 			query.setParameter("projectId", report.getProjectId());
-        } else if ( hasDiv ) {
+        } else if ( report.getFilterProjects()) {
             // Выборка по всем проектам центра
-            query = entityManager.createNativeQuery(
+            query = entityManager.createQuery(
                     String.format( report03QueryString,
-                            !report.getShowInactiveProjects()? HIDE_INACTIVE_PROJECTS_CLAUSE :WITHOUT_CLAUSE,
-                            "LEFT OUTER JOIN division_project division_project ON division_project.project_id=project.id ",
-                            "division_project.division_id=:divisionId AND ",
-                            withEmployeeClause ? EMPLOYEE_SQL_CLAUSE : WITHOUT_CLAUSE,
-                            withDivisionClause ? DIVISION_SQL_CLAUSE : WITHOUT_CLAUSE,
-                            withRegionClause   ? REGION_SQL_CLAUSE   : WITHOUT_CLAUSE,
-                            !report.getShowNonBillable()? BILLABLE_CLAUSE :WITHOUT_CLAUSE
+                            "join p.divisions dp ",
+                            "dp.id=:divisionId AND ",
+                            withEmployeeClasue ? EMPLOYEE_CLAUSE : WITHOUT_CLAUSE,
+                            withDivisionClause ? DIVISION_CLAUSE : WITHOUT_CLAUSE,
+                            withRegionClause   ? REGION_CLAUSE   : WITHOUT_CLAUSE
             ) );
             query.setParameter( "divisionId", report.getDivisionOwnerId() );
         } else {
             // Выборка по всем проектам всех центров
-            query = entityManager.createNativeQuery(
+            query = entityManager.createQuery(
                     String.format( report03QueryString,
-                            !report.getShowInactiveProjects()? HIDE_INACTIVE_PROJECTS_CLAUSE :WITHOUT_CLAUSE,
                             "",
                             "",
-                            withEmployeeClause ? EMPLOYEE_SQL_CLAUSE : WITHOUT_CLAUSE,
-                            withDivisionClause ? DIVISION_SQL_CLAUSE : WITHOUT_CLAUSE,
-                            withRegionClause   ? REGION_SQL_CLAUSE   : WITHOUT_CLAUSE,
-                            !report.getShowNonBillable()? BILLABLE_CLAUSE :WITHOUT_CLAUSE
+                            withEmployeeClasue ? EMPLOYEE_CLAUSE : WITHOUT_CLAUSE,
+                            withDivisionClause ? DIVISION_CLAUSE : WITHOUT_CLAUSE,
+                            withRegionClause   ? REGION_CLAUSE   : WITHOUT_CLAUSE
             ) );
         }
 
         if ( withRegionClause )
             query.setParameter("regionIds", report.getRegionIds());
-        if (withEmployeeClause)
+        if (withEmployeeClasue)
             query.setParameter("emplId", report.getEmployeeId());
         if (withDivisionClause)
             query.setParameter("emplDivisionId", report.getEmplDivisionId());
 
         query.setParameter("beginDate", DateTimeUtil.stringToTimestamp( report.getBeginDate() ));
         query.setParameter("endDate", DateTimeUtil.stringToTimestamp(report.getEndDate()));
-        query.setParameter("status", APPROVED.getId());
-        query.setParameter("reasonable_illness", ILLNESS.getId());
 
         return query.getResultList();
     }
@@ -619,47 +461,44 @@ public class JasperReportDAO {
 
         // К сожалению HQL не может ворочить сложные запросы, прищлось писать native sql-запрос
         Query query = entityManager.createNativeQuery(
-            "SELECT " +
-                    "        calendar.caldate AS col_0, " +
-                    "        employee.name AS col_1, " +
-                    "        region.name AS col_2, " +
-                    "        project_role.name as col_3 " +
-                    "FROM " +
-                    "        calendar calendar  " +
-                    "        CROSS JOIN employee employee  " +
-                    "        INNER JOIN division division ON employee.division=division.id " +
-                    "        INNER JOIN project_role project_role ON employee.job=project_role.id " +
-                    "        LEFT JOIN illness illnesses ON  " +
-                    "                employee.id=illnesses.employee_id AND  " +
-                    "                (calendar.caldate BETWEEN illnesses.begin_date AND illnesses.end_date) AND  " +
-                    "                (illnesses.begin_date <= :endDate AND illnesses.end_date >= :beginDate) " +
-                    "        LEFT JOIN vacation vacations ON  " +
-                    "                employee.id=vacations.employee_id AND  " +
-                    "                (calendar.caldate BETWEEN vacations.begin_date AND vacations.end_date) AND  " +
-                    "                (vacations.begin_date <= :endDate AND vacations.end_date >= :beginDate) AND  " +
-                    "                (vacations.status_id = :statusId), " +
-                    "        region region  " +
-                    "WHERE  " +
-                             ( withDivisionClause ? "        division.id=:emplDivisionId AND  " : "") +
-                             ( withRegionClause   ? "        (employee.region IN (:regionIds)) AND  " : "" ) +
-                    "        illnesses.id IS NULL AND " +
-                    "        vacations.id IS NULL AND " +
-                    "        employee.region=region.id AND  " +
-                    "        (calendar.caldate BETWEEN :beginDate AND  " +
-                    "                CASE WHEN employee.end_date IS NOT NULL THEN  " +
-                    "                        CASE WHEN employee.end_date<:endDate THEN employee.end_date ELSE :endDate END  " +
-                    "                ELSE :endDate end) AND " +
-                    "        employee.not_to_sync=FALSE AND  " +
-                    "        (employee.manager IS NOT NULL) AND  " +
-                    "        (calendar.caldate NOT IN  " +
-                    "                (SELECT timesheet.caldate FROM time_sheet timesheet WHERE timesheet.emp_id=employee.id)) AND  " +
-                    "        (calendar.caldate NOT IN   " +
-                    "                (SELECT holiday.caldate FROM holiday holiday WHERE holiday.region IS NULL OR holiday.region=employee.region)) AND  " +
-                    "        employee.start_date<=calendar.caldate  " +
-                    "ORDER BY " +
-                    "        employee.name,  " +
-                    "        calendar.caldate, " +
-                    "        project_role.name "
+            "SELECT\n" +
+                    "        calendar.caldate AS col_0,\n" +
+                    "        employee.name AS col_1,\n" +
+                    "        region.name AS col_2\n" +
+                    "FROM\n" +
+                    "        calendar calendar \n" +
+                    "        CROSS JOIN employee employee \n" +
+                    "        INNER JOIN division division ON employee.division=division.id  \n" +
+                    "        LEFT JOIN illness illnesses ON \n" +
+                    "                employee.id=illnesses.employee_id AND \n" +
+                    "                (calendar.caldate BETWEEN illnesses.begin_date AND illnesses.end_date) AND \n" +
+                    "                (illnesses.begin_date <= :endDate AND illnesses.end_date >= :beginDate)\n" +
+                    "        LEFT JOIN vacation vacations ON \n" +
+                    "                employee.id=vacations.employee_id AND \n" +
+                    "                (calendar.caldate BETWEEN vacations.begin_date AND vacations.end_date) AND \n" +
+                    "                (vacations.begin_date <= :endDate AND vacations.end_date >= :beginDate) AND \n" +
+                    "                (vacations.status_id = :statusId),\n" +
+                    "        region region \n" +
+                    "WHERE \n" +
+                             ( withDivisionClause ? "        division.id=:emplDivisionId AND \n" : "") +
+                             ( withRegionClause   ? "        (employee.region IN (:regionIds)) AND \n" : "" ) +
+                    "        illnesses.id IS NULL AND\n" +
+                    "        vacations.id IS NULL AND\n" +
+                    "        employee.region=region.id AND \n" +
+                    "        (calendar.caldate BETWEEN :beginDate AND \n" +
+                    "                CASE WHEN employee.end_date IS NOT NULL THEN \n" +
+                    "                        CASE WHEN employee.end_date<:endDate THEN employee.end_date ELSE :endDate END \n" +
+                    "                ELSE :endDate end) AND\n" +
+                    "        employee.not_to_sync=FALSE AND \n" +
+                    "        (employee.manager IS NOT NULL) AND \n" +
+                    "        (calendar.caldate NOT IN \n" +
+                    "                (SELECT timesheet.caldate FROM time_sheet timesheet WHERE timesheet.emp_id=employee.id)) AND \n" +
+                    "        (calendar.caldate NOT IN  \n" +
+                    "                (SELECT holiday.caldate FROM holiday holiday WHERE holiday.region IS NULL OR holiday.region=employee.region)) AND \n" +
+                    "        employee.start_date<=calendar.caldate \n" +
+                    "ORDER BY\n" +
+                    "        employee.name, \n" +
+                    "        calendar.caldate\n"
         );
 
         if (withRegionClause) {
@@ -678,59 +517,38 @@ public class JasperReportDAO {
     private List getResultList( Report05 report ) {
         boolean withRegionClause   = report.hasRegions()                && !report.isAllRegions();
         boolean withDivisionClause = report.getDivisionOwnerId() != null && report.getDivisionOwnerId() != 0;
-        boolean withEmployeeClause = report.getEmployeeId() != null && report.getEmployeeId    () != 0;
+        boolean withEmployeeClasue = report.getEmployeeId() != null && report.getEmployeeId    () != 0;
 
-        Query query = entityManager.createNativeQuery(
+        Query query = entityManager.createQuery(
                 "select " +
-                        "calendar.calDate as col_0, " +
-                        "empl.name as col_1, " +
-                        "act_type.value as col_2, " +
-                        "project.name as col_3, " +
-                        "act_cat.value as col_4, " +
-                        "job.name as col_5, " +
-                        "COALESCE(project_task.name, '') as col_6, " +
-                        "timesheet_details.duration as col_7, " +
-                        "timesheet_details.description as col_8, " +
-                        "timesheet_details.problem as col_9, " +
-                        "region.name as col_10, " +
-                        "workplace.value as col_11," +
-                        "project_role.name as col_12," +
-                        "CASE" +
-                        "   WHEN (holidays.id is not null) " +
-                        "       THEN 1 " +
-                        "   ELSE 0 " +
-                        "END as col_13, " +
-                        "CASE " +
-                        "    WHEN (epbillable.billable is not null) THEN epbillable.billable " +
-                        "    ELSE empl.billable " +
-                        "END as col_14, " +
-                        "timesheet.plan as col_15 " +
-                "FROM time_sheet_detail AS timesheet_details " +
-                        "INNER JOIN time_sheet timesheet ON timesheet_details.time_sheet_id=timesheet.id " +
-                        "INNER JOIN employee empl    ON timesheet.emp_id=empl.id " +
-                        "INNER JOIN calendar calendar  ON timesheet.caldate=calendar.caldate " +
-                        "INNER JOIN project project    ON timesheet_details.proj_id=project.id " +
-                        "INNER JOIN region region        ON empl.region=region.id " +
-                        "INNER JOIN project_role project_role        ON timesheet_details.projectrole_id=project_role.id " +
-                        "INNER JOIN project_role job        ON empl.job=job.id " +
-                        "INNER JOIN division division    ON empl.division=division.id " +
-                        "LEFT OUTER JOIN project_task project_task ON timesheet_details.task_id=project_task.id " +
-                        "LEFT OUTER JOIN dictionary_item act_type    ON timesheet_details.act_type=act_type.id " +
-                        "LEFT OUTER JOIN dictionary_item act_cat    ON timesheet_details.act_cat=act_cat.id " +
-                        "LEFT OUTER JOIN dictionary_item workplace    ON timesheet_details.workplace_id=workplace.id " +
-                        "LEFT OUTER JOIN holiday holidays   ON calendar.caldate=holidays.caldate " +
-                        "LEFT OUTER JOIN employee_project_billable epbillable    ON project.id=epbillable.project_id and empl.id=epbillable.employee_id " +
-                "where " +
-                        (withDivisionClause ? DIVISION_SQL_CLAUSE : WITHOUT_CLAUSE) +
-                        (withRegionClause ? REGION_SQL_CLAUSE : WITHOUT_CLAUSE) +
-                        (withEmployeeClause ? EMPLOYEE_SQL_CLAUSE : WITHOUT_CLAUSE) +
-                        "calendar.calDate between :beginDate and :endDate " +
-                "order by calendar.calDate, empl.name ");
+                        "ts.calDate.calDate, " +
+                        "empl.name, " +
+                        "td.actType.value, " +
+                        "td.project.name, " +
+                        "td.actCat.value, " +
+                        "empl.job.name, " +
+                        "COALESCE(pt.cqId, ''), " +
+                        "td.duration, " +
+                        "td.description, " +
+                        "td.problem, " +
+                        "r.name " +
+                        "from TimeSheetDetail td " +
+                        "left outer join td.projectTask as pt " +
+                        "inner join td.timeSheet ts " +
+                        "inner join ts.employee empl " +
+                        "join empl.division d " +
+                        "join empl.region r " +
+                        "where " +
+                        (withDivisionClause ? DIVISION_CLAUSE : WITHOUT_CLAUSE) +
+                        (withRegionClause ? REGION_CLAUSE : WITHOUT_CLAUSE) +
+                        (withEmployeeClasue ? EMPLOYEE_CLAUSE : WITHOUT_CLAUSE) +
+                        "td.timeSheet.calDate.calDate between :beginDate and :endDate " +
+                        "order by td.timeSheet.employee.name,td.timeSheet.calDate.calDate");
 
         if (withRegionClause) {
 			query.setParameter("regionIds", report.getRegionIds());
 		}
-        if (withEmployeeClause) {
+        if (withEmployeeClasue) {
             query.setParameter("emplId", report.getEmployeeId());
         }
         if (withDivisionClause) {
@@ -745,20 +563,16 @@ public class JasperReportDAO {
     @VisibleForTesting
     List getResultList(Report06 report) {
         boolean withRegionClause   = report.hasRegions()                && !report.isAllRegions();
-        boolean withDatesClause   = !report.isAllDates();
 
         boolean withProjectClause = !report.getProjectId().equals(0);
 
         Query query = entityManager.createQuery(
                 "SELECT " +
                         "sum(tsd.duration), " +
-                        "tsd.projectRole.name, " +
+                        "act.projectRole.name, " +
                         "tsd.timeSheet.employee.name, " +
                         "tsd.actCat.value, " +
-                        "r.name, " +
-                        "tsd.timeSheet.employee.job.name, " +
-                        "tsd.actType.value " +
-                        (",min(tsd.timeSheet.calDate.calDate), max(tsd.timeSheet.calDate.calDate) ") +
+                        "r.name " +
                 "FROM " +
                         "TimeSheetDetail tsd, " +
                         "AvailableActivityCategory act " +
@@ -769,58 +583,17 @@ public class JasperReportDAO {
                         "tsd.actCat=act.actCat AND " +
                         (withRegionClause ? REGION_CLAUSE : WITHOUT_CLAUSE) +
                         (withProjectClause ? PROJECT_CLAUSE : WITHOUT_CLAUSE) +
-                        (withDatesClause?"tsd.timeSheet.calDate.calDate between :beginDate AND :endDate AND ":WITHOUT_CLAUSE) +
-                        "act.projectRole=tsd.projectRole " +
-                "GROUP BY " +
-                        "tsd.projectRole.name, " +
-                        "act.projectRole.name, " +
-                        "tsd.timeSheet.employee.name, " +
-                        "tsd.actCat.value, " +
-                        "r.name, " +
-                        "tsd.timeSheet.employee.job.name, " +
-                        "tsd.actType.value " +
+                        "tsd.timeSheet.calDate.calDate between :beginDate AND :endDate AND " +
+                        "act.projectRole=tsd.timeSheet.employee.job " +
+                "GROUP BY act.projectRole.name, tsd.timeSheet.employee.name, tsd.actCat.value, r.name " +
                 "ORDER BY tsd.timeSheet.employee.name asc");
-        //нужен только для случая если период не указан
-        Query datesQuery = null;
-        if (!withDatesClause) {
-            datesQuery = entityManager.createQuery(
-                    "SELECT " +
-                            "new map(min(tsd.timeSheet.calDate.calDate) as minDate, " +
-                            "max(tsd.timeSheet.calDate.calDate) as maxDate) " +
-                    "FROM " +
-                            "TimeSheetDetail tsd " +
-                            "join tsd.timeSheet.employee empl " +
-                            "join empl.region r " +
-                    "WHERE " +
-                            (withRegionClause ? REGION_CLAUSE : WITHOUT_CLAUSE) +
-                            (withProjectClause ? PROJECT_CLAUSE : WITHOUT_CLAUSE) +
-                            (withDatesClause?"tsd.timeSheet.calDate.calDate between :beginDate AND :endDate AND":WITHOUT_CLAUSE)+
-                            "true is true ");
-        }
 
-        if (withRegionClause){
-            query.setParameter("regionIds", report.getRegionIds());
-            if (!withDatesClause) {
-                datesQuery.setParameter("regionIds", report.getRegionIds());
-            }
-        }
-        if (withProjectClause){
+        if (withRegionClause)
+			query.setParameter("regionIds", report.getRegionIds());
+        if (withProjectClause)
             query.setParameter("projectId", report.getProjectId());
-            if (!withDatesClause) {
-                datesQuery.setParameter("projectId", report.getProjectId());
-            }
-        }
-        if (withDatesClause) {
-            query.setParameter("beginDate", DateTimeUtil.stringToTimestamp( report.getBeginDate() ));
-            query.setParameter("endDate", DateTimeUtil.stringToTimestamp(report.getEndDate()));
-        }
-        if (!withDatesClause) {
-            Map<String, Timestamp> dates= (Map<String, Timestamp>) datesQuery.getSingleResult();
-            if(dates!=null){
-                report.setBeginDate(DateTimeUtil.formatDate(dates.get("minDate")));
-                report.setEndDate(DateTimeUtil.formatDate(dates.get("maxDate")));
-            }
-        }
+        query.setParameter("beginDate", DateTimeUtil.stringToTimestamp( report.getBeginDate() ));
+        query.setParameter("endDate", DateTimeUtil.stringToTimestamp(report.getEndDate()));
 
         return query.getResultList();
     }

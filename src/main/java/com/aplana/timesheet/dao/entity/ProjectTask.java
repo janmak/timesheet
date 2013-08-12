@@ -5,7 +5,7 @@ import org.hibernate.annotations.ForeignKey;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "project_task", uniqueConstraints = @UniqueConstraint(columnNames = {"name"}))
+@Table(name = "project_task", uniqueConstraints = @UniqueConstraint(columnNames = {"cq_id"}))
 public class ProjectTask {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "proj_task_seq")
@@ -13,8 +13,8 @@ public class ProjectTask {
     @Column(nullable = false)
     Integer id;
 
-    @Column(name = "name", nullable = false)
-    String taskName;
+    @Column(name = "cq_id", nullable = false)
+    String cqId;
     
     @Column(columnDefinition = "text not null")
     String description;
@@ -35,12 +35,12 @@ public class ProjectTask {
 	this.id = id;
     }
 
-    public String getTaskName() {
-        return taskName;
+    public String getCqId() {
+        return cqId;
     }
 
-    public void setTaskName(String taskName) {
-        this.taskName = taskName;
+    public void setCqId(String cqId) {
+        this.cqId = cqId;
     }
 
     public String getDescription() {

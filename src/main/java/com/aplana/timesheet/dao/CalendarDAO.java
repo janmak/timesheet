@@ -3,7 +3,6 @@ package com.aplana.timesheet.dao;
 import com.aplana.timesheet.dao.entity.Calendar;
 import com.aplana.timesheet.dao.entity.Holiday;
 import com.aplana.timesheet.dao.entity.Region;
-import com.aplana.timesheet.exception.service.CalendarServiceException;
 import com.aplana.timesheet.util.DateTimeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,7 +21,7 @@ import java.util.Date;
 import java.util.List;
 
 @Repository
-public class CalendarDAO {
+public class  CalendarDAO {
 	private static final Logger logger = LoggerFactory.getLogger(CalendarDAO.class);
 
     private static final String BEGIN_DATE = "beginDate";
@@ -181,16 +180,6 @@ public class CalendarDAO {
              .setParameter(REGION, region);
     }
 
-    // возвращает выходные дни без региональных
-    public List<Holiday> getHolidaysInInterval(Date beginDate, Date endDate){
-        Query query = entityManager.createQuery(
-                "select h from Holiday as h where h.calDate.calDate between :beginDate AND :endDate AND h.region is null")
-                .setParameter("beginDate", beginDate)
-                .setParameter("endDate", endDate);
-
-        return query.getResultList();
-    }
-
     public int getWorkDaysCountForRegion(Region region, Integer year, Integer month, @NotNull Date fromDate) {
         final Query query = entityManager.createQuery(
                 "select count(c) - count(h)" +
@@ -256,48 +245,5 @@ public class CalendarDAO {
         select.where(predicates.toArray(new Predicate[predicates.size()]));
 
         return ((Long) entityManager.createQuery(select).getSingleResult()).intValue();
-    }
-
-    public Date tryGetMaxDateMonth(Integer year, Integer month) {
-        final Query query = entityManager.createQuery(
-                "select MAX(calDate)" +
-                        " from Calendar c" +
-                        " where YEAR(c.calDate) = :year and MONTH(c.calDate) = :month"
-        ).setParameter("year", year).setParameter("month", month);
-        Date result;
-        try {
-            result = (Date) query.getSingleResult();
-        } catch (Exception e) {
-            result = null;
-        }
-        return result;
-    }
-
-    public Date tryGetMinDateMonth(Integer year, Integer month) {
-        final Query query = entityManager.createQuery(
-                "select MIN(calDate)" +
-                        " from Calendar c" +
-                        " where YEAR(c.calDate) = :year and MONTH(c.calDate) = :month"
-        ).setParameter("year", year).setParameter("month", month);
-        Date result;
-        try {
-            result = (Date) query.getSingleResult();
-        } catch (Exception e) {
-            result = null;
-        }
-        return result;
-    }
-
-    public int getCountWorkDayPriorDate(Region region, Integer year, Integer month, @NotNull Date toDate) {
-        final Query query = entityManager.createQuery(
-                "select count(c) - count(h)" +
-                        " from Calendar c" +
-                        " left outer join c.holidays h" +
-                        " where YEAR(c.calDate) = :year and MONTH(c.calDate) = :month" +
-                        " and (h.region is null or h.region = :region) and c.calDate <= :toDate"
-        ).setParameter("region", region).setParameter("year", year).
-                setParameter("month", month).setParameter("toDate", toDate);
-
-        return ((Long) query.getSingleResult()).intValue();
     }
 }

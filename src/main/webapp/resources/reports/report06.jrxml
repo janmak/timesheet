@@ -1,38 +1,36 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="report4" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="61a66b12-cca9-4f31-91b3-fab1ba61af71">
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="report4" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20">
 	<property name="net.sf.jasperreports.print.keep.full.text" value="true"/>
 	<property name="ireport.zoom" value="1.5"/>
 	<property name="ireport.x" value="0"/>
 	<property name="ireport.y" value="0"/>
 	<import value="com.aplana.timesheet.util.DateTimeUtil"/>
 	<style name="Normal" isDefault="true" pdfFontName="arial.ttf" pdfEncoding="Cp1251"/>
-	<style name="Title" style="Normal" fontName="Arial" fontSize="26"/>
-	<style name="SubTitle" style="Normal" forecolor="#666666" fontName="Arial" fontSize="18"/>
-	<style name="Column header" style="Normal" forecolor="#666666" fontName="Arial" fontSize="12" isBold="true"/>
-	<style name="Detail" style="Normal" backcolor="#FF0000" fontName="Arial" fontSize="12"/>
+	<style name="Title" isDefault="false" style="Normal" fontName="Arial" fontSize="26"/>
+	<style name="SubTitle" isDefault="false" style="Normal" forecolor="#666666" fontName="Arial" fontSize="18"/>
+	<style name="Column header" isDefault="false" style="Normal" forecolor="#666666" fontName="Arial" fontSize="12" isBold="true"/>
+	<style name="Detail" isDefault="false" style="Normal" backcolor="#FF0000" fontName="Arial" fontSize="12"/>
 	<parameter name="reportParams" class="com.aplana.timesheet.reports.Report06" isForPrompting="false"/>
 	<field name="duration" class="java.lang.Double"/>
 	<field name="act_type" class="java.lang.String"/>
 	<field name="name" class="java.lang.String"/>
 	<field name="act_cat" class="java.lang.String"/>
 	<field name="region_name" class="java.lang.String"/>
-	<field name="project_role" class="java.lang.String"/>
-	<field name="role" class="java.lang.String"/>
 	<group name="Group1">
 		<groupExpression><![CDATA[$F{name}]]></groupExpression>
 		<groupHeader>
 			<band height="30">
 				<textField>
-					<reportElement uuid="f7daa344-8bee-4d96-b156-507fa772731b" style="SubTitle" x="0" y="6" width="553" height="24" forecolor="#000000" backcolor="#CCCCCC"/>
+					<reportElement style="SubTitle" x="0" y="6" width="553" height="24" forecolor="#000000" backcolor="#CCCCCC"/>
 					<textElement/>
-					<textFieldExpression><![CDATA[$F{name} + ", " + $F{region_name} + ", " + $F{role}]]></textFieldExpression>
+					<textFieldExpression class="java.lang.String"><![CDATA[$F{name} + ", " + $F{region_name}]]></textFieldExpression>
 				</textField>
 			</band>
 		</groupHeader>
 		<groupFooter>
 			<band height="6">
 				<line>
-					<reportElement uuid="b0ba1eb5-6904-4aca-a29c-4cec3f578188" x="0" y="0" width="553" height="1"/>
+					<reportElement x="0" y="0" width="553" height="1"/>
 				</line>
 			</band>
 		</groupFooter>
@@ -43,12 +41,17 @@
 	<title>
 		<band height="125" splitType="Stretch">
 			<staticText>
-				<reportElement uuid="017c2110-5560-474e-8a87-1c749fd7b8a0" style="Title" x="0" y="0" width="555" height="77"/>
+				<reportElement style="Title" x="0" y="0" width="555" height="77"/>
 				<textElement textAlignment="Center" verticalAlignment="Middle"/>
 				<text><![CDATA[Отчет №6. Распределение трудозатрат в проекте для СК]]></text>
 			</staticText>
+            <textField>
+                <reportElement style="SubTitle" x="0" y="77" width="555" height="24"/>
+                <textElement textAlignment="Center"/>
+                <textFieldExpression class="java.lang.String"><![CDATA["Регион : "+ $P{reportParams}.wellFormedRegionList()]]></textFieldExpression>
+            </textField>
 			<textField>
-				<reportElement uuid="a527baa0-384d-4c3c-9d45-f2071150e0d2" style="SubTitle" x="0" y="77" width="555" height="24"/>
+				<reportElement style="SubTitle" x="0" y="101" width="555" height="24"/>
 				<textElement textAlignment="Center"/>
 				<textFieldExpression class="java.lang.String"><![CDATA["с " + DateTimeUtil.formatDateString($P{reportParams}.getBeginDate()) +
 " по " + DateTimeUtil.formatDateString($P{reportParams}.getEndDate())]]></textFieldExpression>
@@ -61,28 +64,28 @@
 	<columnHeader>
 		<band height="36" splitType="Stretch">
 			<staticText>
-				<reportElement uuid="a8db504f-b1a0-4dbf-aa34-72dcc24b425e" style="Column header" x="0" y="19" width="77" height="15"/>
+				<reportElement style="Column header" x="0" y="19" width="77" height="15"/>
 				<textElement/>
 				<text><![CDATA[Сотрудник]]></text>
 			</staticText>
 			<line>
-				<reportElement uuid="3abaf9d7-47cb-417a-8dc0-777895a6a010" positionType="FixRelativeToBottom" x="0" y="35" width="553" height="1"/>
+				<reportElement positionType="FixRelativeToBottom" x="0" y="35" width="553" height="1"/>
 				<graphicElement>
 					<pen lineWidth="0.5" lineColor="#999999"/>
 				</graphicElement>
 			</line>
 			<staticText>
-				<reportElement uuid="d3f416df-4a78-4bd0-b686-46219c814813" style="Column header" x="77" y="19" width="222" height="15"/>
+				<reportElement style="Column header" x="77" y="19" width="222" height="15"/>
 				<textElement/>
 				<text><![CDATA[Проектная роль]]></text>
 			</staticText>
 			<staticText>
-				<reportElement uuid="2fedec97-0038-4239-ae61-16a813c684de" style="Column header" x="299" y="19" width="194" height="15"/>
+				<reportElement style="Column header" x="299" y="19" width="194" height="15"/>
 				<textElement/>
 				<text><![CDATA[Категория активности]]></text>
 			</staticText>
 			<staticText>
-				<reportElement uuid="578e6afe-4d48-454f-bc16-849e42a9be6a" style="Column header" x="493" y="19" width="60" height="15"/>
+				<reportElement style="Column header" x="493" y="19" width="60" height="15"/>
 				<textElement/>
 				<text><![CDATA[Часы]]></text>
 			</staticText>
@@ -91,32 +94,32 @@
 	<detail>
 		<band height="20">
 			<line>
-				<reportElement uuid="7bb9f716-ca3e-411a-afc5-56efe7fea358" positionType="FixRelativeToBottom" x="0" y="15" width="553" height="1"/>
+				<reportElement positionType="FixRelativeToBottom" x="0" y="15" width="553" height="1"/>
 				<graphicElement>
 					<pen lineWidth="0.5" lineColor="#999999"/>
 				</graphicElement>
 			</line>
 			<textField>
-				<reportElement uuid="6f4edee5-253e-436d-918f-af3b72858e8f" style="Detail" x="299" y="0" width="194" height="20"/>
+				<reportElement style="Detail" x="299" y="0" width="194" height="20"/>
 				<textElement/>
-				<textFieldExpression><![CDATA[$F{act_cat}]]></textFieldExpression>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{act_cat}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement uuid="a10bcc52-6ade-4385-b339-f86166af5fb4" style="Detail" x="77" y="0" width="222" height="20"/>
+				<reportElement style="Detail" x="77" y="0" width="222" height="20"/>
 				<textElement/>
-				<textFieldExpression><![CDATA[$F{project_role}]]></textFieldExpression>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{act_type}]]></textFieldExpression>
 			</textField>
 			<textField pattern="###0.0">
-				<reportElement uuid="82971a62-a6bd-4be0-82cb-6b599c3f3068" style="Detail" x="493" y="0" width="60" height="20"/>
+				<reportElement style="Detail" x="493" y="0" width="60" height="20"/>
 				<textElement/>
-				<textFieldExpression><![CDATA[new DecimalFormat("###0.0").format($F{duration})]]></textFieldExpression>
+				<textFieldExpression class="java.lang.String"><![CDATA[new DecimalFormat("###0.0").format($F{duration})]]></textFieldExpression>
 			</textField>
 		</band>
 	</detail>
 	<columnFooter>
 		<band height="45" splitType="Stretch">
 			<line>
-				<reportElement uuid="5560c68d-046e-4097-b595-0eb67ad3bdf2" positionType="FixRelativeToBottom" x="0" y="3" width="553" height="1"/>
+				<reportElement positionType="FixRelativeToBottom" x="0" y="3" width="553" height="1"/>
 				<graphicElement>
 					<pen lineWidth="0.5" lineColor="#999999"/>
 				</graphicElement>
@@ -126,25 +129,25 @@
 	<pageFooter>
 		<band height="20" splitType="Stretch">
 			<textField>
-				<reportElement uuid="bf0ea579-59d6-478a-a4d0-97d35f7443d6" style="Column header" x="433" y="0" width="80" height="20"/>
+				<reportElement style="Column header" x="433" y="0" width="80" height="20"/>
 				<textElement textAlignment="Right">
 					<font size="10" isBold="false"/>
 				</textElement>
-				<textFieldExpression><![CDATA["Page "+$V{PAGE_NUMBER}+" of"]]></textFieldExpression>
+				<textFieldExpression class="java.lang.String"><![CDATA["Page "+$V{PAGE_NUMBER}+" of"]]></textFieldExpression>
 			</textField>
 			<textField evaluationTime="Report">
-				<reportElement uuid="9802a062-9a13-4592-9472-6d97eee2b091" style="Column header" x="513" y="0" width="40" height="20"/>
+				<reportElement style="Column header" x="513" y="0" width="40" height="20"/>
 				<textElement>
 					<font size="10" isBold="false"/>
 				</textElement>
-				<textFieldExpression><![CDATA[" " + $V{PAGE_NUMBER}]]></textFieldExpression>
+				<textFieldExpression class="java.lang.String"><![CDATA[" " + $V{PAGE_NUMBER}]]></textFieldExpression>
 			</textField>
 			<textField pattern="EEEEE dd MMMMM yyyy">
-				<reportElement uuid="8079357b-d71f-44b0-9f46-e7d8cfd752b3" style="Column header" x="0" y="0" width="197" height="20"/>
+				<reportElement style="Column header" x="0" y="0" width="197" height="20"/>
 				<textElement>
 					<font size="10" isBold="false"/>
 				</textElement>
-				<textFieldExpression><![CDATA[new java.util.Date().toString()]]></textFieldExpression>
+				<textFieldExpression class="java.lang.String"><![CDATA[new java.util.Date().toString()]]></textFieldExpression>
 			</textField>
 		</band>
 	</pageFooter>

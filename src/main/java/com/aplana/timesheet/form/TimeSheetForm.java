@@ -16,8 +16,6 @@ public class TimeSheetForm {
     /** Комментария к причине надоработок/переработко */
     private String overtimeCauseComment;
     private Integer typeOfCompensation;
-    /* оценка моего объема работ на следующий рабочий день */
-    private Integer effortInNextDay;
 
     public Integer getDivisionId() {
         return divisionId;
@@ -89,14 +87,6 @@ public class TimeSheetForm {
 
     public void setTypeOfCompensation(Integer typeOfCompensation) {
         this.typeOfCompensation = typeOfCompensation;
-    }
-
-    public Integer getEffortInNextDay() {
-        return effortInNextDay;
-    }
-
-    public void setEffortInNextDay(Integer effortInNextDay) {
-        this.effortInNextDay = effortInNextDay;
     }
 
     public void unEscapeHTML() {

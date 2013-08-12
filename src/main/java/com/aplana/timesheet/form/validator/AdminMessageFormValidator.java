@@ -28,7 +28,7 @@ public class AdminMessageFormValidator extends AbstractValidator {
         String email=amf.getEmail();
 
         if ( StringUtils.isBlank( email ) ) {
-            errors.rejectValue( "email", "error.fbform.email.required", "Не введен почтовый адрес отправителя." );
+            errors.rejectValue( "email", "error.fbform.email.required", "Неввведен почтовый адрес отправителя." );
         } else if ( ! validateEmail( email ) ){
             errors.rejectValue( "email", "error.fbform.email.invalid2", "Неверный почтовый адрес" );
         }

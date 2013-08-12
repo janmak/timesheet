@@ -1,5 +1,4 @@
 <%@ page import="java.io.File" %>
-<%@ page import="com.aplana.timesheet.enums.EffortInNextDayEnum" %>
 <%@page contentType="text/html" pageEncoding="UTF-8" %>
 
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form" %>
@@ -125,7 +124,6 @@
         </style>
     </head>
     <body>
-        <c:set var="defEffort" value="<%=EffortInNextDayEnum.NORMAL.getName()%>"/>
 
         <h1><fmt:message key="viewreports"/></h1>
         <br/>
@@ -177,7 +175,6 @@
                     <th width="150">Статус</th>
                     <th width="150">Часы</th>
                     <th width="150">Отсутствие</th>
-                    <th width="160">Проблемы</th>
                 </tr>
             </thead>
             <tbody>
@@ -188,12 +185,22 @@
                             <td class="date"><fmt:formatDate value="${report.calDate}" pattern="dd.MM.yyyy"/></td>
                             <td>Выходной</td>
                             <td></td>
+                            <td>
+                                <c:if test="${report.illnessDay}">Болезнь</c:if>
+                                <c:if test="${report.vacationDay}">Отпуск</c:if>
+                            </td>
+                        </tr>
                     </c:if>
                     <c:if test="${report.statusNotStart}">
                         <tr class="statusNotStart">
                             <td class="date"><fmt:formatDate value="${report.calDate}" pattern="dd.MM.yyyy"/></td>
                             <td>Ещё не принят на работу</td>
                             <td></td>
+                            <td>
+                                <c:if test="${report.illnessDay}">Болезнь</c:if>
+                                <c:if test="${report.vacationDay}">Отпуск</c:if>
+                            </td>
+                        </tr>
                     </c:if>
                     <c:if test="${report.statusNormalDay}">
                         <tr class="statusNormalDay toplan">
@@ -208,6 +215,11 @@
                                     </sec:authorize>
                             </td>
                             <td class="duration">${report.duration}</td>
+                            <td>
+                                <c:if test="${report.illnessDay}">Болезнь</c:if>
+                                <c:if test="${report.vacationDay}">Отпуск</c:if>
+                            </td>
+                        </tr>
                     </c:if>
                     <c:if test="${report.statusWorkOnHoliday}">
                         <tr class="statusWorkOnHoliday">
@@ -219,6 +231,11 @@
                                     </sec:authorize>
                             </td>
                             <td class="duration">${report.duration}</td>
+                            <td>
+                                <c:if test="${report.illnessDay}">Болезнь</c:if>
+                                <c:if test="${report.vacationDay}">Отпуск</c:if>
+                            </td>
+                        </tr>
                     </c:if>
                     <c:if test="${report.statusNoReport}">
                         <tr class="statusNoReport toplan">
@@ -232,29 +249,23 @@
                                     <td></td>
                                 </c:otherwise>
                             </c:choose>
+                            <td>
+                                <c:if test="${report.illnessDay}">Болезнь</c:if>
+                                <c:if test="${report.vacationDay}">Отпуск</c:if>
+                            </td>
+                        </tr>
                     </c:if>
                     <c:if test="${report.statusNotCome}">
                         <tr class="statusNotCome">
                             <td class="date"><fmt:formatDate value="${report.calDate}" pattern="dd.MM.yyyy"/></td>
                             <td></td>
                             <td></td>
+                            <td>
+                                <c:if test="${report.illnessDay}">Болезнь</c:if>
+                                <c:if test="${report.vacationDay}">Отпуск</c:if>
+                            </td>
+                        </tr>
                     </c:if>
-
-                        <td>
-                            <c:if test="${report.illnessDay}">Болезнь</c:if>
-                            <c:if test="${report.vacationDay}">Отпуск</c:if>
-                        </td>
-
-                        <td>
-                            <c:if test="${report.trouble}">Проблема</c:if>
-                            <c:if test="${report.effort != defEffort}">
-                                <c:if test="${report.trouble}">; </c:if>
-                                ${report.effort}
-                            </c:if>
-                        </td>
-
-                    </tr>
-
                 </c:forEach>
             </tbody>
             <thead>
@@ -263,55 +274,10 @@
                     <td id="durationall">${durationFact}</td>
                 </tr>
                 <tr>
-                    <td colspan="2">Всего к текущему времени(план):</td>
-                    <td id="durationPlanToCurrDate">${durationPlanToCurrDate}</td>
-                </tr>
-                <tr>
                     <td colspan="2">Всего(план):</td>
                     <td id="durationplan">${durationPlan}</td>
                 </tr>
             </thead>
-        </table>
-        <br>
-        <table id="viewreports">
-            <thead>
-            <tr>
-                <th width="80">Тип</th>
-                <th width="360">Проект/Пресейл</th>
-                <th width="80">План, ч</th>
-                <th width="80">План, %</th>
-                <th width="80">Факт, ч</th>
-                <th width="80">Факт, %</th>
-            </tr>
-            </thead>
-            <tbody>
-                <c:choose>
-                    <c:when test="${fn:length(reportsDetail) == 0}">
-                        <tr>
-                            <td colspan="6">Нет данных</td>
-                        </tr>
-                    </c:when>
-                    <c:otherwise>
-                        <c:forEach var="reportdetail" items="${reportsDetail}">
-                            <c:choose>
-                                <c:when test="${reportdetail.act_type.value == 'Итого'}">
-                                    <tr style="font-weight: bold;">
-                                </c:when>
-                                <c:otherwise>
-                                    <tr>
-                                </c:otherwise>
-                            </c:choose>
-                                <td>${reportdetail.act_type.value}</td>
-                                <td>${reportdetail.project.name}</td>
-                                <td class="duration">${reportdetail.planHours}</td>
-                                <td class="duration">${reportdetail.planPercent}%</td>
-                                <td class="duration">${reportdetail.factHours}</td>
-                                <td class="duration">${reportdetail.factPercent}%</td>
-                            </tr>
-                        </c:forEach>
-                    </c:otherwise>
-                </c:choose>
-            </tbody>
         </table>
     </body>
 </html>

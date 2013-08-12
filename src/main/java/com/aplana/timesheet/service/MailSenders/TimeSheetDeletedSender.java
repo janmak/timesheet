@@ -71,7 +71,7 @@ public class TimeSheetDeletedSender extends AbstractSenderWithAssistants<TimeShe
         result.add(TSPropertyProvider.getMailFromAddress());
         result.add(sendMailService.getEmployeesManagersEmails(empId));
         result.add(sendMailService.getProjectsManagersEmails(input));
-        result.add(sendMailService.getProjectManagersEmails(input));
+        result.add(sendMailService.getProjectParticipantsEmails(input));
 
         return result;
     }

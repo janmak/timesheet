@@ -3,14 +3,10 @@
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 
 <%@page contentType="text/html" pageEncoding="UTF-8" %>
-<script type="text/javascript" src="/resources/js/vacationsCountInHeader.js"></script>
-<script type="text/javascript">
-    dojo.addOnLoad(function () {
-        <sec:authorize access="isAuthenticated()">
-        getVacationsNeedsApprovalCountString();
-        </sec:authorize>
-    });
-</script>
+
+<%
+
+%>
 
 <a href="<c:url value='/'/>"><img id="logo" src="<%=request.getContextPath()%>/resources/img/logo.png"
                                   alt="Aplana Software"/></a>
@@ -32,7 +28,7 @@
                         <li><a href="<c:url value='/planEdit'/>"><fmt:message key="title.planEdit"/></a></li>
                         </sec:authorize>
                         <li><a href="<c:url value='/businesstripsandillness'/>"><fmt:message key="title.businesstripsandillness"/></a></li>
-                        <li><a href="<c:url value='/vacations'/>"><fmt:message key="title.vacations"/><span id="vacationCount"></span></a></li>
+                        <li><a href="<c:url value='/vacations'/>"><fmt:message key="title.vacations"/></a></li>
                         <sec:authorize access="hasAnyRole('ROLE_ADMIN', 'ROLE_MANAGER')">
                             <li><a href="<c:url value='/managertools'/>"><fmt:message key="title.manager"/></a></li>
                         </sec:authorize>

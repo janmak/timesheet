@@ -26,10 +26,10 @@ public class ProjectServiceTest extends AbstractJsonTest {
     @Autowired
     private ProjectDAO projectDAO;
 
-    private String getProjectListWithOwnerDivisionJson() {
+    private String getProjectListWithOwnerDivisionJson(List<Division> divisions) {
         StringBuilder result = new StringBuilder();
         result.append("[");
-        List<Project> projectList = projectDAO.getAllProjects();
+        List<Project> projectList = projectDAO.getProjects();
         for (Project project : projectList) {
             result.append("{\"id\":\"");
             result.append(project.getId());
@@ -37,10 +37,8 @@ public class ProjectServiceTest extends AbstractJsonTest {
             result.append(project.getName());
             result.append("\",\"state\":\"");
             result.append(project.getState().getId());
-            result.append("\",\"active\":\"");
-            result.append(project.isActive());
             result.append("\",\"ownerDivisionId\":\"");
-            result.append(project.getManager()!=null&&project.getManager().getDivision()!=null?project.getManager().getDivision().getId():0);
+            result.append(project.getManager().getDivision().getId());
             result.append("\"}");
             result.append(",");
         }
@@ -60,16 +58,16 @@ public class ProjectServiceTest extends AbstractJsonTest {
             if (projects.size() > 0) {
                 int count = 0;
                 for (Project project : projects) {
-                    sb.append("{\"id\":\"");
-                    sb.append(project.getId());
-                    sb.append("\",\"value\":\"");
-                    sb.append(project.getName());
-                    sb.append("\",\"state\":\"");
-                    sb.append(project.getState().getId());
-                    sb.append("\",\"active\":\"");
-                    sb.append(project.isActive());
-                    sb.append("\"}");
-                    sb.append(",");
+                    if (project.isActive()) {
+                        sb.append("{\"id\":\"");
+                        sb.append(project.getId());
+                        sb.append("\",\"value\":\"");
+                        sb.append(project.getName());
+                        sb.append("\",\"state\":\"");
+                        sb.append(project.getState().getId());
+                        sb.append("\"}");
+                        sb.append(",");
+                    }
                     count++;
                 }
                 sb.deleteCharAt(sb.length() - 1);
@@ -87,7 +85,7 @@ public class ProjectServiceTest extends AbstractJsonTest {
     }
 
     private String getProjectListJson() {
-        return getProjectListAsJson(projectService.getAllProjects());
+        return getProjectListAsJson(projectService.getProjects());
     }
 
     private String getProjectListAsJson(List<Project> projects){
@@ -96,16 +94,16 @@ public class ProjectServiceTest extends AbstractJsonTest {
         if (projects.size() > 0) {
             int count = 0;
             for (Project project : projects) {
-                sb.append("{\"id\":\"");
-                sb.append(project.getId());
-                sb.append("\",\"value\":\"");
-                sb.append(project.getName());
-                sb.append("\",\"state\":\"");
-                sb.append(project.getState().getId());
-                sb.append("\",\"active\":\"");
-                sb.append(project.isActive());
-                sb.append("\"}");
-                sb.append(",");
+                if (project.isActive()) {
+                    sb.append("{\"id\":\"");
+                    sb.append(project.getId());
+                    sb.append("\",\"value\":\"");
+                    sb.append(project.getName());
+                    sb.append("\",\"state\":\"");
+                    sb.append(project.getState().getId());
+                    sb.append("\"}");
+                    sb.append(",");
+                }
                 count++;
             }
             sb.deleteCharAt(sb.length() - 1);
@@ -118,7 +116,9 @@ public class ProjectServiceTest extends AbstractJsonTest {
 
     @Test
     public void testGetProjectListWithOwnerDivisionJson() throws Exception {
-        assertJsonEquals(getProjectListWithOwnerDivisionJson(), projectService.getProjectListWithOwnerDivisionJson());
+        final List<Division> activeDivisions = divisionDAO.getActiveDivisions();
+
+        assertJsonEquals(getProjectListWithOwnerDivisionJson(activeDivisions), projectService.getProjectListWithOwnerDivisionJson(activeDivisions));
     }
 
     @Test

@@ -28,7 +28,6 @@ public class PersonalAlertSender extends AbstractSenderWithAssistants<List<Repor
         Map model = new HashMap();
         model.put("passedDays", mail.getPassedDays().get(null));
         model.put("employee", Iterables.getFirst(mail.getEmployeeList(), null));
-        model.put("timesheeturl",propertyProvider.getTimeSheetURL());
         String messageBody = VelocityEngineUtils.mergeTemplateIntoString(
                 sendMailService.velocityEngine, "alertpersonalmail.vm", model);
         logger.debug("Message Body: {}", messageBody);

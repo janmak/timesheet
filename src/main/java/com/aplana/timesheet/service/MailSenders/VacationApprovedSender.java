@@ -43,12 +43,14 @@ public class VacationApprovedSender extends AbstractVacationSenderWithCopyToAuth
 
         final Collection<String> ccEmails =
                 new ArrayList<String>(getAdditionalEmailsForRegion(employee.getRegion()));
+        logger.info("lalala5445 = {}", getAdditionalEmailsForRegion(employee.getRegion()));
 
         ccEmails.add(getAssistantEmail(getManagersEmails(mail, employee)));
 
         // оповещаем отдел кадров подразделения
         if (employee.getDivision() != null) {
-            ccEmails.add(employee.getDivision().getVacationEmail());
+            ccEmails.add(employee.getDivision().getVacationEmail());          logger.info("lalala545 = {}", employee.getDivision().getVacationEmail());
+
         }
 
         // оповещаем РЦК
@@ -93,7 +95,7 @@ public class VacationApprovedSender extends AbstractVacationSenderWithCopyToAuth
     }
 
     private Collection<String> getAdditionalEmailsForRegion(Region region) {
-        String additionalEmails = region.getAdditionalEmails();
+        String additionalEmails = region.getAdditionalEmails().trim();
 
         return  (StringUtils.isNotBlank(additionalEmails)) ? Arrays.asList(additionalEmails.split("\\s*,\\s*")) : Arrays.asList(StringUtils.EMPTY);
     }

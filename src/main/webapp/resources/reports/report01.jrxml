@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="report4" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="eff23448-33fc-4bb7-97e6-98becd0773c1">
 	<property name="net.sf.jasperreports.print.keep.full.text" value="true"/>
-	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.zoom" value="1.0514816984441773"/>
 	<property name="ireport.x" value="0"/>
-	<property name="ireport.y" value="69"/>
+	<property name="ireport.y" value="0"/>
 	<import value="com.aplana.timesheet.util.DateTimeUtil"/>
 	<style name="Normal" isDefault="true" pdfFontName="arial.ttf" pdfEncoding="Cp1251"/>
 	<style name="Title" style="Normal" fontName="Arial" fontSize="26"/>
@@ -11,20 +11,9 @@
 	<style name="SubTitle 2" style="Normal" forecolor="#666666" fontName="Arial" fontSize="13"/>
 	<style name="Group Header 1" style="Normal" forecolor="#666666" fontName="Arial" fontSize="18"/>
 	<style name="Group Header 2" style="Normal" forecolor="#666666" fontName="Arial" fontSize="14" isBold="true"/>
-	<style name="Group Header 3" style="Normal" forecolor="#000000" fontName="Arial" fontSize="13" isBold="true">
-		<conditionalStyle>
-			<conditionExpression><![CDATA[!$F{billable}]]></conditionExpression>
-			<style forecolor="#006400"/>
-		</conditionalStyle>
-	</style>
+	<style name="Group Header 3" style="Normal" forecolor="#000000" fontName="Arial" fontSize="13" isBold="true"/>
 	<style name="Column header" style="Normal" forecolor="#666666" fontName="Arial" fontSize="12" isBold="true"/>
 	<style name="Detail" style="Normal" backcolor="#FF0000" fontName="Arial" fontSize="12"/>
-	<style name="Billable" style="Normal" forecolor="#000000" backcolor="#FF0000" fontName="Arial" fontSize="12">
-		<conditionalStyle>
-			<conditionExpression><![CDATA[!$F{billable}]]></conditionExpression>
-			<style forecolor="#006400"/>
-		</conditionalStyle>
-	</style>
 	<parameter name="reportParams" class="com.aplana.timesheet.reports.Report01" isForPrompting="false"/>
 	<field name="name" class="java.lang.String"/>
 	<field name="caldate" class="java.util.Date"/>
@@ -36,22 +25,20 @@
 	<field name="projdetail" class="java.lang.String"/>
 	<field name="durationdetail" class="java.lang.Float"/>
 	<field name="region_name" class="java.lang.String"/>
-	<field name="project_role" class="java.lang.String"/>
 	<field name="vacation" class="java.lang.Object"/>
 	<field name="illness" class="java.lang.Object"/>
-	<field name="billable" class="java.lang.Boolean"/>
-	<field name="overtime_cause" class="java.lang.String"/>
-	<field name="comment" class="java.lang.String"/>
-	<field name="compensation" class="java.lang.String"/>
-	<field name="vacation_type" class="java.lang.String"/>
 	<variable name="holVacIllDay" class="java.lang.Boolean" resetType="Group" resetGroup="GroupByOvertime" calculation="Variance">
 		<variableExpression><![CDATA[$F{holiday} != null || $F{vacation} != null || $F{illness} != null]]></variableExpression>
 		<initialValueExpression><![CDATA[$F{holiday} != null || $F{vacation} != null || $F{illness} != null]]></initialValueExpression>
 	</variable>
-	<variable name="kindOfDay" class="java.lang.Integer" resetType="Group" resetGroup="GroupByOvertime">
-		<variableExpression><![CDATA[$F{holiday} != null ? 1 : ($F{vacation} != null ? 2 : ($F{illness} != null ? 3 : 4))]]></variableExpression>
-		<initialValueExpression><![CDATA[$F{holiday} != null ? 1 : ($F{vacation} != null ? 2 : ($F{illness} != null ? 3 : 4))]]></initialValueExpression>
-	</variable>
+	<variable name="kindOfDay" class="java.lang.Integer" resetType="Group" resetGroup="GroupByOvertime" calculation="Nothing">
+    		<variableExpression>
+    		    <![CDATA[$F{holiday} != null ? 1 : ($F{vacation} != null ? 2 : ($F{illness} != null ? 3 : 4))]]>
+    		</variableExpression>
+    		<initialValueExpression>
+    		    <![CDATA[$F{holiday} != null ? 1 : ($F{vacation} != null ? 2 : ($F{illness} != null ? 3 : 4))]]>
+            </initialValueExpression>
+    </variable>
 	<variable name="OvertimeSumGroup" class="java.lang.Double" resetType="Group" resetGroup="GroupByOvertime" calculation="Sum">
 		<variableExpression><![CDATA[$F{overtime}]]></variableExpression>
 	</variable>
@@ -71,7 +58,7 @@
 				<textField>
 					<reportElement uuid="fd7d7ac0-8964-47b8-a960-e138a29f07d1" style="Group Header 1" x="0" y="6" width="386" height="24" forecolor="#000000" backcolor="#CCCCCC"/>
 					<textElement/>
-					<textFieldExpression><![CDATA[$F{name} + " (" + $F{region_name} + ", " + $F{project_role} + ")"]]></textFieldExpression>
+					<textFieldExpression><![CDATA[$F{name} + " (" + $F{region_name} + ")"]]></textFieldExpression>
 				</textField>
 				<textField evaluationTime="Group" evaluationGroup="GroupByName">
 					<reportElement uuid="e15deb55-a4af-40f9-b52c-4ffdc5f30a42" style="Group Header 1" x="453" y="6" width="100" height="24"/>
@@ -81,9 +68,9 @@
 			</band>
 		</groupHeader>
 		<groupFooter>
-			<band height="1">
+			<band height="59">
 				<line>
-					<reportElement uuid="c5e25804-7f40-4bda-a9cd-b8a6c727769b" positionType="FixRelativeToBottom" x="0" y="0" width="553" height="1"/>
+					<reportElement uuid="c5e25804-7f40-4bda-a9cd-b8a6c727769b" x="0" y="0" width="553" height="1"/>
 				</line>
 			</band>
 		</groupFooter>
@@ -91,47 +78,47 @@
 	<group name="GroupByOvertime">
 		<groupExpression><![CDATA[$V{kindOfDay}]]></groupExpression>
 		<groupHeader>
-			<band height="21">
+			<band height="88">
 				<line>
-					<reportElement uuid="130ec48a-5dac-4f61-b69f-a6a6017e5349" positionType="FixRelativeToBottom" x="37" y="0" width="516" height="1"/>
+					<reportElement uuid="130ec48a-5dac-4f61-b69f-a6a6017e5349" x="77" y="0" width="476" height="1"/>
 				</line>
 				<staticText>
-					<reportElement uuid="d7262224-e568-4851-b7a9-55c1cba7746d" style="Group Header 2" x="37" y="1" width="416" height="20">
+					<reportElement uuid="d7262224-e568-4851-b7a9-55c1cba7746d" style="Group Header 2" x="37" y="15" width="416" height="20">
 						<printWhenExpression><![CDATA[$V{kindOfDay} == 4]]></printWhenExpression>
 					</reportElement>
 					<textElement/>
 					<text><![CDATA[Список переработок]]></text>
 				</staticText>
 				<staticText>
-					<reportElement uuid="92809423-d488-43ee-9bbc-9f66e18923fa" style="Group Header 2" x="37" y="1" width="416" height="20">
+					<reportElement uuid="92809423-d488-43ee-9bbc-9f66e18923fa" style="Group Header 2" x="37" y="15" width="416" height="20">
 						<printWhenExpression><![CDATA[$V{kindOfDay} == 1]]></printWhenExpression>
 					</reportElement>
 					<textElement/>
 					<text><![CDATA[Работы в выходные и праздничные дни]]></text>
 				</staticText>
 				<staticText>
-					<reportElement uuid="92809423-d488-43ee-9bbc-9f66e18923fa" style="Group Header 2" x="37" y="1" width="416" height="20">
+					<reportElement uuid="92809423-d488-43ee-9bbc-9f66e18923fa" style="Group Header 2" x="37" y="15" width="416" height="20">
 						<printWhenExpression><![CDATA[$V{kindOfDay} == 3]]></printWhenExpression>
 					</reportElement>
 					<textElement/>
 					<text><![CDATA[Работы во время болезни]]></text>
 				</staticText>
 				<staticText>
-					<reportElement uuid="374e8dce-55c8-4fa1-8c68-a95d1d627279" style="Group Header 2" x="37" y="1" width="416" height="20">
+					<reportElement uuid="374e8dce-55c8-4fa1-8c68-a95d1d627279" style="Group Header 2" x="37" y="15" width="416" height="20">
 						<printWhenExpression><![CDATA[$V{kindOfDay} == 2]]></printWhenExpression>
 					</reportElement>
 					<textElement/>
 					<text><![CDATA[Работы вo время отпуска]]></text>
 				</staticText>
 				<textField evaluationTime="Group" evaluationGroup="GroupByOvertime">
-					<reportElement uuid="652d13e9-646f-4fbf-a5f9-129a534cf6fa" style="Group Header 2" x="493" y="1" width="60" height="20">
+					<reportElement uuid="652d13e9-646f-4fbf-a5f9-129a534cf6fa" style="Group Header 2" x="493" y="5" width="60" height="20">
 						<printWhenExpression><![CDATA[!$V{holVacIllDay}]]></printWhenExpression>
 					</reportElement>
 					<textElement/>
 					<textFieldExpression><![CDATA[$V{OvertimeSumGroup}]]></textFieldExpression>
 				</textField>
 				<textField evaluationTime="Group" evaluationGroup="GroupByOvertime">
-					<reportElement uuid="7ccd2a65-0ea2-47bb-b7b1-2030f4f443f9" style="Group Header 2" x="493" y="1" width="60" height="20">
+					<reportElement uuid="7ccd2a65-0ea2-47bb-b7b1-2030f4f443f9" style="Group Header 2" x="493" y="5" width="60" height="20">
 						<printWhenExpression><![CDATA[$V{holVacIllDay}]]></printWhenExpression>
 					</reportElement>
 					<textElement/>
@@ -143,12 +130,7 @@
 	<group name="GroupByDate">
 		<groupExpression><![CDATA[new SimpleDateFormat("dd-MM-yyyy").format($F{caldate})]]></groupExpression>
 		<groupHeader>
-			<band height="1">
-				<line>
-					<reportElement uuid="130ec48a-5dac-4f61-b69f-a6a6017e5349" positionType="FixRelativeToBottom"  x="77" y="0" width="476" height="1"/>
-				</line>
-			</band>
-			<band height="20">
+			<band height="66">
 				<printWhenExpression><![CDATA[$V{holVacIllDay}]]></printWhenExpression>
 				<textField>
 					<reportElement uuid="1af38200-82e3-44ec-ba1c-48e97e6de3d5" style="Group Header 3" x="77" y="0" width="102" height="20"/>
@@ -158,7 +140,7 @@
 				<textField>
 					<reportElement uuid="75f71afd-d46f-45b5-a240-77f0b4932c33" style="Group Header 3" x="179" y="0" width="314" height="20"/>
 					<textElement/>
-					<textFieldExpression><![CDATA[$F{holiday} != null && $F{region} == null ? "Общий выходной" :
+					<textFieldExpression><![CDATA[ $F{holiday} != null && $F{region} == null ? "Общий выходной" :
 					                               $F{holiday} != null && $F{region} != null ? "Региональный выходной" :
 					                               "Рабочий день"]]></textFieldExpression>
 				</textField>
@@ -171,47 +153,6 @@
 				</textField>
 			</band>
 		</groupHeader>
-		<groupFooter>
-			<band height="20">
-				<printWhenExpression><![CDATA[$F{overtime_cause}!=null&&(!$V{holVacIllDay}||$F{holiday}!=null)]]></printWhenExpression>
-				<staticText>
-					<reportElement uuid="1af38200-82e3-44ec-ba1c-48e97e6de3d5" style="Billable" x="137" y="0" width="102" height="20"/>
-					<textElement/>
-					<text><![CDATA[Причина]]></text>
-				</staticText>
-				<textField isStretchWithOverflow="true">
-					<reportElement uuid="75f71afd-d46f-45b5-a240-77f0b4932c33" style="Billable" x="239" y="0" width="314" height="20"/>
-					<textElement/>
-					<textFieldExpression><![CDATA[$F{overtime_cause}]]></textFieldExpression>
-				</textField>
-			</band>
-			<band height="20">
-				<printWhenExpression><![CDATA[$F{comment}!=null&&(!$V{holVacIllDay}||$F{holiday}!=null)]]></printWhenExpression>
-				<staticText>
-					<reportElement uuid="1af38200-82e3-44ec-ba1c-48e97e6de3d5" style="Billable" x="137" y="0" width="102" height="20"/>
-					<textElement/>
-					<text><![CDATA[Комментарий]]></text>
-				</staticText>
-				<textField isStretchWithOverflow="true">
-					<reportElement uuid="75f71afd-d46f-45b5-a240-77f0b4932c33" style="Billable" x="239" y="0" width="314" height="20"/>
-					<textElement/>
-					<textFieldExpression><![CDATA[$F{comment}]]></textFieldExpression>
-				</textField>
-			</band>
-			<band height="20">
-				<printWhenExpression><![CDATA[$F{compensation}!=null&&(!$V{holVacIllDay}||$F{holiday}!=null)]]></printWhenExpression>
-				<staticText>
-					<reportElement uuid="1af38200-82e3-44ec-ba1c-48e97e6de3d5" style="Billable" x="137" y="0" width="102" height="20"/>
-					<textElement/>
-					<text><![CDATA[Предпочитается]]></text>
-				</staticText>
-				<textField isStretchWithOverflow="true">
-					<reportElement uuid="726f2cb3-a1ca-40d6-a5f5-b9f757b23833" style="Billable" x="239" y="0" width="314" height="20"/>
-					<textElement/>
-					<textFieldExpression><![CDATA[$F{compensation}]]></textFieldExpression>
-				</textField>
-			</band>
-		</groupFooter>
 	</group>
 	<background>
 		<band splitType="Stretch"/>
@@ -287,16 +228,22 @@
 				<textElement/>
 				<textFieldExpression><![CDATA[$F{overtime}]]></textFieldExpression>
 			</textField>
+			<line>
+				<reportElement uuid="98c7f4c0-f3aa-4950-9997-dbb700c83208" positionType="FixRelativeToBottom" x="77" y="0" width="476" height="1"/>
+				<graphicElement>
+					<pen lineWidth="0.5" lineColor="#999999"/>
+				</graphicElement>
+			</line>
 		</band>
 		<band height="40">
 			<printWhenExpression><![CDATA[$V{holVacIllDay}]]></printWhenExpression>
 			<textField isStretchWithOverflow="true">
-				<reportElement uuid="dfc4ac05-f88c-4ec4-b259-4afe0e2bf95d" style="Billable" x="179" y="1" width="314" height="30"/>
+				<reportElement uuid="dfc4ac05-f88c-4ec4-b259-4afe0e2bf95d" style="Detail" x="179" y="1" width="314" height="30"/>
 				<textElement/>
 				<textFieldExpression><![CDATA[$F{projdetail}]]></textFieldExpression>
 			</textField>
 			<textField pattern="###0.0">
-				<reportElement uuid="1b6c2f68-7cf3-4bd6-a7bc-9d17d8744d94" style="Billable" x="493" y="1" width="60" height="30"/>
+				<reportElement uuid="1b6c2f68-7cf3-4bd6-a7bc-9d17d8744d94" style="Detail" x="493" y="1" width="60" height="30"/>
 				<textElement/>
 				<textFieldExpression><![CDATA[$F{durationdetail}]]></textFieldExpression>
 			</textField>
@@ -311,7 +258,7 @@
 	<columnFooter>
 		<band height="45" splitType="Stretch">
 			<line>
-				<reportElement uuid="b759cb5c-26c6-47be-8659-36a14bd3c433" positionType="FixRelativeToBottom" x="0" y="3" width="493" height="1"/>
+				<reportElement uuid="b759cb5c-26c6-47be-8659-36a14bd3c433" positionType="FixRelativeToBottom" x="0" y="3" width="553" height="1"/>
 				<graphicElement>
 					<pen lineWidth="0.5" lineColor="#999999"/>
 				</graphicElement>

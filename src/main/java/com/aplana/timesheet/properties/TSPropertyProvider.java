@@ -140,11 +140,6 @@ public class TSPropertyProvider {
         return getProperties().getProperty("vacation.create.mail.marker", DEFAULT_VACATION_CREATE_MAIL_MARKER);
     }
 
-    public static final String DEFAULT_PLANNED_VACATION_CREATE_MAIL_MARKER = "[VACATION PLAN]";
-    public String getPlannedVacationCreateMailMarker() {
-        return getProperties().getProperty("vacation.create.mail.marker", DEFAULT_PLANNED_VACATION_CREATE_MAIL_MARKER);
-    }
-
     final String DEFAULT_TIMESHEET_MAIL_MARKER = "[TIMESHEET]";
     public String getTimesheetMailMarker() {
         return getProperties().getProperty("ts.mail.marker=", DEFAULT_TIMESHEET_MAIL_MARKER);
@@ -167,11 +162,6 @@ public class TSPropertyProvider {
     public static final int VACATION_CREATE_THRESHOLD = 14;
     public Integer getVacationCreateThreshold() {
         return readIntProperty("vacations.vacation.create.threshold", VACATION_CREATE_THRESHOLD);
-    }
-
-    public static final int PLANNED_VACATION_CREATE_THRESHOLD = 7;
-    public Integer getPlannedVacationCreateThreshold() {
-        return readIntProperty("planned.vacations.vacation.create.threshold", PLANNED_VACATION_CREATE_THRESHOLD);
     }
 
     public static final int VACATION_PROJECT_MANAGER_OVERRIDE_THRESHOLD = 7;
@@ -266,30 +256,4 @@ public class TSPropertyProvider {
     public String getPathLibraryPadeg() {
         return getProperties().getProperty("path.library.padeg",StringUtils.EMPTY);
     }
-
-    public static final int LOGIN_THRESHOLD = 10;
-    public Integer getLoginErrorThreshold() {
-            return readIntProperty("application.login.threshold", LOGIN_THRESHOLD);
-
-    }
-
-    /* Количество дней отпуска при показе информ сообщения "Отпуск необходимо оформлять с понедельника по воскресенье" */
-    public static final int VACANTION_FRIDAY_INFORM_DAYS = 5;
-    public Integer getVacantionFridayInformDays() {
-        return readIntProperty("vacations.vacation.friday.warning.threshold", VACANTION_FRIDAY_INFORM_DAYS);
-    }
-
-    /* Пользователь в JIRA для получения информации */
-    public String getJiraUsername() {
-        return getProperties().getProperty("jira.username");
-    }
-
-    public String getJiraPassword() {
-        return getProperties().getProperty("jira.password");
-    }
-
-    public String getJiraServerUrl() {
-        return getProperties().getProperty("jira.server.url");
-    }
-
 }

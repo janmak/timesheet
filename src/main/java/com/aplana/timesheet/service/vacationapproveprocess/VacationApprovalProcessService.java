@@ -16,33 +16,17 @@ import java.util.*;
  * Date: 19.02.13
  */
 @Service
-public class VacationApprovalProcessService extends AbstractVacationApprovalProcessService {
+public class
+        VacationApprovalProcessService extends AbstractVacationApprovalProcessService {
 
     private static final Logger logger = LoggerFactory.getLogger(VacationApprovalProcessService.class);
 
     /**
-     * рекурсивно поднимаемся по руководителям (employee.manager.manager...) пока не найдем последнего,
-     * кому отправлялся запрос согласования. (продолжаем рекурсивно подниматься)
-     * Раньше здесь не было рекурсии. Добавлено, чтобы отпуск сразу считался согласованным, если его согласовал линейный линейного руководителя
+     * рекурсивно поднимаемся по руководителям только при автоматической проверке.
+     * Здесь же просто возвращаем результат ЛР сотрудника
      */
     protected VacationApproval getTopLineManagerApprovalRecursive(VacationApproval vacationApproval) throws VacationApprovalServiceException {
-        if (vacationApproval.getResult() != null) {        //линейный вынес решение об отпуске
-            return vacationApproval;
-        }
-
-        Employee manager = vacationApproval.getManager();
-
-        if (!managerExists(manager)) {  //у линейного нет руководителя или он сам себе руководитель
-            return vacationApproval;
-        }
-
-        Vacation vacation = vacationApproval.getVacation();
-        VacationApproval managerOfManagerApproval = tryGetManagerApproval(vacation, manager.getManager());
-        if (managerOfManagerApproval == null) {  //письмо линейному руководителю этого линейного еще не посылалось
-            return vacationApproval;
-        }
-
-        return getTopLineManagerApprovalRecursive(managerOfManagerApproval);       //проверяем следующего по иерархии линейного руководителя
+        return vacationApproval;
     }
 
     /**
@@ -82,9 +66,9 @@ public class VacationApprovalProcessService extends AbstractVacationApprovalProc
     public void sendBackDateVacationApproved (Vacation vacation) {
         Map<String, Employee> managers = new HashMap<String, Employee>();
         List<Project> projects = projectService.getProjectsForVacation(vacation);
-        Map<Employee, List<Project>> juniorManagerProjectManagers =
+        Map<Employee, List<Project>> juniorManagerProjectParticipants =
                 (employeeService.getJuniorProjectManagersAndProjects(projects, vacation));
-        for (Employee manager : juniorManagerProjectManagers.keySet()) {
+        for (Employee manager : juniorManagerProjectParticipants.keySet()) {
             managers.put(manager.getEmail(), manager);
         }
         for (Project project : projects) {
@@ -94,6 +78,7 @@ public class VacationApprovalProcessService extends AbstractVacationApprovalProc
         if (managerExists(vacation.getEmployee())) {
             managers.put(vacation.getEmployee().getManager().getEmail(), vacation.getEmployee().getManager());
         }
+
 
         managers.put(vacation.getEmployee().getEmail(), vacation.getEmployee());
 

@@ -3,6 +3,7 @@ package com.aplana.timesheet.service.MailSenders;
 import com.aplana.timesheet.form.AdminMessageForm;
 import com.aplana.timesheet.properties.TSPropertyProvider;
 import com.aplana.timesheet.service.SendMailService;
+import org.apache.commons.lang3.StringEscapeUtils;
 
 import javax.mail.Multipart;
 import javax.mail.internet.MimeBodyPart;
@@ -44,8 +45,6 @@ public class LoginProblemSender extends MailSender<AdminMessageForm> {
 
         StringBuilder bodyTxt = new StringBuilder();
 
-        mail.setToEmails(Arrays.asList(propertyProvider.getMailProblemsAndProposalsCoaddress(5)));
-
         bodyTxt.append("Логин: ").append(params.getName()).append("\n");
         bodyTxt.append("Указаный адрес: ").append(params.getEmail()).append("\n");
         bodyTxt.append("Ошибка: ").append(params.getError()).append("\n");
@@ -53,9 +52,12 @@ public class LoginProblemSender extends MailSender<AdminMessageForm> {
         bodyTxt.append("Описание пользователя: ").append(params.getDescription()).append("\n");
         bodyTxt.append(params.getDescription());
 
+        mail.setToEmails(Arrays.asList(propertyProvider.getMailProblemsAndProposalsCoaddress(5)));
+
         logger.info(params.toString());
 
         mail.setPreconstructedMessageBody(bodyTxt.toString());
+
 
         return Arrays.asList(mail);
     }

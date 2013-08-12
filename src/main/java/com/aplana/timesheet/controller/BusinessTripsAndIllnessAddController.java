@@ -80,8 +80,7 @@ public class BusinessTripsAndIllnessAddController extends AbstractController{
             @ModelAttribute("businesstripsandillnessadd") BusinessTripsAndIllnessAddForm tsForm,
             BindingResult result){
         Employee employee = employeeService.find(employeeId);
-        tsForm.setBeginDate(new Date());
-        tsForm.setEndDate(new Date());
+
         return getModelAndViewCreation(employee);
     }
 
@@ -158,7 +157,7 @@ public class BusinessTripsAndIllnessAddController extends AbstractController{
         final Timestamp endDate = DateTimeUtil.stringToTimestamp(endDateStr, DATE_FORMAT);
         //final Employee employee = employeeService.find(employeeId);  //скорее всего, проекты надо для конкретного сотрудника брать будет. пока не надо.
 
-        List<Project> projects = projectService.getAllProjects();
+        List<Project> projects = projectService.getProjectsByDates(beginDate, endDate);
 
         return projectService.getProjectListAsJson(projects);
     }
@@ -187,7 +186,7 @@ public class BusinessTripsAndIllnessAddController extends AbstractController{
         int year = calendar.get(java.util.Calendar.YEAR);
         int month = calendar.get(java.util.Calendar.MONTH) + 1;
 
-        return new ModelAndView(String.format("redirect:/businesstripsandillness/%s/%s/%s", divisionId, employeeId, reportType.getId()));
+        return new ModelAndView (String.format("redirect:/businesstripsandillness/%s/%s/%s/%s/%s", divisionId, employeeId, year, month, reportType.getId()));
     }
 
     /**

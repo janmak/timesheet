@@ -2,9 +2,10 @@ package com.aplana.timesheet.service.MailSenders;
 
 import com.aplana.timesheet.dao.entity.Division;
 import com.aplana.timesheet.dao.entity.Employee;
-import com.aplana.timesheet.enums.MailPriorityEnum;
 import com.google.common.collect.Sets;
 import com.google.common.collect.Table;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.*;
@@ -14,6 +15,7 @@ import java.util.*;
  * @version 1.0
  */
 public abstract class Mail {
+    private static final Logger logger = LoggerFactory.getLogger(Mail.class);
 
     private static Set<String> clearDuplicates(Iterable<String> emails) {
         if (emails == null) {
@@ -42,9 +44,6 @@ public abstract class Mail {
     private String date;
 
     private Table<Integer, String, String> paramsForGenerateBody;
-
-    /* важность письма 1 = high, 3 = normal, 5 = low */
-    private MailPriorityEnum priority = MailPriorityEnum.NORMAL;
 
     public abstract String getFromEmail();
 
@@ -127,11 +126,4 @@ public abstract class Mail {
         return paramsForGenerateBody;
     }
 
-    public MailPriorityEnum getPriority() {
-        return priority;
-    }
-
-    public void setPriority(MailPriorityEnum priority) {
-        this.priority = priority;
-    }
 }

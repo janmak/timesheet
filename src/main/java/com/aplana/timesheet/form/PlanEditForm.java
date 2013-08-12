@@ -15,7 +15,6 @@ public class PlanEditForm {
     public static final String DIVISION_ID = "divisionId";
     public static final String YEAR = "year";
     public static final String MONTH = "month";
-    public static final String MANAGER = "manager";
     public static final String REGIONS = "regions";
     public static final String PROJECT_ROLES = "projectRoles";
     public static final String SHOW_PLANS = "showPlans";
@@ -29,7 +28,6 @@ public class PlanEditForm {
     private Integer month;
     private List<Integer> regions;
     private List<Integer> projectRoles;
-    private Integer manager;
     private Boolean showPlans;
     private Boolean showFacts;
     private Boolean showProjects;
@@ -117,13 +115,5 @@ public class PlanEditForm {
 
     public void setJsonData(String jsonData) {
         this.jsonData = jsonData;
-    }
-
-    public Integer getManager() {
-        return manager;
-    }
-
-    public void setManager(Integer manager) {
-        this.manager = manager;
     }
 }

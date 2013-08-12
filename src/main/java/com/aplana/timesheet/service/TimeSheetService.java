@@ -8,7 +8,6 @@ import com.aplana.timesheet.dao.TimeSheetDAO;
 import com.aplana.timesheet.dao.TimeSheetDetailDAO;
 import com.aplana.timesheet.dao.entity.*;
 import com.aplana.timesheet.dao.entity.Calendar;
-import com.aplana.timesheet.enums.DictionaryEnum;
 import com.aplana.timesheet.form.TimeSheetForm;
 import com.aplana.timesheet.form.TimeSheetTableRowForm;
 import com.aplana.timesheet.form.entity.DayTimeSheet;
@@ -85,7 +84,6 @@ public class TimeSheetService {
         timeSheet.setEmployee(employeeService.find(tsForm.getEmployeeId()));
         timeSheet.setCalDate(calendarService.find(tsForm.getCalDate()));
         timeSheet.setPlan(tsForm.getPlan());
-        timeSheet.setEffortInNextDay(dictionaryItemService.find(tsForm.getEffortInNextDay()));
 
         List<TimeSheetTableRowForm> tsTablePart = tsForm.getTimeSheetTablePart();
         Set<TimeSheetDetail> timeSheetDetails = new LinkedHashSet<TimeSheetDetail>();
@@ -117,7 +115,7 @@ public class TimeSheetService {
                 String durationStr = formRow.getDuration();
                 if (projectId != null) {
                     timeSheetDetail.setProject(projectService.find(projectId));
-                    timeSheetDetail.setProjectTask(projectTaskService.find(projectId, formRow.getTaskName()));
+                    timeSheetDetail.setProjectTask(projectTaskService.find(projectId, formRow.getCqId()));
                 }
                 // Сохраняем часы только для тех полей, которые не disabled
                 if (durationStr != null) {
@@ -394,11 +392,11 @@ public class TimeSheetService {
 
         if (tablePart != null) {
             for (int i = 0; i < tablePart.size(); i++) {
-                if (tablePart.get(i).getTaskName() != null) {
+                if (tablePart.get(i).getCqId() != null) {
                     builder.withElement(
                             anObjectBuilder().
                                     withField(ROW, JsonUtil.aStringBuilder(i)).
-                                    withField(TASK, aStringBuilder(tablePart.get(i).getTaskName().toString()))
+                                    withField(TASK, aStringBuilder(tablePart.get(i).getCqId().toString()))
                     );
                 }
             }
@@ -419,7 +417,7 @@ public class TimeSheetService {
 
         if (tablePart != null) {
             for (int i = 0; i < tablePart.size(); i++) {
-                if (tablePart.get(i).getTaskName() != null) {
+                if (tablePart.get(i).getCqId() != null) {
                     builder.withElement(
                             anObjectBuilder().
                                     withField(ROW, JsonUtil.aStringBuilder(i)).
@@ -459,9 +457,5 @@ public class TimeSheetService {
         }
 
         return JsonUtil.format(builder);
-    }
-
-    public List<DictionaryItem> getEffortList() {
-        return dictionaryItemService.getItemsByDictionaryId(DictionaryEnum.EFFORT_IN_NEXTDAY.getId());
     }
 }

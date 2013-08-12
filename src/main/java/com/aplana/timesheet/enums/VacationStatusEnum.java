@@ -39,8 +39,4 @@ public enum VacationStatusEnum implements TSEnum {
         return Arrays.asList(APPROVED_BY_PM.getId(), APPROVEMENT_WITH_LM.getId(), APPROVEMENT_WITH_PM.getId());
     }
 
-    public static List<VacationStatusEnum> getNotApprovedStatusesEnum() {
-        return Arrays.asList(APPROVED_BY_PM, APPROVEMENT_WITH_LM, APPROVEMENT_WITH_PM);
-    }
-
 }

@@ -4,10 +4,14 @@ import com.aplana.timesheet.form.FeedbackForm;
 import com.aplana.timesheet.service.DivisionService;
 import com.aplana.timesheet.service.EmployeeService;
 import org.apache.commons.lang.StringUtils;
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.web.multipart.MultipartFile;
+
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 
 @Service
 public class FeedbackFormValidator extends AbstractValidator {
@@ -60,5 +64,4 @@ public class FeedbackFormValidator extends AbstractValidator {
         }
         return (sumSize <= SUM_FILE_SIZE);
 	}
-
 }

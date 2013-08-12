@@ -14,8 +14,8 @@
                     #if ($paramsForGenerateBody.get($key, "categoryOfActivity") != $null)
                         <b> - $paramsForGenerateBody.get($key, "categoryOfActivity") </b>
                     #end
-                    #if ($paramsForGenerateBody.get($key, "taskName")!=$null)
-                        <b> - $paramsForGenerateBody.get($key, "taskName") </b>
+                    #if ($paramsForGenerateBody.get($key, "cqId")!=$null)
+                        <b> - $paramsForGenerateBody.get($key, "cqId") </b>
                     #end
                     #if ($paramsForGenerateBody.get($key, "duration")!=$null)
                         <b> ( $paramsForGenerateBody.get($key, "duration") ч.)</b>
@@ -81,13 +81,6 @@
     #if ($paramsForGenerateBody.get($first, "planStrings") != $null)
         <li><h2><b>Что планируется сделать на следующий день:</b></h2></li>
         #set ($planStrings = $paramsForGenerateBody.get($first, "planStrings").split("\n"))
-        #foreach ($planString in $planStrings)
-            <span>$planString</span><br>
-        #end
-    #end
-    #if ($paramsForGenerateBody.get($first, "effortInNextDay") != $null)
-        <li><h2><b>Моя оценка моего объема работ на следующий рабочий день:</b></h2></li>
-        #set ($planStrings = $paramsForGenerateBody.get($first, "effortInNextDay").split("\n"))
         #foreach ($planString in $planStrings)
             <span>$planString</span><br>
         #end

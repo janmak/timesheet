@@ -125,6 +125,7 @@ public class DateTimeUtil {
      * @return Timestamp
      */
     public static Timestamp stringToTimestamp(String Date) {
+        logger.debug("Datestring {}", Date);
         return new Timestamp(stringToTimestamp(Date, DATE_PATTERN).getTime());
     }
 
@@ -271,28 +272,6 @@ public class DateTimeUtil {
         Date date = new Date();
         date.setTime(DateTimeUtil.stringToTimestamp(dateString).getTime());
         return sdf.format(date);
-    }
-
-    /**
-     * Возвращает номер месяца в переданной дате
-     * @param date
-     * @return
-     */
-    public static Integer getMonth(Date date){
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(date);
-        return calendar.get(Calendar.MONTH);
-    }
-
-    /**
-     * Возвращает год в переданной дате
-     * @param date
-     * @return
-     */
-    public static Integer getYear(Date date){
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(date);
-        return calendar.get(Calendar.YEAR);
     }
 
     /**
@@ -453,22 +432,5 @@ public class DateTimeUtil {
         calendar.set(Calendar.MONTH, month - 1);
 
         return calendar;
-    }
-
-    public static String getLastDayOfYearMonth(Integer year, Integer month) {
-
-        Calendar calendar = getCalendar(year, month);
-
-        calendar.add(Calendar.MONTH, 1);
-        calendar.set(Calendar.DAY_OF_MONTH, 1);
-        calendar.add(Calendar.DATE, -1);
-
-        Date lastDayOfMonth = calendar.getTime();
-
-        return dateToString(lastDayOfMonth);
-    }
-
-    public static String getFirstDayOfYearMonth(Integer year, Integer month) {
-        return dateToString(createDate(year, month));
     }
 }

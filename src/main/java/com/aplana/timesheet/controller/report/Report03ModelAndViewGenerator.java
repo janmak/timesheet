@@ -16,8 +16,10 @@ public class Report03ModelAndViewGenerator extends AbstractJasperReportModelAndV
     protected void fillSpecificProperties( ModelAndView mav ) {
 
         fillWithAllProjects( mav );
-        fillDivisionList( mav, true, true, true);
+        fillDivisionList( mav, true, true , true);
         fillFullProjectListJson( mav );
+
+        mav.addObject("filterProjects", "checked");
     }
 
     @Override

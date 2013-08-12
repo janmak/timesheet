@@ -55,7 +55,6 @@ public class VacationCreateSender extends AbstractVacationSender<Vacation> {
         String regionNameStr = vacation.getEmployee().getRegion().getName();
         String beginDateStr = DateFormatUtils.format(vacation.getBeginDate(), DATE_FORMAT);
         String endDateStr = DateFormatUtils.format(vacation.getEndDate(), DATE_FORMAT);
-        String creationDate = DateFormatUtils.format(vacation.getCreationDate(), DATE_FORMAT);
         String commentStr = StringUtils.EMPTY;
         if (StringUtils.isNotBlank(vacation.getComment())) {
             commentStr = String.format("Комментарий: %s. ", vacation.getComment());
@@ -67,7 +66,6 @@ public class VacationCreateSender extends AbstractVacationSender<Vacation> {
         stringBuilder.append(String.format("из г. %s ", regionNameStr));
         stringBuilder.append(String.format("на период с %s - %s. ", beginDateStr, endDateStr));
         stringBuilder.append(String.format("%s", commentStr));
-        stringBuilder.append(String.format("Дата создания отпуска %s.",creationDate));
 
         List<VacationApproval> approvals = vacationApprovalService.getAllApprovalsForVacation(vacation);
 
@@ -77,7 +75,7 @@ public class VacationCreateSender extends AbstractVacationSender<Vacation> {
             ApprovalResultModel arm = new ApprovalResultModel();
             arm.setRole(managerRoleNameService.getManagerRoleName(va));
             arm.setName(va.getManager().getName());
-            arm.setResult(va.getResult() == null ? "На согласовании" : (va.getResult() ? "Согласовано" : "Не согласовано"));
+            arm.setResult(va.getResult() == null ? "Еще не рассмотрел(а)" : (va.getResult() ? "Согласовано" : "Не согласовано"));
             approvalList.add(arm);
         }
 

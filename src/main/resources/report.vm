@@ -1,5 +1,4 @@
 <p>Сотрудник: <b>$timeSheet.getEmployee().getName()</b></p>
-#set ($effort = $timeSheet.getEffortInNextDay())
 #set ($tsDetails = $timeSheet.getTimeSheetDetails())
 #set ($isProblems = $false)
 #set ($projectName = $"")
@@ -13,7 +12,7 @@
         #foreach($tsDetail in $tsDetails)
             #set ($workplaceId = $"")
             #set ($actTypeId = $"")
-            #set ($taskName = $"")
+            #set ($cqId = $"")
             #set ($duration = $"")
             #set ($description = $"")
             #set ($actCatId = $"")
@@ -21,7 +20,7 @@
             #set ($problem = $"")
             #set ($workplaceId = $tsDetail.getWorkplace().getId())
             #set ($actTypeId = $tsDetail.getActType().getId())
-            #set ($taskName = $tsDetail.getProjectTask().getTaskName())
+            #set ($cqId = $tsDetail.getProjectTask().getCqId())
             #set ($duration = $tsDetail.getDuration())
             #set ($description = $tsDetail.getDescription())
             #set ($actCatId = $tsDetail.getActCat().getId())
@@ -41,7 +40,7 @@
                         #else
                             Неизвестно
                         #end
-                        <br>
+                        </br>
                     </b>
                     <b> $dictionaryItemService.find($actTypeId).getValue() </b>
                     #if (($actTypeId == 12) || ($actTypeId == 13) || ($actTypeId == 42))
@@ -50,8 +49,8 @@
                     #if ($actCatId != $null && $actCatId > 0)
                         <b> - $dictionaryItemService.find($actCatId).getValue() </b>
                     #end
-                    #if ($taskName != $null && $taskName.equals($"") != $true)
-                        <b> - $taskName </b>
+                    #if ($cqId != $null && $cqId.equals($"") != $true)
+                        <b> - $cqId </b>
                     #end
                     #if ($duration != $null && $duration.equals($"") != $true)
                         <b> ( $duration ч.)</b>
@@ -137,10 +136,6 @@
             #foreach ($planString in $planStrings)
                 <span>$planString</span><br>
             #end
-        #end
-        #if ($effort != $null && $effort.equals($"") != $true)
-            <li><h2><b>Моя оценка моего объема работ на следующий рабочий день:</b></h2></li>
-            $effort.getValue()
         #end
     </ul>
     #else

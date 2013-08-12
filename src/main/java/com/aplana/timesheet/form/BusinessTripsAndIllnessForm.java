@@ -3,7 +3,6 @@ package com.aplana.timesheet.form;
 import com.aplana.timesheet.enums.QuickReportTypesEnum;
 
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -12,16 +11,12 @@ import java.util.List;
  */
 public class BusinessTripsAndIllnessForm {
 
-    public static final int ALL_VALUE = -1;
-
     private Integer divisionId;
     private Integer employeeId;
-    private Date dateFrom;
-    private Date dateTo;
+    private Integer year;
+    private Integer month;
     private List<QuickReportTypesEnum> reportTypes = Arrays.asList(QuickReportTypesEnum.values());
     private Integer reportType = QuickReportTypesEnum.ILLNESS.getId();
-    private List<Integer> regions;
-    private Integer manager;
 
     public List<QuickReportTypesEnum> getReportTypes() {
         return reportTypes;
@@ -47,43 +42,27 @@ public class BusinessTripsAndIllnessForm {
         this.employeeId = employeeId;
     }
 
+    public Integer getYear() {
+        return year;
+    }
+
+    public void setYear(Integer year) {
+        this.year = year;
+    }
+
+    public Integer getMonth() {
+        return month;
+    }
+
+    public void setMonth(Integer month) {
+        this.month = month;
+    }
+
     public Integer getReportType() {
         return reportType;
     }
 
     public void setReportType(Integer reportType) {
         this.reportType = reportType;
-    }
-
-    public List<Integer> getRegions() {
-        return regions;
-    }
-
-    public void setRegions(List<Integer> regions) {
-        this.regions = regions;
-    }
-
-    public Integer getManager() {
-        return manager;
-    }
-
-    public void setManager(Integer manager) {
-        this.manager = manager;
-    }
-
-    public Date getDateFrom() {
-        return dateFrom;
-    }
-
-    public void setDateFrom(Date dateFrom) {
-        this.dateFrom = dateFrom;
-    }
-
-    public Date getDateTo() {
-        return dateTo;
-    }
-
-    public void setDateTo(Date dateTo) {
-        this.dateTo = dateTo;
     }
 }

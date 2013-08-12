@@ -47,8 +47,7 @@
         });
 
         dojo.declare("DateTextBox", dijit.form.DateTextBox, {
-            popupClass: "Calendar",
-            datePattern: 'dd.MM.yyyy'
+            popupClass: "Calendar"
         });
 
         dojo.ready(function () {

@@ -6,8 +6,6 @@ public class Report06 extends BaseReport {
 
     public static final String jrNameFile="Отчет №6. Распределение трудозатрат в проекте для СК";
 
-    private boolean allDates = false;
-
     @Override
     public String getJRName() {
         return jrName;
@@ -26,13 +24,5 @@ public class Report06 extends BaseReport {
 
     public void setProjectId(Integer projectId) {
         this.projectId = projectId;
-    }
-
-    public boolean isAllDates() {
-        return allDates;
-    }
-
-    public void setAllDates(boolean allDates) {
-        this.allDates = allDates;
     }
 }

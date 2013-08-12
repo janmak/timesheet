@@ -9,17 +9,17 @@ import java.util.Set;
 @Entity
 @Table(name = "division", uniqueConstraints = @UniqueConstraint(columnNames = { "ldap_name", "name" }))
 public class Division implements Identifiable, Comparable<Division> {
-    @Id
-    @Column(nullable = false)
-    private Integer id;
+	@Id
+	@Column(nullable = false)
+	private Integer id;
 
-    @Column(nullable = false)
-    private String name;
+	@Column(nullable = false)
+	private String name;
 
-    @Column(name = "ldap_name", nullable = false)
-    private String ldapName;
+	@Column(name = "ldap_name", nullable = false)
+	private String ldapName;
 
-    @Column(columnDefinition = "bool not null default true")
+	@Column(columnDefinition = "bool not null default true")
     private boolean active;
 
     @Column(columnDefinition = "bool not null default true")
@@ -61,9 +61,6 @@ public class Division implements Identifiable, Comparable<Division> {
 
     @Column(name = "vacation_email", length = 255)
     private String vacationEmail;
-
-    @Column(name = "plans_required")
-    private Boolean plansRequired;
 
     public Division() {	}
 
@@ -190,15 +187,6 @@ public class Division implements Identifiable, Comparable<Division> {
     public void setEmail(String email) {
         this.email = email;
     }
-
-    public Boolean getPlansRequired() {
-        return plansRequired;
-    }
-
-    public void setPlansRequired(Boolean plansRequired) {
-        this.plansRequired = plansRequired;
-    }
-
 
     public String toString() {
 		StringBuilder sb = new StringBuilder()

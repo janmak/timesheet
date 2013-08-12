@@ -88,10 +88,6 @@ public class Employee implements Identifiable {
     @Column(nullable = false, columnDefinition = "bool not null default true")
     private boolean billable = true;
 
-    @Column(nullable = false, name = "jira_name")
-    private String jiraName;
-
-
     public Employee getManager2() {
         return manager2;
     }
@@ -234,14 +230,6 @@ public class Employee implements Identifiable {
 
     public void setBillable(boolean billable) {
         this.billable = billable;
-    }
-
-    public String getJiraName() {
-        return jiraName;
-    }
-
-    public void setJiraName(String jiraName) {
-        this.jiraName = jiraName;
     }
 
     //проверяем уволенный ли сотрудник

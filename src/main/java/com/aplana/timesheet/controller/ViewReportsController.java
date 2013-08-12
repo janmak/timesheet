@@ -1,32 +1,30 @@
 package com.aplana.timesheet.controller;
 
-import com.aplana.timesheet.constants.PadegConstants;
 import com.aplana.timesheet.constants.TimeSheetConstants;
 import com.aplana.timesheet.dao.entity.Calendar;
 import com.aplana.timesheet.dao.entity.Employee;
 import com.aplana.timesheet.form.ViewReportsForm;
 import com.aplana.timesheet.form.entity.DayTimeSheet;
 import com.aplana.timesheet.form.validator.ViewReportsFormValidator;
-import com.aplana.timesheet.properties.TSPropertyProvider;
 import com.aplana.timesheet.service.CalendarService;
-import com.aplana.timesheet.service.EmployeeReportService;
 import com.aplana.timesheet.service.TimeSheetService;
 import com.aplana.timesheet.util.DateTimeUtil;
+import com.aplana.timesheet.constants.PadegConstants;
+import com.aplana.timesheet.properties.TSPropertyProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import javax.annotation.*;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
-import padeg.lib.Padeg;
 
-import javax.annotation.PostConstruct;
 import java.math.BigDecimal;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import padeg.lib.Padeg;
 
 @Controller
 public class ViewReportsController extends AbstractControllerForEmployeeWithYears {
@@ -41,9 +39,6 @@ public class ViewReportsController extends AbstractControllerForEmployeeWithYear
 
     @Autowired
     TSPropertyProvider propertyProvider;
-
-    @Autowired
-    EmployeeReportService employeeReportService;
 
     @RequestMapping(value = "/viewreports", method = RequestMethod.GET)
     public String sendViewReports() {
@@ -99,25 +94,6 @@ public class ViewReportsController extends AbstractControllerForEmployeeWithYear
                         month
                 ) * TimeSheetConstants.WORK_DAY_DURATION * employee.getJobRate())
         );
-        Date toDate = new Date();
-        Integer curYear = calendarService.getYearFromDate(toDate);
-        Integer curMonth = calendarService.getMonthFromDate(toDate);
-
-        if ((year != curYear) && (month != curMonth)) {
-           toDate = calendarService.getMaxDateMonth(year,month);
-        }
-
-        mav.addObject(
-                "durationPlanToCurrDate",(toDate.after(new Date())) ? 0 :
-                (calendarService.getCountWorkDayPriorDate(
-                        employee.getRegion(),
-                        year,
-                        month,
-                        toDate
-                ) * TimeSheetConstants.WORK_DAY_DURATION * employee.getJobRate())
-        );
-
-        mav.addObject("reportsDetail", employeeReportService.getMonthReport(employeeId, year, month));
 
         return mav;
     }

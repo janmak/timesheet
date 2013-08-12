@@ -50,27 +50,9 @@
 </style>
 
 <script type="text/javascript">
-
-var VACATION_PLAN_COLUMN = 'vacation_plan';
 var hasChanges = false;
-var ALL_VALUE = <%= ALL_VALUE %>;
 
 dojo.addOnLoad(function () {
-
-    updateManagerList(dojo.byId('divisionId').value);
-    //TODO костыль, так как для данного поля куки не устанавливаются автоматически при загрузке
-    var prev_manager = getCookieValue("cookie_manager");
-    if (prev_manager == "null" || prev_manager == undefined) {
-        prev_manager = ALL_VALUE;
-    }
-    dojo.byId('manager').value = prev_manager;
-
-    dojo.require("dojox.grid.DataGrid",
-            function(DataGrid) {
-                var grid = new DataGrid({keepSelection: true}, div);
-            }
-    );
-
     updateMultipleForSelect(dojo.byId("<%= REGIONS %>"));
     updateMultipleForSelect(dojo.byId("<%= PROJECT_ROLES %>"));
 
@@ -81,7 +63,7 @@ dojo.addOnLoad(function () {
         prevValue = myStoreObject.items[inRowIndex][inCell.field][0];
     }
 
-    <%= GRID_JS_ID %>.onApplyCellEdit = function (inValue, inRowIndex, inFieldIndex) {
+            <%= GRID_JS_ID %>.onApplyCellEdit = function (inValue, inRowIndex, inFieldIndex) {
         var newValue = replacePeriodsWithDots(inValue);
 
         if (!isNumber(newValue)) {
@@ -94,22 +76,12 @@ dojo.addOnLoad(function () {
             hasChanges = true;
             cellHasBeenEdited(<%= GRID_JS_ID %>, inFieldIndex, inRowIndex);
         }
-    };
+    }
 
     setTimeout(function () {
         restoreHiddenStateFromCookie(<%= GRID_JS_ID %>);
     }, 10);
 });
-
-function getCookieValue(CookieName) {
-    var razrez = document.cookie.split(CookieName + '=');
-    if (razrez.length > 1) { // Значит, куки с этим именем существует
-        var hvost = razrez[1],
-                tzpt = hvost.indexOf(';'),
-                EndOfValue = (tzpt > -1) ? tzpt : hvost.length;
-        return unescape(hvost.substring(0, EndOfValue));
-    }
-}
 
 function checkChanges() {
     if (hasChanges) {
@@ -238,7 +210,7 @@ if (dataJson.length > 0) {
                     <sec:authorize access="hasRole('ROLE_PLAN_EDIT')">
                     <c:if test="${editable}">
                     editable:dojo.some(modelFieldsForSave, function (fieldForSave) {
-                        return ((field == fieldForSave) && (field !== VACATION_PLAN_COLUMN));
+                        return (field == fieldForSave);
                     })
                     </c:if>
                     </sec:authorize>
@@ -308,30 +280,35 @@ if (dataJson.length > 0) {
 
 function updateMonthList(year) {
     var monthNode = dojo.byId("<%= MONTH %>");
+    var emptyOption = monthNode.options[0];
     var month = monthNode.value;
 
     monthNode.options.length = 0;
+
+    monthNode.add(emptyOption);
+    monthNode.selectedIndex = 0;
 
     var monthMapJson = '${monthMapJson}';
 
     if (monthMapJson.length > 0) {
         var monthMap = dojo.fromJson(monthMapJson);
-        dojo.forEach(dojo.filter(monthMap,function (monthData) {
+
+        dojo.filter(monthMap,function (monthData) {
             return (monthData.year == year);
-        }), function (monthData) {
-            dojo.forEach(monthData.months, function (monthObj) {
-                var option = document.createElement("option");
-                dojo.attr(option, {
-                    value:monthObj.number
+        }).forEach(function (monthData) {
+                    dojo.forEach(monthData.months, function (monthObj) {
+                        var option = document.createElement("option");
+
+                        option.text = monthObj.name;
+                        option.value = monthObj.number;
+
+                        if (monthObj.number == month) {
+                            option.selected = "selected";
+                        }
+
+                        monthNode.add(option);
+                    });
                 });
-                option.text = monthObj.name;
-                option.innerHTML = monthObj.name;
-                if (monthObj.number == month) {
-                    option.selected = "selected";
-                }
-                monthNode.appendChild(option);
-            });
-        });
     }
 }
 
@@ -435,7 +412,7 @@ function save() {
             "<%= JSON_DATA_YEAR %>": ${planEditForm.year},
             "<%= JSON_DATA_MONTH %>": ${planEditForm.month},
             "<%= JSON_DATA_ITEMS %>":items
-        };
+        }
 
         hasChanges = false;
 
@@ -451,125 +428,7 @@ function createPlanForPeriod() {
     window.location = getContextPath() + "<%= CreatePlanForPeriodContoller.CREATE_PLAN_FOR_PERIOD_URL %>";
 }
 
-function exportTableInExcel() {
-    var year = dojo.byId("year").value;
-    var month = dojo.byId("month").value;
-    var form = dojo.byId("<%= FORM %>");
-    form.action = (getContextPath() + "<%= EXPORT_TABLE_EXCEL %>/"+year+"/"+month);
-    form.submit();
-
-    form.action = getContextPath() + "<%= PLAN_EDIT_URL %>";
-}
-
-function getRegionsSelected() {
-    var regionsNode = dojo.byId("<%= REGIONS %>");
-    var regionsSelected = [];
-    for (var i = 0; i < regionsNode.length; i++) {
-        if (regionsNode.options[i].selected) {regionsSelected.push(regionsNode.options[i].value); }
-    }
-    return regionsSelected;
-}
-
-function updateManagerList(id) {
-    if (id==null) {
-        id = dojo.byId("<%= DIVISION_ID %>").value;
-    }
-    var managersNode = dojo.byId("<%= MANAGER %>");
-    var regionsNode = dojo.byId("<%= REGIONS %>");
-
-    var manager = managersNode.value;
-    /* создаём значение Все руководители */
-    var emptyOption = dojo.doc.createElement("option");
-    dojo.attr(emptyOption, {
-        value:-1
-    });
-    emptyOption.title = "Все руководители";
-    emptyOption.innerHTML = "Все руководители";
-    /* очищаем список */
-    managersNode.options.length = 0;
-    /* приклеиваем 'всех руководителей' */
-    managersNode.appendChild(emptyOption);
-
-    var isAllOption = dojo.some(regionsNode.options, function (option, idx) {
-        if (option.value == <%= ALL_VALUE %> && option.selected) {
-            return true;
-        }
-        return false;
-    });
-    var selectedRegions;
-    if (!isAllOption) {selectedRegions = getRegionsSelected();}
-    var managerMapJson = '${managerMapJson}';
-    var count = 0;
-    if (managerMapJson.length > 0) {
-        var managerMap = dojo.fromJson(managerMapJson);
-        dojo.forEach(dojo.filter(managerMap,function (m) {
-            return (m.division == id);
-        }), function (managerData) {
-            if (isAllOption) {
-                var option = document.createElement("option");
-                dojo.attr(option, {
-                    value:managerData.id
-                });
-                option.text = managerData.name;
-                option.innerHTML = managerData.name;
-                if (managerData.number == manager) {
-                    option.selected = "selected";
-                }
-                managersNode.appendChild(option);
-            } else {
-                var add = false;
-                dojo.forEach(managerData.regionWhereMan,
-                        function(redData) {
-                            for (var i = 0; i < selectedRegions.length; i++) {
-                                if (selectedRegions[i] == redData.id) {
-                                    add = true;
-                                }
-                            }
-                        }
-                );
-
-                if (add) {
-                    var option = document.createElement("option");
-                    dojo.attr(option, {
-                        value:managerData.id
-                    });
-                    option.text = managerData.name;
-                    option.innerHTML = managerData.name;
-                    if (managerData.number == manager) {
-                        option.selected = "selected";
-                    }
-                    managersNode.appendChild(option);
-                }
-            }
-        });
-    }
-    if (managersNode.options.length == 1 && emptyOption.value == managersNode.options[0].value){
-        dojo.byId("<%= MANAGER %>").disabled = 'disabled';
-    } else {
-       dojo.byId("<%= MANAGER %>").disabled = '';
-    }
-}
-
-function log(text){
-    console.log(text);
-}
-
 </script>
-<style>
-    .topAlignTD {
-        padding: 5px;
-        vertical-align: top;
-    }
-    .blockYearMonth {
-        float: left;
-        position: relative;
-    }
-    .blockElement {
-        float: left;
-        position: relative;
-        top: -8px;
-    }
-</style>
 </head>
 <body>
 
@@ -581,138 +440,119 @@ function log(text){
 
     <table>
         <tr>
-            <td class="topAlignTD">
-                <div class="blockYearMonth">
-                    <table>
-                        <tr>
-                            <td>
-                                <span class="label">Подразделение</span>
-                            </td>
-                            <td>
-                                <form:select path="<%= DIVISION_ID %>" class="without_dojo"
-                                             onmouseover="showTooltip(this);"
-                                             onmouseout="tooltip.hide();"
-                                             onchange="updateManagerList(this.value)">
-                                    <form:options items="${divisionList}" itemLabel="name" itemValue="id"/>
-                                </form:select>
-                            </td>
-                            <td>
-                                <span class="label">Год:</span>
-                            </td>
-                            <td>
-                                <form:select path="<%= YEAR %>" class="without_dojo" onmouseover="showTooltip(this);"
-                                             onmouseout="tooltip.hide();" onchange="updateMonthList(this.value)">
-                                    <form:options items="${yearList}" itemLabel="year" itemValue="year"/>
-                                </form:select>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <span class="label">Руководитель:</span>
-                            </td>
-                            <td>
-                                <form:select path="<%= MANAGER %>" class="without_dojo"
-                                             onmouseover="showTooltip(this);"
-                                             onmouseout="tooltip.hide();" multiple="false">
-                                    <form:option label="Все руководители" value="<%= ALL_VALUE %>"/>
-                                    <form:options items="${managerList}" itemLabel="name" itemValue="id"/>
-                                </form:select>
-                            </td>
-                            <td>
-                                <span class="label">Месяц:</span>
-                            </td>
-                            <td>
-                                <form:select path="<%= MONTH %>" class="without_dojo" onmouseover="showTooltip(this);"
-                                             onmouseout="tooltip.hide();">
-                                    <form:options items="${monthList}" itemLabel="monthTxt" itemValue="month"/>
-                                </form:select>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td colspan="4" style="padding-top: 10px;">
-                                <table>
-                                    <tr>
-                                        <td style="text-align: center">
-                                            <button id="show" style="width:150px;vertical-align: middle;" type="submit"
-                                                    onclick="return validate()">Показать
-                                            </button>
-                                        </td>
-
-                                        <td>
-                                            <div>
-                                                <form:checkbox id="<%= SHOW_PLANS %>" path="<%= SHOW_PLANS %>"
-                                                               label="Показывать плановые показатели"/>
-                                            </div>
-                                            <div style="padding-top: 5px;">
-                                                <form:checkbox id="<%= SHOW_FACTS %>" path="<%= SHOW_FACTS %>"
-                                                               label="Показывать фактические показатели"/>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div>
-                                                <form:checkbox path="<%= SHOW_PROJECTS %>" label="Проекты"/>
-                                            </div>
-                                            <div style="padding-top: 5px;">
-                                                <form:checkbox path="<%= SHOW_PRESALES %>" label="Пресейлы"/>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                </table>
-                            </td>
-                        </tr>
-                    </table>
+            <td>
+                <span class="label">Подразделение</span>
+                <form:select path="<%= DIVISION_ID %>" class="without_dojo" onmouseover="showTooltip(this);"
+                             onmouseout="tooltip.hide();">
+                    <form:option label="" value="0"/>
+                    <form:options items="${divisionList}" itemLabel="name" itemValue="id"/>
+                </form:select>
+            </td>
+            <td>
+                <table>
+                    <tr>
+                        <td>
+                            <span class="label">Год:</span>
+                        </td>
+                        <td>
+                            <form:select path="<%= YEAR %>" class="without_dojo" onmouseover="showTooltip(this);"
+                                         onmouseout="tooltip.hide();" onchange="updateMonthList(this.value)">
+                                <form:option label="" value="0"/>
+                                <form:options items="${yearList}" itemLabel="year" itemValue="year"/>
+                            </form:select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <span class="label">Месяц:</span>
+                        </td>
+                        <td>
+                            <form:select path="<%= MONTH %>" class="without_dojo" onmouseover="showTooltip(this);"
+                                         onmouseout="tooltip.hide();">
+                                <form:option label="" value="0"/>
+                                <form:options items="${monthList}" itemLabel="monthTxt" itemValue="month"/>
+                            </form:select>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <table>
+                    <tr>
+                        <td>
+                            <span class="label">Регионы</span>
+                        </td>
+                        <td>
+                            <form:select path="<%= REGIONS %>" onmouseover="showTooltip(this)" size="5"
+                                         onmouseout="tooltip.hide()" multiple="true"
+                                         onchange="updateMultipleForSelect(this)">
+                                <form:option value="<%= ALL_VALUE %>" label="Все регионы"/>
+                                <form:options items="${regionList}" itemLabel="name" itemValue="id"/>
+                            </form:select>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+            <td>
+                <table>
+                    <tr>
+                        <td>
+                            <span class="label">Должности</span>
+                        </td>
+                        <td>
+                            <form:select path="<%= PROJECT_ROLES %>" onmouseover="showTooltip(this)" size="5"
+                                         onmouseout="tooltip.hide()" multiple="true"
+                                         onchange="updateMultipleForSelect(this)">
+                                <form:option value="<%= ALL_VALUE %>" label="Все должности"/>
+                                <form:options items="${projectRoleList}" itemLabel="name" itemValue="id"/>
+                            </form:select>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <div>
+                    <form:checkbox id="<%= SHOW_PLANS %>" path="<%= SHOW_PLANS %>"
+                                   label="Показывать плановые показатели"/>
+                </div>
+                <div>
+                    <form:checkbox id="<%= SHOW_FACTS %>" path="<%= SHOW_FACTS %>"
+                                   label="Показывать фактические показатели"/>
                 </div>
             </td>
             <td>
-                <div class="blockElement">
-                    <table>
-                        <tr>
-                            <td class="topAlignTD">
-                                <span class="label">Регионы</span>
-                            </td>
-                            <td>
-                                <form:select path="<%= REGIONS %>" onmouseover="showTooltip(this)" size="5"
-                                             onmouseout="tooltip.hide()" multiple="true"
-                                             onchange="updateMultipleForSelect(this); updateManagerList(null)">
-                                    <form:option value="<%= ALL_VALUE %>" label="Все регионы"/>
-                                    <form:options items="${regionList}" itemLabel="name" itemValue="id"/>
-                                </form:select>
-                            </td>
-                        </tr>
-                    </table>
-                </div>
-            </td>
-            <td>
-                <div class="blockElement">
-                    <table>
-                        <tr>
-                            <td class="topAlignTD">
-                                <span class="label">Должности</span>
-                            </td>
-                            <td>
-                                <form:select path="<%= PROJECT_ROLES %>" onmouseover="showTooltip(this)" size="5"
-                                             onmouseout="tooltip.hide()" multiple="true"
-                                             onchange="updateMultipleForSelect(this)">
-                                    <form:option value="<%= ALL_VALUE %>" label="Все должности"/>
-                                    <form:options items="${projectRoleList}" itemLabel="name" itemValue="id"/>
-                                </form:select>
-                            </td>
-                        </tr>
-                    </table>
-                </div>
+                <table>
+                    <tr>
+                        <td>
+                            <div>
+                                <form:checkbox path="<%= SHOW_PROJECTS %>" label="Проекты"/>
+                            </div>
+                            <div>
+                                <form:checkbox path="<%= SHOW_PRESALES %>" label="Пресейлы"/>
+                            </div>
+                        </td>
+                        <td style="text-align: right">
+                            <button id="show" style="width:150px;vertical-align: middle;" type="submit"
+                                    onclick="return validate()">Показать
+                            </button>
+                        </td>
+                    </tr>
+                </table>
             </td>
         </tr>
     </table>
 
     <sec:authorize access="hasRole('ROLE_PLAN_EDIT')">
+        <br/>
         <c:if test="${fn:length(jsonDataToShow) > 0 and editable}">
-            <button style="width:150px;margin-left: 23px;" onclick="save()" type="button">Сохранить планы</button>
+            <button style="width:150px;vertical-align: middle;" onclick="save()" type="button">Сохранить планы</button>
         </c:if>
-        <button style="margin-left: 20px;" onclick="createPlanForPeriod()" type="button">
+        <button style="vertical-align: middle;" onclick="createPlanForPeriod()" type="button">
             Запланировать на период
-        </button>
-        <button style="margin-left: 20px;" onclick="exportTableInExcel()" type="button">
-            Сохранить в Excel
         </button>
     </sec:authorize>
 </form:form>
@@ -722,7 +562,7 @@ function log(text){
 <c:if test="${fn:length(jsonDataToShow) > 0}">
     <div dojoType="dojox.layout.ContentPane" style="width: 100%; min-width: 1260px;">
         <div id="myTable" jsId="<%= GRID_JS_ID %>" dojoType="dojox.grid.DataGrid" store="myStore"
-             selectionMode="none" canSort="false" query="myQuery" <%--autoHeight="true"--%> style="height: 620px;"
+             selectionMode="none" canSort="false" query="myQuery" <%--autoHeight="true"--%> style="height: 450px;"
              structure="myLayout"></div>
     </div>
 </c:if>

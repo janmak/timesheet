@@ -41,15 +41,15 @@ public class SendMailService{
                     return actType == TypesOfActivityEnum.PROJECT || actType == TypesOfActivityEnum.PRESALE;
                 }
             });
-    private final Function<ProjectManager, String> GET_EMAIL_FROM_MANAGER
-            = new Function<ProjectManager, String>() {
+    private final Function<ProjectParticipant, String> GET_EMAIL_FROM_PARTICIPANT
+            = new Function<ProjectParticipant, String>() {
         @Nullable @Override
-        public String apply(@Nullable ProjectManager projectManager) {
-            return projectManager.getEmployee().getEmail();
+        public String apply(@Nullable ProjectParticipant projectParticipant) {
+            return projectParticipant.getEmployee().getEmail();
         }
     };
 
-    private Function<ProjectActivityInfo,String> GET_EMAILS_OF_INTERESTED_MANAGERS_FROM_PROJECT_FOR_CURRENT_ROLE
+    private Function<ProjectActivityInfo,String> GET_EMAILS_OF_INTERESTED_PARTICIPANTS_FROM_PROJECT_FOR_CURRENT_ROLE
             = new Function<ProjectActivityInfo, String>() {
         @Nullable @Override
         public String apply(@Nullable ProjectActivityInfo input) {
@@ -60,23 +60,23 @@ public class SendMailService{
             return Joiner.on(",").join(
                 Iterables.transform(
                     Iterables.filter(
-                        projectService.getManagers(projectService.find(input.getProjectId())),
-                            new Predicate<ProjectManager>() {
+                        projectService.getParticipants(projectService.find(input.getProjectId())),
+                            new Predicate<ProjectParticipant>() {
                                 @Override
-                                public boolean apply(@Nullable ProjectManager manager) {
-                                    if(manager == null || manager.getProjectRole()==null){
+                                public boolean apply(@Nullable ProjectParticipant participant) {
+                                    if(participant == null || participant.getProjectRole()==null){
                                         return false;
                                     }
-                                    if (manager.getEmployee().getId().equals(project.getManager().getId())){
+                                    if (participant.getEmployee().getId().equals(project.getManager().getId())){
                                         return true;
                                     }
-                                    if(EnumsUtils.tryFindById(manager.getProjectRole().getId(),ProjectRolesEnum.class)==ProjectRolesEnum.HEAD){
+                                    if(EnumsUtils.tryFindById(participant.getProjectRole().getId(),ProjectRolesEnum.class)==ProjectRolesEnum.HEAD){
                                         return true;
                                     }
-                                    return (manager.getProjectRole().getId().equals(roleInCurrentProject.getId()));
+                                    return (participant.getProjectRole().getId().equals(roleInCurrentProject.getId()));
 
                                 } }),
-                        GET_EMAIL_FROM_MANAGER
+                    GET_EMAIL_FROM_PARTICIPANT
                 )
         ); } };
 
@@ -97,7 +97,7 @@ public class SendMailService{
     @Autowired
     private VacationApprovalService vacationApprovalService;
     @Autowired
-    private ProjectManagerService projectManagerService;
+    private ProjectParticipantService projectParticipantService;
     @Autowired
     private EmployeeAssistantService employeeAssistantService;
     @Autowired
@@ -140,14 +140,6 @@ public class SendMailService{
     }
 
     /**
-     * Возвращает email сотрудника
-     */
-    public String getEmployeeDivision(Integer empId) {
-        Division division = employeeService.find(empId).getDivision();
-        return empId == null ? null : division == null ? null : division.getDepartmentName();
-    }
-
-    /**
      * Возвращает строку с адресами менеджеров проектов/пресейлов
      * @param tsForm
      */
@@ -177,9 +169,9 @@ public class SendMailService{
      *
      * @return emails - строка с emailАМИ
      */
-    public String getProjectManagersEmails(TimeSheetForm tsForm) {
+    public String getProjectParticipantsEmails(TimeSheetForm tsForm) {
         if (tsForm.getTimeSheetTablePart() == null) return ""; // Нет строк в отчете - нет и участников
-        return getProjectManagersEmails(transformTimeSheetTableRowForm(tsForm.getTimeSheetTablePart()));
+        return getProjectParticipantsEmails(transformTimeSheetTableRowForm(tsForm.getTimeSheetTablePart()));
     }
 
 
@@ -188,15 +180,15 @@ public class SendMailService{
      * @param ts
      * @return string строка содержащая email's которым относится данный timesheet
      */
-    public String getProjectManagersEmails(TimeSheet ts) {
-        return getProjectManagersEmails(transformTimeSheetDetail(ts.getTimeSheetDetails()));
+    public String getProjectParticipantsEmails(TimeSheet ts) {
+        return getProjectParticipantsEmails(transformTimeSheetDetail(ts.getTimeSheetDetails()));
     }
 
-    private String getProjectManagersEmails(Iterable<ProjectActivityInfo> details) {
+    private String getProjectParticipantsEmails(Iterable<ProjectActivityInfo> details) {
         return StringUtils.join(
                 Lists.newArrayList(Iterables.transform(
                         Iterables.filter(details, LEAVE_PRESALE_AND_PROJECTS_ONLY),
-                        GET_EMAILS_OF_INTERESTED_MANAGERS_FROM_PROJECT_FOR_CURRENT_ROLE))
+                        GET_EMAILS_OF_INTERESTED_PARTICIPANTS_FROM_PROJECT_FOR_CURRENT_ROLE))
                 , ",");
     }
 
@@ -240,10 +232,6 @@ public class SendMailService{
         new VacationApproveRequestSender(this, propertyProvider, vacationApprovalService, managerRoleNameService).sendMessage(vacationApproval);
     }
 
-    public void performPlannedVacationCreateRequestSender(Vacation vacation, List<String> emails) {
-        new PlannedVacationCreateSender(this, propertyProvider, emails).sendMessage(vacation);
-    }
-
     public void performVacationApprovedSender (Vacation vacation, List<String> emails) {
         new VacationApprovedSender(this, propertyProvider, emails).sendMessage(vacation);
     }
@@ -256,20 +244,12 @@ public class SendMailService{
         new VacationApprovalErrorThresholdSender(this, propertyProvider).sendMessage("");
     }
 
-    public void loginFailureErrorThresholdMailing(){
-        new LoginFailureErrorThresholdSender(this, propertyProvider).sendMessage("");
-    }
-
     public void performVacationAcceptanceMailing(VacationApproval vacationApproval){
         new VacationApprovalAcceptanceSender(this, propertyProvider).sendMessage(vacationApproval);
     }
 
     public void performVacationCreateMailing(Vacation vacation) {
         new VacationCreateSender(this,propertyProvider,vacationApprovalService,managerRoleNameService).sendMessage(vacation);
-    }
-
-    public void plannedVacationInfoMailing(Map<Employee, Set<Vacation>> managerEmployeesVacation) {
-        new PlannedVacationInfoSender(this, propertyProvider).sendMessage(managerEmployeesVacation);
     }
 
     public String initMessageBodyForReport(TimeSheet timeSheet) {
@@ -359,12 +339,6 @@ public class SendMailService{
 
     public String getTypeOfCompensation(TimeSheetForm tsForm) {
         final DictionaryItem item = dictionaryItemService.find(tsForm.getTypeOfCompensation());
-
-        return (item == null ? StringUtils.EMPTY : item.getValue());
-    }
-
-    public String getEffort(TimeSheetForm tsForm) {
-        final DictionaryItem item = dictionaryItemService.find(tsForm.getEffortInNextDay());
 
         return (item == null ? StringUtils.EMPTY : item.getValue());
     }

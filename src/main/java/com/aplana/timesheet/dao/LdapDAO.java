@@ -5,12 +5,8 @@ import com.google.common.collect.Iterables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ldap.NameNotFoundException;
-import org.springframework.ldap.core.AttributesMapper;
-import org.springframework.ldap.core.DistinguishedName;
-import org.springframework.ldap.core.LdapTemplate;
-import org.springframework.ldap.filter.AndFilter;
-import org.springframework.ldap.filter.EqualsFilter;
-import org.springframework.ldap.filter.LikeFilter;
+import org.springframework.ldap.core.*;
+import org.springframework.ldap.filter.*;
 import org.springframework.ldap.support.LdapUtils;
 
 import javax.naming.NamingEnumeration;
@@ -67,17 +63,6 @@ public class LdapDAO {
         }
     }
 
-    public EmployeeLdap getEmployeeBySID(String sid) {
-        try {
-            EqualsFilter filter = new EqualsFilter(SID, sid);
-            logger.debug("LDAP Query {}", filter.encode());
-            return (EmployeeLdap) Iterables.getFirst(ldapTemplate.search("", filter.encode(), new EmployeeAttributeMapper()), null);
-        } catch (NameNotFoundException e) {
-            logger.debug("Not found: " + sid);
-            return null;
-        }
-    }
-
     public List<EmployeeLdap> getEmployeesByDepartmentNameFromDb(String department) {
         logger.debug("DeparmentName – {}", department);
         String[] split = department.split(",");
@@ -113,7 +98,7 @@ public class LdapDAO {
 		logger.debug("LDAP Query {}", andFilter.encode());
 		return ldapTemplate.search(dn, andFilter.encode(), new EmployeeAttributeMapper());
 	}
-
+	
 	@SuppressWarnings("unchecked")
 	public List<EmployeeLdap> getDivisionLeader(String divisionLeaderName, String division) {
 		logger.info("Getting Division Leaders from LDAP.");
@@ -153,12 +138,11 @@ public class LdapDAO {
             employee.setObjectSid   (LdapUtils.convertBinarySidToString((byte[]) attributes.get(SID).get()));
             employee.setDepartment  ( getAttributeByName( attributes, "department" ) );
             employee.setDisplayName ( getAttributeByName( attributes, "displayName" ));
-            employee.setEmail       ( getAttributeByName( attributes, "mail"));
+            employee.setEmail(getAttributeByName(attributes, "mail"));
 		    employee.setManager     ( getAttributeByName( attributes, "manager" ) );
             employee.setTitle       ( getAttributeByName( attributes, "title" ) );
             employee.setWhenCreated ( getAttributeByName( attributes, "whenCreated" ) );
             employee.setCity        ( getAttributeByName( attributes, "l" ) );
-            employee.setMailNickname( getAttributeByName( attributes, "mailNickname" ) );
 
             Attribute ldapCn = attributes.get("distinguishedname");
 			if(ldapCn != null)

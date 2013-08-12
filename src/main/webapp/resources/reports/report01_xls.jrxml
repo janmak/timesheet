@@ -25,22 +25,20 @@
 	<field name="projdetail" class="java.lang.String"/>
 	<field name="durationdetail" class="java.lang.Float"/>
 	<field name="region_name" class="java.lang.String"/>
-	<field name="project_role" class="java.lang.String"/>
 	<field name="vacation" class="java.lang.Object"/>
 	<field name="illness" class="java.lang.Object"/>
-	<field name="billable" class="java.lang.Boolean"/>
-	<field name="overtime_cause" class="java.lang.String"/>
-	<field name="comment" class="java.lang.String"/>
-	<field name="compensation" class="java.lang.String"/>
-	<field name="vacation_type" class="java.lang.String"/>
-	<variable name="holVacIllDay" class="java.lang.Boolean" resetType="Group" resetGroup="GroupByOvertime" calculation="Variance">
-		<variableExpression><![CDATA[$F{holiday} != null || $F{vacation} != null || $F{illness} != null]]></variableExpression>
-		<initialValueExpression><![CDATA[$F{holiday} != null || $F{vacation} != null || $F{illness} != null]]></initialValueExpression>
-	</variable>
-	<variable name="kindOfDay" class="java.lang.Integer" resetType="Group" resetGroup="GroupByOvertime">
-		<variableExpression><![CDATA[$F{holiday} != null ? 1 : ($F{vacation} != null ? 2 : ($F{illness} != null ? 3 : 4))]]></variableExpression>
-		<initialValueExpression><![CDATA[$F{holiday} != null ? 1 : ($F{vacation} != null ? 2 : ($F{illness} != null ? 3 : 4))]]></initialValueExpression>
-	</variable>
+    <variable name="holVacIllDay" class="java.lang.Boolean" resetType="Group" resetGroup="GroupByOvertime" calculation="Variance">
+        <variableExpression><![CDATA[$F{holiday} != null || $F{vacation} != null || $F{illness} != null]]></variableExpression>
+        <initialValueExpression><![CDATA[$F{holiday} != null || $F{vacation} != null || $F{illness} != null]]></initialValueExpression>
+    </variable>
+    <variable name="kindOfDay" class="java.lang.Integer" resetType="Group" resetGroup="GroupByOvertime" calculation="Nothing">
+        		<variableExpression>
+        		    <![CDATA[$F{holiday} != null ? 1 : ($F{vacation} != null ? 2 : ($F{illness} != null ? 3 : 4))]]>
+        		</variableExpression>
+        		<initialValueExpression>
+        		    <![CDATA[$F{holiday} != null ? 1 : ($F{vacation} != null ? 2 : ($F{illness} != null ? 3 : 4))]]>
+                </initialValueExpression>
+    </variable>
 	<variable name="totalHours" class="java.lang.Double" resetType="Group" resetGroup="GroupByName" calculation="Sum">
 		<variableExpression><![CDATA[$V{holVacIllDay} ? $F{duration} : $F{overtime}]]></variableExpression>
 	</variable>
@@ -49,30 +47,25 @@
 		<groupHeader>
 			<band height="13">
 				<textField evaluationTime="Group" evaluationGroup="GroupByOvertime">
-					<reportElement uuid="a1446b57-8bad-4ecd-929e-c87aeb526e12" style="Group Header 2" x="0" y="0" width="106" height="13"/>
+					<reportElement uuid="a1446b57-8bad-4ecd-929e-c87aeb526e12" style="Group Header 2" x="0" y="0" width="146" height="13"/>
 					<textElement/>
 					<textFieldExpression><![CDATA[$F{name}]]></textFieldExpression>
 				</textField>
 				<textField>
-					<reportElement uuid="5971c534-816b-4fff-b8c0-a8e7032f9965" style="Group Header 2" x="172" y="0" width="90" height="13"/>
+					<reportElement uuid="5971c534-816b-4fff-b8c0-a8e7032f9965" style="Detail" x="146" y="0" width="90" height="13"/>
 					<textElement/>
 					<textFieldExpression><![CDATA[$F{region_name}]]></textFieldExpression>
 				</textField>
 				<textField evaluationTime="Group" evaluationGroup="GroupByName">
-					<reportElement uuid="9dbe74b3-0dc0-46a2-b615-3b5cb6cf6831" style="Group Header 2" x="466" y="0" width="60" height="13"/>
+					<reportElement uuid="9dbe74b3-0dc0-46a2-b615-3b5cb6cf6831" style="Detail" x="583" y="0" width="60" height="13"/>
 					<textElement/>
 					<textFieldExpression><![CDATA[$V{totalHours}]]></textFieldExpression>
 				</textField>
 				<staticText>
-					<reportElement uuid="848e238c-5f38-4736-a728-07c0d8b97a4e" style="Group Header 2" x="616" y="0" width="30" height="13"/>
+					<reportElement uuid="848e238c-5f38-4736-a728-07c0d8b97a4e" style="Detail" x="643" y="0" width="90" height="13"/>
 					<textElement/>
-					<text><![CDATA[Да]]></text>
+					<text><![CDATA[Итого]]></text>
 				</staticText>
-				<textField evaluationTime="Group" evaluationGroup="GroupByRole">
-					<reportElement uuid="848e238c-5f38-4736-a728-07c0d8b97a4e" style="Group Header 2" x="646" y="0" width="90" height="13"/>
-					<textElement/>
-					<textFieldExpression><![CDATA[$F{project_role}]]></textFieldExpression>
-				</textField>
 			</band>
 		</groupHeader>
 	</group>
@@ -82,23 +75,20 @@
 	<group name="GroupByDate">
 		<groupExpression><![CDATA[new SimpleDateFormat("dd-MM-yyyy").format($F{caldate})]]></groupExpression>
 	</group>
-	<group name="GroupByRole">
-		<groupExpression><![CDATA[$F{project_role}]]></groupExpression>
-	</group>
 	<title>
 		<band height="138" splitType="Stretch">
 			<staticText>
-				<reportElement uuid="dc66295f-3eba-4a38-baff-16927e9bf6ba" style="Title" x="0" y="0" width="802" height="90"/>
+				<reportElement uuid="dc66295f-3eba-4a38-baff-16927e9bf6ba" style="Title" x="0" y="0" width="555" height="90"/>
 				<textElement textAlignment="Center" verticalAlignment="Middle"/>
 				<text><![CDATA[Отчет №1. Переработки, работа в выходные и праздничные дни]]></text>
 			</staticText>
 			<textField>
-				<reportElement uuid="e693d526-608e-467e-8ac7-1da7289fa5dd" style="SubTitle" x="0" y="90" width="802" height="24"/>
+				<reportElement uuid="e693d526-608e-467e-8ac7-1da7289fa5dd" style="SubTitle" x="0" y="90" width="555" height="24"/>
 				<textElement textAlignment="Center"/>
 				<textFieldExpression><![CDATA["Регион : "+ $P{reportParams}.wellFormedRegionList()]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement uuid="beb267e4-a77c-47fe-9cc8-5e0e8be21986" style="SubTitle" x="0" y="114" width="802" height="24"/>
+				<reportElement uuid="beb267e4-a77c-47fe-9cc8-5e0e8be21986" style="SubTitle" x="0" y="114" width="555" height="24"/>
 				<textElement textAlignment="Center"/>
 				<textFieldExpression><![CDATA["с " + DateTimeUtil.formatDateString($P{reportParams}.getBeginDate()) +
 " по " + DateTimeUtil.formatDateString($P{reportParams}.getEndDate())]]></textFieldExpression>
@@ -108,64 +98,34 @@
 	<columnHeader>
 		<band height="37" splitType="Stretch">
 			<staticText>
-				<reportElement uuid="443ef290-9df0-4a14-801d-969d133c2d7f" style="Column header" x="0" y="0" width="106" height="22"/>
+				<reportElement uuid="443ef290-9df0-4a14-801d-969d133c2d7f" style="Column header" x="0" y="0" width="146" height="13"/>
 				<textElement/>
 				<text><![CDATA[Сотрудник]]></text>
 			</staticText>
 			<staticText>
-				<reportElement uuid="861dbd56-e17c-4b0e-b5e6-0eccd2d6ee2b" style="Column header" x="106" y="0" width="66" height="22"/>
+				<reportElement uuid="861dbd56-e17c-4b0e-b5e6-0eccd2d6ee2b" style="Column header" x="236" y="0" width="103" height="13"/>
 				<textElement/>
 				<text><![CDATA[Дата]]></text>
 			</staticText>
 			<staticText>
-				<reportElement uuid="ad7777ba-14a8-4d05-8261-c4726aecae4c" style="Column header" x="172" y="0" width="90" height="22"/>
+				<reportElement uuid="8a9670f7-3bb5-4fe0-b4d7-a94c5eb41db7" style="Column header" x="339" y="0" width="244" height="13"/>
 				<textElement/>
-				<text><![CDATA[Регион]]></text>
+				<text><![CDATA[Проект / пресейл]]></text>
 			</staticText>
 			<staticText>
-				<reportElement uuid="8a9670f7-3bb5-4fe0-b4d7-a94c5eb41db7" style="Column header" x="262" y="0" width="204" height="22"/>
-				<textElement/>
-				<text><![CDATA[Проект/пресейл]]></text>
-			</staticText>
-			<staticText>
-				<reportElement uuid="897b270f-efcb-43d2-bc90-c5da06d0f868" style="Column header" x="466" y="0" width="60" height="22"/>
+				<reportElement uuid="897b270f-efcb-43d2-bc90-c5da06d0f868" style="Column header" x="583" y="0" width="60" height="13"/>
 				<textElement/>
 				<text><![CDATA[Часы]]></text>
 			</staticText>
 			<staticText>
-				<reportElement uuid="ad7777ba-14a8-4d05-8261-c4726aecae4c" style="Column header" x="526" y="0" width="90" height="22"/>
+				<reportElement uuid="ad7777ba-14a8-4d05-8261-c4726aecae4c" style="Column header" x="643" y="0" width="90" height="13"/>
 				<textElement/>
 				<text><![CDATA[Тип]]></text>
 			</staticText>
 			<staticText>
-				<reportElement uuid="ad7777ba-14a8-4d05-8261-c4726aecae4c" style="Column header" x="616" y="0" width="30" height="22"/>
+				<reportElement uuid="ad7777ba-14a8-4d05-8261-c4726aecae4c" style="Column header" x="146" y="0" width="90" height="13"/>
 				<textElement/>
-				<text><![CDATA[Итог]]></text>
-			</staticText>
-			<staticText>
-				<reportElement uuid="ad7777ba-14a8-4d05-8261-c4726aecae4c" style="Column header" x="646" y="0" width="90" height="22"/>
-				<textElement/>
-				<text><![CDATA[Роль]]></text>
-			</staticText>
-			<staticText>
-				<reportElement uuid="ad7777ba-14a8-4d05-8261-c4726aecae4c" style="Column header" x="736" y="0" width="91" height="22"/>
-				<textElement/>
-				<text><![CDATA[Учитывать в затратах проекта]]></text>
-			</staticText>
-			<staticText>
-				<reportElement uuid="ad7777ba-14a8-4d05-8261-c4726aecae4c" style="Column header" x="827" y="0" width="93" height="22"/>
-				<textElement/>
-				<text><![CDATA[Причина переработок]]></text>
-			</staticText>
-			<staticText>
-				<reportElement uuid="ad7777ba-14a8-4d05-8261-c4726aecae4c" style="Column header" x="920" y="0" width="90" height="22"/>
-				<textElement/>
-				<text><![CDATA[Комментарий]]></text>
-			</staticText>
-			<staticText>
-				<reportElement uuid="ad7777ba-14a8-4d05-8261-c4726aecae4c" style="Column header" x="1010" y="0" width="157" height="22"/>
-				<textElement/>
-				<text><![CDATA[Пожелания по способу компенсации]]></text>
+				<text><![CDATA[Регион]]></text>
 			</staticText>
 		</band>
 	</columnHeader>
@@ -173,100 +133,70 @@
 		<band height="13">
 			<printWhenExpression><![CDATA[!$V{holVacIllDay}]]></printWhenExpression>
 			<textField>
-				<reportElement uuid="b1f611cf-8131-4840-8eb7-a6f13faf1aba" style="Detail" stretchType="RelativeToTallestObject" x="0" y="0" width="106" height="13"/>
+				<reportElement uuid="b1f611cf-8131-4840-8eb7-a6f13faf1aba" style="Detail" x="0" y="0" width="146" height="13"/>
 				<textElement/>
 				<textFieldExpression><![CDATA[$F{name}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement uuid="e858fcad-559b-46be-9ddd-8b613567f4fb" style="Detail" stretchType="RelativeToTallestObject" x="106" y="0" width="66" height="13"/>
+				<reportElement uuid="e858fcad-559b-46be-9ddd-8b613567f4fb" style="Detail" x="236" y="0" width="103" height="13"/>
 				<textElement/>
 				<textFieldExpression><![CDATA[new SimpleDateFormat("dd-MM-yyyy").format($F{caldate})]]></textFieldExpression>
 			</textField>
-			<textField>
-				<reportElement uuid="5971c534-816b-4fff-b8c0-a8e7032f9965" style="Detail" stretchType="RelativeToTallestObject" x="172" y="0" width="90" height="13"/>
-				<textElement/>
-				<textFieldExpression><![CDATA[$F{region_name}]]></textFieldExpression>
-			</textField>
 			<textField isStretchWithOverflow="true">
-				<reportElement uuid="96088c92-39ae-4efb-8aaf-fcb066ccd7f2" style="Detail" stretchType="RelativeToTallestObject" x="262" y="0" width="204" height="13"/>
+				<reportElement uuid="96088c92-39ae-4efb-8aaf-fcb066ccd7f2" style="Detail" x="339" y="0" width="244" height="13"/>
 				<textElement/>
 				<textFieldExpression><![CDATA[$F{projnames}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement uuid="9dbe74b3-0dc0-46a2-b615-3b5cb6cf6831" style="Detail" stretchType="RelativeToTallestObject" x="466" y="0" width="60" height="13"/>
+				<reportElement uuid="9dbe74b3-0dc0-46a2-b615-3b5cb6cf6831" style="Detail" x="583" y="0" width="60" height="13"/>
 				<textElement/>
 				<textFieldExpression><![CDATA[$F{overtime}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement uuid="0332b6bd-f0bf-4297-a531-aa79b02ffaaf" style="Detail" stretchType="RelativeToTallestObject" x="526" y="0" width="90" height="13"/>
+				<reportElement uuid="0332b6bd-f0bf-4297-a531-aa79b02ffaaf" style="Detail" x="643" y="0" width="90" height="13"/>
 				<textElement/>
 				<textFieldExpression><![CDATA["Переработка"]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement uuid="848e238c-5f38-4736-a728-07c0d8b97a4e" style="Detail" stretchType="RelativeToTallestObject" x="646" y="0" width="90" height="13"/>
+				<reportElement uuid="5971c534-816b-4fff-b8c0-a8e7032f9965" style="Detail" x="146" y="0" width="90" height="13"/>
 				<textElement/>
-				<textFieldExpression><![CDATA[$F{project_role}]]></textFieldExpression>
-			</textField>
-			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-				<reportElement uuid="848e238c-5f38-4736-a728-07c0d8b97a4e" style="Detail" stretchType="RelativeToTallestObject" x="827" y="0" width="93" height="13"/>
-				<textElement/>
-				<textFieldExpression><![CDATA[$F{overtime_cause}]]></textFieldExpression>
-			</textField>
-			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-				<reportElement uuid="848e238c-5f38-4736-a728-07c0d8b97a4e" style="Detail" stretchType="RelativeToTallestObject" x="920" y="0" width="90" height="13"/>
-				<textElement/>
-				<textFieldExpression><![CDATA[$F{comment}]]></textFieldExpression>
-			</textField>
-			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-				<reportElement uuid="848e238c-5f38-4736-a728-07c0d8b97a4e" style="Detail" stretchType="RelativeToTallestObject" x="1010" y="0" width="157" height="13"/>
-				<textElement/>
-				<textFieldExpression><![CDATA[$F{compensation}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{region_name}]]></textFieldExpression>
 			</textField>
 		</band>
 		<band height="13">
 			<printWhenExpression><![CDATA[$V{holVacIllDay}]]></printWhenExpression>
 			<textField>
-				<reportElement uuid="3c0aefb9-174b-4fda-9595-fc361254eed8" stretchType="RelativeToTallestObject" style="Detail" x="0" y="0" width="106" height="13"/>
+				<reportElement uuid="3c0aefb9-174b-4fda-9595-fc361254eed8" style="Detail" x="0" y="0" width="146" height="13"/>
 				<textElement/>
 				<textFieldExpression><![CDATA[$F{name}]]></textFieldExpression>
 			</textField>
-			<textField>
-				<reportElement uuid="720e46af-f353-46d6-9aa1-c5a38337623c" stretchType="RelativeToTallestObject" style="Detail" x="106" y="0" width="66" height="13"/>
-				<textElement/>
-				<textFieldExpression><![CDATA[new SimpleDateFormat("dd-MM-yyyy").format($F{caldate})]]></textFieldExpression>
-			</textField>
-			<textField>
-				<reportElement uuid="5971c534-816b-4fff-b8c0-a8e7032f9965" stretchType="RelativeToTallestObject" style="Detail" x="172" y="0" width="90" height="13"/>
-				<textElement/>
-				<textFieldExpression><![CDATA[$F{region_name}]]></textFieldExpression>
-			</textField>
 			<textField isStretchWithOverflow="true">
-				<reportElement uuid="f73f6d82-a9ce-4b0c-8b68-635b699af1a6" stretchType="RelativeToTallestObject" style="Detail" x="262" y="0" width="204" height="13"/>
+				<reportElement uuid="f73f6d82-a9ce-4b0c-8b68-635b699af1a6" style="Detail" x="339" y="0" width="244" height="13"/>
 				<textElement/>
 				<textFieldExpression><![CDATA[$F{projdetail}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement uuid="85147d2e-148b-4703-8bdb-1e99a8ab5e91" stretchType="RelativeToTallestObject" style="Detail" x="466" y="0" width="60" height="13"/>
+				<reportElement uuid="85147d2e-148b-4703-8bdb-1e99a8ab5e91" style="Detail" x="583" y="0" width="60" height="13"/>
 				<textElement/>
 				<textFieldExpression><![CDATA[$F{durationdetail}]]></textFieldExpression>
 			</textField>
-			<textField isStretchWithOverflow="true">
-				<reportElement uuid="5971c534-816b-4fff-b8c0-a8e7032f9965" stretchType="RelativeToTallestObject" style="Detail" x="526" y="0" width="90" height="13"/>
+			<textField>
+				<reportElement uuid="720e46af-f353-46d6-9aa1-c5a38337623c" style="Detail" x="236" y="0" width="103" height="13"/>
 				<textElement/>
-				<textFieldExpression><![CDATA[$F{holiday} != null && $F{region} == null ? "Общий выходной" :
+				<textFieldExpression><![CDATA[new SimpleDateFormat("dd-MM-yyyy").format($F{caldate})]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="5971c534-816b-4fff-b8c0-a8e7032f9965" style="Detail" x="643" y="0" width="90" height="13"/>
+				<textElement/>
+                <textFieldExpression><![CDATA[ $F{holiday} != null && $F{region} == null ? "Общий выходной" :
                                                $F{holiday} != null && $F{region} != null ? "Региональный выходной" :
-                                               $F{vacation} != null ? $F{vacation_type} :
+                                               $F{vacation} != null ? "Отпуск" :
                                                $F{illness} != null  ? "Болезнь" : "<НЕ ОПРЕДЕЛЕНО>"]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement uuid="848e238c-5f38-4736-a728-07c0d8b97a4e" stretchType="RelativeToTallestObject" style="Detail" x="646" y="0" width="90" height="13"/>
+				<reportElement uuid="5971c534-816b-4fff-b8c0-a8e7032f9965" style="Detail" x="146" y="0" width="90" height="13"/>
 				<textElement/>
-				<textFieldExpression><![CDATA[$F{project_role}]]></textFieldExpression>
-			</textField>
-			<textField>
-				<reportElement uuid="848e238c-5f38-4736-a728-07c0d8b97a4e" stretchType="RelativeToTallestObject" style="Detail" x="736" y="0" width="91" height="13"/>
-				<textElement/>
-				<textFieldExpression><![CDATA[$F{billable}?"Да":"Нет"]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{region_name}]]></textFieldExpression>
 			</textField>
 		</band>
 	</detail>

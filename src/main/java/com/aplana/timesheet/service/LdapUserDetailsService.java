@@ -1,6 +1,7 @@
 package com.aplana.timesheet.service;
 
 import com.aplana.timesheet.constants.RoleConstants;
+import com.aplana.timesheet.controller.TimeSheetController;
 import com.aplana.timesheet.dao.EmployeeDAO;
 import com.aplana.timesheet.dao.entity.Employee;
 import com.aplana.timesheet.dao.entity.Permission;
@@ -28,7 +29,7 @@ import java.util.List;
 @Service("myLdapUserDetailsService")
 public class LdapUserDetailsService implements UserDetailsContextMapper {
 
-    private static final Logger logger = LoggerFactory.getLogger(LdapUserDetailsService.class);
+    private static final Logger logger = LoggerFactory.getLogger(TimeSheetController.class);
 
     @Autowired
     private EmployeeDAO employeeDAO;

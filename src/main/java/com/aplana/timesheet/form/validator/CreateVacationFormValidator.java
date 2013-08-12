@@ -1,20 +1,21 @@
 package com.aplana.timesheet.form.validator;
 
-import com.aplana.timesheet.dao.entity.DictionaryItem;
+import com.aplana.timesheet.dao.entity.Calendar;
 import com.aplana.timesheet.enums.VacationTypesEnum;
 import com.aplana.timesheet.form.CreateVacationForm;
-import com.aplana.timesheet.properties.TSPropertyProvider;
-import com.aplana.timesheet.service.*;
+import com.aplana.timesheet.service.CalendarService;
+import com.aplana.timesheet.service.EmployeeService;
+import com.aplana.timesheet.service.SecurityService;
+import com.aplana.timesheet.service.VacationService;
 import com.aplana.timesheet.util.DateTimeUtil;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 
 import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author rshamsutdinov
@@ -29,7 +30,6 @@ public class CreateVacationFormValidator extends AbstractValidator {
             String.format("Длина комментария превышает допустимые %d символов", MAX_COMMENT_LENGTH);
     private static final String WRONG_YEAR_ERROR_MESSAGE = "Календарь на %i год еще не заполнен, " +
             "оформите заявление позже или обратитесь в службу поддержки системы";
-    private static final String WRONG_PLANNED_TODATE_ERROR_MESSAGE = "Дата начала планируемого отпуска должна быть позже %s";
 
     @Autowired
     private VacationService vacationService;
@@ -42,14 +42,6 @@ public class CreateVacationFormValidator extends AbstractValidator {
 
     @Autowired
     private CalendarService calendarService;
-
-    @Autowired
-    protected TSPropertyProvider propertyProvider;
-
-    @Autowired
-    private DictionaryItemService dictionaryItemService;
-
-    public static final String DATE_FORMAT = "dd.MM.yyyy";
 
     @Override
     public boolean supports(Class<?> aClass) {
@@ -65,11 +57,6 @@ public class CreateVacationFormValidator extends AbstractValidator {
         final String calFromDate = createVacationForm.getCalFromDate();
         final String calToDate = createVacationForm.getCalToDate();
 
-        final boolean isPlannedVacation = createVacationForm.getVacationType().equals(VacationTypesEnum.PLANNED.getId());
-        final Integer createTrashold = propertyProvider.getPlannedVacationCreateThreshold();
-
-        DictionaryItem planned = dictionaryItemService.find(VacationTypesEnum.PLANNED.getId());
-
         final boolean calFromDateIsNotEmpty = StringUtils.length(calFromDate) > 0;
         final boolean calToDateIsNotEmpty = StringUtils.length(calToDate) > 0;
 
@@ -82,7 +69,6 @@ public class CreateVacationFormValidator extends AbstractValidator {
                     employeeService.isEmployeeAdmin(securityService.getSecurityPrincipal().getEmployee().getId())
             )) {
                 final Date currentDate = new Date();
-                Date allowedDate = DateUtils.addDays(currentDate, createTrashold);
 
                 if (!fromDate.after(currentDate)) {
                     errors.rejectValue(
@@ -99,33 +85,13 @@ public class CreateVacationFormValidator extends AbstractValidator {
                             "Дата окончания отпуска должна быть больше текущей даты"
                     );
                 }
-
-                if (isPlannedVacation && !fromDate.after(allowedDate)) {
-                    errors.rejectValue(
-                            "calToDate",
-                            "error.createVacation.planned.todate.wrong",
-                            new Object[]{new SimpleDateFormat(DATE_FORMAT).format(allowedDate)},
-                            WRONG_PLANNED_TODATE_ERROR_MESSAGE
-                    );
-                }
-
             }
-            long intersectVacationsCount = 0;
-            if (!isPlannedVacation) {
-                intersectVacationsCount = vacationService.getIntersectVacationsCount(
-                        createVacationForm.getEmployeeId(),
-                        fromDate,
-                        toDate,
-                        planned
-                );
-            } else {
-                intersectVacationsCount = vacationService.getIntersectPlannedVacationsCount(
-                        createVacationForm.getEmployeeId(),
-                        fromDate,
-                        toDate,
-                        planned
-                );
-            }
+
+            final long intersectVacationsCount = vacationService.getIntersectVacationsCount(
+                    createVacationForm.getEmployeeId(),
+                    fromDate,
+                    toDate
+            );
 
             if (intersectVacationsCount > 0) {
                 errors.reject(

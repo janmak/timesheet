@@ -60,9 +60,6 @@ public class Project {
     @Column(name = "end_date", columnDefinition = "date")
     private Date endDate;
 
-    @Column(name = "jira_project_key")
-    private String jiraProjectKey;
-
 	public Set<Division> getDivisions() {
 		return divisions;
 	}
@@ -151,14 +148,6 @@ public class Project {
         this.endDate = endDate;
     }
 
-    public String getJiraProjectKey() {
-        return jiraProjectKey;
-    }
-
-    public void setJiraProjectKey(String jiraProjectKey) {
-        this.jiraProjectKey = jiraProjectKey;
-    }
-
     @Override
 	public String toString() {
 		return new StringBuilder()
@@ -184,5 +173,4 @@ public class Project {
     public void setEmployeeProjectBillables(Set<EmployeeProjectBillable> employeeProjectBillables) {
         this.employeeProjectBillables = employeeProjectBillables;
     }
-
 }

@@ -86,8 +86,8 @@ public class ProjectService {
 	 * @return
 	 */
     @Transactional(readOnly = true)
-    public List<ProjectManager> getManagers(Project project) {
-		return projectDAO.getManagers(project);
+    public List<ProjectParticipant> getParticipants(Project project) {
+		return projectDAO.getParticipants(project);
 	}
 	
 	/**
@@ -97,7 +97,7 @@ public class ProjectService {
 	 *@return List<ProjectRole> список проектных ролей
 	 */
     @Transactional(readOnly = true)
-    public List<ProjectManager> getEmployeeProjectRoles(Project project, Employee employee){
+    public List<ProjectParticipant> getEmployeeProjectRoles(Project project, Employee employee){
 		return projectDAO.getEmployeeProjectRoles(project, employee);
 	}
 
@@ -106,28 +106,20 @@ public class ProjectService {
     }
 
     /**
-     * Возвращает абсолютно все проекты
-     * @return
-     */
-    public List<Project> getAllProjects(){
-        return projectDAO.getAllProjects();
-    }
-
-    /**
      * Возвращает список проектов с указанием подразделения РП проекта
      *
      */
     @Transactional(readOnly = true)
-    public String getProjectListWithOwnerDivisionJson() {
+    public String getProjectListWithOwnerDivisionJson(List<Division> divisions) {
         final JsonArrayNodeBuilder builder = anArrayBuilder();
-        final List<Project> projectList = getAllProjects();
+        final List<Project> projectList = projectDAO.getProjects();
 
         for (Project project : projectList) {
             final JsonObjectNodeBuilder projectBuilder = getProjectBuilder(project);
 
             projectBuilder.withField(
                     "ownerDivisionId",
-                    JsonUtil.aStringBuilder(project.getManager()!=null&&project.getManager().getDivision()!=null?project.getManager().getDivision().getId():0)
+                    JsonUtil.aStringBuilder(project.getManager().getDivision().getId())
             );
 
             builder.withElement(projectBuilder);
@@ -137,23 +129,12 @@ public class ProjectService {
     }
 
     /**
-     * Возвращает JSON списка проектов, связанного с подразделениями (все - активные и не активные)
+     * Возвращает JSON списка проектов, связанного с подразделениями
      *
      * @param divisions
      * @return
      */
     public String getProjectListJson(List<Division> divisions) {
-        return getProjectListJson(divisions, null);
-    }
-
-    /**
-     * Возвращает JSON списка проектов, связанного с подразделениями
-     *
-     * @param divisions
-     * @param active true - активны, false - неактивные, null - без разницы
-     * @return
-     */
-    public String getProjectListJson(List<Division> divisions, Boolean active) {
         final JsonArrayNodeBuilder builder = anArrayBuilder();
 
         for (Division division : divisions) {
@@ -170,7 +151,7 @@ public class ProjectService {
                 logger.debug("For division {} available {} projects.", division.getId(), projects.size());
 
                 for (Project project : projects) {
-                    if (active == null || active.equals(project.isActive())){
+                    if (project.isActive()) {
                         projectsBuilder.withElement(getProjectBuilder(project));
                     }
                 }
@@ -192,7 +173,7 @@ public class ProjectService {
      * @return
      */
     public String getProjectListJson() {
-        return getProjectListAsJson(getAllProjects());
+        return getProjectListAsJson(getProjects());
     }
 
     public String getProjectListAsJson(List<Project> projects) {
@@ -219,8 +200,7 @@ public class ProjectService {
         return anObjectBuilder().
                 withField(ID, JsonUtil.aStringBuilder(project.getId())).
                 withField(VALUE, aStringBuilder(project.getName())).
-                withField("state", JsonUtil.aStringBuilder(project.getState().getId())).
-                withField("active", JsonUtil.aStringBuilder(Boolean.valueOf(project.isActive())));
+                withField("state", JsonUtil.aStringBuilder(project.getState().getId()));
     }
 
     public List<Project> getEmployeeProjectPlanByDates(Employee employee, HashMap<Integer, Set<Integer>> dates) {
@@ -257,13 +237,12 @@ public class ProjectService {
      * получаем список проектов, с руководителями которых сотрудник будет согласовывать отпуск
      */
     public List<Project> getProjectsForVacation (Vacation vacation) {
-        /* список проектов на период отпуска */
         List<Project> employeeProjects = getEmployeeProjectPlanByDates(vacation.getBeginDate(), vacation.getEndDate(), vacation.getEmployee());
-        /* список проектов в который учавствовал работник за последние Х дней*/
-        Integer beforeVacationDays = propertyProvider.getBeforeVacationDays();
-        Date periodBeginDate = DateUtils.addDays(vacation.getCreationDate(), 0 - beforeVacationDays);
-        /* складываем оба списка */
-        employeeProjects.addAll(getEmployeeProjectsFromTimeSheetByDates(periodBeginDate, vacation.getCreationDate(), vacation.getEmployee()));
+        if (employeeProjects.isEmpty()) {
+            Integer beforeVacationDays = propertyProvider.getBeforeVacationDays();
+            Date periodBeginDate = DateUtils.addDays(vacation.getCreationDate(), 0 - beforeVacationDays);
+            employeeProjects = getEmployeeProjectsFromTimeSheetByDates(periodBeginDate, vacation.getCreationDate(), vacation.getEmployee());
+        }
 
         return employeeProjects;
     }

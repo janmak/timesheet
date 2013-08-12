@@ -1,6 +1,4 @@
-<%@ page import="com.aplana.timesheet.enums.OvertimeCausesEnum" %>
-<%@ page import="com.aplana.timesheet.enums.UndertimeCausesEnum" %>
-<%@ page import="com.aplana.timesheet.enums.WorkOnHolidayCausesEnum" %>
+<%@ page import="com.aplana.timesheet.form.TimeSheetForm" %>
 <%@taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 <%@page contentType="text/html" pageEncoding="UTF-8" %>
 
@@ -22,8 +20,6 @@
     dojo.require("dijit.layout.ContentPane");
     dojo.require("dojox.widget.Standby");
     dojo.require(CALENDAR_EXT_PATH);
-    dojo.require("dijit.form.ValidationTextBox");
-    dojo.require("dojo.parser");
 
     var unfinishedDayCauseList = ${unfinishedDayCauseJson};
     var overtimeCauseList = ${overtimeCauseJson};
@@ -49,7 +45,7 @@
 
     var root = getRootEventListener();
     var month = correctLength(new Date().getMonth() + 1);
-    var standByElement;
+
     dojo.declare("Calendar", com.aplana.dijit.ext.Calendar, {
         getEmployeeId:function () {
             return dojo.byId("employeeId").value;
@@ -65,9 +61,6 @@
                     break;
                 case "0":   //день без отчета
                     if (date <= getFirstWorkDate()) // день раньше начала работы
-                        return '';
-                    var lastWorkDate = getLastWorkDate();
-                    if (lastWorkDate != null && lastWorkDate != "" && date > lastWorkDate) // день после увольнения
                         return '';
                     if (date <= new Date())
                         return 'classDateRedBack';
@@ -134,10 +127,7 @@
         refreshPlans(dijit.byId('calDate').value, dojo.byId('employeeId').value);
 
         // инициализация данных по выходным и отчетам для текущей даты
-        initCurrentDateInfo('${timeSheetForm.employeeId}', dijit.byId('calDate').value,'/calendar/dates');
-        //крутилка создается при после загрузки страницы,
-        //т.к. если она создается в месте использования - ghb show не отображается картинка
-        standByElement = new dojox.widget.Standby({target: dojo.query("body")[0], zIndex:1000});
+        initCurrentDateInfo('${timeSheetForm.employeeId}', dijit.byId('calDate').value);
     });
 
     function refreshPlans(date, employeeId) {
@@ -265,25 +255,24 @@
 //                window.open('problem/' + divId + '/' + empId, 'problem_window');
 //            }
     }
-
+    function validateReportDate(value) {
+        if (value != null && dateNotBetweenMonth(value)) {
+            dojo.style("date_warning", {"display":"inline", "color":"red"});
+            if (invalidReportDate(value) > 0)
+                dojo.byId("date_warning").innerHTML = "Разница текущей и указанной дат больше 27 дней";
+            else
+                dojo.byId("date_warning").innerHTML = "Разница текущей и указанной дат больше 27 дней";
+        }
+        else {
+            dojo.style("date_warning", {"display":"none"});
+        }
+    }
     function CopyPlan() {
         var plan_text = dojo.byId("plan_textarea").innerHTML;
         plan_text = plan_text.replace(/<br>/g, '\n');
         plan_text = plan_text.replace(/&amp;/g, '&');
         dojo.byId("description_id_" + GetFirstIdDescription()).value = plan_text;
     }
-    function requiredCommentSet(){
-        var overtimeCause = dijit.byId("overtimeCause").get("value");
-        var undertimeExp = (overtimeCause ==<%= UndertimeCausesEnum.OTHER.getId() %>);
-        var workOnHolidayExp = (overtimeCause ==<%= WorkOnHolidayCausesEnum.OTHER.getId() %>)
-        var overtimeExp = (overtimeCause ==<%= OvertimeCausesEnum.OTHER.getId() %>)
-
-        if (undertimeExp || overtimeExp || workOnHolidayExp) {
-            dijit.byId("overtimeCauseComment").attr("required", true);
-        } else {
-            dijit.byId("overtimeCauseComment").attr("required", false);
-        }
-     }
 </script>
 <style type="text/css">
     #date_warning {
@@ -317,11 +306,10 @@
             </span>
         </div>
         <div style="margin-bottom: 3px;">Выберите причину</div>
-        <div id="overtimeCause" onChange="overtimeCauseChange(this);requiredCommentSet();" data-dojo-type="dijit.form.Select"
+        <div id="overtimeCause" onChange="overtimeCauseChange(this)" data-dojo-type="dijit.form.Select"
              style="width: 99%;" data-dojo-props="value: '${timeSheetForm.overtimeCause}'"></div>
         <div style="margin-top: 10px;"><span>Комментарий</span></div>
-        <div data-dojo-type="dijit.form.ValidationTextBox"
-                  data-dojo-prop="missingMessage:'Комментарий для причины 'Другое' является обязательным!'"
+        <div data-dojo-type="dijit.form.Textarea"
                   wrap="soft" id="overtimeCauseComment" rows="10" style="width: 99%;margin-top: 3px;"
                   placeHolder="Напишите причину, если нет подходящей в списке"
                   tooltip="комментарий">${timeSheetForm.overtimeCauseComment}</div>
@@ -336,7 +324,7 @@
             </select>
         </div>
         <button id="confirmOvertimeCauseButton" style="margin-top: 10px; margin-left: -1px"
-                onclick="submitWithOvertimeCauseSet()" onmouseout="tooltip.hide()">
+                onclick="submitWithOvertimeCauseSet()">
             Продолжить
         </button>
     </div>
@@ -359,14 +347,16 @@
         <span class="label">Отчет сотрудника</span>
         <form:select path="employeeId" id="employeeId" class="without_dojo" onmouseover="tooltip.show(getTitle(this));"
                      cssStyle="width: auto"
-                     onmouseout="tooltip.hide();" onchange="onEmployeeChange(this)">
+                     onmouseout="tooltip.hide();" onchange="setDefaultEmployeeJob(-1);
+                     initCurrentDateInfo(this.value, dijit.byId('calDate').value);
+                     refreshPlans(dijit.byId('calDate').value, this.value); setDefaultDate(this.value)">
             <form:option label="" value="0"/>
         </form:select>
         <span class="label">за дату</span>
         <form:input path="calDate" id="calDate" class="date_picker" data-dojo-type="DateTextBox"
                     data-dojo-id="reportDate"
                     required="true" onMouseOver="tooltip.show(getTitle(this));" onMouseOut="tooltip.hide();"
-                    onChange="onCalDateChange(this)" />
+                    onChange="validateReportDate(this.value);refreshPlans(this.value, dojo.byId('employeeId').value);reportDate.constraints.min = getFirstWorkDate();"/>
         <span id="date_warning"></span>
     </div>
 
@@ -420,7 +410,6 @@
                 <th style="min-width: 130px">Задача</th>
                 <th style="min-width: 30px">ч.</th>
                 <th style="min-width: 240px">Комментарии</th>
-                <th style="min-width: 30px">JIRA</th>
                 <th style="min-width: 200px">Проблемы</th>
             </tr>
 
@@ -486,14 +475,11 @@
                             <label id="act_description_${row.index}" style="font-style: italic"/>
                         </td>
                         <td class="top_align"> <!-- Проектная задача -->
-                            <form:select path="timeSheetTablePart[${row.index}].taskName"
-                                         id="taskName_id_${row.index}"
-                                         onchange="setTaskDescription(${row.index})"
+                            <form:select path="timeSheetTablePart[${row.index}].cqId" id="cqId_id_${row.index}"
                                          onmouseover="tooltip.show(getTitle(this));" onmouseout="tooltip.hide();"
                                          onkeyup="somethingChanged();" onmouseup="somethingChanged();">
                                 <form:option label="" value="0"/>
                             </form:select>
-                            <label id="task_description_${row.index}" style="font-style: italic"/>
                         </td>
                         <td class="top_align"><form:input cssClass="text_right_align duration" type="text"
                                                           path="timeSheetTablePart[${row.index}].duration"
@@ -505,9 +491,6 @@
                                                              rows="4" style="width: 100%"
                                                              id="description_id_${row.index}"
                                                              onkeyup="somethingChanged();"/></td>
-                        <td class="text_center_align" id="jira_button_id_${row.index}">
-
-                        </td>
                         <td class="top_align"><form:textarea wrap="soft" path="timeSheetTablePart[${row.index}].problem"
                                                              rows="4" style="width: 100%" id="problem_id_${row.index}"
                                                              onkeyup="somethingChanged();"/></td>
@@ -527,7 +510,6 @@
                 <td id="total_duration" class="text_right_align">0</td>
                 <td></td>
                 <td></td>
-                <td></td>
             </tr>
         </table>
     </div>
@@ -539,12 +521,6 @@
             <form:textarea wrap="soft" path="plan" id="plan" rows="7" cols="92"/>
             <br/>
         </div>
-    </div>
-    <div id="effort_box" >
-        <span class="label">Моя оценка моего объема работ на следующий рабочий день:</span>
-        <form:select path="effortInNextDay" id="effortInNextDay" class="without_dojo" onmouseover="tooltip.show(getTitle(this));" onmouseout="tooltip.hide();">
-            <form:options items="${effortList}" itemLabel="value" itemValue="id"/>
-        </form:select>
     </div>
     <div>
         <table>

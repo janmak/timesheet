@@ -1,10 +1,7 @@
 package com.aplana.timesheet.dao;
 
 import com.aplana.timesheet.dao.entity.*;
-import com.aplana.timesheet.util.DateTimeUtil;
 import com.google.common.collect.Iterables;
-import org.apache.commons.lang.time.DateUtils;
-import org.apache.poi.ss.usermodel.DateUtil;
 import org.hibernate.Hibernate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,7 +9,9 @@ import org.springframework.stereotype.Repository;
 
 import javax.persistence.*;
 import java.util.Calendar;
-import java.util.*;
+import java.util.Date;
+import java.util.List;
+import java.util.Random;
 
 @Repository
 public class EmployeeDAO {
@@ -138,22 +137,7 @@ public class EmployeeDAO {
 
         return query.getResultList();
     }
-
-    /**
-     * Возвращает список всех работников у которых начала запланированного отпуска находится между <b>begin</b> и <b>end</b>
-     * @param begin
-     * @param end
-     * @return List<Employee>
-     */
-    public List<Employee> getEmployeeWithPlannedVacation (Date begin, Date end) {
-        Query query = this.entityManager.createQuery(
-                "select emp from Employee as emp where emp.id in " +
-                        "(select v.employee.id from Vacation as v where v.beginDate > :begin and v.beginDate < :end)"
-        ).setParameter("begin", begin)
-         .setParameter("end", end);
-
-        return query.getResultList();
-    }
+    
     /**
      * Возвращает список менеджеров для конкретного работника
      * @param employeeId
@@ -335,12 +319,6 @@ public class EmployeeDAO {
         return query.getResultList();
     }
 
-    public List<Employee> getAllEmployees() {
-        final Query query = entityManager.createQuery("from Employee e order by e.name");
-
-        return query.getResultList();
-    }
-
     public Employee tryGetEmployeeFromBusinessTrip(Integer reportId) {
         try {
             return (Employee) entityManager.createQuery("select bt.employee from BusinessTrip as bt " +
@@ -372,23 +350,12 @@ public class EmployeeDAO {
     }
 
     /**
-     * Получаем младших менеджеров проекта (тимлиды, ведущие аналитики)
-     */
-    public List<Employee> getProjectManagers(Project project) {
-        Query query = entityManager.createQuery("select pm.employee from ProjectManager as pm " +
-                "where pm.project = :project and pm.active=:active")
-                .setParameter("project", project)
-                .setParameter("active", true);
-
-        return query.getResultList();
-    }
-    /**
      * Получаем младших менеджеров проекта (тимлиды, ведущие аналитики), которые еще не ответили на письмо о согласовании отпуска
      */
     public List<Employee> getProjectManagersThatDoesntApproveVacation(Project project, Vacation vacation) {
-        Query query = entityManager.createQuery("select pm.employee from ProjectManager as pm " +
-                "where pm.project = :project and pm.active=:active and " +
-                "pm.projectRole.id = :roleId and pm.employee not in " +
+        Query query = entityManager.createQuery("select pp.employee from ProjectParticipant as pp " +
+                "where pp.project = :project and pp.active=:active and " +
+                "pp.projectRole.id = :roleId and pp.employee not in " +
                 "(select va.manager from VacationApproval as va where va.vacation = :vacation and va.result is not null)")
                 .setParameter("project", project)
                 .setParameter("active", true)
@@ -414,78 +381,6 @@ public class EmployeeDAO {
         return query.getResultList();
     }
 
-    /**
-     * множенственный выбор по подразделениям, руководителям подразделений, проектам и регионам
-     * если параметр передан как null - то поиск по всем
-     */
-    public List<Employee> getEmployees(List<Division> divisions, List<Employee> managers, List<Region> regions,
-                                       List<Project> projects, Date beginDate, Date endDate,
-                                       boolean lookPreviousTwoWeekTimesheet){
-
-        Integer beginDateMonth = 1;
-        Integer beginDateYear = 1900;
-        Integer endDateMonth = 1;
-        Integer endDateYear = 2100;
-        Date twoWeekEarlyDate = DateUtils.addDays(beginDate, -14); // получаем дату на 2 недели назад
-        if (lookPreviousTwoWeekTimesheet){
-            if (beginDate != null){
-                beginDateMonth = DateTimeUtil.getMonth(beginDate) + 1; // в БД нумерация с 1
-                beginDateYear = DateTimeUtil.getYear(beginDate);
-            }
-            if (endDate != null){
-                endDateMonth = DateTimeUtil.getMonth(endDate) + 1; // в БД нумерация с 1
-                endDateYear = DateTimeUtil.getYear(endDate);
-            }
-        }
-
-        StringBuilder queryString = new StringBuilder("FROM Employee e ");
-        queryString.append(" WHERE e.endDate is null ");
-
-        Map<String, Object> parameters = new HashMap<String, Object>();
-        boolean hasCondition = false;
-
-        if (divisions != null){ // если не все подразделения, а несколько
-            queryString.append("AND (e.division IN :divisions)");
-            parameters.put("divisions", divisions);
-            hasCondition = true;
-        }
-        if (managers != null){
-            if (hasCondition) queryString.append(" AND "); hasCondition = true;
-            queryString.append("(e.manager IN :managers OR e.manager2 IN :managers)");
-            parameters.put("managers", managers);
-        }
-        if (regions != null){
-            if (hasCondition) queryString.append(" AND "); hasCondition = true;
-            queryString.append("(e.region IN :regions)");
-            parameters.put("regions", regions);
-        }
-        if (projects != null){
-            if (hasCondition) queryString.append(" AND ");
-            queryString.append("((e.id IN (SELECT epp.employee FROM EmployeeProjectPlan epp WHERE " +
-                    "(epp.project IN :projects) AND " +
-                    "(epp.month <= :endDateMonth AND epp.month >= :beginDateMonth AND" +
-                    " epp.year <= :endDateYear AND epp.year >= :beginDateYear)))");
-            if (lookPreviousTwoWeekTimesheet){
-                queryString.append(" OR (e.id IN (SELECT ts.employee FROM TimeSheet ts WHERE ts.id IN " +
-                        "(SELECT tsd.timeSheet FROM TimeSheetDetail tsd WHERE tsd.project IN :projects) AND " +
-                        "ts.calDate.calDate between :twoWeekEarlyDate AND :beginDate))");
-                parameters.put("twoWeekEarlyDate", twoWeekEarlyDate);
-                parameters.put("beginDate", beginDate);
-            }
-            queryString.append(")");
-            parameters.put("projects", projects);
-            parameters.put("endDateMonth", endDateMonth);
-            parameters.put("endDateYear", endDateYear);
-            parameters.put("beginDateMonth", beginDateMonth);
-            parameters.put("beginDateYear", beginDateYear);
-        }
-        Query query = entityManager.createQuery(queryString.toString());
-        for (Map.Entry entry : parameters.entrySet()){
-            query.setParameter(entry.getKey().toString(), entry.getValue());
-        }
-        return query.getResultList();
-    }
-
     public List<Integer> getEmployeesIdByDivisionRegion(Integer divisionId, Integer regionId){
         Query query = entityManager.createQuery("select emp.id from Employee as emp where " +
                 "emp.region.id = :regionId and " +
@@ -504,78 +399,75 @@ public class EmployeeDAO {
         return query.getResultList();
     }
 
-    public List<Employee> getDivisionEmployeesByManager(Integer divisionId, Date date, List<Integer> regionIds, List<Integer> projectRoleIds, Integer managerId) {
-        final Calendar calendar = Calendar.getInstance();
-
-        calendar.setTime(date);
-
-        final Query query = entityManager.createQuery(
-                "from Employee e where e.division.id = :div_id" +
-                        " and ((:date_month >= MONTH(e.startDate) and :date_year = YEAR(e.startDate) or :date_year > YEAR(e.startDate))" +
-                        "       and (e.endDate is null or :date_month <= MONTH(e.endDate) and :date_year = YEAR(e.endDate) or :date_year < YEAR(e.endDate)))" +
-                        " and (e.region.id in :region_ids or " + ALL_REGIONS + " in (:region_ids))" +
-                        " and (e.job.id in :project_role_ids or " + ALL_PROJECT_ROLES + " in (:project_role_ids))" +
-                        " and (e.manager.id = :manager_Id or e.manager2.id = :manager_Id)" +
-                        " order by e.name"
-        ).setParameter("div_id", divisionId).setParameter("date_month", calendar.get(Calendar.MONTH) + 1).
-                setParameter("date_year", calendar.get(Calendar.YEAR)).
-                setParameter("region_ids", regionIds).setParameter("project_role_ids", projectRoleIds).setParameter("manager_Id",managerId);
-
-        return query.getResultList();
+    public Employee findRandomEmployee() {
+        final  Query query =
+                entityManager.createQuery("from Employee as emp" + " where emp.manager is not null");
+        List resultList = query.getResultList();
+        Integer size = resultList.size();
+        Random random = new Random();
+        Integer number = random.nextInt(size);
+        return (Employee) resultList.get(number);
     }
 
-    public Employee findByLdapCN(String ldapCN) {
-        return (Employee) Iterables.getFirst(entityManager.createQuery(
-                "FROM Employee emp WHERE ldap = :ldap"
-        ).setParameter("ldap", ldapCN).getResultList(), null);
+    public Employee findRandomEmployeeForVacationApprovedWithNotNullLeaders() {
+        final  Query query =
+                entityManager.createQuery("from Employee as emp" + " where emp.manager is not null and " + "emp.division is not null and " + "emp.division.email is not null and " + "emp.division.leaderId is not null and " + "emp.manager2 is not null");
+        List resultList = query.getResultList();
+        Integer size = resultList.size();
+        Random random = new Random();
+        Integer number = random.nextInt(size);
+        return (Employee) resultList.get(number);
     }
 
-    public Boolean isEmployeeDivisionLeader(Integer employeeID) {
-        Long slavesCount = (Long) entityManager.createQuery("select count (*) from Division as e " +
-                "where e.leaderId.id = :employeeID")
-                .setParameter("employeeID", employeeID)
-                .getSingleResult();
-        return slavesCount > 0;
+    public Employee findRandomEmployeeForVacationWithNotNullLeaders() {
+        final  Query query =
+                entityManager.createQuery("from Employee as emp" + " where emp.manager is not null and " + "emp.division is not null and " + "emp.division.email is not null");
+        List resultList = query.getResultList();
+        Integer size = resultList.size();
+        Random random = new Random();
+        Integer number = random.nextInt(size);
+        return (Employee) resultList.get(number);
     }
 
-    public List<Employee> getEmployeeByRegionAndManagerAndDivision(List<Integer> regions, Integer divisionId, Integer manager) {
-        String qlString = "select emp from Employee as emp where emp.endDate is null";
-        if (manager != null && manager >= 0 ) {
-            qlString += " and  emp.manager.id = :managerId ";
-        }
-        if (regions != null && regions.size() > 0 && !regions.get(0).equals(-1)) {
-            qlString += " and emp.region.id in :regionId  ";
-        }
-        if (divisionId != null && divisionId != 0 ) {
-            qlString += " and emp.division.id = :divisionId ";
-        }
-        Query query = entityManager.createQuery(qlString);
-        if ( manager != null && manager >= 0) {
-            query.setParameter("managerId", manager);
-        }
-        if (regions != null && regions.size() > 0 && !regions.get(0).equals(-1)) {
-            query.setParameter("regionId", regions);
-        }
-        if ( divisionId != null && divisionId != 0 ) {
-            query.setParameter("divisionId", divisionId);
-
-        }
-        return query.getResultList();
+    public Employee findRandomEmployeeForManager(Employee manager) {
+        final  Query query =
+                entityManager.createQuery("from Employee as emp " + "where emp.manager = :manager and " + "emp.manager is not null and " + "emp.division is not null and " + "emp.division.email is not null").setParameter("manager", manager);
+        List resultList = query.getResultList();
+        logger.info("lalala = {}", resultList);
+        Integer size = resultList.size();
+        Random random = new Random();
+        Integer number = random.nextInt(size);
+        return (Employee) resultList.get(number);
     }
 
-    public Employee findByLdapSID(String ldapSid) {
-        return (Employee) Iterables.getFirst(entityManager.createQuery(
-                "FROM Employee emp WHERE objectSid = :ldapSid"
-        ).setParameter("ldapSid", ldapSid).getResultList(), null);
+    public List<Employee> getEmployeeListForManager (Employee manager) {
+        Query query =
+                entityManager.createQuery("from Employee as emp " + "where emp.manager = :manager and " + "emp.manager is not null and " + "emp.division is not null and " + "emp.division.email is not null").setParameter("manager", manager);
+        List resultList = query.getResultList();
+        Integer size = resultList.size();
+        return (List<Employee>) resultList;
     }
 
-    /**
-     * Возвращает id регионов где имеются сотрудники у данного менеджера
-     * @param id
-     * @return
-     */
-    public List<Integer> getRegionsWhereManager(Integer id) {
-        Query query = entityManager.createQuery("select emp.region.id from Employee emp where emp.endDate=null and emp.manager.id = :id group by emp.region").setParameter("id", id);
-        return query.getResultList();
+    public Employee findRandomEmployeeWithNotNullParams() {
+        Query query =
+                entityManager.createQuery("from Employee as emp" + " where emp.manager is not null and " + "emp.division is not null and " + "emp.division.vacationEmail is not null");
+        List resultList = query.getResultList();
+        Integer size = resultList.size();
+        Random random;
+        Integer number;
+        if (size != 0) {
+            random = new Random();
+            number = random.nextInt(size);
+        }
+        else {
+            Query query2 =
+                    entityManager.createQuery("from Employee as emp" + " where emp.manager is not null and " + "emp.division is not null");
+            resultList = query2.getResultList();
+            size = resultList.size();
+            random = new Random();
+            number = random.nextInt(size);
+        }
+        return (Employee) resultList.get(number);
     }
+
 }

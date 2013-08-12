@@ -2,6 +2,7 @@ package com.aplana.timesheet.dao;
 
 import com.aplana.timesheet.dao.entity.Employee;
 import com.aplana.timesheet.dao.entity.ReportCheck;
+import org.hibernate.Hibernate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
@@ -65,4 +66,19 @@ public class ReportCheckDAO{
 			}
 		}
 	}
+
+
+    public ReportCheck store (ReportCheck reportCheck) {
+        reportCheck = entityManager.merge(reportCheck);
+
+        entityManager.flush();
+
+        return reportCheck;
+    }
+
+    public void delete(ReportCheck reportCheck) {
+        Hibernate.initialize(reportCheck);
+
+        entityManager.remove(reportCheck);
+    }
 }

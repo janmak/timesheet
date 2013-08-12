@@ -1,25 +1,42 @@
 package com.aplana.timesheet.service.MailSenders;
 
+import com.aplana.timesheet.AbstractTest;
+import com.aplana.timesheet.dao.CalendarDAO;
+import com.aplana.timesheet.dao.EmployeeDAO;
+import com.aplana.timesheet.dao.TimeSheetDAO;
+import com.aplana.timesheet.dao.entity.Employee;
+import com.aplana.timesheet.dao.entity.TimeSheet;
+import com.aplana.timesheet.form.TimeSheetForm;
+import com.aplana.timesheet.properties.TSPropertyProvider;
+import com.aplana.timesheet.service.SendMailService;
 import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.Sets;
 import com.google.common.collect.Table;
 import junit.framework.Assert;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.velocity.app.VelocityEngine;
+import org.junit.Before;
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.velocity.VelocityEngineUtils;
 
-import java.util.HashMap;
+import java.sql.Timestamp;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
+
+import static junit.framework.Assert.assertEquals;
 
 /**
  * @author eshangareev
  * @version 1.0
  */
-public class TimeSheetSenderTest {
+public class TimeSheetSenderTest extends AbstractTest {
 
     private String workPlaceString = "Неизвестно_";
     int COUNT_OF_DETAILS = 10;
     private String name = "Василий Иванов";
-    ;
     private String reason = "Болезнь";
 
     @Test
@@ -45,7 +62,7 @@ public class TimeSheetSenderTest {
             result.put(i, TimeSheetSender.ACT_TYPE, "Плевание в молоток-" + i);
             result.put(i, TimeSheetSender.PROJECT_NAME, "Прнимание горизонтального положения на печи-" + i);
             result.put(i, TimeSheetSender.CATEGORY_OF_ACTIVITY, "Тунеядство_" + i);
-            result.put(i, TimeSheetSender.TASK_NAME, "Не знаю, что это вообще такое-" + i);
+            result.put(i, TimeSheetSender.CQ_ID, "Не знаю, что это вообще такое-" + i);
             result.put(i, TimeSheetSender.DURATION, Integer.toString(i));
             result.put(i, TimeSheetSender.DESCRIPTION_STRINGS, "Очень долго-предолго сидел на печи.\nЗадница уже затекла, а я все лежал.\nСложное это дело, должен я вам сказать.\nОчень!");
             result.put(i, TimeSheetSender.PROBLEM_STRINGS, "Вы думаете, что в лежании на печи нет никаких проблем?\nВы сильно ошибаетесь!\nПоговорим в следующий раз!\nРаботать надо, т.е… лежать.");

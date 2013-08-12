@@ -162,12 +162,6 @@ public class MailSender<T> {
         logger.debug("TO Addresses: {}", Arrays.toString(toAddresses));
 
         try {
-            message.setHeader("X-Priority", String.valueOf(mail.getPriority().getId()));
-        } catch (MessagingException e) {
-            logger.error("Error while set priority for message.", e);
-        }
-
-        try {
             initMessageSubject(mail, message);
 
             message.setRecipients(MimeMessage.RecipientType.TO, toAddresses);

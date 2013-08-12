@@ -1,24 +1,21 @@
 package com.aplana.timesheet.util;
 
-import argo.jdom.JdomParser;
-import argo.jdom.JsonNode;
-import argo.jdom.JsonRootNode;
-import argo.saj.InvalidSyntaxException;
 import com.aplana.timesheet.AbstractJsonTest;
 import com.aplana.timesheet.dao.DivisionDAO;
 import com.aplana.timesheet.dao.entity.Division;
 import com.aplana.timesheet.dao.entity.Employee;
 import com.aplana.timesheet.service.EmployeeService;
+import com.aplana.timesheet.service.TimeSheetService;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.HashMap;
+import java.text.SimpleDateFormat;
 import java.util.List;
-import java.util.Map;
-import java.util.Random;
+
+import static com.aplana.timesheet.util.DateTimeUtil.dateToString;
 
 /**
  * @author rshamsutdinov
@@ -37,67 +34,67 @@ public class EmployeeHelperTest extends AbstractJsonTest {
     @Autowired
     private EmployeeService employeeService;
 
+    @Autowired
+    private TimeSheetService timeSheetService;
+
     final Boolean filterFired = Boolean.FALSE;
-    private Employee employee;
-    private Map<String, String> employeeFromJson;
     private List<Division> divisions;
+    private String json;
 
     @Before
     public void setUp() throws Exception {
         divisions = divisionDAO.getActiveDivisions();
-        employee = getRandomEmployee();
-        employeeFromJson = getEmployeeFromJsonList(employee.getId(), employee.getDivision().getId());
+        json = getJson();
     }
 
-    private Employee getRandomEmployee() {
-        Random rn = new Random();
-        int rnDivision = rn.nextInt(divisions.size());
-        List<Employee> employees = employeeService.getEmployees(divisions.get(rnDivision), filterFired);
-        int rnEmployee = rn.nextInt(employees.size());
-        Employee employee = employees.get(rnEmployee);
+    private static final String DATE_FORMAT = "dd.MM.yyyy";
 
-        return employee;
-    }
-
-    private static final JdomParser JDOM_PARSER = new JdomParser();
-
-    private Map<String, String> getEmployeeFromJsonList(int employee_id, int division_id) {
-        String jsonText = employeeHelper.getEmployeeListJson(divisions, filterFired, true);
-        try {
-            JsonRootNode jsonn = JDOM_PARSER.parse(jsonText);
-            List<JsonNode> divisionList= jsonn.getElements();
-            for (JsonNode item : divisionList) {
-                if ( item.getStringValue("divId").equals(String.valueOf(division_id)) ) {
-                    List <JsonNode> employeeList = item.getArrayNode("divEmps");
-                    for (JsonNode empl :employeeList) {
-                        if ( empl.getStringValue("id").equals(String.valueOf(employee_id)) ) {
-                            Map<String, String> result = new HashMap<String, String>();
-                            result.put("id", empl.getStringValue("id"));
-                            /* в имя в JSONе может быть добавлена строка увольнения */
-                            String employeeName = empl.getStringValue("value");
-                            if (employeeName.contains("(уволен:")) {
-                                employeeName = (employeeName.substring(0, employeeName.indexOf("уволен:"))).trim();
-                            }
-                            result.put("name", employeeName);
-
-                            result.put("manager", empl.getStringValue("manId"));
-                            result.put("region", empl.getStringValue("regId"));
-                            result.put("job", empl.getStringValue("jobId"));
-                            result.put("startDate", empl.getStringValue("firstWorkDate"));
-                            result.put("dateByDefault", empl.getStringValue("dateByDefault"));
-                            return result;
-                        }
+    private String getJson() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("[");
+        for (int i = 0; i < divisions.size(); i++) {
+            List<Employee> employees = employeeService.getEmployees(divisions.get(i), filterFired);
+            sb.append("{\"divId\":\"");
+            sb.append(divisions.get(i).getId());
+            sb.append("\",\"divEmps\":[");
+            if (employees.size() > 0) {
+                for (int j = 0; j < employees.size(); j++) {
+                    sb.append("{\"id\":\"");
+                    sb.append(employees.get(j).getId());
+                    sb.append("\",\"value\":\"");
+                    sb.append(employees.get(j).getName());
+                    if( null != employees.get(j).getEndDate()) {
+                        sb.append(" (уволен: ");
+                        SimpleDateFormat df = new SimpleDateFormat("dd.MM.yyyy");
+                        sb.append(df.format(employees.get(j).getEndDate()));
+                        sb.append(")");
+                    }
+                    sb.append("\",\"jobId\":\"");
+                    sb.append(employees.get(j).getJob().getId());
+                    sb.append("\",\"dateByDefault\":\"");
+                    sb.append(dateToString(timeSheetService.getLastWorkdayWithoutTimesheet(employees.get(j).getId()), DATE_FORMAT));
+                    sb.append("\",\"firstWorkDate\":\"");
+                    sb.append(dateToString(employees.get(j).getStartDate(), DATE_FORMAT));
+                    sb.append("\"}");
+                    if (j < (employees.size() - 1)) {
+                        sb.append(",");
                     }
                 }
+                sb.append("]}");
+            } else {
+                sb.append("{\"id\":\"0\",\"value\":\"\"}]}");
             }
-        } catch (InvalidSyntaxException e) {
-            logger.error("Parsing error", e);
+
+            if (i < (divisions.size() - 1)) {
+                sb.append(",");
+            }
         }
-        return null;
+        sb.append("]");
+        return sb.toString();
     }
 
     @Test
     public void testGetEmployeeListJson() throws Exception {
-        assertEmployeeFieldsEquals(employee, employeeFromJson);
+        assertJsonEquals(json, employeeHelper.getEmployeeListJson(divisions, filterFired, true));
     }
 }

@@ -54,7 +54,7 @@ public class ProjectTaskDAO {
 		}
 	}
 
-    public ProjectTask find(Integer taskName) {
-        return entityManager.find(ProjectTask.class, taskName);
+    public ProjectTask find(Integer cqId) {
+        return entityManager.find(ProjectTask.class, cqId);
     }
 }

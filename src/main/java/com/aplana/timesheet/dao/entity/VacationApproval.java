@@ -45,7 +45,7 @@ public class VacationApproval {
     @Column (name = "result")
     private Boolean result;
 
-    public Set<VacationApprovalResult> getVacationApprovalResults() {
+    public Set<VacationApprovalResult> getVacationApprovalResults( ) {
         return vacationApprovalResults;
     }
 
@@ -120,4 +120,6 @@ public class VacationApproval {
         sb.append('}');
         return sb.toString();
     }
+
+
 }

@@ -4,6 +4,7 @@ import com.aplana.timesheet.controller.quickreport.BusinessTripsQuickReport;
 import com.aplana.timesheet.controller.quickreport.IllnessesQuickReport;
 import com.aplana.timesheet.controller.quickreport.QuickReport;
 import com.aplana.timesheet.controller.quickreport.QuickReportGenerator;
+import com.aplana.timesheet.dao.entity.Calendar;
 import com.aplana.timesheet.dao.entity.*;
 import com.aplana.timesheet.enums.PermissionsEnum;
 import com.aplana.timesheet.enums.QuickReportTypesEnum;
@@ -44,8 +45,6 @@ import static com.aplana.timesheet.enums.PermissionsEnum.VIEW_ILLNESS_BUSINESS_T
 @Controller
 public class BusinessTripsAndIllnessController extends AbstractController{
 
-    public static final int ALL_VALUE = -1;
-
     private static final String UNCNOWN_PRINTTYPE_ERROR_MESSAGE = "Ошибка: запрашивается неизвестный тип отчета!";
     private static final String INVALID_YEAR_BEGIN_DATE_ERROR_MESSAGE = "Ошибка: в настройках указана неверная дата начала отчетного года! Установлен год по умолчанию.";
     private static final String INVALID_MOUNTH_BEGIN_DATE_ERROR_MESSAGE = "Ошибка: не удается определить отчетный месяц!";
@@ -85,9 +84,6 @@ public class BusinessTripsAndIllnessController extends AbstractController{
     @Autowired
     IllnessService illnessService;
     @Autowired
-    private RegionService regionregionService;
-
-    @Autowired
     @Qualifier("illnessesQuickReportGenerator")
     QuickReportGenerator<IllnessesQuickReport> illnessesQuickReportGenerator;
     @Autowired
@@ -124,111 +120,88 @@ public class BusinessTripsAndIllnessController extends AbstractController{
         Integer divisionId = currentUser.getDivision().getId();
         Integer employeeId = currentUser.getId();
 
-        return String.format("redirect:/businesstripsandillness/%s/%s", divisionId, employeeId);
+        java.util.Calendar calendar = java.util.Calendar.getInstance();
+        int year = calendar.get(java.util.Calendar.YEAR);
+        int month = calendar.get(java.util.Calendar.MONTH) + 1;
+
+        return String.format("redirect:/businesstripsandillness/%s/%s/%s/%s", divisionId, employeeId, year, month);
     }
 
-    @RequestMapping(value = "/businesstripsandillness/{divisionId}/{employeeId}")
+    @RequestMapping(value = "/businesstripsandillness/{divisionId}/{employeeId}/{year}/{month}")
     public ModelAndView showDefaultIllnessReport(
             @PathVariable("divisionId") Integer divisionId,
             @PathVariable("employeeId") Integer employeeId,
+            @PathVariable("year") Integer year,
+            @PathVariable("month") Integer month,
             @ModelAttribute("businesstripsandillness") BusinessTripsAndIllnessForm tsForm,
             BindingResult result) throws BusinessTripsAndIllnessControllerException {
         Integer printtype = tsForm.getReportType();
-        Integer manager = tsForm.getManager();
-        List<Integer> regions = tsForm.getRegions();
-        Date dateFrom = tsForm.getDateFrom();
-        Date dateTo = tsForm.getDateTo();
-        if (dateFrom == null || dateTo == null) {
-            dateTo = new Date();
-            tsForm.setDateTo(dateTo);
-            Integer month = calendarService.getMonthFromDate(dateTo);
-            Integer year = calendarService.getYearFromDate(dateTo);
-            dateFrom = calendarService.getMinDateMonth(year,month);
-            tsForm.setDateFrom(dateFrom);
-        }
-        return getBusinessTripsOrIllnessReport(divisionId, regions, employeeId, manager, dateFrom, dateTo, printtype);
+        return getBusinessTripsOrIllnessReport(divisionId, employeeId, year, month, printtype);
     }
 
     @RequestMapping(value = "/businesstripsandillness/businesstrip/{employeeId}")
     public ModelAndView showBusinessTrips(
             @PathVariable("employeeId") Integer employeeId,
-            @ModelAttribute("businesstripsandillness") BusinessTripsAndIllnessForm businessTripsAndIllnessForm)
-            throws BusinessTripsAndIllnessControllerException {
-        Date dateFrom = businessTripsAndIllnessForm.getDateFrom();
-        Date dateTo = businessTripsAndIllnessForm.getDateTo();
-        if (dateFrom == null || dateTo == null) {
-            dateFrom = new Date();
-            businessTripsAndIllnessForm.setDateFrom(dateFrom);
-            dateTo = DateUtils.addMonths(dateFrom, 1);
-            businessTripsAndIllnessForm.setDateTo(dateTo);
-        }
+            @ModelAttribute("businesstripsandillness") BusinessTripsAndIllnessForm businessTripsAndIllnessForm)throws BusinessTripsAndIllnessControllerException {
         return getBusinessTripsOrIllnessReport(employeeId, QuickReportTypesEnum.BUSINESS_TRIP.getId());
     }
 
     @RequestMapping(value = "/businesstripsandillness/illness/{employeeId}")
     public ModelAndView showIllness(
             @PathVariable("employeeId") Integer employeeId,
-            @ModelAttribute("businesstripsandillness") BusinessTripsAndIllnessForm businessTripsAndIllnessForm)
-            throws BusinessTripsAndIllnessControllerException {
-        Date dateFrom = businessTripsAndIllnessForm.getDateFrom();
-        Date dateTo = businessTripsAndIllnessForm.getDateTo();
-        if (dateFrom == null || dateTo == null) {
-            dateFrom = new Date();
-            businessTripsAndIllnessForm.setDateFrom(dateFrom);
-            dateTo = DateUtils.addMonths(dateFrom, 1);
-            businessTripsAndIllnessForm.setDateTo(dateTo);
-        }
+            @ModelAttribute("businesstripsandillness") BusinessTripsAndIllnessForm businessTripsAndIllnessForm)throws BusinessTripsAndIllnessControllerException {
         return getBusinessTripsOrIllnessReport(employeeId, QuickReportTypesEnum.ILLNESS.getId());
     }
 
     private ModelAndView getBusinessTripsOrIllnessReport(Integer employeeId, Integer printType) throws BusinessTripsAndIllnessControllerException {
         Employee employee = employeeService.find(employeeId);
-        Date dateFrom = new Date();
-        Date dateTo = DateUtils.addMonths(dateFrom, 1);
-        List<Integer> regions = new ArrayList<Integer>();
-        regions.add(employee.getRegion().getId());
+        java.util.Calendar calendar = java.util.Calendar.getInstance();
+        Integer month = calendar.get(java.util.Calendar.MONTH) + 1;
+        Integer year = calendar.get(java.util.Calendar.YEAR);
 
-        return getBusinessTripsOrIllnessReport(employee.getDivision().getId(), regions, employee.getId(), employee.getManager().getId(), dateFrom, dateTo, printType);
+        return getBusinessTripsOrIllnessReport(employee.getDivision().getId(), employee.getId(), year, month, printType);
     }
 
-    private ModelAndView getBusinessTripsOrIllnessReport(Integer divisionId, List<Integer> regions, Integer employeeId,Integer manager,
-                                                         Date dateFrom,
-                                                         Date dateTo,
-                                                         Integer printtype)
-            throws BusinessTripsAndIllnessControllerException {
+    private ModelAndView getBusinessTripsOrIllnessReport(Integer divisionId, Integer employeeId, Integer year, Integer month, Integer printtype) throws BusinessTripsAndIllnessControllerException {
         List<Employee> sickEmployee = new ArrayList<Employee>();
         HashMap<Employee, QuickReport> reports = new HashMap<Employee, QuickReport>();
+        List<Calendar> years = DateTimeUtil.getYearsList(calendarService);
         List<Division> divisionList = divisionService.getDivisions();
         final boolean allFlag = (employeeId == ALL_EMPLOYEES);
+
         if (allFlag) {
-            sickEmployee = employeeService.getEmployeeByRegionAndManagerAndDivision(regions, divisionId, manager);
+            sickEmployee = employeeService.getAllEmployeesDivision(divisionService.find(divisionId));
         } else {
             sickEmployee.add(employeeService.find(employeeId));
         }
-        Employee oneEmployee = null;
-        if (sickEmployee != null && sickEmployee.size() !=0) {
 
-            for (Employee employee : sickEmployee) {
-                reports.put(employee, getReport(printtype, employee, dateFrom, dateTo));
+        for (Employee employee : sickEmployee) {
+            PermissionsEnum recipientPermission = getRecipientPermission(employee);
+
+            if (recipientPermission == null) { //сотрудник запрашивает отчет другого сотрудника (не свой), но нет прав на просмотр чужих отчетов
+                continue;
             }
-            oneEmployee = sickEmployee.get(0);
+
+            reports.put(employee, getReport(printtype, employee, month, year));
         }
-        if (manager == null) {
-            manager = -1;
-        }
-        return fillResponseModel(divisionId,regions , dateFrom, dateTo, printtype, oneEmployee, divisionList,reports, manager, allFlag);
+
+        return fillResponseModel(divisionId, year, month, printtype, sickEmployee.get(0), years, divisionList, reports, allFlag);
     }
 
-    @RequestMapping(value = "/businesstripsandillness/{divisionId}/{employeeId}/{reportTypeId}")
+    @RequestMapping(value = "/businesstripsandillness/{divisionId}/{employeeId}/{year}/{month}/{reportTypeId}")
     public ModelAndView showBusinessTripsAndIllnessWithResult(
             @PathVariable("divisionId") Integer divisionId,
             @PathVariable("employeeId") Integer employeeId,
+            @PathVariable("year") Integer year,
+            @PathVariable("month") Integer month,
             @PathVariable("reportTypeId") Integer reportTypeId,
             @ModelAttribute("businesstripsandillness") BusinessTripsAndIllnessForm tsForm,
             BindingResult result) throws BusinessTripsAndIllnessControllerException {
         tsForm.setReportType(reportTypeId);
-        return showDefaultIllnessReport(divisionId, employeeId, tsForm, result);
+
+        return showDefaultIllnessReport(divisionId, employeeId, year, month, tsForm, result);
     }
+
     /**
      * Удаляем больничный. Если удаление прошло нормально, то возвращаем пустую строку.
      */
@@ -324,47 +297,30 @@ public class BusinessTripsAndIllnessController extends AbstractController{
     /**
      * заполняем данные об отчетах сотрудников и возвращаем формочку с табличкой по нужному типу отчетов
      */
-    private ModelAndView fillResponseModel(Integer divisionId, List<Integer> regionIds, Date dateFrom, Date dateTo, Integer printtype,
-                                           Employee employee, List<Division> divisionList,
-                                           HashMap<Employee ,QuickReport> reports, Integer managerId, boolean forAll) {
+    private ModelAndView fillResponseModel(Integer divisionId, Integer year, Integer month, Integer printtype,
+                                           Employee employee, List<Calendar> years, List<Division> divisionList,
+                                           HashMap<Employee ,QuickReport> reports, boolean forAll) {
         ModelAndView modelAndView = new ModelAndView("businesstripsandillness");
 
-        int idEmployee=0;
-        String nameEmployee = "";
-        if (employee != null) {
-            idEmployee = (forAll) ? ALL_EMPLOYEES : employee.getId();
-            nameEmployee = (forAll) ? "" : employee.getName();
-        }
-
-        modelAndView.addObject("dateFrom", format.format(dateFrom));
-        modelAndView.addObject("dateTo", format.format(dateTo));
+        modelAndView.addObject("year", year);
+        modelAndView.addObject("month", month);
         modelAndView.addObject("divisionId", divisionId);
-        modelAndView.addObject("employeeId", idEmployee);
-        modelAndView.addObject("managerId", managerId);
-        modelAndView.addObject("employeeName", nameEmployee);
+        modelAndView.addObject("employeeId", (forAll) ? ALL_EMPLOYEES : employee.getId());
+        modelAndView.addObject("yearsList", years);
+        modelAndView.addObject("employeeName", (forAll) ? "" : employee.getName());
+        modelAndView.addObject("monthList", DateTimeUtil.getMonthListJson(years, calendarService));
         modelAndView.addObject("divisionList", divisionList);
         modelAndView.addObject("employeeListJson", employeeHelper.getEmployeeListJson(divisionList, employeeService.isShowAll(request)));
-        modelAndView.addObject("regionIds", getDefaultSelectRegion(regionIds));
-        modelAndView.addObject("regionList", getRegionList());
-        modelAndView.addObject("managerList", getManagerList());
-        modelAndView.addObject("managerMapJson", getManagerListJson());
 
         for (QuickReport report : reports.values()) {
            report.setPeriodicalsList(clearDuplicatePeriodicals(report.getPeriodicalsList()));
         }
+
         modelAndView.addObject("reportsMap", reports);
         modelAndView.addObject("reportFormed", printtype);
         modelAndView.addObject("forAll",forAll);
 
         return modelAndView;
-    }
-
-    private List<Integer> getDefaultSelectRegion(List<Integer> regionIds) {
-        if (regionIds == null || regionIds.size() == 0) {
-            regionIds = new ArrayList<Integer>();
-            regionIds.add(-1);
-        }
-        return regionIds;
     }
 
     private List<Periodical> clearDuplicatePeriodicals(List<Periodical> periodicalList){
@@ -388,11 +344,12 @@ public class BusinessTripsAndIllnessController extends AbstractController{
     /**
      * В зависимости от типа запрашиваемого отчета, формируем сам отчет
      */
-    private QuickReport getReport(Integer printtype, Employee employee, Date periodBeginDate, Date periodEndDate) throws BusinessTripsAndIllnessControllerException {
-
-        Date yearBeginDate = getYearBeginDate(employee, calendarService.getMonthFromDate(periodBeginDate), calendarService.getYearFromDate(periodBeginDate));
-        Date yearToDate = getYearBeginDate(employee, calendarService.getMonthFromDate(periodEndDate), calendarService.getYearFromDate(periodEndDate));
-        Date yearEndDate = DateUtils.addDays(DateUtils.addYears(yearToDate, 1), -1);
+    private QuickReport getReport(Integer printtype, Employee employee, Integer month, Integer year) throws BusinessTripsAndIllnessControllerException {
+        Date periodBeginDate = getMonthBeginDate(month, year);
+        Date followingMonthBeginDate = DateUtils.addMonths(periodBeginDate, 1);
+        Date periodEndDate = DateUtils.addDays(followingMonthBeginDate, -1);
+        Date yearBeginDate = getYearBeginDate(employee, month, year);
+        Date yearEndDate = DateUtils.addDays(DateUtils.addYears(yearBeginDate, 1), -1);
         if (printtype == null) {
             throw new BusinessTripsAndIllnessControllerException(NO_PRINTTYPE_FINDED_ERROR_MESSAGE);
         }
@@ -445,6 +402,7 @@ public class BusinessTripsAndIllnessController extends AbstractController{
      */
     private DateNumbers getYearPeriodForEmployyesRegion(Employee employee) throws BusinessTripsAndIllnessControllerException {
         RegionsEnum regionEnum = EnumsUtils.getEnumById(employee.getRegion().getId(), RegionsEnum.class);
+
         switch (regionEnum) {
             case MOSCOW: {
                 try {
@@ -534,15 +492,4 @@ public class BusinessTripsAndIllnessController extends AbstractController{
         }
     }
 
-    private List<Region> getRegionList() {
-        return regionregionService.getRegions();
-    }
-
-    private List<Employee> getManagerList() {
-        return employeeService.getManagerListForAllEmployee();
-    }
-
-    private String getManagerListJson() {
-        return employeeService.getManagerListJson();
-    }
 }

@@ -59,7 +59,6 @@ public class VacationApproveRequestSender extends AbstractVacationSender<Vacatio
         String regionNameStr = vacation.getEmployee().getRegion().getName();
         String beginDateStr = DateFormatUtils.format(vacation.getBeginDate(), DATE_FORMAT);
         String endDateStr = DateFormatUtils.format(vacation.getEndDate(), DATE_FORMAT);
-        String creationDate = DateFormatUtils.format(vacation.getCreationDate(), DATE_FORMAT);
         String commentStr = StringUtils.EMPTY;
         String approveURL = String.format("%s/vacation_approval?uid=%s", getTimeSheetURL(), vacationApproval.getUid());
         if (StringUtils.isNotBlank(vacation.getComment())) {
@@ -72,8 +71,7 @@ public class VacationApproveRequestSender extends AbstractVacationSender<Vacatio
         stringBuilder.append(String.format("из г. %s ", regionNameStr));
         stringBuilder.append(String.format("на период с %s - %s. ", beginDateStr, endDateStr));
         stringBuilder.append(String.format("%s", commentStr));
-        stringBuilder.append(String.format("Для регистрации Вашего решения нажмите на ссылку: %s . ", approveURL));
-        stringBuilder.append(String.format("Дата создания отпуска %s.",creationDate));
+        stringBuilder.append(String.format("Для регистрации Вашего решения нажмите на ссылку: %s.", approveURL));
 
         List<VacationApproval> otherApprovals = vacationApprovalService.getAllApprovalsForVacation(vacation);
         List<VacationApproval> cloneOtherApproval = new ArrayList<VacationApproval>(otherApprovals);
@@ -89,7 +87,7 @@ public class VacationApproveRequestSender extends AbstractVacationSender<Vacatio
             ApprovalResultModel arm = new ApprovalResultModel();
             arm.setRole(managerRoleNameService.getManagerRoleName(va));
             arm.setName(va.getManager().getName());
-            arm.setResult(va.getResult() == null ? "На согласовании" : (va.getResult() ? "Согласовано" : "Не согласовано"));
+            arm.setResult(va.getResult() == null ? "Еще не рассмотрел(а)" : (va.getResult() ? "Согласовано" : "Не согласовано"));
             approvalList.add(arm);
         }
 

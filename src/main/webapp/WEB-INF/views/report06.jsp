@@ -48,23 +48,14 @@
                 </form:select></td>
 			</tr>
             <tr>
-                <td>
-                </td>
-                <td colspan="2">
-                    <form:checkbox  id="allDates" name="allDates"  path="allDates"
-                                    onchange="allDatesCheckBoxChange(this.checked)" />
-                    <span class="label" for="allDates">Учитывать трудозатраты по всем дням</span>
-                </td>
-            </tr>
-            <tr>
-                <td><span class="label">Начало периода</span></td>
+                <td><span class="label">Начало периода</span><span style="color:red">*</span></td>
                 <td><form:input path="beginDate" id="beginDate" name="beginDate" class="date_picker"
                                 data-dojo-id="fromDate"
                                 data-dojo-type='dijit/form/DateTextBox'
                                 required="false"
                                 onmouseover="tooltip.show(getTitle(this));"
                                 onmouseout="tooltip.hide();"/></td>
-                <td><span class="label">Окончание периода</span></td>
+                <td><span class="label">Окончание периода</span><span style="color:red">*</span></td>
                 <td><form:input path="endDate" id="endDate" name="endDate" class="date_picker"
                                 data-dojo-id="toDate"
                                 data-dojo-type='dijit/form/DateTextBox'

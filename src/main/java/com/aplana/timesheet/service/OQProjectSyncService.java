@@ -47,15 +47,6 @@ public class OQProjectSyncService extends AbstractServiceWithTransactionManageme
         }
     };
 
-    private static final List<String> closedStatus = new ArrayList<String>() {
-        {
-            add("4-завершен");
-            add("5-приостановлен");
-            add("6-прекращен");
-            add("7-архив");
-        }
-    };
-
     @Autowired
     private ProjectDAO projectDAO;
 
@@ -148,13 +139,7 @@ public class OQProjectSyncService extends AbstractServiceWithTransactionManageme
             } else {
                 // если проект уже существовал - статус менять не будем
                 // см. //APLANATS-408
-
-                // KSS. 02.07.2013. Если проект закрыт - закрываем, иначе - не меняем статус
-                if (closedStatus.contains(status)) {
-                    project.setActive(false);
-                } else {
-                    project.setActive(foundProject.isActive());
-                }
+                project.setActive(foundProject.isActive());
                 project.setCqRequired(foundProject.isCqRequired());
                 project.setEndDate(foundProject.getEndDate()); // APLANATS-826
             }

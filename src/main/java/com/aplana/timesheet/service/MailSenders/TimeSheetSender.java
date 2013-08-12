@@ -1,7 +1,10 @@
 package com.aplana.timesheet.service.MailSenders;
 
 import com.aplana.timesheet.dao.entity.ProjectTask;
-import com.aplana.timesheet.enums.*;
+import com.aplana.timesheet.enums.CategoriesOfActivityEnum;
+import com.aplana.timesheet.enums.DictionaryEnum;
+import com.aplana.timesheet.enums.TypesOfActivityEnum;
+import com.aplana.timesheet.enums.WorkPlacesEnum;
 import com.aplana.timesheet.form.TimeSheetForm;
 import com.aplana.timesheet.form.TimeSheetTableRowForm;
 import com.aplana.timesheet.properties.TSPropertyProvider;
@@ -25,7 +28,7 @@ public class TimeSheetSender extends MailSender<TimeSheetForm> {
     public static final String ACT_TYPE = "actType";
     public static final String PROJECT_NAME = "projectName";
     public static final String CATEGORY_OF_ACTIVITY = "categoryOfActivity";
-    public static final String TASK_NAME = "taskName";
+    public static final String CQ_ID = "cqId";
     public static final String DURATION = "duration";
     public static final String DESCRIPTION_STRINGS = "descriptionStrings";
     public static final String PROBLEM_STRINGS = "problemStrings";
@@ -38,7 +41,6 @@ public class TimeSheetSender extends MailSender<TimeSheetForm> {
     public static final String OVERTIME_COMMENT = "overtimeComment";
     public static final String OVERTIME_CAUSE_ID = "overtimeCauseId";
     public static final String TYPE_OF_COMPENSATION = "typeOfCompensation";
-    public static final String EFFORT_IN_NEXTDAY = "effortInNextDay";
     private String employeeEmail;
 
     public TimeSheetSender(SendMailService sendMailService, TSPropertyProvider propertyProvider) {
@@ -82,26 +84,11 @@ public class TimeSheetSender extends MailSender<TimeSheetForm> {
         logger.info("Performing timesheet mailing.");
         Mail mail = new TimeSheetMail();
 
-        /* правила для установки важности письма */
-        mail.setPriority(calcPriority(params));
-
         mail.setToEmails(getToEmails(params));
         mail.setSubject(getSubject(params));
         mail.setParamsForGenerateBody(getBody(params));
 
         return Arrays.asList(mail);
-    }
-
-    private MailPriorityEnum calcPriority(TimeSheetForm params) {
-        /* «Моя оценка моего объема работ на следующий рабочий день» = У меня будет мало работы или Я буду перегружен(а) */
-        if ( params.getEffortInNextDay() == EffortInNextDayEnum.OVERLOADED.getId() || params.getEffortInNextDay() == EffortInNextDayEnum.UNDERLOADED.getId() ) {
-            return MailPriorityEnum.HIGH;
-        }
-        /* указана хоть одна переработка */
-        if (params.getOvertimeCause() != null)
-            return MailPriorityEnum.HIGH;
-
-        return MailPriorityEnum.NORMAL;
     }
 
     private String getSubject(TimeSheetForm params) {
@@ -130,7 +117,7 @@ public class TimeSheetSender extends MailSender<TimeSheetForm> {
         toEmails.add(sendMailService.getEmployeesManagersEmails(employeeId));
         toEmails.add(sendMailService.getEmployeesAdditionalManagerEmail(employeeId));
         toEmails.add(sendMailService.getProjectsManagersEmails(params));
-        toEmails.add(sendMailService.getProjectManagersEmails(params));
+        toEmails.add(sendMailService.getProjectParticipantsEmails(params));
 
         return toEmails;
     }
@@ -167,8 +154,8 @@ public class TimeSheetSender extends MailSender<TimeSheetForm> {
                     result.put(i, CATEGORY_OF_ACTIVITY, CategoriesOfActivityEnum.getById(actCatId).getName());
                 }
 
-                ProjectTask projectTask = sendMailService.getProjectTaskService().find(tsRow.getTaskName());
-                putIfIsNotBlank(i, result, TASK_NAME, projectTask != null ? projectTask.getTaskName() : null);
+                ProjectTask projectTask = sendMailService.getProjectTaskService().find(tsRow.getCqId());
+                putIfIsNotBlank(i, result, CQ_ID, projectTask != null ? projectTask.getCqId() : null);
                 putIfIsNotBlank(i, result, DURATION, tsRow.getDuration());
                 putIfIsNotBlank(i, result, DESCRIPTION_STRINGS, tsRow.getDescription());
                 putIfIsNotBlank(i, result, PROBLEM_STRINGS, tsRow.getProblem());
@@ -182,7 +169,6 @@ public class TimeSheetSender extends MailSender<TimeSheetForm> {
         Integer overtimeCauseId = sendMailService.getOverUnderTimeDictId(tsForm.getOvertimeCause());
         putIfIsNotBlank(FIRST, result, OVERTIME_CAUSE_ID, overtimeCauseId != null ? overtimeCauseId.toString() : null);
         putIfIsNotBlank(FIRST, result, TYPE_OF_COMPENSATION, sendMailService.getTypeOfCompensation(tsForm));
-        putIfIsNotBlank(FIRST, result, EFFORT_IN_NEXTDAY, sendMailService.getEffort(tsForm));
 
         return result;
     }

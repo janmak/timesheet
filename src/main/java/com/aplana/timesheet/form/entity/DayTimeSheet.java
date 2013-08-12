@@ -229,24 +229,9 @@ public class DayTimeSheet implements Comparable<DayTimeSheet> {
         return illnessDAO.isDayIllness(emp, new Date(calDate.getTime()));
     }
 
-    // является данный день отпуском или нет, без учета планируемых отпусков
+    // является данный день отпуском или нет
     @Transactional(readOnly = true)
     public Boolean getVacationDay(){
-        return vacationDAO.isDayVacationWithoutPlanned(emp, new Date(calDate.getTime()));
-    }
-
-    @Transactional(readOnly = true)
-    public Boolean getTrouble() {
-        if (this.timeSheet != null)
-            return timeSheetDAO.timeSheetTrouble(this.timeSheet.getId());
-        else
-            return null;
-    }
-
-    public String getEffort() {
-        if (this.timeSheet != null)
-            return this.timeSheet.getEffortInNextDay().getValue();
-        else
-            return null;
+        return vacationDAO.isDayVacation(emp, new Date(calDate.getTime()));
     }
 }

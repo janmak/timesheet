@@ -10,22 +10,22 @@ import java.util.List;
 /**
  * @author rshamsutdinov
  * @version 1.0
- */
-public class ProjectRoleServiceTest extends AbstractJsonTest {
+        */
+        public class ProjectRoleServiceTest extends AbstractJsonTest {
 
-    @Autowired
-    private ProjectRoleService projectRoleService;
+            @Autowired
+            private ProjectRoleService projectRoleService;
 
-    private String getProjectRoleListJson(Iterable<ProjectRole> projectRoleList) {
-        StringBuilder projectRoleListJson = new StringBuilder();
-        projectRoleListJson.append("[");
-        for (ProjectRole item : projectRoleList) {
-            projectRoleListJson.append("{\"id\":\"");
-            projectRoleListJson.append(item.getId().toString());
-            projectRoleListJson.append("\",\"value\":\"");
-            projectRoleListJson.append(item.getName());
-            projectRoleListJson.append("\"},");
-        }
+            private String getProjectRoleListJson(Iterable<ProjectRole> projectRoleList) {
+                StringBuilder projectRoleListJson = new StringBuilder();
+                projectRoleListJson.append("[");
+                for (ProjectRole item : projectRoleList) {
+                    projectRoleListJson.append("{\"id\":\"");
+                    projectRoleListJson.append(item.getId().toString());
+                    projectRoleListJson.append("\",\"value\":\"");
+                    projectRoleListJson.append(item.getName());
+                    projectRoleListJson.append("\"},");
+                }
 
         return projectRoleListJson.toString().substring(0, (projectRoleListJson.toString().length() - 1)) + "]";
     }

@@ -21,8 +21,4 @@ public class Report05 extends BaseReport {
 	public Integer getEmployeeId() {
 		return employeeId;
 	}
-
-    public void setEmployeeId(Integer employeeId) {
-        this.employeeId = employeeId;
-    }
 }

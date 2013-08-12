@@ -43,7 +43,7 @@ public abstract class AbstractVacationApprovalProcessService extends AbstractSer
     @Autowired
     private VacationApprovalResultService vacationApprovalResultService;
     @Autowired
-    protected ProjectManagerService projectManagerService;
+    protected ProjectParticipantService projectParticipantService;
     @Autowired
     protected VacationApprovalService vacationApprovalService;
     @Autowired
@@ -309,89 +309,30 @@ public abstract class AbstractVacationApprovalProcessService extends AbstractSer
             final List<Project> projects = projectService.getProjectsForVacation(vacation);
             final Employee employee = vacation.getEmployee();
 
-            boolean isProjectManagerInAllProjects = true;
+            boolean isProjectParticipantInAllProjects = true;
 
             for (Project project : projects) {
-                isProjectManagerInAllProjects &= (employee.equals(project.getManager()));
+                isProjectParticipantInAllProjects &= (employee.equals(project.getManager()));
             }
 
-            if (isProjectManagerInAllProjects) {
+            if (isProjectParticipantInAllProjects) {
                 // если нет проектов ни в планах, ни в списаниях - сразу утверждаем у линейного
                 setApprovementWithLineManagerStatusAndSendMessages(vacation);
             } else {
                 Map<String, VacationApproval> juniorProjectManagersVacationApprovals = prepareJuniorProjectManagersVacationApprovals(projects, vacation);
                 Map<String, VacationApproval> allManagerVacationApprovals = prepareProjectManagersVacationApprovals(juniorProjectManagersVacationApprovals, projects, vacation);
                 // если список утверждающих менеджеров пустой - сразу утверждаем у линейного
-                if (allManagerVacationApprovals == null || allManagerVacationApprovals.isEmpty()) {
+                if(allManagerVacationApprovals==null || allManagerVacationApprovals.isEmpty()){
                     setApprovementWithLineManagerStatusAndSendMessages(vacation);
                 }
                 for (VacationApproval vacationApproval : allManagerVacationApprovals.values()) {
                     sendMailService.performVacationApproveRequestSender(vacationApproval);
                 }
             }
-
         } catch (CalendarServiceException ex) {
-            throw new VacationApprovalServiceException(VACATION_APPROVE_MAILS_SEND_FAILED_EXCEPTION_MESSAGE, ex);
+            throw new VacationApprovalServiceException (VACATION_APPROVE_MAILS_SEND_FAILED_EXCEPTION_MESSAGE, ex);
         }
 
-    }
-
-    public void sendNoticeForPlannedVacaton(Vacation vacation) throws VacationApprovalServiceException {
-        final List<Project> projects = projectService.getProjectsForVacation(vacation);
-
-        List<String> emails = new ArrayList<String>();
-        Map<Employee, List<Project>> juniorProjectManagersAndProjects =
-                employeeService.getJuniorProjectManagersAndProjects(projects, vacation);
-        for (Map.Entry entry: juniorProjectManagersAndProjects.entrySet()) {
-            emails.add(((Employee) entry.getKey()).getEmail());
-        }
-
-        for (Project project : projects) {
-            Employee manager = project.getManager();
-            String email = manager.getEmail();
-            if (!emails.contains(email)) {
-                emails.add(email);
-            }
-        }
-
-        addLineManagers(emails, vacation);
-        addSecondManager(emails, vacation);
-        vacation.setStatus(dictionaryItemService.find(VacationStatusEnum.APPROVED.getId()));     //в БД отмечаем, что отпуск утвержден
-        vacationService.store(vacation);
-        sendMailService.performPlannedVacationCreateRequestSender(vacation, emails);
-    }
-
-    private void addSecondManager(List<String> emails, Vacation vacation) {
-        Employee manager2 = vacation.getEmployee().getManager2();
-        if (manager2 != null) {
-            String email = manager2.getEmail();
-            if (!emails.contains(email)) {
-                emails.add(email);
-            }
-        }
-    }
-
-    /**
-     * добавляем емейлы для уведомлений линейному руководителю сотрудника и всем руководителям руководителя сотрудника вплоть до РЦК включительно
-     */
-    private void addLineManagers(List<String> emails, Vacation vacation) throws VacationApprovalServiceException {
-        Employee manager = vacation.getEmployee().getManager();
-        String email = manager.getEmail();
-        if (!emails.contains(email)) {
-            emails.add(email);
-        }
-        addLineManagerRecursive(manager, emails);
-    }
-
-    private void addLineManagerRecursive(Employee manager, List<String> emails) throws VacationApprovalServiceException {
-        Employee employeeManager = manager.getManager();
-        if (employeeManager != null) {
-            String email = employeeManager.getEmail();
-            if (!emails.contains(email)) {
-                emails.add(email);
-            }
-            addLineManagerRecursive(employeeManager, emails);
-        }
     }
 
     /**

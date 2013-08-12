@@ -10,28 +10,19 @@
     font-weight: bold;
 }
 
-.create-button, .delete-button{
+.create-button, .delete-button {
     cursor: pointer;
     vertical-align: middle;
     padding: 0;
     text-align: center;
 }
 
-.create-button img, .delete-button img, .question-hint img {
+.create-button img, .delete-button img {
     vertical-align: middle;
     width: 15px;
     height: 15px;
     max-height: 15px;
     max-width: 15px;
-    margin: 5px;
-}
-
-.create-button img, .delete-button img, .question-hint img {
-    vertical-align: middle;
-    width: 20px;
-    height: 20px;
-    max-height: 20px;
-    max-width: 20px;
     margin: 5px;
 }
 
@@ -55,8 +46,4 @@ table.without_borders td {
 
 .dijitTitlePaneContentInner {
     padding: 0 !important;
-}
-
-.trDelimeter {
-    border-top: 2px solid #AAAAAA;
 }

@@ -107,6 +107,8 @@
                         for="printtype1">HTML</label></li>
                 <li><input type=radio name="printtype" id="printtype2" value="2"/><label for="printtype2">MS Excel</label>
                 </li>
+                <li><input type=radio name="printtype" id="printtype3" value="3"/><label for="printtype3">PDF</label>
+                </li>
             </ul>
         </div>
 

@@ -12,28 +12,14 @@
 	<style name="Group Header 2" style="Normal" forecolor="#000000" fontName="Arial" fontSize="15" isBold="true"/>
 	<style name="Group Header 3" style="Normal" forecolor="#000000" fontName="Arial" fontSize="13" isBold="true"/>
 	<style name="Detail" style="Normal" backcolor="#FF0000" fontName="Arial" fontSize="12"/>
-	<style name="Billable" style="Normal" backcolor="#FF0000" fontName="Arial" fontSize="12">
-		<conditionalStyle>
-			<conditionExpression><![CDATA[!$F{billable}]]></conditionExpression>
-			<style forecolor="#006400"/>
-		</conditionalStyle>
-	</style>
 	<style name="ColoredDetail" style="Normal" forecolor="#000000" fontName="Arial" fontSize="12">
 		<conditionalStyle>
-			<conditionExpression><![CDATA[new Boolean($F{day_type}.equals(new Integer(1)) && $F{region} != null)]]></conditionExpression>
+			<conditionExpression><![CDATA[($F{holiday}.equals(new Integer(1))) && ($F{region} != null))]]></conditionExpression>
 			<style forecolor="#FF6700"/>
 		</conditionalStyle>
 		<conditionalStyle>
-			<conditionExpression><![CDATA[new Boolean($F{day_type}.equals(new Integer(1)) && $F{region} == null)]]></conditionExpression>
+			<conditionExpression><![CDATA[($F{holiday}.equals(new Integer(1))) && ($F{region} == null))]]></conditionExpression>
 			<style forecolor="#CC211B"/>
-		</conditionalStyle>
-		<conditionalStyle>
-			<conditionExpression><![CDATA[new Boolean($F{day_type}.equals(new Integer(2)))]]></conditionExpression>
-			<style forecolor="#00BFFF"/>
-		</conditionalStyle>
-		<conditionalStyle>
-			<conditionExpression><![CDATA[new Boolean($F{day_type}.equals(new Integer(3)))]]></conditionExpression>
-			<style forecolor="#ADFF2F"/>
 		</conditionalStyle>
 	</style>
 	<parameter name="reportParams" class="com.aplana.timesheet.reports.Report02" isForPrompting="false"/>
@@ -41,14 +27,10 @@
 	<field name="empldivision" class="java.lang.String"/>
 	<field name="project" class="java.lang.String"/>
 	<field name="taskname" class="java.lang.String"/>
-	<field name="duration" class="java.math.BigDecimal"/>
-	<field name="day_type" class="java.lang.Integer"/>
+	<field name="duration" class="java.lang.Double"/>
+	<field name="holiday" class="java.lang.Integer"/>
 	<field name="region" class="java.lang.Integer"/>
 	<field name="region_name" class="java.lang.String"/>
-	<field name="project_role" class="java.lang.String"/>
-	<field name="project_state" class="java.lang.String"/>
-	<field name="billable" class="java.lang.Boolean"/>
-	<field name="vacation_type" class="java.lang.String"/>
 	<variable name="DurationSumGroupByName" class="java.lang.Double" resetType="Group" resetGroup="GroupByName" calculation="Sum">
 		<variableExpression><![CDATA[$F{duration}]]></variableExpression>
 	</variable>
@@ -59,27 +41,27 @@
 		<variableExpression><![CDATA[$F{duration}]]></variableExpression>
 	</variable>
 	<variable name="DurationHolidaySumGroupByName" class="java.lang.Double" resetType="Group" resetGroup="GroupByName" calculation="Sum">
-		<variableExpression><![CDATA[new Double($F{duration}.floatValue()*(!$F{day_type}.equals(new Integer(0))?1:0))]]></variableExpression>
+		<variableExpression><![CDATA[new Double($F{duration}.floatValue()*($F{holiday}.equals(new Integer(1))?1:0))]]></variableExpression>
 	</variable>
 	<variable name="DurationHolidaySumGroupByProject" class="java.lang.Double" resetType="Group" resetGroup="GroupByProject" calculation="Sum">
-		<variableExpression><![CDATA[new Double($F{duration}.floatValue()*(!$F{day_type}.equals(new Integer(0))?1:0))]]></variableExpression>
+		<variableExpression><![CDATA[new Double($F{duration}.floatValue()*($F{holiday}.equals(new Integer(1))?1:0))]]></variableExpression>
 	</variable>
 	<variable name="DurationHolidaySumGroupByTask" class="java.lang.Double" resetType="Group" resetGroup="GroupByTask" calculation="Sum">
-		<variableExpression><![CDATA[new Double($F{duration}.floatValue()*(!$F{day_type}.equals(new Integer(0))?1:0))]]></variableExpression>
+		<variableExpression><![CDATA[new Double($F{duration}.floatValue()*($F{holiday}.equals(new Integer(1))?1:0))]]></variableExpression>
 	</variable>
 	<group name="GroupByName">
 		<groupExpression><![CDATA[$F{name}]]></groupExpression>
 		<groupHeader>
 			<band height="59">
-				<textField isStretchWithOverflow="true">
-					<reportElement uuid="dd14bbd2-0b23-4b5c-ab64-07860f73ea11" style="SubTitle" stretchType="RelativeToTallestObject" x="0" y="0" width="453" height="30"/>
+				<textField>
+					<reportElement uuid="dd14bbd2-0b23-4b5c-ab64-07860f73ea11" style="SubTitle" x="0" y="0" width="453" height="30"/>
 					<textElement>
 						<font size="16" isBold="false"/>
 					</textElement>
-					<textFieldExpression><![CDATA[$F{name} + " (" + $F{empldivision} + ", " + $F{region_name} + ", " + $F{project_role} + ")"]]></textFieldExpression>
+					<textFieldExpression><![CDATA[$F{name} + " (" + $F{empldivision} + ", " + $F{region_name} + ")"]]></textFieldExpression>
 				</textField>
-				<textField evaluationTime="Group" evaluationGroup="GroupByName" isStretchWithOverflow="true" pattern="">
-					<reportElement uuid="6e4e6704-a2b0-470f-b38b-52350f201116" style="SubTitle" stretchType="RelativeToTallestObject" x="453" y="0" width="100" height="30"/>
+				<textField evaluationTime="Group" evaluationGroup="GroupByName" pattern="">
+					<reportElement uuid="6e4e6704-a2b0-470f-b38b-52350f201116" style="SubTitle" x="453" y="0" width="100" height="30"/>
 					<textElement>
 						<font size="16"/>
 					</textElement>
@@ -100,12 +82,12 @@
 		<groupHeader>
 			<band height="45">
 				<textField>
-					<reportElement uuid="faed00c6-47e1-4350-8544-ee301003f6f6" style="Billable" x="77" y="0" width="295" height="20"/>
+					<reportElement uuid="faed00c6-47e1-4350-8544-ee301003f6f6" style="Detail" x="77" y="0" width="295" height="20"/>
 					<textElement/>
 					<textFieldExpression><![CDATA[$F{project}]]></textFieldExpression>
 				</textField>
 				<textField evaluationTime="Group" evaluationGroup="GroupByProject">
-					<reportElement uuid="46e1b250-52bb-4f2a-ae6c-78b0ebde2fbe" style="Billable" x="453" y="0" width="100" height="20"/>
+					<reportElement uuid="46e1b250-52bb-4f2a-ae6c-78b0ebde2fbe" style="Detail" x="453" y="0" width="100" height="20"/>
 					<textElement/>
 					<textFieldExpression><![CDATA[new DecimalFormat("###0.0").format($V{DurationSumGroupByProject}) + "/" + new DecimalFormat("###0.0").format($V{DurationHolidaySumGroupByProject})]]></textFieldExpression>
 				</textField>

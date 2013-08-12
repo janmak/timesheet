@@ -1,9 +1,6 @@
 package com.aplana.timesheet.dao;
 
-import com.aplana.timesheet.dao.entity.Employee;
-import com.aplana.timesheet.dao.entity.Project;
-import com.aplana.timesheet.dao.entity.Vacation;
-import com.aplana.timesheet.dao.entity.VacationApproval;
+import com.aplana.timesheet.dao.entity.*;
 import org.hibernate.Hibernate;
 import org.springframework.stereotype.Repository;
 
@@ -12,6 +9,8 @@ import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import java.util.List;
+import java.util.Random;
+import java.util.Set;
 
 /**
  * @author iziyangirov
@@ -22,6 +21,19 @@ public class VacationApprovalDAO {
 
     @PersistenceContext
     private EntityManager entityManager;
+
+    public Vacation findRandomVacation() {
+       Vacation vacation;
+      final  Query query =
+                entityManager.createQuery("from Vacation order by id desc") ;
+        return (Vacation) query.getResultList().get(2);
+    }
+
+    public void delete(VacationApproval vacationApproval) {
+        Hibernate.initialize(vacationApproval);
+
+        entityManager.remove(vacationApproval);
+    }
 
     /**
      * Согласование на отпуск по переданному uid
@@ -40,8 +52,16 @@ public class VacationApprovalDAO {
         return (VacationApproval)query.getSingleResult();
     }
 
-    public VacationApproval find(Integer id) {
-        return entityManager.find(VacationApproval.class, id);
+    public VacationApproval findVacationApprovalDAO(Vacation vacation) {
+        final Query query =
+                entityManager.createQuery("from VacationApproval va where va.vacation = :vacation")
+                        .setParameter("vacation", vacation);
+
+        if (query.getResultList().isEmpty()){
+            return null;
+        }
+
+        return (VacationApproval)query.getResultList().get(0);
     }
 
     public VacationApproval store(VacationApproval vacationApproval){
@@ -102,10 +122,5 @@ public class VacationApprovalDAO {
     public List<VacationApproval> getAllApprovalsForVacation(Vacation vacation) {
         return entityManager.createQuery("from VacationApproval as va where va.vacation = :vacation")
                 .setParameter("vacation", vacation).getResultList();
-    }
-
-    public void deleteVacationApproval(VacationApproval vacationApproval) {
-        Hibernate.initialize(vacationApproval);
-        entityManager.remove(vacationApproval);
     }
 }

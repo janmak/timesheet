@@ -2,6 +2,7 @@ package com.aplana.timesheet.service;
 
 import com.aplana.timesheet.dao.LdapDAO;
 import com.aplana.timesheet.dao.ProjectRolePermissionsDAO;
+import com.aplana.timesheet.service.ProjectParticipantService;
 import com.aplana.timesheet.dao.entity.*;
 import com.aplana.timesheet.dao.entity.ldap.EmployeeLdap;
 import com.aplana.timesheet.util.DateTimeUtil;
@@ -29,7 +30,7 @@ public class EmployeeLdapService extends AbstractServiceWithTransactionManagemen
     @Autowired
     private ProjectRoleService projectRoleService;
     @Autowired
-    private ProjectManagerService projectManagerService;
+    private ProjectParticipantService projectParticipantService;
 
     @Autowired
     private RegionService regionService;
@@ -40,139 +41,6 @@ public class EmployeeLdapService extends AbstractServiceWithTransactionManagemen
     @Autowired
     private ProjectRolePermissionsDAO projectRolePermissionsDAO;
 
-
-    public void updateSidDisableddUsersFromLdap() {
-        trace.append("Synchronization sid of disabled user with ldap started.\n\n");
-        List<EmployeeLdap> disabledEmployeesLdap = ldapDao.getDisabledEmployyes();
-        TransactionStatus transactionStatus = null;
-
-        try {
-            transactionStatus = getNewTransaction();
-            for (EmployeeLdap employeeLdap : disabledEmployeesLdap) {
-                Employee empInDb = employeeService.findByLdapSID(employeeLdap.getObjectSid());
-                if (empInDb == null) {
-                    empInDb = employeeService.findByLdapCN(employeeLdap.getLdapCn());
-                }
-                if (empInDb == null) {
-                    empInDb = employeeService.findByEmail(employeeLdap.getEmail());
-                }
-                if (empInDb != null) {
-                    if (StringUtils.isEmpty(empInDb.getObjectSid())) {
-                        empInDb.setObjectSid(employeeLdap.getObjectSid());
-                        employeeService.save(empInDb);
-                        trace.append(String.format("User %s is synchronized with ldap.\n", empInDb.getName()));
-                    }
-
-                } else {
-                    logger.error(" User {} user isn't found in db", employeeLdap.getDisplayName() + " | " + employeeLdap.getLdapCn());
-                }
-            }
-            if (transactionStatus != null) {
-                commit(transactionStatus);
-            }
-            trace.append("\n Synchronization sid of disabled user with ldap finished.\n\n");
-        } catch (Exception e) {
-            logger.error(" Exception in updateSidDisableddUsersFromLdap : {}", e.getMessage());
-            if (transactionStatus != null) {
-                rollback(transactionStatus);
-            }
-        }
-    }
-
-    public void updateSidAllUsersFromLdap() {
-        trace.append("Synchronization sid of all users with ldap started.\n\n");
-
-        /* список всех пользователей из БД */
-        List<Employee> empInDBList = employeeService.getAllEmployees();
-
-        TransactionStatus transactionStatus = null;
-
-        try {
-            transactionStatus = getNewTransaction();
-
-            for (Employee empInDB : empInDBList) {
-                EmployeeLdap empInLdap = null;
-                /* ищем по SID */
-                if (!StringUtils.isEmpty(empInDB.getObjectSid())) {
-                    empInLdap = ldapDao.getEmployeeBySID(empInDB.getObjectSid());
-                }
-                /* по SID не нашли, пытаемся дальше */
-                if (empInLdap == null) {
-                    /* ищем по Common Name */
-                    empInLdap = ldapDao.getEmployeeByLdapName(empInDB.getLdap());
-                    /* ищем по адресу почты */
-                    if (empInLdap == null) {
-                        empInLdap = ldapDao.getEmployeeByEmail(empInDB.getEmail());
-                    }
-                    /* что то нашли, сохраняем SID*/
-                    if ( empInLdap != null && !StringUtils.isEmpty(empInLdap.getObjectSid()) ) {
-                            empInDB.setObjectSid(empInLdap.getObjectSid());
-                            employeeService.save(empInDB);
-                            trace.append(String.format("User %s is synchronized with ldap.\n", empInDB.getName()));
-                    } else {
-                        logger.error(" User {} user isn't found in db", empInDB.getName() + " | " + empInDB.getLdap());
-                    }
-                }
-            }
-            if (transactionStatus != null) {
-                commit(transactionStatus);
-            }
-            trace.append("\n Synchronization sid of all users with ldap finished.\n\n");
-        } catch (Exception e) {
-            logger.error(" Exception in updateSidAllUsersFromLdap : {}", e.getMessage());
-            if (transactionStatus != null) {
-                rollback(transactionStatus);
-            }
-        }
-    }
-
-    public void updateJiraNameAllUsersFromLdap() {
-        trace.append("Synchronization JIRA username of all users with ldap started.\n\n");
-
-        /* список всех пользователей из БД */
-        List<Employee> empInDBList = employeeService.getAllEmployees();
-
-        TransactionStatus transactionStatus = null;
-
-        try {
-            transactionStatus = getNewTransaction();
-
-            for (Employee empInDB : empInDBList) {
-                EmployeeLdap empInLdap = null;
-                /* ищем по SID */
-                if (!StringUtils.isEmpty(empInDB.getObjectSid())) {
-                    empInLdap = ldapDao.getEmployeeBySID(empInDB.getObjectSid());
-                }
-                /* по SID не нашли, пытаемся дальше */
-                if (empInLdap == null) {
-                    /* ищем по Common Name */
-                    empInLdap = ldapDao.getEmployeeByLdapName(empInDB.getLdap());
-                    /* ищем по адресу почты */
-                    if (empInLdap == null) {
-                        empInLdap = ldapDao.getEmployeeByEmail(empInDB.getEmail());
-                    }
-                }
-                /* что то нашли, сохраняем */
-                if ( empInLdap != null ) {
-                    empInDB.setJiraName(empInLdap.getMailNickname());
-                    employeeService.save(empInDB);
-                    trace.append(String.format("User %s is synchronized with ldap.\n", empInDB.getName()));
-                } else {
-                    logger.error(" User {} user isn't found in db", empInDB.getName() + " | " + empInDB.getLdap());
-                }
-
-            }
-            if (transactionStatus != null) {
-                commit(transactionStatus);
-            }
-            trace.append("\n Synchronization JIRA name of all users with ldap finished.\n\n");
-        } catch (Exception e) {
-            logger.error(" Exception in updateJiraNameAllUsersFromLdap : {}", e.getMessage());
-            if (transactionStatus != null) {
-                rollback(transactionStatus);
-            }
-        }
-    }
 
     private enum EmployeeType {
         EMPLOYEE, DIVISION_MANAGER, NEW_EMPLOYEE
@@ -270,7 +138,7 @@ public class EmployeeLdapService extends AbstractServiceWithTransactionManagemen
     private void syncDisabledEmployees(LdapDAO ldapDao) {
         logger.info("Start synchronize disabled employees.");
         trace.append("Start synchronize disabled employees.\n\n");
-        Date curDate = new Date();
+
         final TransactionStatus transactionStatus = getNewTransaction();
         try {
             //берем удаленных сотрудников из LDAP
@@ -282,40 +150,21 @@ public class EmployeeLdapService extends AbstractServiceWithTransactionManagemen
 
             //список сотрудников которые будут синхронизироваться
             List<Employee> empsToSync = new ArrayList<Employee>();
-            List<Employee> empsManagerToSync = new ArrayList<Employee>();
 
             for (Employee empDb : employeesDb) {
-                for (EmployeeLdap empLdap : disabledEmployeesLdap) {
-                    if (empLdap.getObjectSid().equals(empDb.getObjectSid()) ||
-                            empDb.getLdap().equals(empLdap.getLdapCn()) ||
-                            empDb.getEmail().equals(empLdap.getEmail())) {
-                        //если в базе сотрудник помечен как НЕ уволенный(нет даты увольнения)
-                        //archived больше не используется
-                        if (empDb.getEndDate() == null) {
+                //если в базе сотрудник помечен как НЕ уволенный(нет даты увольнения)
+                //archived больше не используется
+                if (empDb.getEndDate() == null) {
+                    for (EmployeeLdap empLdap : disabledEmployeesLdap) {
+                        if (empDb.getEmail().equals(empLdap.getEmail())) {
                             logger.debug("Employee {} disabled in ldap, but active in db.", empLdap.getDisplayName());
                             logger.debug("And was marked like archived.");
+
                             //проставляем дату увольнения
                             //дата проставляется текущей датой синхронизации
                             //тк в LDAP нет точной даты увольнения
                             empDb.setEndDate(new Timestamp((new Date()).getTime()));
                             empsToSync.add(empDb);
-                            //добавляем в список для деактивации прав
-                            if (!empDb.getEndDate().after(curDate)) {
-                                empsManagerToSync.add(empDb);
-                            }
-                        }
-                        //иначе если есть дата увольнения - проверяем наличие активных "участий"
-                        else {
-                            //если дата увольнения меньше текущей
-                            if (!empDb.getEndDate().after(curDate)) {
-                                // и у сотрудника имеются активные "участия"
-                                if (projectManagerService.hasActiveManagerEmployee(empDb)) {
-                                    logger.debug("Employee {} disabled in ldap and db.", empLdap.getDisplayName());
-                                    logger.debug("And his project managers were active.");
-                                    //добавляем в список для деактивации
-                                    empsManagerToSync.add(empDb);
-                                }
-                            }
                         }
                     }
                 }
@@ -324,15 +173,9 @@ public class EmployeeLdapService extends AbstractServiceWithTransactionManagemen
             //синхронизирует сотрудников, если есть что синхронизировать
             if (!empsToSync.isEmpty()) {
                 trace.append(employeeService.setEmployees(empsToSync));
+                projectParticipantService.deactivateEmployeesRights(empsToSync);
             } else {
                 logger.info("Nothing to sync.");
-            }
-
-            //деактивируем "участия" сотрудников
-            if (!empsManagerToSync.isEmpty()) {
-                syncManagerDisabledEmployee(empsManagerToSync);
-            } else {
-                logger.info("Nothing to sync for employee manager.");
             }
 
             if (transactionStatus != null) {
@@ -341,7 +184,6 @@ public class EmployeeLdapService extends AbstractServiceWithTransactionManagemen
 
         } catch (Exception e) {
             if (transactionStatus != null) {
-                logger.error("Exception in syncDisabledEmployees : {}", e.getMessage());
                 rollback(transactionStatus);
             }
         }
@@ -503,8 +345,6 @@ public class EmployeeLdapService extends AbstractServiceWithTransactionManagemen
         employee.setName(employeeLdap.getDisplayName());
         employee.setEmail(StringUtils.trim(employeeLdap.getEmail()));
         employee.setLdap(employeeLdap.getLdapCn());
-        employee.setObjectSid(employeeLdap.getObjectSid());
-        employee.setJiraName(employeeLdap.getMailNickname());
 
         // Роли из БД по умолчанию ставятся только для новых сотрудников
         if ((employee.getJob() != null) && (employeeType.equals(EmployeeType.NEW_EMPLOYEE))) {
@@ -525,19 +365,14 @@ public class EmployeeLdapService extends AbstractServiceWithTransactionManagemen
 
             case EMPLOYEE:
             case DIVISION_MANAGER:
-                Employee empInDb = employeeService.findByLdapSID(employeeLdap.getObjectSid());
-                if (empInDb == null) {
-                    empInDb = employeeService.findByLdapCN(employeeLdap.getLdapCn());
-                }
-                if (empInDb == null) {
-                    empInDb = employeeService.findByEmail(employeeLdap.getEmail());
-                }
-                if (empInDb != null) {
-                    employee.setId(empInDb.getId());
-                    employee.setStartDate(empInDb.getStartDate());
-                    employee.getPermissions().addAll(empInDb.getPermissions());
-                    employee.setJobRate(empInDb.getJobRate());
-                    employee.setManager2(empInDb.getManager2());
+                //Employee empInDbByObjectSid = employeeService.findByObjectSid( employeeLdap.getObjectSid() );
+                Employee empInDbByMail = employeeService.findByEmail(employeeLdap.getEmail());
+                if (empInDbByMail != null) {
+                    employee.setId(empInDbByMail.getId());
+                    employee.setStartDate(empInDbByMail.getStartDate());
+                    employee.getPermissions().addAll(empInDbByMail.getPermissions());
+                    employee.setJobRate(empInDbByMail.getJobRate());
+                    employee.setManager2(empInDbByMail.getManager2());
                     //есть сотрудник в БД
                     //Миша: для существующих поле манагер не обновлялось, при этом остальные поля должны обновляться
                     //сперва должно сравниваться по полю LDAP, если нет то по полю EMAIL, если нет то считать что сотрудник новый и добавлять
@@ -633,9 +468,5 @@ public class EmployeeLdapService extends AbstractServiceWithTransactionManagemen
 
     public String getTrace() {
         return this.trace.toString();
-    }
-
-    private void syncManagerDisabledEmployee(List<Employee> disabledEmployees) {
-        projectManagerService.deactivateEmployeesRights(disabledEmployees);
     }
 }

@@ -15,8 +15,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 
-import java.util.Date;
-
 @Controller
 public class ReportController {
 	private static final Logger logger = LoggerFactory.getLogger(TimeSheetController.class);	 
@@ -47,11 +45,10 @@ public class ReportController {
 
         final TimeSheet timeSheet = timeSheetService.findForDateAndEmployee(year.toString() + "-" + month.toString() + "-" + day.toString(), employeeId);
 
-        mav.addObject("creationDate", (timeSheet != null && timeSheet.getCreationDate() != null) ?
-                DateTimeUtil.dateToString(timeSheet.getCreationDate(), DateTimeUtil.VIEW_DATE_TIME_PATTERN) : "");
-        mav.addObject("report", sendMailService.initMessageBodyForReport(timeSheet));
+        mav.addObject("creationDate",DateTimeUtil.dateToString(timeSheet.getCreationDate(), DateTimeUtil.VIEW_DATE_TIME_PATTERN));
+		mav.addObject("report", sendMailService.initMessageBodyForReport(timeSheet));
 
         logger.info("<<<<<<<<< End of RequestMapping <<<<<<<<<<<<<<<<<<<<<<");
-        return mav;
+		return mav;
     }
 }
