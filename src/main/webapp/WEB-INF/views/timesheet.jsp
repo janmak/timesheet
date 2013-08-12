@@ -66,6 +66,9 @@
                 case "0":   //день без отчета
                     if (date <= getFirstWorkDate()) // день раньше начала работы
                         return '';
+                    var lastWorkDate = getLastWorkDate();
+                    if (lastWorkDate != null && lastWorkDate != "" && date > lastWorkDate) // день после увольнения
+                        return '';
                     if (date <= new Date())
                         return 'classDateRedBack';
                     else return '';
@@ -262,18 +265,7 @@
 //                window.open('problem/' + divId + '/' + empId, 'problem_window');
 //            }
     }
-    function validateReportDate(value) {
-        if (value != null && dateNotBetweenMonth(value)) {
-            dojo.style("date_warning", {"display":"inline", "color":"red"});
-            if (invalidReportDate(value) > 0)
-                dojo.byId("date_warning").innerHTML = "Разница текущей и указанной дат больше 27 дней";
-            else
-                dojo.byId("date_warning").innerHTML = "Разница текущей и указанной дат больше 27 дней";
-        }
-        else {
-            dojo.style("date_warning", {"display":"none"});
-        }
-    }
+
     function CopyPlan() {
         var plan_text = dojo.byId("plan_textarea").innerHTML;
         plan_text = plan_text.replace(/<br>/g, '\n');
@@ -367,16 +359,14 @@
         <span class="label">Отчет сотрудника</span>
         <form:select path="employeeId" id="employeeId" class="without_dojo" onmouseover="tooltip.show(getTitle(this));"
                      cssStyle="width: auto"
-                     onmouseout="tooltip.hide();" onchange="setDefaultEmployeeJob(-1);
-                     initCurrentDateInfo(this.value, dijit.byId('calDate').value,'/calendar/dates');
-                     refreshPlans(dijit.byId('calDate').value, this.value); setDefaultDate(this.value)">
+                     onmouseout="tooltip.hide();" onchange="onEmployeeChange(this)">
             <form:option label="" value="0"/>
         </form:select>
         <span class="label">за дату</span>
         <form:input path="calDate" id="calDate" class="date_picker" data-dojo-type="DateTextBox"
                     data-dojo-id="reportDate"
                     required="true" onMouseOver="tooltip.show(getTitle(this));" onMouseOut="tooltip.hide();"
-                    onChange="validateReportDate(this.value);refreshPlans(this.value, dojo.byId('employeeId').value);reportDate.constraints.min = getFirstWorkDate();"/>
+                    onChange="onCalDateChange(this)" />
         <span id="date_warning"></span>
     </div>
 
