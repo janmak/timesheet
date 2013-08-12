@@ -12,6 +12,7 @@ function allRegionsCheckBoxChange(checked){
     var regionIds = "regionIds";
     if (checked) {
         dojo.attr(regionIds, {disabled:"disabled"});
+        dojo.byId(regionIds).selectedIndex = -1;
     } else {
         dojo.removeAttr(regionIds, "disabled");
     }
