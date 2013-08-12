@@ -454,4 +454,21 @@ public class DateTimeUtil {
 
         return calendar;
     }
+
+    public static String getLastDayOfYearMonth(Integer year, Integer month) {
+
+        Calendar calendar = getCalendar(year, month);
+
+        calendar.add(Calendar.MONTH, 1);
+        calendar.set(Calendar.DAY_OF_MONTH, 1);
+        calendar.add(Calendar.DATE, -1);
+
+        Date lastDayOfMonth = calendar.getTime();
+
+        return dateToString(lastDayOfMonth);
+    }
+
+    public static String getFirstDayOfYearMonth(Integer year, Integer month) {
+        return dateToString(createDate(year, month));
+    }
 }
