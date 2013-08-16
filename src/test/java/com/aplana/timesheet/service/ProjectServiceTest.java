@@ -1,15 +1,18 @@
 package com.aplana.timesheet.service;
 
 import com.aplana.timesheet.AbstractJsonTest;
-import com.aplana.timesheet.dao.DivisionDAO;
-import com.aplana.timesheet.dao.ProjectDAO;
-import com.aplana.timesheet.dao.entity.Division;
-import com.aplana.timesheet.dao.entity.Project;
+import com.aplana.timesheet.dao.*;
+import com.aplana.timesheet.dao.entity.*;
+import com.aplana.timesheet.properties.TSPropertyProvider;
+import org.apache.commons.lang.time.DateUtils;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author rshamsutdinov
@@ -25,6 +28,23 @@ public class ProjectServiceTest extends AbstractJsonTest {
 
     @Autowired
     private ProjectDAO projectDAO;
+
+    @Autowired
+    public VacationApprovalDAO vacationApprovalDAO;
+
+    @Autowired
+    public EmployeeDAO employeeDAO;
+
+    @Autowired
+    public VacationDAO vacationDAO;
+
+    @Autowired
+    private TSPropertyProvider propertyProvider;
+
+    @Autowired
+    private CalendarService calendarService;
+
+    Vacation storedVacation;
 
     private String getProjectListWithOwnerDivisionJson(List<Division> divisions) {
         StringBuilder result = new StringBuilder();
@@ -114,6 +134,63 @@ public class ProjectServiceTest extends AbstractJsonTest {
         return sb.toString();
     }
 
+    public Vacation findRandomVacation (){
+        return vacationApprovalDAO.findRandomVacation();
+    }
+
+    public Employee findRandomEmployee (){
+        return employeeDAO.findRandomEmployee();
+    }
+
+    public Vacation store (Vacation vacation){
+        return vacationDAO.storeVacation(vacation);
+    }
+
+    public List<Project> getEmployeeProjectPlanByDates(Date beginDate, Date endDate, Employee employee) {
+        return projectService.getEmployeeProjectPlanByDates(beginDate, endDate, employee);
+    }
+
+    public List<Project> getEmployeeProjectsFromTimeSheetByDates(Date beginDate, Date endDate, Employee employee) {
+        return projectService.getEmployeeProjectsFromTimeSheetByDates(beginDate, endDate, employee);
+    }
+
+
+    public  List<Project> gettingData () {
+
+        Employee employee = findRandomEmployee();
+
+        Date beginDate = new Date(113, 7, 10);
+        Date endDate = new Date(11, 7, 16);
+        Date today = new Date(113, 6, 10);
+        Vacation testVacation = findRandomVacation();
+        DictionaryItem dictionaryItem  = testVacation.getType();
+        DictionaryItem status = testVacation.getStatus();
+
+        Vacation vacation = new Vacation();
+        vacation.setEmployee(employee);
+        vacation.setBeginDate(beginDate);
+        vacation.setEndDate(endDate);
+        vacation.setAuthor(employee);
+        vacation.setStatus(status);
+        vacation.setType(dictionaryItem);
+        vacation.setComment("comment_for_vacation_testVacationApprovalResultDAOTest_store");
+        vacation.setCreationDate(today);
+        storedVacation = store(vacation);
+
+        Date beginDateTest = storedVacation.getBeginDate();
+        Date endDateTest = storedVacation.getEndDate();
+
+        List<Project> employeeProjects = getEmployeeProjectPlanByDates(beginDateTest, endDateTest, employee);
+
+        if (employeeProjects.isEmpty()) {
+            Integer beforeVacationDays = propertyProvider.getBeforeVacationDays();
+            Date periodBeginDate = DateUtils.addDays(vacation.getCreationDate(), 0 - beforeVacationDays);
+            employeeProjects = getEmployeeProjectsFromTimeSheetByDates(periodBeginDate, vacation.getCreationDate(), vacation.getEmployee());
+        }
+
+        return employeeProjects;
+    }
+
     @Test
     public void testGetProjectListWithOwnerDivisionJson() throws Exception {
         final List<Division> activeDivisions = divisionDAO.getActiveDivisions();
@@ -140,4 +217,10 @@ public class ProjectServiceTest extends AbstractJsonTest {
         assertJsonEquals(getProjectListAsJson(projects), projectService.getProjectListAsJson(projects));
     }
 
+    @Test
+    public void testGetProjectsForVacation () {
+
+        assertEquals(gettingData(), projectService.getProjectsForVacation(storedVacation));
+
+    }
 }
